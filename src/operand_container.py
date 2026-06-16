@@ -74,22 +74,9 @@ class Container(o.Operand):
     def __init__(self, *operands):
         super().__init__()
         self._items: list = []
-        self._mask_items: list = []
-        self._masked: bool = False
         self._items_iterator: int = 0
         for single_operand in operands:
             self << single_operand
-
-    def _replicate_to_mask(self) -> Self:
-        mask_ids: set[int] = set()
-        for mask_item in self._mask_items:
-            mask_ids.add(id(mask_item))
-        self._mask_items.clear()
-        for item in self._items:
-            if id(item) in mask_ids:
-                self._mask_items.append(item)
-        return self
-
 
     def _unmasked_items(self) -> list[Any]:
         return [
@@ -165,8 +152,6 @@ class Container(o.Operand):
     # To be used directly in for loops
     def __next__(self) -> any:
         items_to_iterate: list = self._items
-        if self._masked:
-            items_to_iterate = self._mask_items
         if self._items_iterator < len(items_to_iterate):
             item = items_to_iterate[self._items_iterator]
             self._items_iterator += 1
@@ -211,8 +196,6 @@ class Container(o.Operand):
         existing_ids: set[int] = {id(existing_item) for existing_item in self._items}
         new_items: list = [new_item for new_item in items if id(new_item) not in existing_ids]
         self._items = new_items + self._items
-        if self._masked:
-            self._mask_items = new_items + self._mask_items
         return self
 
     def _extend(self, items: list) -> Self:
@@ -220,8 +203,6 @@ class Container(o.Operand):
         existing_ids: set[int] = {id(existing_item) for existing_item in self._items}
         new_items: list = [new_item for new_item in items if id(new_item) not in existing_ids]
         self._items.extend(new_items)
-        if self._masked:
-            self._mask_items.extend(new_items)
         return self
 
 
@@ -234,7 +215,6 @@ class Container(o.Operand):
     def _delete(self, items: list = None, by_id: bool = False) -> Self:
         if items is None:
             self._items.clear()
-            self._mask_items.clear()
         else:
             if by_id:
                 # removes by id instead
@@ -242,18 +222,10 @@ class Container(o.Operand):
                     single_item for single_item in self._items
                     if not any(single_item is item for item in items)
                 ]
-                self._mask_items = [
-                    single_item for single_item in self._mask_items
-                    if not any(single_item is item for item in items)
-                ]
             else:
                 # Uses "==" instead of id
                 self._items = [
                     single_item for single_item in self._items
-                    if single_item not in items
-                ]
-                self._mask_items = [
-                    single_item for single_item in self._mask_items
                     if single_item not in items
                 ]
         return self
@@ -266,13 +238,8 @@ class Container(o.Operand):
                     base_item for base_item in self._items
                     if id(base_item) not in item_ids
                 ]
-                self._mask_items = [
-                    mask_item for mask_item in self._mask_items
-                    if id(mask_item) not in item_ids
-                ]
         else:
             self._items.clear()
-            self._mask_items.clear()
         return self
 
 
@@ -280,10 +247,6 @@ class Container(o.Operand):
         for index, item in enumerate(self._items):
             if old_item is item:
                 self._items[index] = new_item
-                break   # There is no repeated items
-        for index, item in enumerate(self._mask_items):
-            if old_item is item:
-                self._mask_items[index] = new_item
                 break   # There is no repeated items
         return self
 
@@ -299,30 +262,17 @@ class Container(o.Operand):
                     self._items[first_index] = self._items[index]
                     self._items[index] = temp_item
                     break
-        for index, item in enumerate(self._mask_items):
-            if item is left_item or item is right_item:
-                if first_index is None:
-                    first_index = index
-                else:
-                    temp_item: Any = self._mask_items[first_index]
-                    self._mask_items[first_index] = self._mask_items[index]
-                    self._mask_items[index] = temp_item
-                    break
         return self
 
 
     def _sort_items(self) -> Self:
         # This works with a list method sort (Operands implement __lt__ and __gt__)
         self._items.sort()
-        self._mask_items.sort() # Faster this way
         return self
 
     def _is_sorted(self) -> bool:
         items_copy_sorted = self._items.copy()
-        mask_items_copy_sorted = self._mask_items.copy()
         if self._items != sorted(items_copy_sorted):
-            return False
-        if self._mask_items != sorted(mask_items_copy_sorted):
             return False
         return True
 
@@ -472,7 +422,7 @@ class Container(o.Operand):
             case int():
                 return self.len()
             case bool():
-                return self._masked
+                return self._is_masked()
             case Container():
                 return operand.copy(self)
             case of.Frame():    # Works as a Selector, returns the Item, NOT the parameter passed (NOT a reversal of `<<`)
@@ -504,9 +454,7 @@ class Container(o.Operand):
         """
         serialization = super().getSerialization()
 
-        serialization["parameters"]["items"]        = self.serialize(self._items)
-        serialization["parameters"]["mask_items"]   = self.serialize(self._mask_items)
-        serialization["parameters"]["masked"]       = self.serialize(self._masked)
+        serialization["parameters"]["items"] = self.serialize(self._items)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -522,30 +470,17 @@ class Container(o.Operand):
             Container: The self Container object with the respective set parameters.
         """
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "items" in serialization["parameters"] and "mask_items" in serialization["parameters"] and "masked" in serialization["parameters"]):
+            "items" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._items = self.deserialize(serialization["parameters"]["items"])
-            self._mask_items = self.deserialize(serialization["parameters"]["mask_items"])
-            self._masked = self.deserialize(serialization["parameters"]["masked"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
         match operand:
             case Container():
                 super().__lshift__(operand)
-
                 self._items = self.deep_copy(operand._items)
-                self._mask_items.clear()
-                if operand._mask_items:
-                    operand_mask_items: list = operand._mask_items.copy()
-                    for base_index, base_item in enumerate(operand._items):
-                        for mask_item in operand_mask_items:
-                            if mask_item is base_item:
-                                self._mask_items.append(self._items[base_index])
-                                operand_mask_items.pop(0)   # Removes the first item
-                                break
-                self._masked = operand._masked
 
             case od.Pipe():
                 match operand._data:
@@ -554,8 +489,6 @@ class Container(o.Operand):
                         self._delete() # deletes all
                         # Finally adds the decomposed elements to the Container stack
                         self._extend(operand._data)
-                    case bool():
-                        self._masked = operand._data
                     case of.Frame():
                         operand._data._set_inside_container(self)
                         for single_item in self._unmasked_items():
@@ -580,8 +513,6 @@ class Container(o.Operand):
                 for index, item in operand.items():
                     if isinstance(index, int) and index >= 0 and index < len(self._unmasked_items()):
                         self._unmasked_items()[index] = self.deep_copy(item)
-            case bool():
-                self._masked = operand
             case od.Select():
                 self.select(operand._data)
             case og.Mask():
@@ -811,7 +742,6 @@ class Container(o.Operand):
             Container: Returns the copy of self but with an empty list of items.
         """
         new_container: Container = self.__class__()
-        new_container._masked = self._masked
         return new_container << parameters
 
 
@@ -829,7 +759,6 @@ class Container(o.Operand):
         """
         shallow_copy: Container = self.empty_copy()
         shallow_copy._items = self._items.copy()
-        shallow_copy._mask_items = self._mask_items.copy()
         return shallow_copy << parameters
     
 
@@ -888,7 +817,6 @@ class Container(o.Operand):
             if isinstance(single_item, o.Operand) and single_item._masked:
                 return True
         return False
-        # return self._masked
     
 
     def sort(self, parameter: type = ra.Position, reverse: bool = False) -> Self:
@@ -1048,55 +976,6 @@ class Container(o.Operand):
             Container Mask: A different object with a shallow copy of the original
             `Container` items now selected as a `Mask`.
         """
-        self._masked = False    # Has to apply to the entire content
-        if conditions:
-            excluded_item_ids: set = set()
-            # And type of conditions, not meeting any means excluded
-            for single_condition in conditions:
-                match single_condition:
-                    case Container():
-                        excluded_item_ids.update(
-                            id(single_item) for single_item in self._items
-                            if not any(single_item == cond_item for cond_item in single_condition)
-                        )
-                    case of.Frame():
-                        single_condition._set_inside_container(self)
-                        for single_item in self._items:
-                            framed_result = single_condition.frame(single_item)
-                            if single_item != framed_result:
-                                excluded_item_ids.add(id(single_item))
-                    case ch.Chaos():
-                        for single_item in self._items:
-                            chaotic_result = single_condition.chaoticize()
-                            if single_item != chaotic_result:
-                                excluded_item_ids.add(id(single_item))
-                    case _:
-                        if isinstance(single_condition, od.Pipe):
-                            if isinstance(single_condition._data, of.Frame):
-                                single_condition._set_inside_container(self)
-                                pipped_frame = single_condition._data
-                                for single_item in self._items:
-                                    framed_result = pipped_frame.frame(single_item)
-                                    if single_item != od.Pipe(framed_result):
-                                        excluded_item_ids.add(id(single_item))
-                            elif isinstance(single_condition._data, ch.Chaos):
-                                pipped_frame = single_condition._data
-                                for single_item in self._items:
-                                    chaotic_result = pipped_frame.chaoticize()
-                                    if single_item != od.Pipe(chaotic_result):
-                                        excluded_item_ids.add(id(single_item))
-                        else:
-                            excluded_item_ids.update(
-                                id(single_item) for single_item in self._items
-                                if not single_item == single_condition
-                            )
-            self._mask_items = [
-                unmasked_item for unmasked_item in self._items
-                if id(unmasked_item) not in excluded_item_ids
-            ]
-        self._masked = True
-        
-        # NEW MASKING PROCESS
         if conditions:
             # And type of conditions, not meeting any means excluded
             for single_condition in conditions:
@@ -1190,8 +1069,6 @@ class Container(o.Operand):
 
 
     def unmask(self) -> Self:
-        self._masked = False
-        # NEW MASKING PROCESS
         for single_item in self._items:
             if isinstance(single_item, o.Operand):
                 single_item._masked = False
@@ -1567,8 +1444,6 @@ class Composition(Container):
                 return self.duration()
             case og.TimeSignature():
                 return self._time_signature.copy()
-            case bool():
-                return self._masked
             case int():
                 if self._items:
                     last_element_position: ra.Position = self._last_element_position()
@@ -3207,9 +3082,6 @@ class Clip(Composition):  # Just a container of Elements
                     for item in self._unmasked_items():
                         item << operand
 
-            case bool():
-                self._masked = operand
-
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -3311,12 +3183,7 @@ class Clip(Composition):  # Just a container of Elements
     def __imul__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                # Multiply with `Clip` is applicable to the totality of the self and other Clip and NOT just its the mask
-                self_masked: bool = self._masked
-                self._masked = False
-
                 operand_copy: Clip = operand.copy()._set_owner_clip(self)   # To be dropped
-                operand_copy._masked = False
 
                 operand_position: ra.Position = operand_copy.start()
                 if operand_position is not None:
@@ -3330,8 +3197,6 @@ class Clip(Composition):  # Just a container of Elements
                     self._mask_items.extend(operand_copy._mask_items)
                     if self._length_beats is not None:
                         self._length_beats += (operand_copy % ra.Length())._rational
-
-                self._masked = self_masked
 
             case oe.Element():
                 self.__imul__(Clip(operand._time_signature, operand))
@@ -3392,10 +3257,6 @@ class Clip(Composition):  # Just a container of Elements
 
                 if operand_elements:
 
-                    # Division with `Clip` is applicable to the totality of the self Clip and NOT just its the mask
-                    self_masked: bool = self._masked
-                    self._masked = False
-
                     left_finish_position: ra.Position = self.finish()
                     if left_finish_position is None:
                         left_finish_position = ra.Position(self)
@@ -3408,7 +3269,6 @@ class Clip(Composition):  # Just a container of Elements
                     position_shift: Fraction = left_finish_position_beats - right_start_position_beats
                     for new_element in operand_elements:
                         new_element._position_beats += position_shift
-                    self._masked = self_masked
                     self._extend(operand_elements)
             case oe.Element():
                 self.__itruediv__(Clip(operand._time_signature, operand))
