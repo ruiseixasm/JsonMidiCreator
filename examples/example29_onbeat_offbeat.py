@@ -28,12 +28,12 @@ settings << Tempo(95) << Folder("examples/")
 snare = Note(1/16, Channel(2)) / 16 * 4
 
 snare >> Plot(block=False, title="All Beats")
-snare >> Mask(OnBeat()) >> Plot(block=False, title="On Beat")
-snare >> Mask(OffBeat()) >> Plot(block=False, title="Off Beat")
-snare >> Mask(DownBeat()) >> Plot(block=False, title="Down Beat")
-snare >> Mask(UpBeat()) >> Plot(block=False, title="Up Beat")
+snare << Mask(OnBeat()) >> Plot(block=False, title="On Beat")
+snare << Mask(OffBeat()) >> Plot(block=False, title="Off Beat")
+snare << Mask(DownBeat()) >> Plot(block=False, title="Down Beat")
+snare << Mask(UpBeat()) >> Plot(block=False, title="Up Beat")
 
-snare >> Mask(IsNull()**OnBeat()) >> Plot(block=False, title="Is Null")
-snare >> Mask(IsNot(OnBeat())) >> Plot(block=False, title="Is Not On Beat")
-snare >> Mask(IsNot(First())) >> Plot(block=True, title="Is Not the First")
+snare << Mask(IsNull()**OnBeat()) >> Plot(block=False, title="Is Null")
+snare << Mask(IsNot(OnBeat())) >> Plot(block=False, title="Is Not On Beat")
+snare << Mask(IsNot(First())) >> Plot(block=True, title="Is Not the First")
 
