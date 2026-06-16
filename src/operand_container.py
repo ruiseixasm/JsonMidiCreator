@@ -588,9 +588,6 @@ class Container(o.Operand):
                         self._foreground_items()[index] = self.deep_copy(item)
             case bool():
                 self._masked = operand
-            case og.Mask():
-                mask_parameters: tuple = operand._parameters
-                self.mask(*mask_parameters)
             case od.Select():
                 self.select(operand._data)
             case og.Mask():
