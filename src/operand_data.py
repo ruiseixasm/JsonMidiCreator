@@ -218,6 +218,31 @@ class AsIs(Data):
     pass
 
 
+class Masking(Data):
+    """`Data -> Masking`
+
+    `Masking` is intended to be used with a Container, like a Clip, where the respective
+    `Operand` items are set as masked or not masked based on a condition given.
+    
+    Parameters
+    ----------
+    Any : Conditions that need to be matched in an And fashion.
+    """
+    pass
+
+class Select(Masking):
+    """`Data -> Masking -> Select`
+
+    `Select` uses a condition as the criteria for the Items NOT to be masked, masking all the others.
+    
+    Parameters
+    ----------
+    Any : Conditions that need NOT to be matched in an And fashion in order to an item NOT be masked.
+    """
+    pass
+
+
+
 class Parameter(Data):
     """`Data -> Parameter`
 

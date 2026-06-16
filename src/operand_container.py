@@ -591,6 +591,8 @@ class Container(o.Operand):
             case og.Mask():
                 mask_parameters: tuple = operand._parameters
                 self.mask(*mask_parameters)
+            case od.Select():
+                self.select(operand._data)
             case og.Unmask():
                 self.unmask()
             case tuple():
