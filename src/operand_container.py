@@ -2741,22 +2741,16 @@ class Clip(Composition):  # Just a container of Elements
         """
         if self._has_elements(include_masked):
             finish_beats: Fraction = Fraction(0)
-            if include_masked:
-                for item in self._items:
-                    if isinstance(item, oe.Element):
-                        single_element: oe.Element = item
-                        element_finish: Fraction = \
-                            single_element._position_beats + single_element._duration_beats
-                        if element_finish > finish_beats:
-                            finish_beats = element_finish
-            else:
-                for item in self._unmasked_items():
-                    if isinstance(item, oe.Element):
-                        single_element: oe.Element = item
-                        element_finish: Fraction = \
-                            single_element._position_beats + single_element._duration_beats
-                        if element_finish > finish_beats:
-                            finish_beats = element_finish
+            items_list: list[oe.Element] = self._items
+            if not include_masked:
+                items_list = self._unmasked_items()
+            for item in items_list:
+                if isinstance(item, oe.Element):
+                    single_element: oe.Element = item
+                    element_finish: Fraction = \
+                        single_element._position_beats + single_element._duration_beats
+                    if element_finish > finish_beats:
+                        finish_beats = element_finish
             return ra.Position(self, finish_beats)
         return None
 
