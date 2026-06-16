@@ -773,6 +773,7 @@ class Operand:
             next_operand = self._next_operand.getSerialization()
         return { 
             "class": type(self).__name__,
+            "masked": self._masked,
             "parameters": {},
             "next_operand": next_operand
         }
@@ -780,7 +781,8 @@ class Operand:
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
-        if "next_operand" in serialization:
+        if "masked" in serialization and "next_operand" in serialization:
+            self._masked = self.deserialize(serialization["masked"])
             self._next_operand = self.deserialize(serialization["next_operand"])
         return self
        
