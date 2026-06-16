@@ -1242,7 +1242,7 @@ def test_mul_list():
     assert new_clip[4 - 1] % Velocity() % int() == 100 - 8 + 1
     assert new_clip[8 - 1] % Velocity() % int() == 100 - 4 + 1
 
-    same_as_long_clip = long_clip.mask(Beat(3))
+    same_as_long_clip = long_clip.select(Beat(3))
     assert same_as_long_clip.len() == 1 * 8
     new_clip = same_as_long_clip * [1, 0]   # Picks by Measure, where 0 is the first Measure
     print(f'new_clip[0] % Velocity(): {new_clip[0] % Velocity() % int()}')
