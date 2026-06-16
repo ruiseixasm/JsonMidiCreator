@@ -1404,8 +1404,6 @@ class Composition(Container):
             case od.Pipe():
                 match operand._data:
                     case ra.Length():
-                        if self._length_beats is not None:
-                            return operand._data << ra.Length(self, self._length_beats)
                         return None
                     case og.TimeSignature():
                         return self._time_signature
@@ -1414,8 +1412,6 @@ class Composition(Container):
             case ra.Position():
                 return operand.copy( ra.Position(self, 0) )
             case ra.Length():
-                if self._length_beats is not None:
-                    return operand.copy( ra.Length(self, self._length_beats) )
                 return operand.copy( self.length() )
             case ra.Duration():
                 return self.duration()
@@ -3131,17 +3127,15 @@ class Clip(Composition):  # Just a container of Elements
             case Clip():
                 operand_copy: Clip = operand.copy()._set_owner_clip(self)   # To be dropped
 
-                operand_position: ra.Position = operand_copy.start(True)
-                if operand_position is not None:
+                start_position: ra.Position = operand_copy.start(include_masked=True)
+                if start_position is not None:
 
-                    self_length: ra.Length = self % ra.Length()
-                    operand_position = operand_position.roundMeasures()
-                    position_offset: ra.Position = operand_position - self_length
-                    operand_copy -= position_offset   # Does a position offset
+                    self_length: ra.Length = self % ra.Length() # Position needs to come after
+
+                    for single_element in operand_copy._items:
+                        single_element._position_beats += self_length._rational   # Does a position offset
                     
                     self._items.extend(operand_copy._items)
-                    if self._length_beats is not None:
-                        self._length_beats += (operand_copy % ra.Length())._rational
 
             case oe.Element():
                 self.__imul__(Clip(operand._time_signature, operand))
@@ -3202,8 +3196,6 @@ class Clip(Composition):  # Just a container of Elements
                     left_finish_position: ra.Position = self.finish()
                     if left_finish_position is None:
                         left_finish_position = ra.Position(self)
-                    if self._length_beats is not None:
-                        self._length_beats += (operand % ra.Length())._rational
                         
                     # operand_elements already sorted by position
                     left_finish_position_beats: Fraction = left_finish_position._rational
@@ -4033,8 +4025,6 @@ class Clip(Composition):  # Just a container of Elements
                 if element % ra.Position() + element % ra.Length() > length:
                     new_length: ra.Length = length - element % ra.Position()
                     element << new_length
-            if self._length_beats is not None:
-                self._length_beats = min(self._length_beats, length._rational)
         return self
     
     def cut(self, start: ra.Position = None, finish: ra.Position = None) -> Self:
@@ -5521,8 +5511,6 @@ class Part(Composition):
 
                 self._extend(right_part._items)
                 
-                if self._length_beats is not None:
-                    self._length_beats += (right_part % ra.Length())._rational
             case Block():
                 self.__imul__(Part(operand))
             case Clip():
@@ -5570,9 +5558,6 @@ class Part(Composition):
                     block += position_offset
 
                 self._extend(right_part._items)  # Propagates upwards in the stack
-                
-                if self._length_beats is not None:
-                    self._length_beats += (right_part % ra.Duration() % ra.Length())._rational
             case Block():
                 self.__itruediv__(Part(operand))
             case Clip():

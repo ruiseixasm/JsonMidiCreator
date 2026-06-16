@@ -602,9 +602,9 @@ def test_mul_clip():
     six_notes = 6 / Note()
     print(f"Length: {six_notes % Length() % float()}")
     assert six_notes % Duration() == Measures(1.5)  # Measures
-    six_notes << Length(six_notes, 1.0)
-    print(f"Length: {six_notes % Length() % float()}")
-    assert six_notes.__mod__(od.Pipe( Length() )) == 1.0  # Measures
+    # six_notes << Length(six_notes, 1.0)
+    # print(f"Length: {six_notes % Length() % float()}")
+    # assert six_notes.__mod__(od.Pipe( Length() )) == 1.0  # Measures
 
     single_note = Note() / 1
     two_notes = single_note * single_note
