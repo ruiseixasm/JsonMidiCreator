@@ -1274,7 +1274,7 @@ def test_floordiv_clip():
     assert just_rests == Rest() / Note()**4 / Rest() / Rest(1/2)
 
     just_rests = Rest(1/2) / 2
-    just_rests_mask = Rest(1/2) / 2 >> Beat(2)  # 1st beat masked, meaning, 2nd Rest
+    just_rests_mask = Rest(1/2) / 2 << Select(Beat(2))  # 1st beat masked, meaning, 2nd Rest
     assert just_rests_mask == just_rests
     assert just_rests.len() == 2
     assert just_rests_mask.len() == 1
