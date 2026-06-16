@@ -279,7 +279,7 @@ class Container(o.Operand):
         return True
 
 
-    def len(self) -> int:
+    def len(self, include_masked: bool = False) -> int:
         """
         Returns the total number of editable items
 
@@ -289,9 +289,11 @@ class Container(o.Operand):
         Returns:
             int: Returns the equivalent to the len(self._unmasked_items()).
         """
+        if include_masked:
+            return len(self._items)
         return len(self._unmasked_items())
 
-    def first(self) -> Any:
+    def first(self, include_masked: bool = False) -> Any:
         """
         Gets the first Item accordingly to it's Position on the TimeSignature.
 
@@ -302,11 +304,14 @@ class Container(o.Operand):
             Item: The first Item of all Items.
         """
         first_item: Any = None
-        if self._unmasked_items():
+        if include_masked:
+            if self._items:
+                first_item = self._items[0]
+        elif self._unmasked_items():
             first_item = self._unmasked_items()[0]
         return first_item
 
-    def last(self) -> Any:
+    def last(self, include_masked: bool = False) -> Any:
         """
         Gets the last Item accordingly to it's Position on the TimeSignature.
 
@@ -317,7 +322,10 @@ class Container(o.Operand):
             Item: The last Item of all Items.
         """
         last_item: Any = None
-        if self._unmasked_items():
+        if include_masked:
+            if self._items:
+                last_item = self._items[-1]
+        elif self._unmasked_items():
             last_item = self._unmasked_items()[-1]
         return last_item
 
@@ -1238,7 +1246,7 @@ class Composition(Container):
         """
         return super().first()
 
-    def _last_element(self) -> 'oe.Element':
+    def _last_element(self, include_masked: bool = False) -> 'oe.Element':
         """
         Gets the last Element accordingly to it's Position on the TimeSignature.
 
@@ -1250,7 +1258,7 @@ class Composition(Container):
         """
         return super().last()
 
-    def _last_element_position(self) -> 'ra.Position':
+    def _last_element_position(self, include_masked: bool = False) -> 'ra.Position':
         """
         Gets the last Element position.
 
@@ -2682,12 +2690,12 @@ class Clip(Composition):  # Just a container of Elements
         return True
 
 
-    def _has_elements(self) -> bool:
+    def _has_elements(self, include_masked: bool = False) -> bool:
         if self._unmasked_items():
             return True
         return False
 
-    def _total_elements(self) -> int:
+    def _total_elements(self, include_masked: bool = False) -> int:
         return len(self._unmasked_items())
 
 
@@ -2700,7 +2708,7 @@ class Clip(Composition):  # Just a container of Elements
 
 
     # Ignores the self Length
-    def start(self) -> 'ra.Position':
+    def start(self, include_masked: bool = False) -> 'ra.Position':
         """
         Gets the starting position of all its BASE Elements.
         This is the same as the minimum Position of all `Element` positions.
@@ -2720,7 +2728,7 @@ class Clip(Composition):  # Just a container of Elements
         return None
 
     # Ignores the self Length
-    def finish(self) -> 'ra.Position':
+    def finish(self, include_masked: bool = False) -> 'ra.Position':
         """
         Processes each element Position plus Length and returns the finish position
         as the maximum of all BASE them.
@@ -2731,20 +2739,29 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Position: The maximum of Position + Length of all Elements.
         """
-        if self._has_elements():
+        if self._has_elements(include_masked):
             finish_beats: Fraction = Fraction(0)
-            for item in self._unmasked_items():
-                if isinstance(item, oe.Element):
-                    single_element: oe.Element = item
-                    element_finish: Fraction = \
-                        single_element._position_beats + single_element._duration_beats
-                    if element_finish > finish_beats:
-                        finish_beats = element_finish
+            if include_masked:
+                for item in self._items:
+                    if isinstance(item, oe.Element):
+                        single_element: oe.Element = item
+                        element_finish: Fraction = \
+                            single_element._position_beats + single_element._duration_beats
+                        if element_finish > finish_beats:
+                            finish_beats = element_finish
+            else:
+                for item in self._unmasked_items():
+                    if isinstance(item, oe.Element):
+                        single_element: oe.Element = item
+                        element_finish: Fraction = \
+                            single_element._position_beats + single_element._duration_beats
+                        if element_finish > finish_beats:
+                            finish_beats = element_finish
             return ra.Position(self, finish_beats)
         return None
 
-    def last_position(self) -> 'ra.Position':
-        return self._last_element_position()
+    def last_position(self, include_masked: bool = False) -> 'ra.Position':
+        return self._last_element_position(include_masked)
 
 
     def all_elements(self) -> list['oe.Element']:
