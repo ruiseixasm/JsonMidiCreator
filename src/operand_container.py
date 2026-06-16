@@ -1481,25 +1481,13 @@ class Composition(Container):
         match operand:
             case Composition():
                 super().__lshift__(operand)
-                self._length_beats = operand._length_beats
 
             case od.Pipe():
                 match operand._data:
-                    case ra.Length():
-                        self._length_beats = operand._data._rational
-                        if self._length_beats < 0:
-                            self._length_beats = None
-                    case None:              self._length_beats = None
                     case og.TimeSignature():
                         self._time_signature = operand._data
                     case _:                 super().__lshift__(operand)
 
-            case ra.Length():
-                self._length_beats = operand._rational
-                if self._length_beats < 0:
-                    self._length_beats = None
-            case None:
-                self._length_beats = None
             case og.TimeSignature():
                 self._set_time_signature(operand) # Includes time signature setting with `<<`
 
@@ -2977,13 +2965,6 @@ class Clip(Composition):  # Just a container of Elements
                     case _:
                         super().__lshift__(operand)
 
-            case ra.Length():
-                self._length_beats = operand._rational
-                if self._length_beats < 0:
-                    self._length_beats = None
-            case None:
-                self._length_beats = None
-
             case str():
                 if operand.find(" ") != -1 or operand.find(",") != -1:  # "," is what defines a line
                     self.__lshift__(od.Line(operand))
@@ -3387,7 +3368,6 @@ class Clip(Composition):  # Just a container of Elements
         new_clip._time_signature    << self._time_signature
         new_clip._midi_track        << self._midi_track
         new_clip._auto              = self._auto
-        new_clip._length_beats      = self._length_beats
         return new_clip << parameters
 
 
