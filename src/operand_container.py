@@ -3116,7 +3116,6 @@ class Clip(Composition):  # Just a container of Elements
                 operand_copy: Clip = operand.copy()._set_owner_clip(self)
                 # Clip preserves the entirety of the operand Clip as is, unmasked
                 self._items.extend(operand_copy._items)
-                self._mask_items.extend(operand_copy._unmasked_items())
 
             case oe.Element():
                 new_element: oe.Element = operand.copy()._set_owner_clip(self)
@@ -3180,7 +3179,6 @@ class Clip(Composition):  # Just a container of Elements
                     operand_copy -= position_offset   # Does a position offset
                     
                     self._items.extend(operand_copy._items)
-                    self._mask_items.extend(operand_copy._mask_items)
                     if self._length_beats is not None:
                         self._length_beats += (operand_copy % ra.Length())._rational
 
@@ -3209,14 +3207,11 @@ class Clip(Composition):  # Just a container of Elements
                     og.Segment(self._time_signature, single_segment) for single_segment in operand
                 ]
                 base_elements: list[oe.Element] = []
-                mask_elements: list[oe.Element] = []
                 for target_measure, source_segment in enumerate(segments_list):
                     self_segment: Clip = self.copy().filter(source_segment)._set_owner_clip(self)
                     self_segment << ra.Measure(target_measure)   # Stacked by measure *
                     base_elements.extend(self_segment._items)
-                    mask_elements.extend(self_segment._mask_items)
                 self._items = base_elements
-                self._mask_items = mask_elements
 
             case str():
                 self.__imul__(od.Line(operand))
