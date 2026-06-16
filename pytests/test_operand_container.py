@@ -505,7 +505,7 @@ def test_sub_clip():
 
     four_notes: Clip = Note() / 4
     single_note: Element = four_notes[0]
-    notes_to_remove: Clip = four_notes >> Mask(Nth(1, 3))
+    notes_to_remove: Clip = ~four_notes << Select(Nth(1, 3))
     remaining_notes: Clip = four_notes >> Filter(Nth(2, 4))
 
     assert notes_to_remove.len() < four_notes.len()

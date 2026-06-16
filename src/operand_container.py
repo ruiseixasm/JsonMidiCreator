@@ -558,9 +558,6 @@ class Container(o.Operand):
                 return operand._direct_process(self)
             case ch.Chaos():
                 return self.shuffle(operand)
-            
-            case tuple():
-                return super().__irshift__(operand)
             case of.Frame():
                 operand._set_inside_container(self)
                 unmasked_items: list = self._unmasked_items()
@@ -568,7 +565,7 @@ class Container(o.Operand):
                     unmasked_items[index] >>= operand.frame(single_item)
                 return self
             case _:
-                return self.select(operand)
+                return super().__irshift__(operand)
 
 
     # Pass trough operation as last resort
