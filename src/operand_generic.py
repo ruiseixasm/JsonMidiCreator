@@ -3945,25 +3945,6 @@ class Cut(ClipProcess):
     def _process(self, operand: 'Clip') -> 'Clip':
         return operand.cut(*self._parameters)
 
-class Select(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Select`
-
-    Selects the section of the clip that will be preserved.
-
-    Args:
-        start (Position): Starting position of the section to be selected.
-        finish (Position): Finish position of the section to be selected.
-    """
-    from operand_rational import Position
-
-    def __init__(self, start: Position = None, finish: Position = None):
-        super().__init__([start, finish])
-        self._indexes = {
-            'start': 0, 'finish': 1
-        }
-
-    def _process(self, operand: 'Clip') -> 'Clip':
-        return operand.select(*self._parameters)
 
 class Monofy(ClipProcess):
     """`Generic -> Process -> ContainerProcess -> ClipProcess -> Monofy`

@@ -4162,31 +4162,6 @@ class Clip(Composition):  # Just a container of Elements
                     element -= move_left
         return self
 
-    def select(self, start: ra.Position = None, finish: ra.Position = None) -> Self:
-        """
-        Selects the section of the clip that will be preserved.
-
-        Args:
-            start (Position): Starting position of the section to be selected.
-            finish (Position): Finish position of the section to be selected.
-
-        Returns:
-            Clip: The same self object with the items processed.
-        """
-        shallow_copy: Clip = self.shallow_copy()
-        if start is None:
-            start = ra.Position(0)
-        if finish is None:
-            finish = start + ra.Measures(1)
-        if finish > start:
-            shallow_copy._items = [
-                element for element in shallow_copy._items
-                if element >= start and element < finish
-            ]
-            for index, element in enumerate(shallow_copy._items):
-                element -= start
-        return shallow_copy
-
 
     def loop(self, position = 0, length = 4) -> Self:
         """
