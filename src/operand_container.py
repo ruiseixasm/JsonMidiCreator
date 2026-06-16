@@ -5164,7 +5164,6 @@ class Part(Composition):
     def __init__(self, *operands):
         super().__init__()
         self._items: list[Block] = []
-        self._mask_items: list[Block] = []
         self._name: str = "Part"
         for single_operand in operands:
             self << single_operand
@@ -5623,7 +5622,6 @@ class Part(Composition):
                     position_measure += length_measures
 
                 self._items = base_blocks
-                self._mask_items = []
 
             case str():
                 self *= o.list_chars(operand)
