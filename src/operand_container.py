@@ -875,12 +875,12 @@ class Container(o.Operand):
             left_segment: og.Segment = og.Segment(left)
             right_segment: og.Segment = og.Segment(right)
             if left_segment.len() == right_segment.len():
-                left_mask: Clip = self.shallow_copy().select(left_segment)
-                right_mask: Clip = self.shallow_copy().select(right_segment)
-                left_mask << right_segment
-                right_mask << left_segment
+                left_selection: Clip = self.shallow_copy().select(left_segment)
+                right_selection: Clip = self.shallow_copy().select(right_segment)
+                left_selection << right_segment
+                right_selection << left_segment
         else:
-            if self._unmasked_items() and isinstance(what, type):
+            if isinstance(what, type):
                 if isinstance(left, int):
                     left = self[left]
                 if isinstance(right, int):
@@ -3486,7 +3486,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Container: The same self object with the operands processed.
         """
-        if self._unmasked_items() and isinstance(parameter_type, type):
+        if isinstance(parameter_type, type):
             if isinstance(left_operand, of.Frame):
                 left_operand = self[left_operand]
             if isinstance(right_operand, of.Frame):
