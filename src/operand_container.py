@@ -2644,9 +2644,8 @@ class Clip(Composition):  # Just a container of Elements
     def __init__(self, *operands):
         super().__init__()
         self._midi_track: ou.MidiTrack  = ou.MidiTrack()
-        self._auto: bool = False
+        self._auto: bool                = False
         self._items: list[oe.Element]   = []
-        self._mask_items: list[oe.Element] = []
         for single_operand in operands:
             self << single_operand
 
