@@ -1314,9 +1314,6 @@ class Composition(Container):
         return "_".join(filtered_strings)
 
 
-    def masked_element(self, element: 'oe.Element') -> bool:
-        return False
-
     # Ignores the self Length
     def start(self) -> 'ra.Position':
         """
@@ -2734,15 +2731,6 @@ class Clip(Composition):  # Just a container of Elements
         for single_element in self._items:
             master += single_element.checksum()
         return master & 0xFFFF  # 16-bit
-
-
-    def masked_element(self, element: 'oe.Element') -> bool:
-        if self.is_masked():
-            for single_element in self._mask_items:
-                if element is single_element:
-                    return False
-            return True
-        return False
 
 
     # Ignores the self Length
@@ -4665,16 +4653,6 @@ class Block(Composition):
         return master & 0xFFFF  # 16-bit
 
 
-    def masked_element(self, element: 'oe.Element') -> bool:
-        if self.is_masked():
-            for single_clip in self._unmasked_items():
-                for single_element in single_clip._unmasked_items():
-                    if single_element is element:
-                        return False
-            return True
-        return False
-
-
     def __eq__(self, other: o.Operand) -> bool:
         match other:
             case Block():
@@ -5312,16 +5290,6 @@ class Part(Composition):
             master += block.checksum()
         return master & 0xFFFF  # 16-bit
 
-
-    def masked_element(self, element: 'oe.Element') -> bool:
-        if self.is_masked():
-            for block in self._unmasked_items():
-                for single_clip in block._items:
-                    for single_element in single_clip._items:
-                        if single_element is element:
-                            return False
-            return True
-        return False
 
     def start(self) -> ra.Position:
         """
