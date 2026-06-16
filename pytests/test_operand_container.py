@@ -774,17 +774,17 @@ def test_clip_filter():
 
     four_notes: Clip = Note() / 4
     assert four_notes.len() == 4
-    single_note: Clip = four_notes >> Beat(2)
+    single_note: Clip = four_notes << Select(Beat(2))
     assert single_note.len() == 1
 
     eight_notes: Clip = Note() / 8
     assert eight_notes.len() == 8
-    single_note: Clip = eight_notes >> Beat(2)
+    single_note: Clip = eight_notes << Select(Beat(2))
     assert single_note.len() == 2
 
     original_note: Clip = Note() / 1
     assert original_note.len() == 1
-    derived_note: Clip = original_note >> Nth(1)
+    derived_note: Clip = original_note << Select(Nth(1))
     assert derived_note.len() == 1
     derived_note += Note()
     assert derived_note.len() == 2
@@ -802,7 +802,7 @@ def test_clip_filter():
 
     original_note: Clip = Note() / 1
     assert original_note.len() == 1
-    derived_note: Clip = original_note >> Nth(1)
+    derived_note: Clip = original_note << Select(Nth(1))
     assert derived_note.len() == 1
     derived_note /= 2   # Here "/" results in a multiplication by 2 but stacked directly by Element
     assert derived_note.len() == 2
