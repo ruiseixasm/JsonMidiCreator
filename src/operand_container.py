@@ -1104,18 +1104,18 @@ class Container(o.Operand):
                     case Container():
                         for single_item in self._items:
                             if isinstance(single_item, o.Operand):
-                                single_item._mask = any(single_item == cond_item for cond_item in single_condition)
+                                single_item._masked = any(single_item == cond_item for cond_item in single_condition)
                     case of.Frame():
                         single_condition._set_inside_container(self)
                         for single_item in self._items:
                             if isinstance(single_item, o.Operand):
                                 framed_result = single_condition.frame(single_item)
-                                single_item._mask = single_item == framed_result
+                                single_item._masked = single_item == framed_result
                     case ch.Chaos():
                         for single_item in self._items:
                             if isinstance(single_item, o.Operand):
                                 chaotic_result = single_condition.chaoticize()
-                                single_item._mask = single_item == chaotic_result
+                                single_item._masked = single_item == chaotic_result
                     case od.Pipe():
                         if isinstance(single_condition._data, of.Frame):
                             single_condition._set_inside_container(self)
@@ -1123,23 +1123,23 @@ class Container(o.Operand):
                             for single_item in self._items:
                                 if isinstance(single_item, o.Operand):
                                     framed_result = pipped_frame.frame(single_item)
-                                    single_item._mask = single_item == framed_result
+                                    single_item._masked = single_item == framed_result
                         elif isinstance(single_condition._data, ch.Chaos):
                             pipped_frame = single_condition._data
                             for single_item in self._items:
                                 if isinstance(single_item, o.Operand):
                                     chaotic_result = pipped_frame.chaoticize()
-                                    single_item._mask = single_item == chaotic_result
+                                    single_item._masked = single_item == chaotic_result
                     case _:
                         for single_item in self._items:
                             if isinstance(single_item, o.Operand):
-                                single_item._mask = single_item == single_condition
+                                single_item._masked = single_item == single_condition
         return self
 
 
     def select(self, *conditions) -> Self:
         """
-        Masks the items that don't meet the conditions (equal to). No implicit copies.
+        Masks the items that do NOT meet the conditions (equal to). No implicit copies.
 
         Conditions
         ----------
@@ -1156,18 +1156,18 @@ class Container(o.Operand):
                     case Container():
                         for single_item in self._items:
                             if isinstance(single_item, o.Operand):
-                                single_item._mask = not any(single_item == cond_item for cond_item in single_condition)
+                                single_item._masked = not any(single_item == cond_item for cond_item in single_condition)
                     case of.Frame():
                         single_condition._set_inside_container(self)
                         for single_item in self._items:
                             if isinstance(single_item, o.Operand):
                                 framed_result = single_condition.frame(single_item)
-                                single_item._mask = not single_item == framed_result
+                                single_item._masked = not single_item == framed_result
                     case ch.Chaos():
                         for single_item in self._items:
                             if isinstance(single_item, o.Operand):
                                 chaotic_result = single_condition.chaoticize()
-                                single_item._mask = not single_item == chaotic_result
+                                single_item._masked = not single_item == chaotic_result
                     case od.Pipe():
                         if isinstance(single_condition._data, of.Frame):
                             single_condition._set_inside_container(self)
@@ -1175,17 +1175,17 @@ class Container(o.Operand):
                             for single_item in self._items:
                                 if isinstance(single_item, o.Operand):
                                     framed_result = pipped_frame.frame(single_item)
-                                    single_item._mask = not single_item == framed_result
+                                    single_item._masked = not single_item == framed_result
                         elif isinstance(single_condition._data, ch.Chaos):
                             pipped_frame = single_condition._data
                             for single_item in self._items:
                                 if isinstance(single_item, o.Operand):
                                     chaotic_result = pipped_frame.chaoticize()
-                                    single_item._mask = not single_item == chaotic_result
+                                    single_item._masked = not single_item == chaotic_result
                     case _:
                         for single_item in self._items:
                             if isinstance(single_item, o.Operand):
-                                single_item._mask = not single_item == single_condition
+                                single_item._masked = not single_item == single_condition
         return self
 
 
@@ -1194,7 +1194,7 @@ class Container(o.Operand):
         # NEW MASKING PROCESS
         for single_item in self._items:
             if isinstance(single_item, o.Operand):
-                single_item._mask = False
+                single_item._masked = False
         return self
     
     def filter(self, *conditions) -> Self:
