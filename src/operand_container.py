@@ -877,8 +877,8 @@ class Container(o.Operand):
             left_segment: og.Segment = og.Segment(left)
             right_segment: og.Segment = og.Segment(right)
             if left_segment.len() == right_segment.len():
-                left_selection: Clip = self.shallow_copy().select(left_segment)
-                right_selection: Clip = self.shallow_copy().select(right_segment)
+                left_selection: Clip = self[left_segment]
+                right_selection: Clip = self[right_segment]
                 left_selection << right_segment
                 right_selection << left_segment
         else:
