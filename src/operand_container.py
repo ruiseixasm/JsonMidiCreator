@@ -86,48 +86,49 @@ class Container(o.Operand):
 
 
     def __getitem__(self, index: Any) -> any:
-        if isinstance(index, of.Frame):
-            index._set_inside_container(self)
-            new_container = self.empty_copy()
-            for single_element in self._unmasked_items():
-                frame_result = index.frame(single_element)
-                if single_element == frame_result:
-                    new_container._append(single_element)
-            return new_container
-        if isinstance(index, ch.Chaos):
-            new_container = self.empty_copy()
-            for single_element in self._unmasked_items():
-                chaos_result = index.chaoticize()
-                if single_element == chaos_result:
-                    new_container._append(single_element)
-            return new_container
-        if isinstance(index, od.Pipe):
-            if isinstance(index._data, of.Frame):
-                pipped_frame = index._data
-                pipped_frame._set_inside_container(self)
+        match index:
+            case of.Frame():
+                index._set_inside_container(self)
                 new_container = self.empty_copy()
                 for single_element in self._unmasked_items():
-                    frame_result = pipped_frame.frame(single_element)
-                    if single_element == od.Pipe(frame_result):
+                    frame_result = index.frame(single_element)
+                    if single_element == frame_result:
                         new_container._append(single_element)
                 return new_container
-            elif isinstance(index._data, ch.Chaos):
-                pipped_chaos = index._data
+            case ch.Chaos():
                 new_container = self.empty_copy()
                 for single_element in self._unmasked_items():
-                    chaos_result = pipped_chaos.chaoticize()
-                    if single_element == od.Pipe(chaos_result):
+                    chaos_result = index.chaoticize()
+                    if single_element == chaos_result:
                         new_container._append(single_element)
                 return new_container
-        if isinstance(index, int):
-            return self._unmasked_items()[index]
+            case od.Pipe():
+                if isinstance(index._data, of.Frame):
+                    pipped_frame = index._data
+                    pipped_frame._set_inside_container(self)
+                    new_container = self.empty_copy()
+                    for single_element in self._unmasked_items():
+                        frame_result = pipped_frame.frame(single_element)
+                        if single_element == od.Pipe(frame_result):
+                            new_container._append(single_element)
+                    return new_container
+                elif isinstance(index._data, ch.Chaos):
+                    pipped_chaos = index._data
+                    new_container = self.empty_copy()
+                    for single_element in self._unmasked_items():
+                        chaos_result = pipped_chaos.chaoticize()
+                        if single_element == od.Pipe(chaos_result):
+                            new_container._append(single_element)
+                    return new_container
+            case int():
+                return self._unmasked_items()[index]
+            case str():
+                index = o.tag_to_int(index)
+                if index != -1:
+                    return self._unmasked_items()[index]
         for item in self._unmasked_items():
             if item == index:
                 return item
-        if isinstance(index, str):
-            index = o.tag_to_int(index)
-            if index != -1:
-                return self._unmasked_items()[index]
         return ol.Null()
     
 

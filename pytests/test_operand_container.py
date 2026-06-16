@@ -1195,7 +1195,7 @@ def test_segment_swap():
     two_notes.swap([0, 0], [0, 1], Segment)
     assert two_notes[0] % Pitch() > two_notes[1] % Pitch()
 
-test_segment_swap()
+# test_segment_swap()
 
 
 def test_segment_operations():
