@@ -698,6 +698,7 @@ class Pitch(Generic):
         * `<< Pipe(RootKey())` neither does a `% 12` or a `// 2`, it's set straight away with its given value
         * `<< Pipe(Key())` doesn't exist, it does nothing at all
         * Setting with `<< Pipe()` the `KeySignature`, `Quality`, `Accidentals` or `Mode`, don't update any Key
+        * Setting Keys or Semitones ONLY adjust the Degree and not the Octave, avoiding repeated offsets on repeated setting
     """
 
 
@@ -730,7 +731,7 @@ class Pitch(Generic):
         signature_scale: list[int] = self._key_signature.get_scale()
         degree_0: int = 0
         accidental: int = 0
-        tonic_to_root: int = root_key % 12 - self._tonic_key % 12
+        tonic_to_root: int = root_key - self._tonic_key % 12
         # For Semitones
         if signature_scale[tonic_to_root % 12] == 0: # Not on the Scale
             # No two consecutive empty notes! (assumption for all scales!!)
@@ -1096,10 +1097,7 @@ class Pitch(Generic):
                 self._key_signature << operand
                 self._tonic_key = self._key_signature % ou.Key() % int() % 24   # Setting a Key Signature adjusts the Tonic Key accordingly
             case ou.Semitone():
-                octave_semitone: int = operand._unit % 12
-                octave_increase: int = operand._unit // 12
-                self << ou.Key(octave_semitone) # Sets the Key based on the semitone alone
-                self += octave_increase # Increases the octave (int for octaves)
+                self << ou.Key(operand._unit)
 
             case int():
                 self << ou.Octave(operand)
