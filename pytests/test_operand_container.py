@@ -575,7 +575,7 @@ def test_mul_clip():
     hi_hat: Clip = Note(DrumKit("Hi-Hat"), 1/16) / 4 << Iterate(step=2)**Step() << Pipe(TimeSignature(2, 4))
     assert hi_hat.len() == 4
     assert hi_hat._test_owner_clip()
-    hi_hat >>= Mask(Nth(2, 4))
+    hi_hat << Select(Nth(2, 4))
     assert hi_hat.len() == 2
     assert hi_hat._test_owner_clip()
     hi_hat *= 2
@@ -736,7 +736,7 @@ def test_lshift_clip():
     two_measures: Clip = Note() / 8
     two_measures << All()**Beat(0)
     assert two_measures.len() == 8
-    one_measure: Clip = two_measures >> Mask(Bellow(Measure(1)))
+    one_measure: Clip = two_measures << Select(Bellow(Measure(1)))
     assert one_measure.len() == 4
 
     assert two_measures[0]._pitch._get_chromatic_pitch() == 60
@@ -751,7 +751,7 @@ def test_lshift_clip():
 
     eight_notes = Note() / 8
 
-    filtered_notes = eight_notes >> Measure(1)
+    filtered_notes = eight_notes << Select(Measure(1))
 
     assert filtered_notes.len() == 4
     assert filtered_notes[0] % Position() == 1.0
