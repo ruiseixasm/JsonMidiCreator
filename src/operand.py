@@ -616,11 +616,12 @@ class Operand:
     None : It has no parameters.
     """
     def __init__(self, *parameters):
-        self._next_operand: Operand | None = None
-        self._initiated: bool   = False
-        self._set: bool = False # Intended to be used by Frame subclasses to flag set Operands
-        self._index: int = 0
-        self._left_non_operand: Any = self  # An Operand by default
+        self._next_operand: Operand | None  = None
+        self._initiated: bool               = False
+        self._set: bool                     = False # Intended to be used by Frame subclasses to flag set Operands
+        self._index: int                    = 0
+        self._left_non_operand: Any         = self  # An Operand by default
+        self._masked: bool                  = False
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -803,6 +804,7 @@ class Operand:
                 self._set = False   # by default a new copy of data unsets the Operand
                 # COPY THE SELF OPERANDS RECURSIVELY
                 self._next_operand = self.deep_copy(operand._next_operand)
+                self._masked = operand._masked
             case tuple():
                 for single_parameter in operand:
                     self.__lshift__(single_parameter)

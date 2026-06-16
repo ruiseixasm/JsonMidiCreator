@@ -84,7 +84,6 @@ class Element(o.Operand):
         self._time_signature: og.TimeSignature  = og.settings._time_signature.copy()
 
         self._owner_clip: oc.Clip           = None
-        self._masked: bool                  = False
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -349,7 +348,6 @@ class Element(o.Operand):
                 # Because an Element is also defined by the Owner Clip, this also needs to be copied!
                 if self._owner_clip is None:    # << and copy operation doesn't override ownership
                     self._owner_clip        = operand._owner_clip
-                self._masked                = operand._masked
 
             case od.Pipe():
                 match operand._data:

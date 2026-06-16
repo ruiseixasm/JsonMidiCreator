@@ -1091,6 +1091,59 @@ class Container(o.Operand):
         self._masked = True
         return self
 
+
+    def select(self, *conditions) -> Self:
+        """
+        Masks the items that don't meet the conditions (equal to). No implicit copies.
+
+        Conditions
+        ----------
+        Any : Conditions that need to be matched in an And fashion.
+
+        Returns:
+            Container Mask: A different object with a shallow copy of the original
+            `Container` items now selected as a `Mask`.
+        """
+        if conditions:
+            # And type of conditions, not meeting any means excluded
+            for single_condition in conditions:
+                match single_condition:
+                    case Container():
+                        for single_item in self._items:
+                            if isinstance(single_item, o.Operand):
+                                single_item._mask = not any(single_item == cond_item for cond_item in single_condition)
+                    case of.Frame():
+                        single_condition._set_inside_container(self)
+                        for single_item in self._items:
+                            if isinstance(single_item, o.Operand):
+                                framed_result = single_condition.frame(single_item)
+                                single_item._mask = single_item != framed_result
+                    case ch.Chaos():
+                        for single_item in self._items:
+                            if isinstance(single_item, o.Operand):
+                                chaotic_result = single_condition.chaoticize()
+                                single_item._mask = single_item != chaotic_result
+                    case od.Pipe():
+                        if isinstance(single_condition._data, of.Frame):
+                            single_condition._set_inside_container(self)
+                            pipped_frame = single_condition._data
+                            for single_item in self._items:
+                                if isinstance(single_item, o.Operand):
+                                    framed_result = pipped_frame.frame(single_item)
+                                    single_item._mask = single_item != framed_result
+                        elif isinstance(single_condition._data, ch.Chaos):
+                            pipped_frame = single_condition._data
+                            for single_item in self._items:
+                                if isinstance(single_item, o.Operand):
+                                    chaotic_result = pipped_frame.chaoticize()
+                                    single_item._mask = single_item != chaotic_result
+                    case _:
+                        for single_item in self._items:
+                            if isinstance(single_item, o.Operand):
+                                single_item._mask = not single_item == single_condition
+        return self
+
+
     def unmask(self) -> Self:
         self._masked = False
         return self
