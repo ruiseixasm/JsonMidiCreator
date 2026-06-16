@@ -568,7 +568,7 @@ class Container(o.Operand):
                     unmasked_items[index] >>= operand.frame(single_item)
                 return self
             case _:
-                return self.mask(operand)
+                return self.select(operand)
 
 
     # Pass trough operation as last resort
@@ -878,8 +878,8 @@ class Container(o.Operand):
             left_segment: og.Segment = og.Segment(left)
             right_segment: og.Segment = og.Segment(right)
             if left_segment.len() == right_segment.len():
-                left_mask: Clip = self.shallow_copy().mask(left_segment)
-                right_mask: Clip = self.shallow_copy().mask(right_segment)
+                left_mask: Clip = self.shallow_copy().select(left_segment)
+                right_mask: Clip = self.shallow_copy().select(right_segment)
                 left_mask << right_segment
                 right_mask << left_segment
         else:
@@ -3728,13 +3728,13 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: A clip with added automated elements placed at intermediary steps.
         """
-        automation_clip: Clip = self.mask(of.InputType(oe.Automatable))
+        automation_clip: Clip = self.select(of.InputType(oe.Automatable))
         plotlist: list[dict] = automation_clip.getPlotlist()
         automation_channels: list[int] = plotlist[0]["channels"]["automation"]
 
         for channel_0 in automation_channels:
 
-            channel_automation: Clip = automation_clip.mask(ou.Channel(channel_0 + 1))
+            channel_automation: Clip = automation_clip.select(ou.Channel(channel_0 + 1))
 
             if channel_automation.len() > 1:
 

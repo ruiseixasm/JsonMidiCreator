@@ -38,5 +38,5 @@ first_notes[2] % Degree() % int() >> Print()
 second_notes = first_notes + Step(1)
 patter_notes = first_notes + second_notes + Even()**Octave(1)
 
-final_pattern = patter_notes.mask(Nth(1, 2)) / patter_notes / 2
+final_pattern = patter_notes.select(Nth(1, 2)) / patter_notes / 2
 final_pattern * 8 >> Play() >> Render("Midi/improvisation_4.1.mid")

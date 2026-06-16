@@ -56,5 +56,5 @@ complete_part = Block(open_hats_clip, close_hats_clip, tom_clip, snare_clip, kic
 complete_part >> Play()
 
 Rest(1/2) >> Play()
-complete_part.mask("Snare")[0] >> Play()
+complete_part.select("Snare")[0] >> Play()
 
