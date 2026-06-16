@@ -3407,7 +3407,6 @@ class Clip(Composition):  # Just a container of Elements
         new_clip._time_signature    << self._time_signature   
         new_clip._midi_track        << self._midi_track
         new_clip._auto              = self._auto
-        new_clip._length_beats      = self._length_beats
         return new_clip << parameters
 
 
@@ -4081,7 +4080,6 @@ class Clip(Composition):  # Just a container of Elements
         self._delete(self._items, True)
         self._extend(included_elements)
 
-        self._length_beats = ra.Length(punch_out - punch_in)._rational
         self -= punch_in   # Moves to the start of the Clip being looped/trimmed
 
         return self._sort_items()
@@ -5074,7 +5072,6 @@ class Block(Composition):
             self._position_beats = Fraction(0) # Positions all blocks at the start
         else:
             self._position_beats -= punch_in._rational
-        self._length_beats = punch_length._rational
 
         return self._sort_items()
 
@@ -5619,8 +5616,6 @@ class Part(Composition):
         # No Block is removed, only elements are removed
         for block_loop in self._unmasked_items():
             block_loop.loop(position, punch_length)
-
-        self._length_beats = punch_length._rational
 
         return self._sort_items()
 
