@@ -958,7 +958,8 @@ class Pitch(Generic):
                 return Fraction(self._transposition)
             
             case ou.Semitone():
-                return operand.copy(self._get_chromatic_pitch() % 12)
+                self_key = self % ou.Key()
+                return operand.copy(self_key._unit)
             
             case ou.TonicKey():    # Must come before than Key()
                 return ou.TonicKey(self._tonic_key)

@@ -531,6 +531,8 @@ class Key(PitchParameter):
                     accidental: int = Key._accidentals[self._unit % 12]
                     return Flat(accidental)
                 return Flat(0)
+            case Semitone():
+                return operand.copy(self._unit)
             case _:
                 return super().__mod__(operand)
 
