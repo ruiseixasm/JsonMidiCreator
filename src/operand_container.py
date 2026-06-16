@@ -890,7 +890,11 @@ class Container(o.Operand):
 
 
     def is_masked(self) -> bool:
-        return self._masked
+        for single_item in self._items:
+            if isinstance(single_item, o.Operand) and single_item._masked:
+                return True
+        return False
+        # return self._masked
     
 
     def sort(self, parameter: type = ra.Position, reverse: bool = False) -> Self:

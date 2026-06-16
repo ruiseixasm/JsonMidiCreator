@@ -1162,9 +1162,9 @@ def test_process_mask():
     native_clip: Clip = Note(1/1) // 4 << Position(0)
     copy_clip: Clip = native_clip >> Stack()
     assert copy_clip != native_clip
-    masked_native_clip: Clip = native_clip.mask(All())
-    assert masked_native_clip.is_masked()
-    assert native_clip.is_masked()
+    masked_native_clip: Clip = native_clip.select(All())
+    assert not masked_native_clip.is_masked()   # Because all were selected
+    assert not native_clip.is_masked()
     # masked_native_clip is native_clip
     assert masked_native_clip is native_clip
     # A >> from a Mask shall also result in a copy!
