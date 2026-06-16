@@ -304,8 +304,7 @@ class Element(o.Operand):
 
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
-            derived_element: 'Element' = None) -> list[dict]:
+            channels: dict[str, set[int]] = None, derived_element: 'Element' = None) -> list[dict]:
         return []
 
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True,
@@ -990,14 +989,14 @@ class Unison(Element):
 
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None) -> list[dict]:
+            channels: dict[str, set[int]] = None) -> list[dict]:
         self_playlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
         for single_element in self.get_component_elements():
-            self_playlist.extend(single_element.getPlotlist(midi_track, position_beats, channels, masked_element_ids))
+            self_playlist.extend(single_element.getPlotlist(midi_track, position_beats, channels))
         return self_playlist
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
@@ -1099,16 +1098,13 @@ class Rest(Element):
 
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None) -> list[dict]:
+            channels: dict[str, set[int]] = None) -> list[dict]:
         
         if self._duration_beats == 0:
             return []
 
         if channels is not None:
             channels["note"].add(-1)
-
-        if masked_element_ids is None:
-            masked_element_ids = set()
 
         self_plotlist: list[dict] = []
     
@@ -1125,7 +1121,7 @@ class Rest(Element):
                     "position_off": position_off,
                     "channel": -1,  # Rests have no Channel
                     "pitch": 59.5,  # Just to place the Rest
-                    "masked": id(self) in masked_element_ids,
+                    "masked": self._masked,
                     "self": self
                 }
             }
@@ -2192,8 +2188,7 @@ class Note(ChannelElement):
     # CREATION VS REPRESENTATION
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
-            derived_note: 'Note' = None) -> list[dict]:
+            channels: dict[str, set[int]] = None, derived_note: 'Note' = None) -> list[dict]:
         
         if self._duration_beats == 0:
             return []
@@ -2201,9 +2196,6 @@ class Note(ChannelElement):
         if channels is not None:
             channels["note"].add(self._channel_0)
 
-        if masked_element_ids is None:
-            masked_element_ids = set()
-            
         pitch_int: int = self._pitch._get_chromatic_pitch()
         if self.is_clipped(pitch_int):
             return []
@@ -2231,7 +2223,7 @@ class Note(ChannelElement):
                     "accidentals": self._pitch % ou.Accidental() % int(),
                     "velocity": self._velocity,
                     "channel": self._channel_0,
-                    "masked": id(self_to_plot) in masked_element_ids,
+                    "masked": self._masked,
                     "tied": self._tied,
                     "self": self_to_plot
                 }
@@ -2585,16 +2577,14 @@ class KeyScale(Note):
 
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None) -> list[dict]:
-        if masked_element_ids is None:
-            masked_element_ids = set()
+            channels: dict[str, set[int]] = None) -> list[dict]:
         self_plotlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
         for single_note in self.get_component_elements():
-            self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels, masked_element_ids, self))
+            self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels, self))
         # Makes sure the self middle pitch os passed once and only once to the last dict to be added on top of it
         if self_plotlist:
             self_plotlist[-1]["note"]["middle_pitch"] = self._pitch._get_chromatic_pitch()
@@ -3170,16 +3160,14 @@ class Retrigger(Note):
 
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None) -> list[dict]:
-        if masked_element_ids is None:
-            masked_element_ids = set()
+            channels: dict[str, set[int]] = None) -> list[dict]:
         self_plotlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
         for single_note in self.get_component_elements():
-            self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels, masked_element_ids, self))
+            self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels, self))
         return self_plotlist
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
@@ -3404,19 +3392,17 @@ class Tuplet(ChannelElement):
 
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None) -> list[dict]:
-        if masked_element_ids is None:
-            masked_element_ids = set()
+            channels: dict[str, set[int]] = None) -> list[dict]:
         self_plotlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
         for single_element in self.get_component_elements():
-            self_plotlist.extend(single_element.getPlotlist(midi_track, position_beats, channels, masked_element_ids, self))
+            self_plotlist.extend(single_element.getPlotlist(midi_track, position_beats, channels, self))
             # Makes sure the self is correctly set
             if self_plotlist:
-                self_plotlist[-1]["note"]["masked"] = id(self) in masked_element_ids
+                self_plotlist[-1]["note"]["masked"] = self._masked
                 self_plotlist[-1]["note"]["self"] = self
         return self_plotlist
     
@@ -3670,8 +3656,7 @@ class ControlChange(Automatable):
 
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
-            derived_element: 'Element' = None) -> list[dict]:
+            channels: dict[str, set[int]] = None, derived_element: 'Element' = None) -> list[dict]:
         
         if self.is_clipped():
             return []
@@ -3679,9 +3664,6 @@ class ControlChange(Automatable):
         if channels is not None:
             channels["automation"].add(self._channel_0)
 
-        if masked_element_ids is None:
-            masked_element_ids = set()
-            
         self_plotlist: list[dict] = []
         
         position_on: Fraction = Fraction(0)
@@ -3696,7 +3678,7 @@ class ControlChange(Automatable):
                     "enabled": self._enabled,
                     "value": clamp_value_128(self._value),
                     "channel": self._channel_0,
-                    "masked": id(self) in masked_element_ids,
+                    "masked": self._masked,
                     "self": self
                 }
             }
@@ -4337,8 +4319,7 @@ class Aftertouch(Automatable):
 
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
-            derived_element: 'Element' = None) -> list[dict]:
+            channels: dict[str, set[int]] = None, derived_element: 'Element' = None) -> list[dict]:
         
         if self.is_clipped():
             return []
@@ -4346,9 +4327,6 @@ class Aftertouch(Automatable):
         if channels is not None:
             channels["automation"].add(self._channel_0)
 
-        if masked_element_ids is None:
-            masked_element_ids = set()
-            
         self_plotlist: list[dict] = []
         
         position_on: Fraction = Fraction(0)
@@ -4363,7 +4341,7 @@ class Aftertouch(Automatable):
                     "enabled": self._enabled,
                     "value": clamp_value_128(self._pressure),
                     "channel": self._channel_0,
-                    "masked": id(self) in masked_element_ids,
+                    "masked": self._masked,
                     "self": self
                 }
             }
@@ -4720,8 +4698,7 @@ class PitchBend(Automatable):
 
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None,
-            derived_element: 'Element' = None) -> list[dict]:
+            channels: dict[str, set[int]] = None, derived_element: 'Element' = None) -> list[dict]:
         
         if self.is_clipped():
             return []
@@ -4729,9 +4706,6 @@ class PitchBend(Automatable):
         if channels is not None:
             channels["automation"].add(self._channel_0)
 
-        if masked_element_ids is None:
-            masked_element_ids = set()
-            
         self_plotlist: list[dict] = []
         
         position_on: Fraction = Fraction(0)
@@ -4746,7 +4720,7 @@ class PitchBend(Automatable):
                     "enabled": self._enabled,
                     "value": clamp_value_128(round(self.get_value())),
                     "channel": self._channel_0,
-                    "masked": id(self) in masked_element_ids,
+                    "masked": self._masked,
                     "self": self
                 }
             }
@@ -5092,14 +5066,14 @@ class Automation(Element):
 
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None, masked_element_ids: set[int] | None = None) -> list[dict]:
+            channels: dict[str, set[int]] = None) -> list[dict]:
         self_playlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
         for single_element in self.get_component_elements():
-            self_playlist.extend(single_element.getPlotlist(midi_track, position_beats, channels, masked_element_ids))
+            self_playlist.extend(single_element.getPlotlist(midi_track, position_beats, channels))
         return self_playlist
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:

@@ -1452,13 +1452,6 @@ class Composition(Container):
                 return super().__mod__(operand)
 
 
-    def get_unmasked_element_ids(self) -> set[int]:
-        return set()
-
-    def get_masked_element_ids(self) -> set[int]:
-        return set()
-
-
     def getPlotlist(self, position_beats: Fraction | None = None) -> list[dict]:
         """
         Returns the plotlist for a given Position.
@@ -1685,7 +1678,7 @@ class Composition(Container):
             chart_title += f"({measure_position}) - "
         else:
             chart_title += " - "
-        chart_title += f"{"Mask - " if self._compositions[self._iteration].is_masked() else ""}"
+        chart_title += f"{"Masked - " if self._compositions[self._iteration].is_masked() else ""}"
         chart_title += f"Iteration {self._iteration} of {len(self._compositions) - 1 if len(self._compositions) > 1 else 0} "
         chart_title += f"- ({checksum_str})"
         self._ax.set_title(chart_title)
@@ -2841,20 +2834,7 @@ class Clip(Composition):  # Just a container of Elements
                 return super().__mod__(operand)
 
 
-    def get_unmasked_element_ids(self) -> set[int]:
-        return {id(unmasked_item) for unmasked_item in self._unmasked_items()}
-
-    def get_masked_element_ids(self) -> set[int]:
-        if self.is_masked():
-            unmasked_ids: set[int] = self.get_unmasked_element_ids()
-            return {
-                id(masked_item) for masked_item in self._items
-                if id(masked_item) not in unmasked_ids
-            }
-        return set()
-
-
-    def getPlotlist(self, position_beats: Fraction = None, masked_element_ids: set[int] | None = None) -> list[dict]:
+    def getPlotlist(self, position_beats: Fraction = None) -> list[dict]:
         """
         Returns the plotlist for a given Position.
 
@@ -2874,16 +2854,11 @@ class Clip(Composition):  # Just a container of Elements
             "automation":   set()
         }
 
-        if masked_element_ids is None:
-            masked_element_ids = set()
-            
-        masked_element_ids.update(self.get_masked_element_ids())
-
         self_plotlist.extend(
             single_playlist
                 for single_element in self._items
                     for single_playlist in single_element.getPlotlist(
-                        self._midi_track, position_beats, channels, masked_element_ids
+                        self._midi_track, position_beats, channels
                     )
         )
         # sorted(set) returns the sorted list from set
@@ -4801,25 +4776,7 @@ class Block(Composition):
                 return super().__mod__(operand)
 
 
-    def get_unmasked_element_ids(self) -> set[int]:
-        unmasked_element_ids: set[int] = set()
-        for unmasked_clip in self._unmasked_items():
-            unmasked_element_ids.update( unmasked_clip.get_unmasked_element_ids() )
-        return unmasked_element_ids
-
-    def get_masked_element_ids(self) -> set[int]:
-        masked_element_ids: set[int] = set()
-        if self.is_masked():
-            unmasked_ids: set[int] = self.get_unmasked_element_ids()
-            for masked_clip in self._items:
-                masked_element_ids.update({
-                    id(masked_item) for masked_item in masked_clip._items
-                    if id(masked_item) not in unmasked_ids
-                })
-        return masked_element_ids
-
-
-    def getPlotlist(self, masked_element_ids: set[int] | None = None, from_part: bool = False) -> list[dict]:
+    def getPlotlist(self, from_part: bool = False) -> list[dict]:
         """
         Returns the plotlist for a given Position.
 
@@ -4828,21 +4785,16 @@ class Block(Composition):
         """
         plot_list: list = []
         
-        if masked_element_ids is None:
-            masked_element_ids = set()
-            
-        masked_element_ids.update(self.get_masked_element_ids())
-
         # AS A BLOCK THE PLAYING IS DONE RIGHT AWAY, WITHOUT ANY CONSIDERATION TO POSITION
         # ONLY WHEN from_part, IS THE Block POSITION SET
         if not from_part:   # Block by itself is played right away, so, no position considered
             og.settings.reset_notes_on()
             for single_clip in self._items:
-                clip_plotlist: list[dict] = single_clip.getPlotlist(masked_element_ids)
+                clip_plotlist: list[dict] = single_clip.getPlotlist()
                 plot_list.extend( clip_plotlist )
         else:
             for single_clip in self._items:
-                clip_plotlist: list[dict] = single_clip.getPlotlist(self._position_beats, masked_element_ids)
+                clip_plotlist: list[dict] = single_clip.getPlotlist(self._position_beats)
                 plot_list.extend( clip_plotlist )
         return plot_list
 
@@ -5386,25 +5338,6 @@ class Part(Composition):
                 return super().__mod__(operand)
 
 
-    def get_unmasked_element_ids(self) -> set[int]:
-        unmasked_element_ids: set[int] = set()
-        for unmasked_block in self._unmasked_items():   # Here self._items is unmasked
-            unmasked_element_ids.update( unmasked_block.get_unmasked_element_ids() )
-        return unmasked_element_ids
-
-    def get_masked_element_ids(self) -> set[int]:
-        masked_element_ids: set[int] = set()
-        if self.is_masked():
-            unmasked_ids: set[int] = self.get_unmasked_element_ids()
-            for masked_block in self._items:
-                for masked_clip in masked_block._items:
-                    masked_element_ids.update({
-                        id(masked_item) for masked_item in masked_clip._items
-                        if id(masked_item) not in unmasked_ids
-                    })
-        return masked_element_ids
-
-
     def getPlotlist(self) -> list[dict]:
         """
         Returns the plotlist for a given Position.
@@ -5414,10 +5347,9 @@ class Part(Composition):
         """
         plot_list: list = []
         og.settings.reset_notes_on()
-        masked_element_ids: set[int] = self.get_masked_element_ids()
         
         for block in self._items:
-            block_plotlist: list[dict] = block.getPlotlist(masked_element_ids, True)
+            block_plotlist: list[dict] = block.getPlotlist(True)
             # Block uses the Part Time Signature as Elements use the Clip Time Signature, so, no need for conversions
             plot_list.extend( block_plotlist )
 
