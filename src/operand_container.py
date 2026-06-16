@@ -517,9 +517,9 @@ class Container(o.Operand):
                         self._unmasked_items()[index] = self.deep_copy(item)
             case od.Select():
                 self.select(operand._data)
-            case og.Mask():
+            case od.Mask():
                 self.mask(*operand._parameters)
-            case og.Unmask():
+            case od.Unmask():
                 self.unmask()
             case tuple():
                 for single_operand in operand:

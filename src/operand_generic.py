@@ -3268,49 +3268,6 @@ class Sort(ContainerProcess):
         return operand.sort(*self._parameters)
 
 
-class Mask(ContainerProcess):
-    """`Generic -> Process -> ContainerProcess -> Mask`
-
-    Masks the items that meet the conditions (equal to). No implicit copies.
-
-    Args:
-        condition (Any): Sets a condition to be compared with `==` operator.
-    """
-    def __init__(self, *conditions):
-        super().__init__(conditions)
-
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        if isinstance(operand, oc.Container):
-            return self._direct_process(operand)   # Special case, NO copy
-        print(f"Warning: Operand is NOT a `Container`!")
-        return operand
-    
-    def _process(self, operand: 'Container') -> 'Container':
-        return operand.mask(*self._parameters)
-
-class Unmask(ContainerProcess):
-    """`Generic -> Process -> ContainerProcess -> Unmask`
-
-    Returns the base `Container` with the mask disabled.
-
-    Args:
-        None
-    """
-    def __init__(self, *conditions):
-        super().__init__()
-
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        if isinstance(operand, oc.Container):
-            return self._direct_process(operand)   # Special case, NO copy
-        print(f"Warning: Operand is NOT a `Container`!")
-        return operand
-    
-    def _process(self, operand: 'Container') -> 'Container':
-        return operand.unmask()
-
-
 class Filter(ContainerProcess):
     """`Generic -> Process -> ContainerProcess -> Filter`
 

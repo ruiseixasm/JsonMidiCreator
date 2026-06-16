@@ -241,6 +241,26 @@ class Select(Masking):
     """
     pass
 
+class Mask(Masking):
+    """`Data -> Masking -> Mask`
+
+    `Mask` uses a condition as the criteria for the Items to be masked.
+    
+    Parameters
+    ----------
+    Any : Conditions that needs to be matched in an And fashion in order to an item to be masked.
+    """
+    pass
+
+class Unmask(Masking):
+    """`Data -> Masking -> Unmask`
+
+    Unmasks all items in the `Container`.
+
+    Args:
+        None
+    """
+    pass
 
 
 class Parameter(Data):
