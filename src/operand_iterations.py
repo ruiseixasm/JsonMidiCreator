@@ -241,7 +241,7 @@ class I_Splitter(I_Clips):
     def _single_iteration(self, decoupled_clip_0: 'oc.Clip') -> 'oc.Clip':
         quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
         total_duration_beats = Fraction(0)
-        for single_element in decoupled_clip_0._foreground_items():
+        for single_element in decoupled_clip_0._unmasked_items():
             total_duration_beats += single_element._duration_beats
         if total_duration_beats > 0:
             try_i: int = 0
@@ -252,7 +252,7 @@ class I_Splitter(I_Clips):
                     continuous_split_step: int = self._chaos % int()
                     continuous_split_beat: Fraction = quantization_beats * continuous_split_step % total_duration_beats
                     continuous_start_beat = Fraction(0)
-                    for single_element in iteration_clip._foreground_items():
+                    for single_element in iteration_clip._unmasked_items():
                         continuous_finish_beat = continuous_start_beat + single_element._duration_beats
                         if continuous_split_beat < continuous_finish_beat:
                             if continuous_split_beat > continuous_start_beat:
@@ -281,7 +281,7 @@ class I_Chooser(I_Clips):
     def _single_iteration(self, decoupled_clip_0: 'oc.Clip') -> 'oc.Clip':
         if self._parameters:
             total_parameters: int = len(self._parameters)
-            for element in decoupled_clip_0._foreground_items():
+            for element in decoupled_clip_0._unmasked_items():
                 index_choice: int = self._chaos % int()
                 chosen_parameter = self._parameters[index_choice % total_parameters]
                 element << chosen_parameter
@@ -299,7 +299,7 @@ class I_Setter(I_Clips):
 
 
     def _single_iteration(self, decoupled_clip_0: 'oc.Clip') -> 'oc.Clip':
-        for element in decoupled_clip_0._foreground_items():
+        for element in decoupled_clip_0._unmasked_items():
             setter: Fraction = self._chaos % Fraction()
             parameter = self._operand << setter
             element << parameter
