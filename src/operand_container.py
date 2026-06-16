@@ -741,6 +741,12 @@ class Container(o.Operand):
             Container: Returns the copy of self but with an empty list of items.
         """
         new_container: Container = self.__class__()
+        new_container._initiated = self._initiated
+        new_container._index = self._index
+        new_container._set = False   # by default a new copy of data unsets the Operand
+        # COPY THE SELF OPERANDS RECURSIVELY
+        new_container._next_operand = new_container.deep_copy(self._next_operand)
+        new_container._masked = self._masked
         return new_container << parameters
 
 
