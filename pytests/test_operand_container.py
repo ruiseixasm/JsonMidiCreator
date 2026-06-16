@@ -1178,7 +1178,7 @@ def test_process_mask():
     print(f"long_clip.len: {long_clip.len()}")
     assert long_clip.len() == 16
     # long_mask is still long_clip
-    long_mask: Clip = long_clip.mask(Last())
+    long_mask: Clip = long_clip.select(Last())
     print(f"long_mask.len: {long_mask.len()}")
     assert long_mask.len() == 1
 
