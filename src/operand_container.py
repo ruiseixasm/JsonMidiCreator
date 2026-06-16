@@ -96,6 +96,13 @@ class Container(o.Operand):
             return self._mask_items.copy()
         return self._items.copy()   # Copies the list, NOT its content
 
+    def _unmasked_items(self) -> list[Any]:
+        unmasked_items: list = [
+            item for item in self._items
+            if isinstance(item, o.Operand) and not item._masked
+        ]
+        return unmasked_items
+
 
     def __getitem__(self, index: Any) -> any:
         if isinstance(index, of.Frame):
@@ -2744,8 +2751,8 @@ class Clip(Composition):  # Just a container of Elements
     def _foreground_items(self) -> list['oe.Element']:
         return super()._foreground_items()
 
-    def _foreground_items(self) -> list['oe.Element']:
-        return super()._foreground_items()
+    def _unmasked_items(self) -> list['oe.Element']:
+        return super()._unmasked_items()
 
 
     def __getitem__(self, index: Any) -> Union['oe.Element', 'Clip']:
@@ -4690,8 +4697,8 @@ class Block(Composition):
     def _foreground_items(self) -> list['Clip']:
         return super()._foreground_items()
 
-    def _foreground_items(self) -> list['Clip']:
-        return super()._foreground_items()
+    def _unmasked_items(self) -> list['Clip']:
+        return super()._unmasked_items()
 
 
     def __getitem__(self, index: Any) -> Union['Clip', 'Block']:
@@ -5299,8 +5306,8 @@ class Part(Composition):
     def _foreground_items(self) -> list['Block']:
         return super()._foreground_items()
 
-    def _foreground_items(self) -> list['Block']:
-        return super()._foreground_items()
+    def _unmasked_items(self) -> list['Block']:
+        return super()._unmasked_items()
 
 
     def __getitem__(self, index: Any) -> Union['Block', 'Part']:
