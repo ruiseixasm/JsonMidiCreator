@@ -1114,11 +1114,9 @@ class Every(Alternator):
         import operand_container as oc
         if self._named_parameters['nths'] > 0 and isinstance(input, (oe.Element, oc.Composition)):
             present_measure: ra.Measure = input % ra.Measure()
-            if isinstance(self._previous_measure, ra.Measure) \
-                and self._previous_measure < present_measure:
-                    self._measure = 1   # Nth, the 1 means the 1st, countable
-            else:
-                self._measure_at += 1
+            if isinstance(self._previous_measure, ra.Measure) and self._previous_measure < present_measure:
+                self._measure_at = 0   # Resets the measure counter
+            self._measure_at += 1
             self._previous_measure = present_measure    # Keeps track of the previous Measure
             if self._measure_at % self._named_parameters['nths'] == 0:
                 if isinstance(self._next_operand, Frame):

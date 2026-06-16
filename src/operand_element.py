@@ -2126,11 +2126,13 @@ class Note(ChannelElement):
                 letter = next((c for c in parameter if c in 'ABCDEFG'), '')
                 # Extract accidental
                 accidental = '#' if '#' in parameter else 'b' if 'b' in parameter else ''
-                # Extract minor
+                # Extract Major and minor
+                major = 'M' if 'M' in parameter else ''
                 minor = 'm' if 'm' in parameter else ''
                 # Get the remaining string without letter and accidental
                 parameter = parameter.replace(letter, '')
                 parameter = parameter.replace(accidental, '')
+                parameter = parameter.replace(major, '')
                 parameter = parameter.replace(minor, '')
                 number = o.string_to_number(parameter)
                 if isinstance(number, (int, float)):
@@ -2139,6 +2141,8 @@ class Note(ChannelElement):
                     self._pitch << letter
                 if accidental:
                     self._pitch << accidental
+                if major:
+                    self._pitch << ou.Major()
                 if minor:
                     self._pitch << ou.Minor()
         # Set Velocity
