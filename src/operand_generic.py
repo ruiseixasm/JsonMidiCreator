@@ -1096,10 +1096,10 @@ class Pitch(Generic):
                 self._key_signature << operand
                 self._tonic_key = self._key_signature % ou.Key() % int() % 24   # Setting a Key Signature adjusts the Tonic Key accordingly
             case ou.Semitone():
-                # actual semitone
-                actual_semitone: int = self % ou.Semitone()
-                delta_semitone: ou.Semitone = operand - actual_semitone
-                self += delta_semitone  # Finally, adjusts the semitone
+                octave_semitone: int = operand._unit % 12
+                octave_increase: int = operand._unit // 12
+                self << ou.Key(octave_semitone) # Sets the Key based on the semitone alone
+                self += octave_increase # Increases the octave (int for octaves)
 
             case int():
                 self << ou.Octave(operand)
