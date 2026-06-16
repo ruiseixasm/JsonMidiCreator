@@ -1132,9 +1132,9 @@ def test_pitch_add():
 
     # Test all semitones from 0 to 11
     expected_keys: list[str] = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
-    for key_i in range(12):
-        (pitch_3 + Semitone(key_i)) % Key() % str() >> Print()
-        assert (pitch_3 + Semitone(key_i)) % Key() % str() == expected_keys[key_i]
+    for semitone in range(12):
+        (pitch_3 + Semitone(semitone)) % Key() % str() >> Print()
+        assert (pitch_3 + Semitone(semitone)) % Key() % str() == expected_keys[semitone]
 
     print("------")
     keys: list = ["C", "D", "E", "F", "G", "A", "B"]
@@ -1156,14 +1156,14 @@ def test_pitch_add():
         pitch_4._set_chromatic_pitch(60) # Middle C (60)
         print(f"------------ {sharps} ------------")
         print("--UP--")
-        for key_i in range(12):
-            (pitch_4 + Semitone(key_i))._get_chromatic_pitch() >> Print()
-            assert (pitch_4 + Semitone(key_i))._get_chromatic_pitch() == chromatic_pitches[key_i]
+        for semitone in range(12):
+            (pitch_4 + Semitone(semitone))._get_chromatic_pitch() >> Print()
+            assert (pitch_4 + Semitone(semitone))._get_chromatic_pitch() == chromatic_pitches[semitone]
         pitch_4._set_chromatic_pitch(71)
         print("-DOWN-")
-        for key_i in range(12):
+        for semitone in range(12):
             pitch_4._get_chromatic_pitch() >> Print()
-            assert pitch_4._get_chromatic_pitch() == chromatic_pitches[11 - key_i]
+            assert pitch_4._get_chromatic_pitch() == chromatic_pitches[11 - semitone]
             pitch_4 -= Semitone(1)
 
     for flats in range(0, -8, -1): # -8 is excluded
@@ -1172,14 +1172,14 @@ def test_pitch_add():
         pitch_4._set_chromatic_pitch(60) # Middle C (60)
         print(f"------------ {flats} ------------")
         print("--UP--")
-        for key_i in range(12):
-            (pitch_4 + Semitone(key_i))._get_chromatic_pitch() >> Print()
-            assert (pitch_4 + Semitone(key_i))._get_chromatic_pitch() == chromatic_pitches[key_i]
+        for semitone in range(12):
+            (pitch_4 + Semitone(semitone))._get_chromatic_pitch() >> Print()
+            assert (pitch_4 + Semitone(semitone))._get_chromatic_pitch() == chromatic_pitches[semitone]
         pitch_4._set_chromatic_pitch(71)
         print("-DOWN-")
-        for key_i in range(12):
+        for semitone in range(12):
             pitch_4._get_chromatic_pitch() >> Print()
-            assert pitch_4._get_chromatic_pitch() == chromatic_pitches[11 - key_i]
+            assert pitch_4._get_chromatic_pitch() == chromatic_pitches[11 - semitone]
             pitch_4 -= Semitone(1)
 
     settings << KeySignature()
@@ -1187,9 +1187,9 @@ def test_pitch_add():
 
     print(f"------------ DEGREES ------------")
     print("------")
-    for key_i in range(12):
-        (pitch_4 + Semitone(key_i))._get_chromatic_pitch() >> Print()
-        assert (pitch_4 + Semitone(key_i))._get_chromatic_pitch() == chromatic_pitches[key_i]
+    for semitone in range(12):
+        (pitch_4 + Semitone(semitone))._get_chromatic_pitch() >> Print()
+        assert (pitch_4 + Semitone(semitone))._get_chromatic_pitch() == chromatic_pitches[semitone]
 
     print("------")
     white_pitches: list[int] = [60, 62, 64, 65, 67, 69, 71]
@@ -1212,7 +1212,7 @@ def test_pitch_add():
     # Resets the defaults
     settings << None
 
-# test_pitch_add()
+test_pitch_add()
 
 
 def test_pitch_pipe():

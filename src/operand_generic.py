@@ -865,8 +865,6 @@ class Pitch(Generic):
         Sets the final chromatic pitch with a midi value from 0 to 127.
         """
         self._octave_0 = chromatic_pitch // 12
-        target_key: int = self._get_target_key()
-        self._octave_0 += target_key // 12
         new_target_key: int = chromatic_pitch % 12
         self._set_target_key(new_target_key)
         return self
@@ -1191,11 +1189,15 @@ class Pitch(Generic):
     def __iadd__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case Pitch() | ou.Semitone():
-                actual_pitch: int = self._get_chromatic_pitch()
+            case Pitch():
+                actual_semitone: int = self._get_chromatic_pitch()
                 added_pitch: int = operand._unit
-                new_pitch: int = actual_pitch + added_pitch
+                new_pitch: int = actual_semitone + added_pitch
                 self._set_chromatic_pitch(new_pitch)
+            case ou.Semitone():
+                actual_semitone = self % ou.Semitone()
+                new_semitone = actual_semitone + operand
+                self << new_semitone
             case ou.Octave():
                 self._octave_0 += operand._unit
             case ou.Degree():
@@ -1243,11 +1245,15 @@ class Pitch(Generic):
     def __isub__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case Pitch() | ou.Semitone():
+            case Pitch():
                 actual_pitch: int = self._get_chromatic_pitch()
                 added_pitch: int = operand._unit
                 new_pitch: int = actual_pitch - added_pitch
                 self._set_chromatic_pitch(new_pitch)
+            case ou.Semitone():
+                actual_semitone = self % ou.Semitone()
+                new_semitone = actual_semitone - operand
+                self << new_semitone
             case ou.Octave():
                 self._octave_0 -= operand._unit
             case ou.Degree():
