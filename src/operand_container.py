@@ -103,23 +103,24 @@ class Container(o.Operand):
                         new_container._append(single_element)
                 return new_container
             case od.Pipe():
-                if isinstance(index._data, of.Frame):
-                    pipped_frame = index._data
-                    pipped_frame._set_inside_container(self)
-                    new_container = self.empty_copy()
-                    for single_element in self._unmasked_items():
-                        frame_result = pipped_frame.frame(single_element)
-                        if single_element == od.Pipe(frame_result):
-                            new_container._append(single_element)
-                    return new_container
-                elif isinstance(index._data, ch.Chaos):
-                    pipped_chaos = index._data
-                    new_container = self.empty_copy()
-                    for single_element in self._unmasked_items():
-                        chaos_result = pipped_chaos.chaoticize()
-                        if single_element == od.Pipe(chaos_result):
-                            new_container._append(single_element)
-                    return new_container
+                match index._data:
+                    case of.Frame():
+                        pipped_frame = index._data
+                        pipped_frame._set_inside_container(self)
+                        new_container = self.empty_copy()
+                        for single_element in self._unmasked_items():
+                            frame_result = pipped_frame.frame(single_element)
+                            if single_element == od.Pipe(frame_result):
+                                new_container._append(single_element)
+                        return new_container
+                    case ch.Chaos():
+                        pipped_chaos = index._data
+                        new_container = self.empty_copy()
+                        for single_element in self._unmasked_items():
+                            chaos_result = pipped_chaos.chaoticize()
+                            if single_element == od.Pipe(chaos_result):
+                                new_container._append(single_element)
+                        return new_container
             case int():
                 return self._unmasked_items()[index]
             case str():
