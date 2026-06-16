@@ -1226,15 +1226,13 @@ class Pitch(Generic):
                 self._octave_0 += self._tonic_key // 12
                 self._tonic_key %= 12   # The Tonic Key is always a % 12 (principles)
             case ou.RootKey():
-                absolute_root_key: int = self._get_chromatic_pitch()
-                absolute_root_key += operand._unit
-                self._set_chromatic_pitch( absolute_root_key )
-            case ou.TargetKey():
-                absolute_target_key: int = self._get_chromatic_pitch()
-                absolute_target_key += operand._unit
-                self._set_chromatic_pitch( absolute_root_key )
+                actual_root_key = self % ou.RootKey()
+                new_root_key = actual_root_key + operand
+                self << new_root_key
             case ou.Key():
-                self += ou.RootKey(operand._unit)
+                actual_key = self % ou.Key()
+                new_root_key = actual_key + operand
+                self << new_root_key
 
             case dict():
                 for octave, value in operand.items():
@@ -1282,15 +1280,13 @@ class Pitch(Generic):
                 self._octave_0 += self._tonic_key // 12
                 self._tonic_key %= 12   # The Tonic Key is always a % 12 (principles)
             case ou.RootKey():
-                absolute_root_key: int = self._get_chromatic_pitch()
-                absolute_root_key -= operand._unit
-                self._set_chromatic_pitch( absolute_root_key )
-            case ou.TargetKey():
-                absolute_root_key: int = self._get_chromatic_pitch()
-                absolute_root_key -= operand._unit
-                self._set_chromatic_pitch( absolute_root_key )
+                actual_root_key = self % ou.RootKey()
+                new_root_key = actual_root_key - operand
+                self << new_root_key
             case ou.Key():
-                self -= ou.RootKey(operand._unit)
+                actual_key = self % ou.Key()
+                new_root_key = actual_key - operand
+                self << new_root_key
 
             case dict():
                 for octave, value in operand.items():
