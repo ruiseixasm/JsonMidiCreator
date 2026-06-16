@@ -1268,7 +1268,7 @@ class Composition(Container):
         Returns:
             Position: The Position fo the last Element.
         """
-        last_element: oe.Element = self._last_element()
+        last_element: oe.Element = self._last_element(include_masked)
         if last_element is not None:
             return last_element % ra.Position()
         return None
@@ -3131,7 +3131,7 @@ class Clip(Composition):  # Just a container of Elements
             case Clip():
                 operand_copy: Clip = operand.copy()._set_owner_clip(self)   # To be dropped
 
-                operand_position: ra.Position = operand_copy.start()
+                operand_position: ra.Position = operand_copy.start(True)
                 if operand_position is not None:
 
                     self_length: ra.Length = self % ra.Length()
