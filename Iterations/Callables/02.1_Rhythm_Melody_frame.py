@@ -17,21 +17,26 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 
 settings << Tempo(137)
 indochine_motif = Clip() << Line(
-    "n:2:C#, :6:B, :2:C#, :6:E, n:2:C#, :6:B, :2:C#, :6:E, n:2:C#, :6:B, :2:C#, :6:E"
+    "n:2:C#7, :6:E7, :2:C#7, :6:B6, :2:C#7, :6:E7, :2:C#7, :6:B6, :2:C#7, :6:E7, :2:C#7, :6:C7"
 )
 
 indochine_motif[0] >> Print()
 
-# Sets all notes on the Octave 7
-next_notes = indochine_motif[First(4)] * 4 << Octave(7) \
-    << Match(Step(2))**Semitone(4) \
-    << Match(Beat(2))**Semitone(1) \
-    << Every(4)**Semitone(-3)
+# # Sets all notes on the Octave 7
+# next_notes = indochine_motif[First(4)] * 4 << Octave(7) \
+#     << Match(Step(2))**Semitone(4) \
+#     << Match(Beat(2))**Semitone(1) \
+#     << Every(4)**Iterate(-2)**Semitone()
 
 
+next_notes = indochine_motif \
+    << Last(2)**Iterate(-4)**Semitone()
 
+last_notes = ~indochine_motif
+last_notes >> Mask(Last(2)) >> Plot()
+last_notes *= 4
 
-next_notes >> Plot()
+last_notes >> Plot()
 
 
 
