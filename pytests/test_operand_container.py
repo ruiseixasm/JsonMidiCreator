@@ -1421,12 +1421,11 @@ def test_frame_masking():
     assert not two_notes[1] % Masked()
 
     two_notes << Select(First())
-    two_notes >> Plot()
+    # two_notes >> Plot()
     assert not two_notes[0] % Masked()
     assert two_notes[1] % Masked()
 
-
-test_frame_masking()
+# test_frame_masking()
 
 
 def test_clip_multi():

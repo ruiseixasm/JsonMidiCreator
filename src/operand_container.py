@@ -992,25 +992,25 @@ class Container(o.Operand):
         if conditions:
             # Makes sure any existing mask is cleared first
             self.unmask()
-
+            new_mask: list[bool] = []
             # And type of conditions, not meeting any means excluded
             for single_condition in conditions:
                 match single_condition:
                     case Container():
                         for single_item in self._items:
                             if isinstance(single_item, o.Operand):
-                                single_item._masked = any(single_item == cond_item for cond_item in single_condition)
+                                new_mask.append(any(single_item == cond_item for cond_item in single_condition))
                     case of.Frame():
                         single_condition._set_inside_container(self)
                         for single_item in self._items:
                             if isinstance(single_item, o.Operand):
                                 framed_result = single_condition.frame(single_item)
-                                single_item._masked = single_item == framed_result
+                                new_mask.append(single_item == framed_result)
                     case ch.Chaos():
                         for single_item in self._items:
                             if isinstance(single_item, o.Operand):
                                 chaotic_result = single_condition.chaoticize()
-                                single_item._masked = single_item == chaotic_result
+                                new_mask.append(single_item == chaotic_result)
                     case od.Pipe():
                         if isinstance(single_condition._data, of.Frame):
                             single_condition._set_inside_container(self)
@@ -1018,17 +1018,25 @@ class Container(o.Operand):
                             for single_item in self._items:
                                 if isinstance(single_item, o.Operand):
                                     framed_result = pipped_frame.frame(single_item)
-                                    single_item._masked = single_item == framed_result
+                                    new_mask.append(single_item == framed_result)
                         elif isinstance(single_condition._data, ch.Chaos):
                             pipped_frame = single_condition._data
                             for single_item in self._items:
                                 if isinstance(single_item, o.Operand):
                                     chaotic_result = pipped_frame.chaoticize()
-                                    single_item._masked = single_item == chaotic_result
+                                    new_mask.append(single_item == chaotic_result)
+                        else:
+                            for single_item in self._items:
+                                if isinstance(single_item, o.Operand):
+                                    new_mask.append(single_item == single_condition)
                     case _:
                         for single_item in self._items:
                             if isinstance(single_item, o.Operand):
-                                single_item._masked = single_item == single_condition
+                                new_mask.append(single_item == single_condition)
+            # Finally apply the mask
+            for single_item in self._items:
+                if isinstance(single_item, o.Operand):
+                    single_item._masked = new_mask.pop(0)   # Pops the first bool each time
         return self
 
 
