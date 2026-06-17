@@ -526,7 +526,7 @@ class Container(o.Operand):
             case od.Select():
                 self.select(operand._data)
             case od.Mask():
-                self.mask(*operand._parameters)
+                self.mask(operand._data)
             case od.Unmask():
                 self.unmask()
             case tuple():
