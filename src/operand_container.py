@@ -3188,9 +3188,9 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             # New Clip/Element results in an insertion at the respective operand position
             case Clip():
-                split_position: ra.Position = operand.start()
+                split_position: ra.Position = operand.start(include_masked=True)
                 if split_position is not None:
-                    position_offset: ra.Position = operand.finish() - split_position
+                    position_offset: ra.Position = operand.finish(include_masked=True) - split_position
                     self //= split_position
                     self += of.DownTo(split_position)**position_offset
                     self += operand # Finally adds the Clip elements
