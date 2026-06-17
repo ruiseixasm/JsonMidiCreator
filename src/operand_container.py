@@ -1227,10 +1227,10 @@ class Composition(Container):
         return self
 
 
-    def _has_elements(self) -> bool:
+    def _has_elements(self, include_masked: bool = False) -> bool:
         return False
 
-    def _total_elements(self) -> int:
+    def _total_elements(self, include_masked: bool = False) -> int:
         return 0
 
     def _first_element(self, include_masked: bool = False) -> 'oe.Element':
@@ -1296,7 +1296,7 @@ class Composition(Container):
 
 
     # Ignores the self Length
-    def start(self) -> 'ra.Position':
+    def start(self, include_masked: bool = False) -> 'ra.Position':
         """
         Gets the starting position of all its Elements.
         This is the same as the minimum Position of all `Element` positions.
@@ -1311,7 +1311,7 @@ class Composition(Container):
 
 
     # Ignores the self Length
-    def finish(self) -> 'ra.Position':
+    def finish(self, include_masked: bool = False) -> 'ra.Position':
         """
         Processes each element Position plus Length and returns the finish position
         as the maximum of all of them.
@@ -1324,11 +1324,11 @@ class Composition(Container):
         """
         return None
 
-    def last_position(self) -> 'ra.Position':
+    def last_position(self, include_masked: bool = False) -> 'ra.Position':
         return self._last_element_position()
 
 
-    def length(self) -> 'ra.Length':
+    def length(self, include_masked: bool = False) -> 'ra.Length':
         """
         Returns the rounded `Length` to `Measures` that goes from 0 to position of the last `Element`.
 
@@ -1338,16 +1338,16 @@ class Composition(Container):
         Returns:
             Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
         """
-        if self._has_elements():
-            last_position: ra.Position = self._last_element_position()
+        if self._has_elements(include_masked):
+            last_position: ra.Position = self._last_element_position(include_masked)
             position_length: ra.Length = ra.Length( last_position.roundMeasures() ) + ra.Measure(1)
-            finish_length: ra.Length = ra.Length( self.finish().roundMeasures() )
+            finish_length: ra.Length = ra.Length( self.finish(include_masked).roundMeasures() )
             if finish_length > position_length:
                 return finish_length
             return position_length
         return ra.Length(self, 0)
     
-    def net_length(self) -> 'ra.Length':
+    def net_length(self, include_masked: bool = False) -> 'ra.Length':
         """
         Returns the rounded `Length` to `Measures` that goes from start to position of the last `Element`.
 
@@ -1357,13 +1357,13 @@ class Composition(Container):
         Returns:
             Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
         """
-        self_net_length: ra.Length = self.length()
+        self_net_length: ra.Length = self.length(include_masked)
         if self_net_length > Fraction(0):
-            self_net_length -= self.start().roundMeasures()
+            self_net_length -= self.start(include_masked).roundMeasures()
         return self_net_length
     
     
-    def duration(self) -> 'ra.Duration':
+    def duration(self, include_masked: bool = False) -> 'ra.Duration':
         """
         Returns the `Duration` that goes from 0 to the `finish` of all elements.
 
@@ -1374,10 +1374,10 @@ class Composition(Container):
             Duration: Equal to `Clip.finish()` converted to `Duration`.
         """
         if self._has_elements():
-            return ra.Duration(self.finish())
+            return ra.Duration(self.finish(include_masked))
         return ra.Duration(self, 0)
     
-    def net_duration(self) -> 'ra.Duration':
+    def net_duration(self, include_masked: bool = False) -> 'ra.Duration':
         """
         Returns the `Duration` that goes from `start` to the `finish` of all elements.
 
@@ -1388,7 +1388,7 @@ class Composition(Container):
             Duration: Equal to `Clip.finish() - Clip.start()` converted to `Duration`.
         """
         if self._has_elements():
-            return ra.Duration(self.finish() - self.start())
+            return ra.Duration(self.finish(include_masked) - self.start(include_masked))
         return ra.Duration(self, 0)
     
     def all_elements(self) -> list['oe.Element']:
@@ -4447,11 +4447,9 @@ class Block(Composition):
         self._position_beats: Fraction  = Fraction(0)   # in Beats
         super().__init__()
         self._items: list[Clip] = []
-        self._name: str = "Block"
-
+        self._name: str         = "Block"
         # Part sets the TimeSignature, this is just a reference
-        self._owner_part: Part      = None
-
+        self._owner_part: Part  = None
         for single_operand in operands:
             self << single_operand
 
@@ -4587,7 +4585,7 @@ class Block(Composition):
                 return self % other > other
     
 
-    def start(self) -> ra.Position:
+    def start(self, include_masked: bool = False) -> ra.Position:
         """
         Gets the starting position of all its Clips.
         This is the same as the minimum `Position` of all `Clip` positions.
@@ -4614,7 +4612,7 @@ class Block(Composition):
                     start_position = clip_start
         return start_position
 
-    def finish(self) -> ra.Position:
+    def finish(self, include_masked: bool = False) -> ra.Position:
         """
         Processes each clip `Position` plus Length and returns the finish position
         as the maximum of all of them. This position is `Block` reference_time_signature based `Position`.
@@ -4640,7 +4638,7 @@ class Block(Composition):
                     finish_position = clip_finish
         return finish_position
 
-    def last_position(self) -> 'ra.Position':
+    def last_position(self, include_masked: bool = False) -> 'ra.Position':
         position: ra.Position = None
         for clip in self._items:
             clip_position: ra.Position = clip.last_position()
@@ -4898,7 +4896,7 @@ class Block(Composition):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Block():
-                self_length: ra.Length = self.length()
+                self_length: ra.Length = self.length(include_masked=True)
                 if self_length is not None:
                     return Part(self._time_signature, self, operand.copy(ra.Position(self_length)))
                 else:
@@ -5096,22 +5094,22 @@ class Part(Composition):
         return True
 
 
-    def _has_elements(self) -> bool:
+    def _has_elements(self, include_masked: bool = False) -> bool:
         for block in self._items:
-            if block._has_elements():
+            if block._has_elements(include_masked):
                 return True
         return False
 
-    def _total_elements(self) -> int:
+    def _total_elements(self, include_masked: bool = False) -> int:
         total_elements: int = 0
         for block in self._items:
-            total_elements += block._total_elements()
+            total_elements += block._total_elements(include_masked)
         return total_elements
 
-    def _last_position_and_element(self) -> tuple:
+    def _last_position_and_element(self, include_masked: bool = False) -> tuple:
         last_elements_list: list[tuple[ra.Position, Clip]] = []
         for block in self._items:
-            block_last_element: oe.Element = block._last_element()
+            block_last_element: oe.Element = block._last_element(include_masked)
             if block_last_element is not None:
                 # NEEDS TO TAKE INTO CONSIDERATION THE PART POSITION TOO
                 last_elements_list.append(
@@ -5123,7 +5121,7 @@ class Part(Composition):
             return last_elements_list[-1]
         return None
 
-    def _last_element(self) -> 'oe.Element':
+    def _last_element(self, include_masked: bool = False) -> 'oe.Element':
         """
         Returns the `Element` with the last `Position` in the given `Block`.
 
@@ -5133,12 +5131,12 @@ class Part(Composition):
         Returns:
             Element: The last `Element` of all elements in each `Clip`.
         """
-        last_position_element: tuple = self._last_position_and_element()
+        last_position_element: tuple = self._last_position_and_element(include_masked)
         if last_position_element is not None:
             return last_position_element[1]
         return None
 
-    def _last_element_position(self) -> ra.Position:
+    def _last_element_position(self, include_masked: bool = False) -> ra.Position:
         """
         Returns the `Position` of tha last `Element`.
 
@@ -5148,7 +5146,7 @@ class Part(Composition):
         Returns:
             Position: The `Position` of the last `Element` of all elements in each `Block`.
         """
-        last_position_element: tuple = self._last_position_and_element()
+        last_position_element: tuple = self._last_position_and_element(include_masked)
         if last_position_element is not None:
             # NEEDS TO TAKE INTO CONSIDERATION THE PART POSITION TOO, SO DON'T REMOVE THIS METHOD
             return last_position_element[0]
@@ -5163,7 +5161,7 @@ class Part(Composition):
         return master & 0xFFFF  # 16-bit
 
 
-    def start(self) -> ra.Position:
+    def start(self, include_masked: bool = False) -> ra.Position:
         """
         Gets the starting position of all its Blocks.
         This is the same as the minimum `Position` of all `Block` positions, which ones,
@@ -5189,7 +5187,7 @@ class Part(Composition):
                     start_position = absolute_start
         return start_position
 
-    def finish(self) -> ra.Position:
+    def finish(self, include_masked: bool = False) -> ra.Position:
         """
         Gets the finishing position of all its Blocks.
         This is the same as the maximum `Position` of all `Block` positions, which ones,
@@ -5215,7 +5213,7 @@ class Part(Composition):
                     finish_position = absolute_finish
         return finish_position
 
-    def last_position(self) -> 'ra.Position':
+    def last_position(self, include_masked: bool = False) -> 'ra.Position':
         position: ra.Position = None
         for block in self._items:
             block_position: ra.Position = block.last_position()
