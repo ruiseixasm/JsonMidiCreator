@@ -581,14 +581,14 @@ def test_mul_clip():
     hi_hat *= 2
     assert hi_hat.len() == 4
     assert hi_hat._test_owner_clip()
-    hi_hat[0] % Position() % Steps() % float() >> Print()
-    assert hi_hat[0] % Position() % Steps() == 2.0
-    hi_hat[1] % Position() % Steps() % float() >> Print()
-    assert hi_hat[1] % Position() % Steps() == 6.0
-    hi_hat[2] % Position() % Steps() % float() >> Print()
-    assert hi_hat[2] % Position() % Steps() == 10.0
-    hi_hat[3] % Position() % Steps() % float() >> Print()
-    assert hi_hat[3] % Position() % Steps() == 14.0
+    hi_hat % At(0) % Position() % Steps() % float() >> Print()
+    assert hi_hat % At(0) % Position() % Steps() == 2.0
+    hi_hat % At(1) % Position() % Steps() % float() >> Print()
+    assert hi_hat % At(1) % Position() % Steps() == 6.0
+    hi_hat % At(2) % Position() % Steps() % float() >> Print()
+    assert hi_hat % At(2) % Position() % Steps() == 10.0
+    hi_hat % At(3) % Position() % Steps() % float() >> Print()
+    assert hi_hat % At(3) % Position() % Steps() == 14.0
 
     # Test empty Clip
     empty_clip = hi_hat * 0 << Pipe(TimeSignature(2, 4))
@@ -754,18 +754,18 @@ def test_lshift_clip():
     filtered_notes = eight_notes << Select(Measure(1))
 
     assert filtered_notes.len() == 4
-    assert filtered_notes[0] % Position() == 1.0
-    assert filtered_notes[1] % Position() == 1.25
-    assert filtered_notes[2] % Position() == 1.50
-    assert filtered_notes[3] % Position() == 1.75
+    assert filtered_notes % At(0) % Position() == 1.0
+    assert filtered_notes % At(1) % Position() == 1.25
+    assert filtered_notes % At(2) % Position() == 1.50
+    assert filtered_notes % At(3) % Position() == 1.75
 
     filtered_notes << Measure(0)
 
     assert filtered_notes.len() == 4
-    assert filtered_notes[0] % Position() == 0.0
-    assert filtered_notes[1] % Position() == 0.25
-    assert filtered_notes[2] % Position() == 0.50
-    assert filtered_notes[3] % Position() == 0.75
+    assert filtered_notes % At(0) % Position() == 0.0
+    assert filtered_notes % At(1) % Position() == 0.25
+    assert filtered_notes % At(2) % Position() == 0.50
+    assert filtered_notes % At(3) % Position() == 0.75
 
 # test_lshift_clip()
 
