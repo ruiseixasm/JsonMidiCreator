@@ -90,14 +90,14 @@ class Container(o.Operand):
             case of.Frame():
                 index._set_inside_container(self)
                 new_container = self.empty_copy()
-                for single_element in self._unmasked_items():
+                for single_element in self._items:
                     frame_result = index.frame(single_element)
                     if single_element == frame_result:
                         new_container._append(single_element)
                 return new_container
             case ch.Chaos():
                 new_container = self.empty_copy()
-                for single_element in self._unmasked_items():
+                for single_element in self._items:
                     chaos_result = index.chaoticize()
                     if single_element == chaos_result:
                         new_container._append(single_element)
@@ -108,7 +108,7 @@ class Container(o.Operand):
                         pipped_frame = index._data
                         pipped_frame._set_inside_container(self)
                         new_container = self.empty_copy()
-                        for single_element in self._unmasked_items():
+                        for single_element in self._items:
                             frame_result = pipped_frame.frame(single_element)
                             if single_element == od.Pipe(frame_result):
                                 new_container._append(single_element)
@@ -116,18 +116,18 @@ class Container(o.Operand):
                     case ch.Chaos():
                         pipped_chaos = index._data
                         new_container = self.empty_copy()
-                        for single_element in self._unmasked_items():
+                        for single_element in self._items:
                             chaos_result = pipped_chaos.chaoticize()
                             if single_element == od.Pipe(chaos_result):
                                 new_container._append(single_element)
                         return new_container
             case int():
-                return self._unmasked_items()[index]
+                return self._items[index]
             case str():
                 index = o.tag_to_int(index)
                 if index != -1:
-                    return self._unmasked_items()[index]
-        for item in self._unmasked_items():
+                    return self._items[index]
+        for item in self._items:
             if item == index:
                 return item
         return ol.Null()

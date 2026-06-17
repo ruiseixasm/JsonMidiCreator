@@ -793,9 +793,12 @@ class Operand:
     def __lshift__(self, operand: any) -> Self:
         import operand_label as ol
         import operand_data as od
+        import operand_unit as ou
         match operand:
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
+            case ou.Masked():
+                return ou.Masked(self._masked)
             case ol.Null():
                 pass
             case od.AsIs():

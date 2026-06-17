@@ -1245,10 +1245,10 @@ def test_mul_list():
     same_as_long_clip = long_clip.select(Beat(3))
     assert same_as_long_clip.len() == 1 * 8
     new_clip = same_as_long_clip * [1, 0]   # Picks by Measure, where 0 is the first Measure
-    print(f'new_clip[0] % Velocity(): {new_clip[0] % Velocity() % int()}')
-    print(f'new_clip[1] % Velocity(): {new_clip[1] % Velocity() % int()}')
-    assert new_clip[0] % Velocity() % int() == 100 - 8 + 1
-    assert new_clip[1] % Velocity() % int() == 100 - 4 + 1
+    print(f'new_clip % At(0) % Velocity(): {new_clip % At(0) % Velocity() % int()}')
+    print(f'new_clip % At(1) % Velocity(): {new_clip % At(1) % Velocity() % int()}')
+    assert new_clip % At(0) % Velocity() % int() == 100 - 8 + 1
+    assert new_clip % At(1) % Velocity() % int() == 100 - 4 + 1
     same_as_new_clip = new_clip.unmask()
     assert same_as_new_clip.len() == 4 * 2
 
@@ -1282,7 +1282,8 @@ def test_floordiv_clip():
     assert just_notes == Note(Beat(1)) / Note()**3
     assert just_rests_mask == Rest(1/2) / 2
     just_rests_mask //= just_notes
-    assert just_rests_mask[0] == Note(Beat(1))
+    # Using a % Frame() given that index is for the entire `Container` list
+    assert just_rests_mask % First() == Note(Beat(1))
     just_rests = just_rests_mask.unmask()
     assert just_rests[0] == Rest(1/2)
     assert just_rests[1] == Note(Beat(1))
@@ -1407,6 +1408,20 @@ def test_clip_line():
     assert isinstance(single_cluster[0], Cluster)
 
 # test_clip_line()
+
+
+def test_frame_masking():
+    two_notes = Note(1/2) / 2
+    assert not two_notes[0] % Masked()
+    assert not two_notes[1] % Masked()
+
+    two_notes << Select(Last())
+    # two_notes >> Plot()
+    assert two_notes[0] % Masked()
+    assert not two_notes[1] % Masked()
+
+
+# test_frame_masking()
 
 
 def test_clip_multi():

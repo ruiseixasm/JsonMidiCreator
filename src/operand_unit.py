@@ -1236,6 +1236,17 @@ class Boolean(Unit):
     def __init__(self, *parameters):
         super().__init__(True, *parameters)
 
+class Masked(Boolean):
+    """`Unit -> Boolean -> Masked`
+
+    Returns if a given `Operand` is masked or not.
+    
+    Parameters
+    ----------
+    bool(True), int : `True` for masked and `False` for selected (not masked).
+    """
+    pass
+
 class Tied(Boolean):
     """`Unit -> Boolean -> Tied`
 
