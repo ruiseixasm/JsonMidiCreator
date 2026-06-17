@@ -3139,13 +3139,13 @@ class Clip(Composition):  # Just a container of Elements
 
                 if operand_elements:
 
-                    left_finish_position: ra.Position = self.finish()
+                    left_finish_position: ra.Position = self.finish(include_masked=True)
                     if left_finish_position is None:
                         left_finish_position = ra.Position(self)
                         
                     # operand_elements already sorted by position
                     left_finish_position_beats: Fraction = left_finish_position._rational
-                    right_start_position_beats: Fraction = operand_elements[0]._position_beats
+                    right_start_position_beats: Fraction = operand_elements[0]._position_beats  # Same as Start Position
                     position_shift: Fraction = left_finish_position_beats - right_start_position_beats
                     for new_element in operand_elements:
                         new_element._position_beats += position_shift
