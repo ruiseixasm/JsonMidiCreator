@@ -1420,6 +1420,11 @@ def test_frame_masking():
     assert two_notes[0] % Masked()
     assert not two_notes[1] % Masked()
 
+    two_notes << Select(First())
+    two_notes >> Plot()
+    assert not two_notes[0] % Masked()
+    assert two_notes[1] % Masked()
+
 
 test_frame_masking()
 
