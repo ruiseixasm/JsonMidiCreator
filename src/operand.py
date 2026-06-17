@@ -678,6 +678,7 @@ class Operand:
         import operand_label as ol
         import operand_frame as of
         import operand_data as od
+        import operand_unit as ou
         import operand_rational as ra
         match operand:
             case od.Pipe():
@@ -688,6 +689,8 @@ class Operand:
                 return od.Serialization(self)
             case ra.Index():
                 return ra.Index(self._index)
+            case ou.Masked():
+                return ou.Masked(self._masked)
             case tuple():
                 results: list = []
                 for single_parameter in operand:
@@ -797,8 +800,10 @@ class Operand:
         match operand:
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ou.Masked():
-                return ou.Masked(self._masked)
+            case od.Mask():
+                self._masked = True
+            case od.Unmask():
+                self._masked = False
             case ol.Null():
                 pass
             case od.AsIs():
