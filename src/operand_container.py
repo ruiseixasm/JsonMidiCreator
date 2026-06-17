@@ -4447,7 +4447,6 @@ class Block(Composition):
         self._position_beats: Fraction  = Fraction(0)   # in Beats
         super().__init__()
         self._items: list[Clip] = []
-        self._mask_items: list[Clip] = []
         self._name: str = "Block"
 
         # Part sets the TimeSignature, this is just a reference
