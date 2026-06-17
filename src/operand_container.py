@@ -5177,7 +5177,7 @@ class Part(Composition):
 
         for block in self._items:
             # Already includes the Part TimeSignature conversion
-            block_start: ra.Position = block.start()
+            block_start: ra.Position = block.start(include_masked)
             if block_start is not None:
                 absolute_start: ra.Position = block % ra.Position() + block_start
                 if start_position is not None:
@@ -5203,7 +5203,7 @@ class Part(Composition):
 
         for block in self._items:
             # Already includes the Part TimeSignature conversion
-            block_finish: ra.Position = block.finish()
+            block_finish: ra.Position = block.finish(include_masked)
             if block_finish is not None:
                 absolute_finish: ra.Position = block % ra.Position() + block_finish
                 if finish_position is not None:
@@ -5216,7 +5216,7 @@ class Part(Composition):
     def last_position(self, include_masked: bool = False) -> 'ra.Position':
         position: ra.Position = None
         for block in self._items:
-            block_position: ra.Position = block.last_position()
+            block_position: ra.Position = block.last_position(include_masked)
             if block_position is not None:
                 if position is None:
                     position = block_position
