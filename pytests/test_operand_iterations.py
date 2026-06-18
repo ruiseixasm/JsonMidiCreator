@@ -31,15 +31,21 @@ import sys
 
 
 def test_cycle_setter():
+    two_notes = Note(1/2) / 2 << Select(At(1)) << Name("Two Notes")
+    notes_setting = I_Setter(Semitone(), Cycle(), no_repetitions=True)
+    for semitone in range(12):
+        new_iteration: Clip = notes_setting.new_iteration(two_notes)
+        second_note: Note = new_iteration[1]
+        print(f"Semitone {semitone}: {second_note._pitch._get_chromatic_pitch()} VS {60 + semitone}")
+        assert second_note._pitch._get_chromatic_pitch() == 60 + semitone
     four_notes = Clip(
         Line("n:2:C#7, :6:E7, :2:F#6, :6:F6")
     ) << Select(At(2)) << Name("Four Notes")
-    notes_setting = I_Setter(Semitone(), Cycle(), no_repetitions=True)
     for semitone in range(12):
         new_iteration: Clip = notes_setting.new_iteration(four_notes)
-        third_note: Note = new_iteration[2]
-        print(f"Semitone {semitone}: {third_note._pitch._get_chromatic_pitch()} VS {60 + 2*12 + semitone}")
-        assert third_note._pitch._get_chromatic_pitch() == 60 + 2*12 + semitone
+        second_note: Note = new_iteration[2]
+        print(f"Semitone {semitone}: {second_note._pitch._get_chromatic_pitch()} VS {60 + 2*12 + semitone}")
+        assert second_note._pitch._get_chromatic_pitch() == 60 + 2*12 + semitone
 
 # test_cycle_setter()
 
