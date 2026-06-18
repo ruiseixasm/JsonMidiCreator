@@ -1413,6 +1413,8 @@ def test_clip_line():
         "cl_3:1m:_-_3._5."
     )
     # single_cluster >> Plot()
+    print(f"Main pitch: {single_cluster[0]._pitch._get_chromatic_pitch()}")
+    assert single_cluster[0]._pitch._get_chromatic_pitch() == 60    # C
     components: list[Note] = single_cluster[0].get_component_elements()
     assert len(components) == 3
     print(f"Pitch 1: {components[0]._pitch._get_chromatic_pitch()}")
@@ -1423,7 +1425,7 @@ def test_clip_line():
     assert components[2]._pitch._get_chromatic_pitch() == 67    # G
     assert single_cluster.len() == 1
 
-# test_clip_line()
+test_clip_line()
 
 
 def test_frame_masking():
