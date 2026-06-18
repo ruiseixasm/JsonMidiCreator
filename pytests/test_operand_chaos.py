@@ -51,6 +51,14 @@ def test_sinx_mod():
 # test_sinx_mod()
 
 
+def test_cycle():
+    cycle = Cycle() # Default modulus is 12
+    for value in range(12):
+        assert cycle % int() == value
+
+# test_cycle()
+
+
 def test_modulus():
 
     cycle = Cycle(Modulus(4))
@@ -111,6 +119,6 @@ def test_reset():
     chaos_copy.reset()
     assert chaos_copy == chaos
 
-test_reset()
+# test_reset()
 
 
