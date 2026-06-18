@@ -44,13 +44,13 @@ four_notes = Clip(
     Line(":2:C#7, :6:E7, :2:F#6, :6:F6")
 ) << Select(Nth(3)) << Name("Four Notes")
 
-notes_setting = I_Setter(Semitone(),SinX(Modulo(12)), no_repetitions=True)
-# four_notes >> Plot(n_button=notes_setting.new_iteration, iterations=4) << Select(Nth(4)) >> Plot(n_button=notes_setting.new_iteration)
+notes_setting = I_Setter(Semitone(), Cycle(), no_repetitions=True)
+four_notes >> Plot(n_button=notes_setting.new_iteration, iterations=4) << Select(Nth(4)) >> Plot(n_button=notes_setting.new_iteration)
 
 indochine_motif >> Plot()
 # Final Clip
 indochine_motif << Line(
     "n:2:C#7, :6:E7, :2:C#7, :6:B6, :2:C#7, :6:E7, :2:C#7, :6:B6, :2:C#7, :6:E7, :2:C#6, :6:F6"
 )
-indochine_motif >> Plot()
+# indochine_motif >> Plot()
 # indochine_motif * 4 >> Play()
