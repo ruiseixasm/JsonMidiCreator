@@ -18,7 +18,7 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 settings << Tempo(137)
 indochine_motif = Clip() << Line(
     "n:2:C#7, :6:E7, :2:C#7, :6:B6, :2:C#7, :6:E7, :2:C#7, :6:B6, :2:C#7, :6:E7, :2:F#6, :6:F6"
-)
+) << Name("Indochine")
 
 indochine_motif[0] >> Print()
 
@@ -42,7 +42,7 @@ last_notes += Mux(2)**Iterate()**Semitone()
 
 four_notes = Clip(
     Line(":2:C#7, :6:E7, :2:F#6, :6:F6")
-) << Select(Nth(3)) << Name("Indochine")
+) << Select(Nth(3)) << Name("Four Notes")
 
 notes_setting = I_Setter(Semitone(),SinX(Modulo(12)), no_repetitions=True)
 # four_notes >> Plot(n_button=notes_setting.new_iteration, iterations=4) << Select(Nth(4)) >> Plot(n_button=notes_setting.new_iteration)
