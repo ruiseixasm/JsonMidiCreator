@@ -1413,9 +1413,10 @@ def test_clip_line():
         "cl_3:1m:_-_3._5."
     )
     # single_cluster >> Plot()
+    assert len(single_cluster[0].get_component_elements()) == 3
     assert single_cluster.len() == 1
 
-# test_clip_line()
+test_clip_line()
 
 
 def test_frame_masking():

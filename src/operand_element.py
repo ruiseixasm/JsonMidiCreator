@@ -2139,7 +2139,7 @@ class Note(ChannelElement):
                     self._pitch << accidental
                 if major:
                     self._pitch << ou.Major()
-                if minor:
+                elif minor:
                     self._pitch << ou.Minor()
         # Set Velocity
         field_3: str = token_operand.get_field(3)
@@ -2707,7 +2707,7 @@ class Cluster(KeyScale):
         if field_2 is not None:
             field = od.Field(field_2)
             pitch_parameters = field.get_parameters()
-            self._pitches = []  # MAkes sure it resets existing pitches
+            self._pitches = []  # Makes sure it resets existing pitches
             for nth, parameter in enumerate(pitch_parameters):
                 # It has to be saved as a Token
                 if nth == 0:    # For the main Note (upper call)
@@ -2717,6 +2717,18 @@ class Cluster(KeyScale):
                     pitch_token = od.Token("::" + parameter)
                     self._pitches.append(pitch_token)
         return self
+
+
+    def get_component_elements(self) -> list[Note]:
+        cluster_notes: list[Note] = []
+        for pitch_parameter in self._pitches:
+            single_note: Note = Note(self)  # Owned by same clip
+            if isinstance(pitch_parameter, od.Token):
+                single_note << pitch_parameter
+            else:
+                single_note._pitch << pitch_parameter
+            cluster_notes.append( single_note )
+        return self._arpeggio.arpeggiate( self._apply_inversion(cluster_notes) )
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -2738,18 +2750,6 @@ class Cluster(KeyScale):
             case _:
                 return super().__eq__(other)
     
-    def get_component_elements(self) -> list[Note]:
-        cluster_notes: list[Note] = []
-        for pitch_parameter in self._pitches:
-            single_note: Note = Note(self)  # Owned by same clip
-            if isinstance(pitch_parameter, od.Token):
-                single_note << pitch_parameter
-            else:
-                single_note._pitch << pitch_parameter
-            cluster_notes.append( single_note )
-        return self._arpeggio.arpeggiate( self._apply_inversion(cluster_notes) )
-
-
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["pitches"] = self.serialize( self._pitches )
