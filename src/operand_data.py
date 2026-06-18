@@ -430,6 +430,7 @@ class Line(Data):
     """`Data -> Line`
 
     A `Line` is a string representing a series of Elements set by multiple tokens and fields.
+    The previous `Element` configurations transit to the following ones.
 
     DSL stands for Domain-Specific Language: `Line[ Token(,)[ Field(:)[ Parameter(_) ] ] ]`
 
@@ -448,6 +449,7 @@ class Line(Data):
         | "pb" | PitchBend       |
         | "pc" | ProgramChange   |
         | "at" | Aftertouch      |
+        | "a"  | Automation      |
         +------+-----------------+
         
     Parameters

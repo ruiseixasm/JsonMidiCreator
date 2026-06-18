@@ -992,7 +992,7 @@ class Container(o.Operand):
         if conditions:
             # Makes sure any existing mask is cleared first
             self.unmask()
-            new_mask: list[bool] = []
+            new_mask: list[bool] = []   # Decouples the process of getting the mask
             # And type of conditions, not meeting any means excluded
             for single_condition in conditions:
                 match single_condition:
@@ -2947,10 +2947,10 @@ class Clip(Composition):  # Just a container of Elements
                 else:
                     super().__lshift__(operand)
 
-            case od.Line():
-            # Place to add Line processing
+            case od.Line(): # Place to set Line processing            
                 line_elements: list[oe.Element] = oe.get_elements_from_line(operand)
-                self._extend(line_elements)._set_owner_clip()._sort_items()
+                self._items = line_elements
+                self._set_owner_clip()._sort_items()
 
             case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | Devices() | od.Device():
                 self._midi_track << operand

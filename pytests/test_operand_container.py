@@ -1404,8 +1404,16 @@ def test_empty_clips():
 def test_clip_line():
     cluster_line = Line("cl_-_2:3b:3m_1._3._4.")
     single_cluster = Clip(cluster_line)
+    # single_cluster >> Plot()
     assert single_cluster.len() == 1
     assert isinstance(single_cluster[0], Cluster)
+
+    assert single_cluster.len() == 1
+    single_cluster << Line(
+        "cl_3:1m:_-_3._5."
+    )
+    # single_cluster >> Plot()
+    assert single_cluster.len() == 1
 
 # test_clip_line()
 
