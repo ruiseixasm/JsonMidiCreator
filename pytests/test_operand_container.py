@@ -1402,17 +1402,21 @@ def test_empty_clips():
 
 
 def test_clip_line():
-    cluster_line = Line("cl_-_2:3b:3m_1._3._4.")
+    
+    # Resets the defaults
+    settings << None
+
+    cluster_line = Line("cl_-_2:3b:3m::1.:3.:4.")
     single_cluster = Clip(cluster_line)
     print(f"Main pitch: {single_cluster[0]._pitch._get_chromatic_pitch()}")
     assert single_cluster[0]._pitch._get_chromatic_pitch() == 57    # A3
-    single_cluster >> Plot()
+    # single_cluster >> Plot()
     assert single_cluster.len() == 1
     assert isinstance(single_cluster[0], Cluster)
 
     assert single_cluster.len() == 1
     single_cluster << Line(
-        "cl_3:1m:M_-_3._5."
+        "cl_3:1m:M::-:3.:_5."
     )
     # single_cluster >> Plot()
     print(f"Main pitch: {single_cluster[0]._pitch._get_chromatic_pitch()}")
@@ -1427,7 +1431,7 @@ def test_clip_line():
     assert components[2]._pitch._get_chromatic_pitch() == 67    # G
     assert single_cluster.len() == 1
 
-test_clip_line()
+# test_clip_line()
 
 
 def test_frame_masking():

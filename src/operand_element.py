@@ -2664,9 +2664,9 @@ class Cluster(KeyScale):
         |       | 2         | Inversion: int(Inversion)                                                         |
         | 1     | 0         | Duration: int(Beats), float(NoteValue), "d" - Dotted, "m" - Measures, "b" - Beats |
         |       | n         | Position: int(Beat), float(Position), "m" - Measure, "b" - Beat                   |
-        | 2     | 0         | Pitch: int(Octave), float(Degree), "A" to "G" - Key, "#" - Sharp, "b" - Flat      |
-        |       | n         | Pitch: Each pitch for each n Note based on the one set at parameter 0 above       |
+        | 2     | n         | Pitch: int(Octave), float(Degree), "A" to "G" - Key, "#" - Sharp, "b" - Flat      |
         | 3     | 0         | Velocity: int(Velocity)                                                           |
+        | n     | n         | Pitch: Each pitch for each n Note based on the base Note set in Field 2           |
         +-------+-----------+-----------------------------------------------------------------------------------+
 
     Parameters
@@ -2702,20 +2702,13 @@ class Cluster(KeyScale):
                 inversion = o.string_to_number(parameter)
                 if isinstance(inversion, int):
                     self << ou.Inversion(inversion)
-        # Set Pitch
-        field_2: str = token_operand.get_field(2)
-        if field_2 is not None:
-            field = od.Field(field_2)
-            pitch_parameters = field.get_parameters()
-            self._pitches = []  # Makes sure it resets existing pitches
-            for nth, parameter in enumerate(pitch_parameters):
-                # It has to be saved as a Token
-                if nth == 0:    # For the main Note (upper call)
-                    token_operand.replace_field(2, parameter)   # Removes the extra parameters
-                    super()._set_element_from_token(token_operand % str(), previous_element)
-                else:
-                    pitch_token = od.Token("::" + parameter)
-                    self._pitches.append(pitch_token)
+        # Get individual Tokens for each cluster Note as future Pitch setters
+        fields = token_operand.get_fields()
+        self._pitches = []  # Makes sure it resets existing pitches
+        for index, single_field in enumerate(fields):
+            if index > 3:   # Above 3, the one concerning velocity
+                pitch_token = od.Token("::" + single_field) # Pitch field set ONLY
+                self._pitches.append(pitch_token)
         return self
 
 
