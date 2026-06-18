@@ -1511,6 +1511,19 @@ def test_pitch_degrees_2():
 # test_pitch_degrees_2()
 
 
+def test_pitch_semitone():
+
+    # Resets the defaults
+    settings << None
+
+    pitch_C = Pitch()
+    for semitone in range(12):
+        pitch_C << Semitone(semitone)
+        assert pitch_C._get_chromatic_pitch() == 60 + semitone
+
+# test_pitch_semitone()
+
+
 def test_pitch_multi():
 
     # Resets the defaults
