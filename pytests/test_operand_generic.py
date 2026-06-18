@@ -1212,7 +1212,7 @@ def test_pitch_add():
     # Resets the defaults
     settings << None
 
-test_pitch_add()
+# test_pitch_add()
 
 
 def test_pitch_pipe():
