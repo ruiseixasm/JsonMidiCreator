@@ -37,8 +37,12 @@ def test_sinx_mod():
     sin_x = SinX()
 
     # sin_x remains unchangeable
-    sin_x_1000  = sin_x * 1000   # Implicit copy
     sin_x_1     = sin_x * 1      # Implicit copy
+    sin_x_1000  = sin_x * 1000   # Implicit copy
+
+    # Index starts at 0, the first iteration, thus the -1
+    assert sin_x_1._index == 1 - 1
+    assert sin_x_1000._index == 1000 - 1
 
     assert sin_x_1000 != sin_x_1
     assert sin_x_1000 == sin_x_1 * 999
