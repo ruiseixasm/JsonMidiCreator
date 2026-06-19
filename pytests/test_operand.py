@@ -431,6 +431,15 @@ def test_operand_chaining():
 # test_operand_chaining()
 
 
+def test_operand_wrapper():
+    wrapper_pipe = Pipe()**Degree()
+    assert wrapper_pipe._data == Degree()
+    wrapper_pipe << 3
+    assert wrapper_pipe._data == Degree(3)
+
+# test_operand_wrapper()
+
+
 def test_tail_copy():
     channel_operand = Channel()
     assert channel_operand._next_operand is None
