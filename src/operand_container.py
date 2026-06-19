@@ -1624,7 +1624,7 @@ class Composition(Container):
             chart_title += " - "
         chart_title += f"{"Masked - " if self._compositions[self._chart_index].is_masked() else ""}"
         if self._chart_index > 0:
-            chart_title += f"Iteration {self._chart_index - 1} up to {len(self._compositions) - 1 - 1} "
+            chart_title += f"Iteration {self._chart_index} of {len(self._compositions) - 1} "
         else:
             chart_title += f"Seed "
         chart_title += f"- ({checksum_str})"
