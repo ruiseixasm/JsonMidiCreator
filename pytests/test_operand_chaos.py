@@ -30,6 +30,18 @@ import pytest     # pip install pytest
 import sys
 
 
+def test_chaos_decoupling():
+    sin_x = SinX()
+    assert sin_x._index == -1
+    sin_x_copy = sin_x.copy()
+    assert sin_x_copy._index == -1
+    assert sin_x._index == -1
+    sin_x_copy.iterate()
+    assert sin_x_copy._index == 0
+    assert sin_x._index == -1
+
+# test_chaos_decoupling()
+
 
 def test_sinx_mod():
 
