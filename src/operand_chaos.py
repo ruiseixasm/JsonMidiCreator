@@ -159,7 +159,14 @@ class Chaos(o.Operand):
     def __lshift__(self, operand: any) -> Self:
         match operand:
             case Chaos():
-                super().__lshift__(operand)
+                # The Operand setting HAS to be caught here, other wise it will iterate!!
+                self._initiated = operand._initiated
+                self._index = operand._index
+                self._set = False   # by default a new copy of data unsets the Operand
+                # COPY THE SELF OPERANDS RECURSIVELY
+                self._next_operand = self.deep_copy(operand._next_operand)
+                self._masked = operand._masked
+
                 self._tamer         = operand._tamer.copy()
                 self._xn            << operand._xn
                 self._x0            << operand._x0

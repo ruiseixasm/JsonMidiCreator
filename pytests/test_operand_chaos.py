@@ -40,7 +40,7 @@ def test_chaos_decoupling():
     assert sin_x_copy._index == 0
     assert sin_x._index == -1
 
-test_chaos_decoupling()
+# test_chaos_decoupling()
 
 
 def test_sinx_mod():
