@@ -984,7 +984,11 @@ class Operand:
         '''
         if operand is not None:
             self << operand
-        self._next_operand = operand    # Makes sure the next_operand is set and remains set
+        # Makes sure the next_operand is set and remains set
+        if isinstance(operand, Operand):
+            self._next_operand = operand.copy()
+        else:
+            self._next_operand = operand
         return self
     
 
