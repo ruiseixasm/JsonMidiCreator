@@ -981,9 +981,9 @@ class Operand:
         This operator ** tags another Operand to self that will be the target of the << operation and \
             be passed to self afterwards in a chained fashion.
         '''
-        self._next_operand = operand
         if operand is not None:
             self << operand
+        self._next_operand = operand    # Makes sure the next_operand is set and remains set
         return self
     
 
