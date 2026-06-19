@@ -110,6 +110,20 @@ def test_list_chaos():
 # test_list_chaos()
 
 
+def test_chaos_wrapper():
+    chaos_int = Cycle()**int()
+    value: any = chaos_int % Parameter()
+    assert isinstance(value._data, int)
+
+    pitch_octave = Pitch(5)
+    assert pitch_octave == 5
+    pitch_octave << chaos_int
+    print(f"Pitch Octave: {pitch_octave % Octave() % int()}")
+    assert pitch_octave == 0
+
+# test_chaos_wrapper()
+
+
 def test_reset():
     chaos = Cycle(Modulus(120))**SinX(24)
     chaos_copy = chaos.copy()

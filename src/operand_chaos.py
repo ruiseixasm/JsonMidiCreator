@@ -57,18 +57,22 @@ class Chaos(o.Operand):
 
 
     def _get_tailed_operand(self) -> o.Operand | None:
-        match self._next_operand:
-            case Chaos():
-                return self._next_operand._get_tailed_operand()
-            case o.Operand():
-                return self._next_operand
-        return None
+        if isinstance(self._next_operand, Chaos):
+            return self._next_operand._get_tailed_operand()
+        return self._next_operand
 
-    def chaoticize(self) -> Any:
+    def chaoticize(self, iterate: bool = True) -> Any:
+        if iterate:
+            chaotic_number = self % Fraction()
+        else:
+            chaotic_number = self % od.Pipe(Fraction())
         operand = self._get_tailed_operand()
-        chaotic_number = self % Fraction()
-        if isinstance(operand, o.Operand):
-            return operand.copy(chaotic_number)
+        if operand is not None:
+            match operand:
+                case o.Operand():
+                    return operand.copy(chaotic_number)
+                case int() | float() | Fraction():
+                    return type(operand)(chaotic_number)
         return chaotic_number
 
         
@@ -106,6 +110,8 @@ class Chaos(o.Operand):
                         return float(self % od.Pipe(Fraction()))
                     case ou.Unit() | ra.Rational():
                         return operand << self % od.Pipe(Fraction())
+                    case od.Parameter():
+                        return operand._data << self.chaoticize(False)
                     case _:                     return super().__mod__(operand)
             case ot.Tamer():            return self._tamer.copy()
             case ra.Xn():               return self._xn.copy()
@@ -124,6 +130,8 @@ class Chaos(o.Operand):
                 for number in operand:
                     list_out.append(self % number)  # Implicit iterations
                 return list_out
+            case od.Parameter():
+                return od.Parameter(self.chaoticize())
             case Chaos():
                 return operand.copy(self)
             case _:

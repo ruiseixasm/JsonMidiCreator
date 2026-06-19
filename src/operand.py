@@ -620,7 +620,6 @@ class Operand:
         self._initiated: bool               = False
         self._set: bool                     = False # Intended to be used by Frame subclasses to flag set Operands
         self._index: int                    = 0
-        self._left_non_operand: Any         = self  # An Operand by default
         self._masked: bool                  = False
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -982,23 +981,10 @@ class Operand:
         This operator ** tags another Operand to self that will be the target of the << operation and \
             be passed to self afterwards in a chained fashion.
         '''
-        match operand:
-            case Operand() | None:
-                if isinstance(operand, Operand):
-                    if not isinstance(operand._left_non_operand, Operand):
-                        self.__ipow__(operand._left_non_operand)
-                        operand._left_non_operand = operand
-                    self << operand
-                self._next_operand = operand
-            case _:
-                self << operand
+        self._next_operand = operand
+        if operand is not None:
+            self << operand
         return self
-    
-    def __rpow__(self, operand: Any) -> Self:
-        if not isinstance(operand, Operand):
-            self._left_non_operand = operand
-            return self
-        return operand.__pow__(self)
     
 
     def _tail_wrap(self, source: T) -> T:
