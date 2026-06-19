@@ -838,7 +838,9 @@ class Operand:
         return self.copy()
 
     def copy(self, *parameters) -> Self:
-        self_copy = type(self)() << self
+        self_type = type(self)
+        self_instantiation = self_type()
+        self_copy = self_instantiation << self
         # if logging.getLogger().getEffectiveLevel() <= logging.DEBUG and not self_copy == self:   # CONSUMES TOO MUCH RESOURCES !!
         #     logging.error(f"Copied object {self.__class__.__name__} not identical!")
         for single_parameter in parameters: # Safe for Data class
