@@ -802,19 +802,20 @@ class Operand:
                 self._masked = True
             case od.Unmask():
                 self._masked = False
-            case ch.Chaos():
-                self << operand.chaoticize()
             case ol.Null():
                 pass
             case od.AsIs():
                 self.__lshift__(operand._data)
             case Operand():
-                self._initiated = operand._initiated
-                self._index = operand._index
-                self._set = False   # by default a new copy of data unsets the Operand
-                # COPY THE SELF OPERANDS RECURSIVELY
-                self._next_operand = self.deep_copy(operand._next_operand)
-                self._masked = operand._masked
+                if isinstance(operand, ch.Chaos) and not isinstance(self, ch.Chaos):
+                    self << operand.chaoticize()
+                else:
+                    self._initiated = operand._initiated
+                    self._index = operand._index
+                    self._set = False   # by default a new copy of data unsets the Operand
+                    # COPY THE SELF OPERANDS RECURSIVELY
+                    self._next_operand = self.deep_copy(operand._next_operand)
+                    self._masked = operand._masked
             case tuple():
                 for single_parameter in operand:
                     self.__lshift__(single_parameter)
