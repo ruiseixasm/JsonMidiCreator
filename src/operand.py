@@ -985,10 +985,7 @@ class Operand:
         if operand is not None:
             self << operand
         # Makes sure the next_operand is set and remains set
-        if isinstance(operand, Operand):
-            self._next_operand = operand.copy()
-        else:
-            self._next_operand = operand
+        self._next_operand = Operand.deep_copy(operand)
         return self
     
 
