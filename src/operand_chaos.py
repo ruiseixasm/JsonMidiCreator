@@ -183,17 +183,7 @@ class Chaos(o.Operand):
                     self << single_operand
         return self
 
-    def __pow__(self, operand: 'o.Operand') -> Self:
-        '''
-        This operator ** tags another Operand to self that will be the target of the << operation and \
-            be passed to self afterwards in a chained fashion.
-        '''
-        if isinstance(operand, Chaos):
-            self._next_operand = operand
-        elif operand is None:
-            self._next_operand = None
-        return self
-    
+
     def __imul__(self, number: Union['ou.Unit', 'ra.Rational', int, float, Fraction]) -> Self:
         number = o.number_to_int(number) # Results in a int, like int(float)
         if number > 0:
