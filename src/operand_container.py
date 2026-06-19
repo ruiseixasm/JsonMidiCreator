@@ -831,6 +831,9 @@ class Container(o.Operand):
                 return True
         return False
     
+    def is_empty(self) -> bool:
+        return len(self._items) == 0
+    
 
     def sort(self, parameter: type = ra.Position, reverse: bool = False) -> Self:
         """
