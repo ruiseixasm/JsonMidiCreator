@@ -45,15 +45,16 @@ four_notes = Clip(
 ) << Select(Nth(3)) << Name("Four Notes")
 
 notes_setting = I_Setter(Semitone(), Cycle())
-four_notes >> Plot(n_button=notes_setting.new_iteration, iterations=1) << Select(Nth(4)) >> Plot(n_button=notes_setting.new_iteration, iterations=4)
+# last_measure = four_notes \
+#     >> Plot(n_button=notes_setting.new_iteration, iterations=2) << Select(Nth(4)) >> Plot(n_button=notes_setting.new_iteration, iterations=5) \
+#     << Unmask()
 
-final_motif = indochine_motif * [0, 1] * four_notes
-final_motif >> Plot()
+# final_motif = indochine_motif * [0, 1] * last_measure
+# final_motif >> Plot()   # Same as "n:2:C#7, :6:E7, :2:C#7, :6:B6, :2:C#7, :6:E7, :2:C#7, :6:B6, :2:C#7, :6:E7, :2:C#6, :6:F#"
 
-# indochine_motif >> Plot()
-# # Final Clip
-# indochine_motif << Line(
-#     "n:2:C#7, :6:E7, :2:C#7, :6:B6, :2:C#7, :6:E7, :2:C#7, :6:B6, :2:C#7, :6:E7, :2:C#6, :6:F6"
-# )
-# indochine_motif >> Plot()
-# indochine_motif * 4 >> Play()
+
+real_motif = Clip(
+    "n:2:C#7, :6:E7, :2:C#7, :6:B6, :2:C#7, :6:E7, :2:C#7, :6:B6, :2:C#7, :6:E7, :2:E6, :6:F#"
+) << Name("Real Motif")
+real_motif >> Plot()
+
