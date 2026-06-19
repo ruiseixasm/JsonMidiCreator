@@ -455,5 +455,5 @@ def test_tail_copy():
     chained_copy = chained_pipe.copy()
     assert isinstance(chained_copy._next_operand, Velocity)
 
-test_tail_copy()
+# test_tail_copy()
 

@@ -119,7 +119,7 @@ def test_chaos_wrapper():
     assert pitch_octave == 5
     pitch_octave << chaos_int
     print(f"Pitch Octave: {pitch_octave % Octave() % int()}")
-    assert pitch_octave == 0
+    assert pitch_octave == 1
 
 # test_chaos_wrapper()
 

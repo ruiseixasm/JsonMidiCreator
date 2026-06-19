@@ -661,59 +661,6 @@ class Operand:
         import operand_data as od
         return self.__mod__(od.Pipe(operand))
 
-    def __mod__(self, operand: T) -> T:
-        """
-        The % symbol is used to extract a Parameter, each Operand
-        has different types of Parameters, as an example, the
-        Operand Note() has the Parameters Velocity and Duration,
-        and recursively, the Operands' Parameters themselves.
-
-        Examples
-        --------
-        >>> given_operand = Note("A") << Duration(1/2)
-        >>> print(given_operand % Duration() % NoteValue() % float())
-        0.5
-        """
-        import operand_label as ol
-        import operand_frame as of
-        import operand_data as od
-        import operand_unit as ou
-        import operand_rational as ra
-        match operand:
-            case od.Pipe():
-                return self.__mod__( operand % Operand() )
-            case od.Playlist():
-                return od.Playlist() << od.Pipe( self.getPlaylist() )
-            case od.Serialization():
-                return od.Serialization(self)
-            case ra.Index():
-                return ra.Index(self._index)
-            case ou.Masked():
-                return ou.Masked(self._masked)
-            case tuple():
-                results: list = []
-                for single_parameter in operand:
-                    if isinstance(single_parameter, tuple):
-                        chained_results = self
-                        for chained_parameter in single_parameter:
-                            chained_results %= chained_parameter
-                        results.append( chained_results )
-                    else:
-                        results.append( self % single_parameter )
-                return tuple( results )
-            case dict():
-                serialization: dict = self.getSerialization()
-                if len(operand) > 0:
-                    return get_pair_key_data(operand, serialization)
-                return serialization
-            case _:
-                return ol.Null()    # Has no equivalent parameter
-
-    # Makes sure no Non Operand has `% Operand` applied
-    def __rmod__(self, operand: any) -> Self:
-        import operand_label as ol
-        return ol.Null()
-
 
     # & and | will not do a copy
     def __and__(self, operand: Any) -> Self:
@@ -763,6 +710,58 @@ class Operand:
     def name(self) -> str:
         return self.__class__.__name__
 
+    def __mod__(self, operand: T) -> T:
+        """
+        The % symbol is used to extract a Parameter, each Operand
+        has different types of Parameters, as an example, the
+        Operand Note() has the Parameters Velocity and Duration,
+        and recursively, the Operands' Parameters themselves.
+
+        Examples
+        --------
+        >>> given_operand = Note("A") << Duration(1/2)
+        >>> print(given_operand % Duration() % NoteValue() % float())
+        0.5
+        """
+        import operand_label as ol
+        import operand_data as od
+        import operand_unit as ou
+        import operand_rational as ra
+        match operand:
+            case od.Pipe():
+                return self.__mod__( operand % Operand() )
+            case od.Playlist():
+                return od.Playlist() << od.Pipe( self.getPlaylist() )
+            case od.Serialization():
+                return od.Serialization(self)
+            case ra.Index():
+                return ra.Index(self._index)
+            case ou.Masked():
+                return ou.Masked(self._masked)
+            case tuple():
+                results: list = []
+                for single_parameter in operand:
+                    if isinstance(single_parameter, tuple):
+                        chained_results = self
+                        for chained_parameter in single_parameter:
+                            chained_results %= chained_parameter
+                        results.append( chained_results )
+                    else:
+                        results.append( self % single_parameter )
+                return tuple( results )
+            case dict():
+                serialization: dict = self.getSerialization()
+                if len(operand) > 0:
+                    return get_pair_key_data(operand, serialization)
+                return serialization
+            case _:
+                return ol.Null()    # Has no equivalent parameter
+
+    # Makes sure no Non Operand has `% Operand` applied
+    def __rmod__(self, operand: any) -> Self:
+        import operand_label as ol
+        return ol.Null()
+
     def getPlaylist(self, position_beats: Fraction | None = None) -> list[dict]:
         return []
 
@@ -795,7 +794,7 @@ class Operand:
     def __lshift__(self, operand: any) -> Self:
         import operand_label as ol
         import operand_data as od
-        import operand_unit as ou
+        import operand_chaos as ch
         match operand:
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
@@ -803,6 +802,8 @@ class Operand:
                 self._masked = True
             case od.Unmask():
                 self._masked = False
+            case ch.Chaos():
+                self << operand.chaoticize()
             case ol.Null():
                 pass
             case od.AsIs():
