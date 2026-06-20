@@ -76,14 +76,14 @@ def test_cycle():
 
 
 def test_counter():
-    counter_int = Counter(-7)**int()
+    counter_int = Counter()**int(-7)
     assert counter_int % Pipe(int()) == -7
     for iteration in range(-7, 8):
         number = counter_int.chaoticize()
         assert isinstance(number, int)
         assert number == iteration
 
-test_counter()
+# test_counter()
 
 
 def test_modulus():
