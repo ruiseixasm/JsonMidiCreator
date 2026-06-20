@@ -76,7 +76,7 @@ def test_cycle():
 
 
 def test_counter():
-    counter_int = Counter()**int(-7)
+    counter_int = Counter(-7)**int()
     assert counter_int % Pipe(int()) == -7
     for iteration in range(-7, 8):
         number = counter_int.chaoticize()

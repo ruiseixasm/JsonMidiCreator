@@ -191,6 +191,14 @@ class Chaos(o.Operand):
                 self.iterate()
         return self
     
+    def __ipow__(self, operand: Any) -> Self:
+        '''The tail is just an attachment, it represents outputted value and not input one
+        '''
+        # Makes sure the next_operand is set and remains set
+        self._next_operand = o.Operand.deep_copy(operand)
+        return self
+    
+
     def _set_tail_previous_result(self, previous_result: Fraction) -> Self:
         if isinstance(self._next_operand, Chaos):
             self._next_operand._set_tail_previous_result(previous_result)
