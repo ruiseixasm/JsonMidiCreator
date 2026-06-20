@@ -282,7 +282,7 @@ class I_Chooser(I_Clips):
             for element in decoupled_clip_0.unmasked_items():
                 index_choice: int = self._chaos % int()
                 chosen_parameter = self._parameters[index_choice % total_parameters]
-                element << chosen_parameter
+                element << o.Operand.deep_copy(chosen_parameter)    # copy guarantees parameter decoupling
         return decoupled_clip_0  # The Clip is already decoupled
 
 
@@ -301,12 +301,12 @@ class I_Setter(I_Clips):
     def _single_iteration(self, decoupled_clip_0: 'oc.Clip') -> 'oc.Clip':
         if self._global_setting:
             global_parameter = self._chaos.chaoticize()
-            operand = self._operand << global_parameter
+            operand = self._operand.copy(global_parameter)  # copy guarantees operand decoupling
             decoupled_clip_0 << operand
         else:
             for element in decoupled_clip_0.unmasked_items():
                 parameter = self._chaos.chaoticize()
-                operand = self._operand << parameter
+                operand = self._operand.copy(parameter)     # copy guarantees operand decoupling
                 element << operand
         return decoupled_clip_0  # The Clip is already decoupled
 
