@@ -157,6 +157,7 @@ class Chaos(o.Operand):
         return self
         
     def __lshift__(self, operand: any) -> Self:
+        # NO tail processing for Chaos
         match operand:
             case Chaos():
                 super().__lshift__(operand)
