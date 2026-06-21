@@ -2199,7 +2199,8 @@ class Note(ChannelElement):
     # CREATION VS REPRESENTATION
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None, derived_note: 'Note' = None) -> list[dict]:
+            channels: dict[str, set[int]] = None, derived_note: 'Note' = None,
+            apply_effects: bool = True) -> list[dict]:
         
         if self._duration_beats == 0:
             return []
@@ -2260,7 +2261,8 @@ class Note(ChannelElement):
     # NEEDS TO BE REVIEWED TO ONLY SET ELEMENT POSITION IF CALLED FROM A Clip
     # CASE WHEN midi_track IS NOT None
     # AS AN Element IT STARTS PLAYING, OR IT IS TRIGGERED, RIGHT AWAY
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True,
+            apply_effects: bool = True) -> list[dict]:
         if not self._enabled:
             return []
         
@@ -2344,7 +2346,8 @@ class Note(ChannelElement):
     # NEEDS TO BE REVIEWED TO ONLY SET ELEMENT POSITION IF CALLED FROM A Clip
     # CASE WHEN midi_track IS NOT None
     # AS AN Element IT STARTS PLAYING, OR IT IS TRIGGERED, RIGHT AWAY
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
+            apply_effects: bool = True) -> list:
         if not self._enabled:
             return []
         
