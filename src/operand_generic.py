@@ -1049,14 +1049,7 @@ class Pitch(Generic):
             case od.Pipe():
                 match operand._data:
                     case ou.KeySignature(): # Preserves the chromatic_pitch
-                        chromatic_pitch: int = self._get_chromatic_pitch()
                         self._key_signature = operand._data
-                        self._set_chromatic_pitch(chromatic_pitch)
-
-                    case ou.Quality():  # Preserves the chromatic_pitch
-                        chromatic_pitch: int = self._get_chromatic_pitch()
-                        self._key_signature << operand._data
-                        self._set_chromatic_pitch(chromatic_pitch)
 
                     case ou.TonicKey():    # Must come before than Key()
                         self._octave_0 = operand._data._unit // 12
