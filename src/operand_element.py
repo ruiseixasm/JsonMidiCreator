@@ -1170,8 +1170,7 @@ class Talkie(Element):
             case _:                 return super().__mod__(operand)
 
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True,
-                    derived_note: 'Note' = None) -> list[dict]:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         if not self._enabled:
             return []
         
@@ -1315,14 +1314,13 @@ class TalkieRun(Talkie):
             case _:                 return super().__mod__(operand)
 
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True,
-                    derived_note: 'Note' = None) -> list[dict]:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        self_playlist: list[dict] = super().getPlaylist(midi_track, position_beats, devices_header, derived_note)
+        self_playlist: list[dict] = super().getPlaylist(midi_track, position_beats, devices_header)
     
         if self_playlist:
             self_playlist[0]["message"]["m"] = 2    # run
@@ -1385,14 +1383,13 @@ class TalkieGet(TalkieRun):
     def __init__(self, *parameters):
         super().__init__("duration", *parameters)
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True,
-                    derived_note: 'Note' = None) -> list[dict]:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        self_playlist: list[dict] = super().getPlaylist(midi_track, position_beats, devices_header, derived_note)
+        self_playlist: list[dict] = super().getPlaylist(midi_track, position_beats, devices_header)
     
         if self_playlist:
             self_playlist[0]["message"]["m"] = 4    # get
@@ -1431,14 +1428,13 @@ class TalkieSet(TalkieGet):
             case ou.Value():        return ou.Value(self._value)
             case _:                 return super().__mod__(operand)
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True,
-                    derived_note: 'Note' = None) -> list[dict]:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        self_playlist: list[dict] = super().getPlaylist(midi_track, position_beats, devices_header, derived_note)
+        self_playlist: list[dict] = super().getPlaylist(midi_track, position_beats, devices_header)
     
         if self_playlist:
             self_playlist[0]["message"]["m"] = 3    # set
