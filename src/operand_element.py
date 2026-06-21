@@ -2511,8 +2511,7 @@ class KeyScale(Note):
     """
     def __init__(self, *parameters):
         super().__init__(ra.Measures(1))    # By default a Scale and a Chord has 1 Measure duration
-        self._inversion: int        = 0
-        self._arpeggio: og.Arpeggio = og.Arpeggio("None")
+        self._inversion: int = 0
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -2739,9 +2738,8 @@ class Cluster(KeyScale):
             cluster_notes.append( single_note )
         cluster_notes = self._apply_inversion(cluster_notes)
         if isinstance(self._note_effect, og.NoteEffect):
-            scale_notes = self._note_effect.apply(scale_notes)
-        return self._arpeggio.apply( cluster_notes )
-        # return super().get_component_elements(cluster_notes)
+            cluster_notes = self._note_effect.apply(cluster_notes)
+        return cluster_notes
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -2983,9 +2981,8 @@ class Chord(KeyScale):
                     single_note._pitch -= ou.Semitone(1)
         chord_notes = self._apply_inversion(chord_notes)
         if isinstance(self._note_effect, og.NoteEffect):
-            scale_notes = self._note_effect.apply(scale_notes)
-        return self._arpeggio.apply( chord_notes )
-        # return super().get_component_elements(chord_notes)
+            chord_notes = self._note_effect.apply(chord_notes)
+        return chord_notes
     
 
     def getSerialization(self) -> dict:
