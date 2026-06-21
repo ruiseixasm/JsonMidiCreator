@@ -163,12 +163,12 @@ settings << Tempo(120)
 
 all_chords = Chord(1/4) / 7 << Size("7th")
 first_chords = ~all_chords << Select(Beat(0))
-first_chords << Degree(5) << Mode(5)
+first_chords << Mode(5)
 first_chords >> Save("json/testing/_Save_Play_p.15.2_first_note.json") >> Export("json/testing/_Export_Play_p.15.2_sequence.json")
 
 first_chords << Degree() << Mode()
 even_chords = ~all_chords << Select(Even())
-even_chords << Degree(5) << Mode(5)
+even_chords << Mode(5)
 even_chords >> Save("json/testing/_Save_Play_p.15.3_first_note.json") >> Export("json/testing/_Export_Play_p.15.3_sequence.json")
 
 ############### TEST7 #######################

@@ -30,10 +30,10 @@ settings << Tempo(30)
 
 all_chords = (Chord(1/4) / 7 << Size("7th"))
 first_chords = all_chords >> Beat(0)
-first_chords << Degree(5) << Mode(5)
+first_chords << Mode(5)
 all_chords >> Print() >> Play(True)
 
 first_chords << Degree() << Mode()
 even_chords = all_chords >> Even()
-even_chords << Degree(5) << Mode(5)
+even_chords << Mode(5)
 all_chords >> Print() >> Play(True)
