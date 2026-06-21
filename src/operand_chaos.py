@@ -70,7 +70,7 @@ class Chaos(o.Operand):
         if operand is not None:
             match operand:
                 case o.Operand():
-                    return operand.copy(chaotic_number)
+                    return operand.copy(chaotic_number) # Operand Decoupled (copy)
                 case int() | float() | Fraction():
                     return type(operand)(chaotic_number)
         return chaotic_number
