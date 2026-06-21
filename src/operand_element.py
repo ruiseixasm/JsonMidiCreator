@@ -2071,7 +2071,8 @@ class Note(ChannelElement):
                     and self._velocity  == other._velocity \
                     and self._gate      == other._gate \
                     and self._tied      == other._tied \
-                    and self._pitch     == other._pitch
+                    and self._pitch     == other._pitch \
+                    and self._note_effect == other._note_effect
             case Element():
                 # Makes a playlist comparison
                 return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
@@ -2553,8 +2554,7 @@ class KeyScale(Note):
             case self.__class__():
                 return super().__eq__(other) \
                     and self._pitch._scale  == other._pitch._scale \
-                    and self._inversion     == other._inversion \
-                    and self._arpeggio      == other._arpeggio
+                    and self._inversion     == other._inversion
             case Element():
                 # Makes a playlist comparison
                 return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
