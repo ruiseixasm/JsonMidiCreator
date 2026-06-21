@@ -257,13 +257,7 @@ class Accidentals(PitchParameter):
                 else:
                     total_sharps = len(re.findall(r"#", operand))
                     total_flats = len(re.findall(r"b", operand))
-                    if total_sharps > 0:
-                        self._unit = total_sharps
-                    elif total_flats > 0:
-                        total_flats = len(re.findall(r"b", operand))
-                        if total_flats > 0:
-                            self._unit = total_flats * (-1)
-
+                    self._unit = total_sharps - total_flats
             case _:
                 super().__lshift__(operand)
         return self
