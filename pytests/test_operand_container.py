@@ -349,13 +349,18 @@ def test_rshift_container():
     assert first_chords._test_owner_clip()
     assert first_chords is not all_chords
     assert first_chords[0].access(Pitch())._get_chromatic_pitch() == 60 # C4
-    first_chords << Degree(5) << Mode(5)    # Mode 5 is the G, Mixolydian
+    first_chords << Degree(5)
     assert first_chords is not all_chords
     assert all_chords._test_owner_clip()
     assert first_chords._test_owner_clip()
     # assert first_chords[0] is not all_chords[0]
     assert first_chords[0].access(Pitch())._get_chromatic_pitch() == 67 # G4
     # assert all_chords[0].access(Pitch()).pitch_int() == 60
+    first_chords << Degree(1) << Mode(5)    # Mode 5 is the G, Mixolydian
+    assert first_chords is not all_chords
+    assert all_chords._test_owner_clip()
+    assert first_chords._test_owner_clip()
+    assert first_chords[0].access(Pitch())._get_chromatic_pitch() == 67 # G4
 
 test_rshift_container()
 

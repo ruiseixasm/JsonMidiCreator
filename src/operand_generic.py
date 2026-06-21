@@ -1088,7 +1088,7 @@ class Pitch(Generic):
             # Setting of the KeySignature and respective parameters
             case ou.KeySignature() | ou.Quality() | ou.Mode():
                 self._key_signature << operand
-                self._tonic_key = self._key_signature % ou.Key() % int() % 12   # Setting a Key Signature adjusts the Tonic Key accordingly
+                self._tonic_key = self._key_signature.get_tonic_key()   # Setting a Key Signature adjusts the Tonic Key accordingly
 
             case ou.Semitone():
                 self << ou.Key(operand._unit)
