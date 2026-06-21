@@ -2653,16 +2653,12 @@ class KeyScale(Note):
             case KeyScale():
                 super().__lshift__(operand)
                 self._inversion = operand._inversion
-                self._arpeggio  << operand._arpeggio
             case od.Pipe():
                 match operand._data:
                     case ou.Inversion():    self._inversion = operand._data._unit
-                    # case og.Arpeggio():     self._arpeggio = operand._data
                     case _:                 super().__lshift__(operand)
             case ou.Inversion():
                 self._inversion = operand._unit
-            case ou.Order() | ra.Swing() | ch.Chaos():
-                self._arpeggio << operand
             case _:
                 super().__lshift__(operand)
         return self
