@@ -252,12 +252,9 @@ class Accidentals(PitchParameter):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case str():
-                if len(operand) == 0:
-                    self._unit = 0
-                else:
-                    total_sharps = len(re.findall(r"#", operand))
-                    total_flats = len(re.findall(r"b", operand))
-                    self._unit = total_sharps - total_flats
+                total_sharps = len(re.findall(r"#", operand))
+                total_flats = len(re.findall(r"b", operand))
+                self._unit = total_sharps - total_flats
             case _:
                 super().__lshift__(operand)
         return self
