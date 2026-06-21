@@ -1085,9 +1085,11 @@ class Pitch(Generic):
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ou.KeySignature() | ou.Quality():
+            # Setting of the KeySignature and respective parameters
+            case ou.KeySignature() | ou.Quality() | ou.Mode():
                 self._key_signature << operand
-                self._tonic_key = self._key_signature % ou.Key() % int() % 24   # Setting a Key Signature adjusts the Tonic Key accordingly
+                self._tonic_key = self._key_signature % ou.Key() % int() % 12   # Setting a Key Signature adjusts the Tonic Key accordingly
+
             case ou.Semitone():
                 self << ou.Key(operand._unit)
 
@@ -1129,7 +1131,7 @@ class Pitch(Generic):
                 if operand._unit < 0:
                     self._tonic_key = self._key_signature % ou.Key() % int()
                 else:
-                    self._tonic_key = operand._unit % 24
+                    self._tonic_key = operand._unit % 12
             case ou.RootKey():
                 self._set_root_key(operand._unit)
             case ou.Key():

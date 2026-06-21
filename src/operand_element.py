@@ -2177,7 +2177,7 @@ class Note(ChannelElement):
             case ra.Gate():         return ra.Gate() << od.Pipe(self._gate)
             case ou.Tied():         return ou.Tied() << od.Pipe( self._tied )
             case og.Pitch():        return self._pitch.copy()
-            case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
+            case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale() | ou.Mode():
                                     return self._pitch % operand
             case ou.PitchCentroid():
                 return ou.PitchCentroid(self.pitch_centroid())
@@ -2438,7 +2438,7 @@ class Note(ChannelElement):
                     super().__lshift__(operand)
                 else:
                     self._pitch << operand
-            case og.Pitch() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale():
+            case og.Pitch() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale() | ou.Mode():
                 self._pitch << operand
 
             case ou.DrumKit():
