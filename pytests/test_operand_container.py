@@ -789,28 +789,28 @@ def test_clip_filter():
 
     original_note: Clip = Note() / 1
     assert original_note.len() == 1
-    derived_note: Clip = original_note << Select(Nth(1))
-    assert derived_note.len() == 1
-    derived_note += Note()
-    assert derived_note.len() == 2
+    selected_note: Clip = original_note << Select(Nth(1))
+    assert selected_note.len() == 1
+    selected_note += Note()
+    assert selected_note.len() == 2
     # Needs to be replicated upwards!
     # assert original_note.len() == 2
 
     # Stacks to make Elements (Notes) different
-    derived_note >>= Stack()
-    second_note: Note = derived_note[1]
-    derived_note -= second_note
+    selected_note >>= Stack()
+    second_note: Note = selected_note[1]
+    selected_note -= second_note
     # Shall remove just one Element and become size 1, remove by id and not by data
-    assert derived_note.len() == 1
+    assert selected_note.len() == 1
     # Needs to be replicated upwards!
     assert original_note.len() == 1
 
     original_note: Clip = Note() / 1
     assert original_note.len() == 1
-    derived_note: Clip = original_note << Select(Nth(1))
-    assert derived_note.len() == 1
-    derived_note /= 2   # Here "/" results in a multiplication by 2 but stacked directly by Element
-    assert derived_note.len() == 2
+    selected_note: Clip = original_note << Select(Nth(1))
+    assert selected_note.len() == 1
+    selected_note /= 2   # Here "/" results in a multiplication by 2 but stacked directly by Element
+    assert selected_note.len() == 2
     # Needs to be replicated upwards!
     # assert original_note.len() == 2
 
