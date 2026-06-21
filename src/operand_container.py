@@ -1954,7 +1954,7 @@ class Composition(Container):
                             flag_update_key_signature: bool = False
 
                             # Sets the Measure KeySignature if not yet set
-                            if note_measure not in staff_modes: # Mode of the KeySignature, sharps, > 0 or flats, < 0, from -7 to +7
+                            if note_measure not in staff_modes: # Major, minor, Locrian, etc...
 
                                 # Updates the last_mode_measure (Keeps track of the last measure staff data)
                                 changed_last_mode_measure: int = last_mode_measure
@@ -1963,7 +1963,7 @@ class Composition(Container):
                                 if changed_last_mode_measure < note_measure:
                                     last_mode_measure = changed_last_mode_measure
                             
-                                mode_0: int = note["mode"]
+                                mode_0: int = note["mode"]  # Mode here is the same as Major, minor, Locrian, etc...
                                 if last_mode_measure < 0 or staff_modes[last_mode_measure] != mode_0:
                                     staff_modes[note_measure] = mode_0  # It's the Note KeySignature that is Plotted
                                     scale_mode: int = mode_0 % 9 + 1
@@ -1975,7 +1975,7 @@ class Composition(Container):
                             else:
                                 last_mode_measure = note_measure
 
-                            if note_measure not in staff_tonic_keys:
+                            if note_measure not in staff_tonic_keys:    # The T marking the Tonic
                                 
                                 # Updates the last_tonic_key_measure
                                 changed_last_tonic_key_measure: int = last_tonic_key_measure
@@ -1994,7 +1994,7 @@ class Composition(Container):
                             else:
                                 last_tonic_key_measure = note_measure
 
-                            if note_measure not in staff_sharps_or_flats:
+                            if note_measure not in staff_sharps_or_flats: # Concerning the KeySignature, sharps, > 0 or flats, < 0, from -7 to +7
                                 if flag_update_key_signature:
                                     diatonic_mode_0: int = staff_modes[last_mode_measure]
                                     diatonic_scale: list[int] = og.Scale.get_diatonic_scale(diatonic_mode_0 + 1)
@@ -2019,7 +2019,7 @@ class Composition(Container):
                                 last_sharps_or_flats_measure = note_measure
 
 
-                            # Where the bar accidentals are plotted
+                            # Where the bar accidentals are plotted individually for each Note on the left side of them
                             if note["accidentals"]:
                                 symbol: str = ''
                                 if note["accidentals"] > 0: # Sharped
