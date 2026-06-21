@@ -2033,7 +2033,9 @@ class Effect(Generic):
     Effects can be chained, their never set each other because they don't share common parameters, once chained,
     with the operator `**`, they are read from left to right.
     """
-    pass
+    def apply(self, notes: list['Note']) -> list['Note']:
+        return notes
+
 
 class Arpeggio(Effect):
     """`Generic -> Effect -> Arpeggio`
