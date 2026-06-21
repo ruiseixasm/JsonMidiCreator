@@ -2590,7 +2590,7 @@ class KeyScale(Note):
         scale_notes = self._apply_inversion(scale_notes)
         if isinstance(self._note_effect, og.NoteEffect):
             scale_notes = self._note_effect.apply(scale_notes)
-        return self._arpeggio.arpeggiate( scale_notes )
+        return self._arpeggio.apply( scale_notes )
         # return super().get_component_elements(scale_notes)
     
 
@@ -2743,7 +2743,7 @@ class Cluster(KeyScale):
         cluster_notes = self._apply_inversion(cluster_notes)
         if isinstance(self._note_effect, og.NoteEffect):
             scale_notes = self._note_effect.apply(scale_notes)
-        return self._arpeggio.arpeggiate( cluster_notes )
+        return self._arpeggio.apply( cluster_notes )
         # return super().get_component_elements(cluster_notes)
 
 
@@ -2987,7 +2987,7 @@ class Chord(KeyScale):
         chord_notes = self._apply_inversion(chord_notes)
         if isinstance(self._note_effect, og.NoteEffect):
             scale_notes = self._note_effect.apply(scale_notes)
-        return self._arpeggio.arpeggiate( chord_notes )
+        return self._arpeggio.apply( chord_notes )
         # return super().get_component_elements(chord_notes)
     
 

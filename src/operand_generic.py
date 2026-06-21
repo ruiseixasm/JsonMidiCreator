@@ -2123,7 +2123,7 @@ class Arpeggio(NoteEffect):
             case _:
                 return notes  # Default to "Up"
 
-    def arpeggiate(self, notes: list['Note']) -> list['Note']:
+    def apply(self, notes: list['Note']) -> list['Note']:
         from operand_element import Note
 
         if self._order > 0 and len(notes) > 0:
