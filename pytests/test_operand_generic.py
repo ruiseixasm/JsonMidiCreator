@@ -63,7 +63,7 @@ def test_pitch_tonic():
     pitch << None   # Resets the Tonic
     assert pitch % TonicKey() == "D"
 
-    new_pitch = Pitch(KeySignature(2))
+    new_pitch = Pitch(Accidentals(2))
     assert new_pitch == pitch
     assert new_pitch % TonicKey() == pitch % TonicKey()
     assert new_pitch % od.Pipe(TonicKey()) == pitch % od.Pipe(TonicKey())

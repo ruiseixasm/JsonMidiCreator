@@ -362,7 +362,7 @@ def test_rshift_container():
     assert first_chords._test_owner_clip()
     assert first_chords[0].access(Pitch())._get_chromatic_pitch() == 67 # G4
 
-test_rshift_container()
+# test_rshift_container()
 
 
 def test_rrshift_clip():

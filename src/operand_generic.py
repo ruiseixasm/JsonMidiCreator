@@ -947,6 +947,8 @@ class Pitch(Generic):
                     case _:                 return super().__mod__(operand)
             case ou.KeySignature():
                 return self._key_signature.copy()
+            case ou.Quality() | ou.Mode() | ou.Accidentals():
+                return self._key_signature % operand
             
             case int():
                 return self % ou.Octave() % int()
@@ -992,8 +994,6 @@ class Pitch(Generic):
                 return Scale(self._scale)
             case list():
                 return self._scale.copy()
-            case ou.Quality():
-                return self._key_signature % operand
             case str():
                 key: str = self % ou.Key() % str()
                 octave: str = str(self % ou.Octave() % int())
@@ -1086,7 +1086,12 @@ class Pitch(Generic):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             # Setting of the KeySignature and respective parameters
-            case ou.KeySignature() | ou.Quality() | ou.Mode():
+            case ou.KeySignature(): # Preserves the Semitone
+                original_semitone = self % ou.Semitone()
+                self._key_signature << operand
+                self._tonic_key = self._key_signature.get_tonic_key()   # Setting a Key Signature adjusts the Tonic Key accordingly
+                self << original_semitone
+            case ou.Quality() | ou.Mode() | ou.Accidentals():
                 self._key_signature << operand
                 self._tonic_key = self._key_signature.get_tonic_key()   # Setting a Key Signature adjusts the Tonic Key accordingly
 
