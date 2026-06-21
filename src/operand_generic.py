@@ -2024,8 +2024,19 @@ class PitchTransitions(Generic):
         return self
 
 
-class Arpeggio(Generic):
-    """`Generic -> Arpeggio`
+class Effect(Generic):
+    """`Generic -> Effect`
+
+    An `Effect` represents a manipulation of simultaneously played notes, like and Arpeggio.
+    Effects concern time changing behavior of notes, concerning their Position or Duration manipulation.
+
+    Effects can be chained, their never set each other because they don't share common parameters, once chained,
+    with the operator `**`, they are read from left to right.
+    """
+    pass
+
+class Arpeggio(Effect):
+    """`Generic -> Effect -> Arpeggio`
 
     An `Arpeggio` lets a group of simultaneously played notes to be played in sequence accordingly to the Arpeggio configuration.
 
