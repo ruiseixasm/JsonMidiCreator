@@ -2024,21 +2024,28 @@ class PitchTransitions(Generic):
         return self
 
 
-class Effect(Generic):
-    """`Generic -> Effect`
+class NoteEffect(Generic):
+    """`Generic -> NoteEffect`
 
-    An `Effect` represents a manipulation of simultaneously played notes, like and Arpeggio.
+    A `NoteEffect` represents a manipulation of simultaneously played notes, like and Arpeggio.
     Effects concern time changing behavior of notes, concerning their Position or Duration manipulation.
 
     Effects can be chained, their never set each other because they don't share common parameters, once chained,
     with the operator `**`, they are read from left to right.
     """
+    
+    if TYPE_CHECKING:
+        from operand_element import Note
+
     def apply(self, notes: list['Note']) -> list['Note']:
+        # DOES NOTHING HERE, LEFT TO RIGHT, APPLIES NEXT EFFECT, AFTERWARDS
+        if isinstance(self._next_operand, NoteEffect):
+            return self._next_operand.apply(notes)
         return notes
 
 
-class Arpeggio(Effect):
-    """`Generic -> Effect -> Arpeggio`
+class Arpeggio(NoteEffect):
+    """`Generic -> NoteEffect -> Arpeggio`
 
     An `Arpeggio` lets a group of simultaneously played notes to be played in sequence accordingly to the Arpeggio configuration.
 

@@ -2018,6 +2018,7 @@ class Note(ChannelElement):
         self._gate: Fraction        = Fraction(1)
         self._tied: bool            = False
         self._pitch: og.Pitch       = og.Pitch()
+        self._note_effect: og.NoteEffect | None = None
         super().__init__(*parameters)
 
     def velocity(self, velocity: int = 100) -> Self:
@@ -2070,7 +2071,8 @@ class Note(ChannelElement):
                     and self._velocity  == other._velocity \
                     and self._gate      == other._gate \
                     and self._tied      == other._tied \
-                    and self._pitch     == other._pitch
+                    and self._pitch     == other._pitch \
+                    and self._note_effect == o.Operand.deep_copy(other._note_effect)
             case Element():
                 # Makes a playlist comparison
                 return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
@@ -2149,6 +2151,12 @@ class Note(ChannelElement):
                 self << ou.Velocity(number)
         return self
 
+    def get_component_elements(self) -> list['Note']:
+        component_notes: list[Note] = [self]
+        if isinstance(self._note_effect, og.NoteEffect):
+            return self._note_effect.apply(component_notes)
+        return component_notes
+    
 
     def __mod__(self, operand: o.T) -> o.T:
         """
@@ -2572,7 +2580,11 @@ class KeyScale(Note):
             new_note: Note = Note(self)
             scale_notes.append( new_note )
             new_note._pitch._transposition += shifting
-        return self._arpeggio.arpeggiate( self._apply_inversion(scale_notes) )
+        scale_notes = self._apply_inversion(scale_notes)
+        if isinstance(self._note_effect, og.NoteEffect):
+            scale_notes = self._note_effect.apply(scale_notes)
+        return self._arpeggio.arpeggiate( scale_notes )
+        # return super().get_component_elements(scale_notes)
     
 
     def getPlotlist(self,
@@ -2721,7 +2733,11 @@ class Cluster(KeyScale):
             else:
                 single_note._pitch << pitch_parameter
             cluster_notes.append( single_note )
-        return self._arpeggio.arpeggiate( self._apply_inversion(cluster_notes) )
+        cluster_notes = self._apply_inversion(cluster_notes)
+        if isinstance(self._note_effect, og.NoteEffect):
+            scale_notes = self._note_effect.apply(scale_notes)
+        return self._arpeggio.arpeggiate( cluster_notes )
+        # return super().get_component_elements(cluster_notes)
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -2961,8 +2977,11 @@ class Chord(KeyScale):
             if key_degree == 3 or key_degree == 5:  # flattens the Third and Fifth
                 if self._diminished:
                     single_note._pitch -= ou.Semitone(1)
-
-        return self._arpeggio.arpeggiate( self._apply_inversion(chord_notes) )
+        chord_notes = self._apply_inversion(chord_notes)
+        if isinstance(self._note_effect, og.NoteEffect):
+            scale_notes = self._note_effect.apply(scale_notes)
+        return self._arpeggio.arpeggiate( chord_notes )
+        # return super().get_component_elements(chord_notes)
     
 
     def getSerialization(self) -> dict:
