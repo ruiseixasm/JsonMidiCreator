@@ -2454,7 +2454,10 @@ class Note(ChannelElement):
             case og.Pitch() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale() | ou.Mode():
                 self._pitch << operand
             case og.NoteEffect():
-                self._note_effect = o.Operand.deep_copy(operand._data)
+                self._note_effect = o.Operand.deep_copy(operand)
+            case ou.Order() | ra.Swing() | ch.Chaos():
+                if isinstance(self._note_effect, og.NoteEffect):
+                    self._note_effect << operand
 
             case ou.DrumKit():
                 self._channel_0 = operand._channel_0
@@ -2539,7 +2542,7 @@ class KeyScale(Note):
                     case og.Arpeggio():     return self._arpeggio
                     case _:                 return super().__mod__(operand)
             case ou.Inversion():    return ou.Inversion() << od.Pipe(self._inversion)
-            case og.Arpeggio():     return self._arpeggio.copy()
+            # case og.Arpeggio():     return self._arpeggio.copy()
             case ou.Order() | ra.Swing() | ch.Chaos():
                                     return self._arpeggio % operand
             case _:                 return super().__mod__(operand)
@@ -2656,11 +2659,11 @@ class KeyScale(Note):
             case od.Pipe():
                 match operand._data:
                     case ou.Inversion():    self._inversion = operand._data._unit
-                    case og.Arpeggio():     self._arpeggio = operand._data
+                    # case og.Arpeggio():     self._arpeggio = operand._data
                     case _:                 super().__lshift__(operand)
             case ou.Inversion():
                 self._inversion = operand._unit
-            case og.Arpeggio() | ou.Order() | ra.Swing() | ch.Chaos():
+            case ou.Order() | ra.Swing() | ch.Chaos():
                 self._arpeggio << operand
             case _:
                 super().__lshift__(operand)
