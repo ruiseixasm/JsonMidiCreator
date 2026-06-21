@@ -1670,7 +1670,7 @@ class Composition(Container):
         # Plot Notes
         if note_channels or not automation_channels:
 
-            # As Channels
+            # As Channels (Drums)
             if self._by_channel:
                 self._ax.set_ylabel("Channels")
 
@@ -1778,7 +1778,7 @@ class Composition(Container):
                     # Optional: Add a subtle rectangle watermark
                     self._ax.axhspan(-0.5, 16.5, color='lightgray', alpha=0.1)
                 
-            # As Chromatic keys
+            # As Chromatic keys (Notes)
             else:
 
                 self._ax.set_ylabel("Chromatic Keys")
@@ -1897,7 +1897,7 @@ class Composition(Container):
                         channel_note for channel_note in note_plotlist
                         if channel_note["channel"] == channel_0
                     ]
-                    last_mode_measure: int = -1
+                    last_mode_measure: int = -1         # Tracker
                     last_tonic_key_measure: int = -1
                     last_sharps_or_flats_measure: int = -1
 
@@ -1953,10 +1953,10 @@ class Composition(Container):
                             note_measure: int = int(note["position_on"] // beats_per_measure)
                             flag_update_key_signature: bool = False
 
+                            # Sets the Measure KeySignature if not yet set
+                            if note_measure not in staff_modes: # Mode of the KeySignature, sharps, > 0 or flats, < 0, from -7 to +7
 
-                            if note_measure not in staff_modes:
-
-                                # Updates the last_mode_measure
+                                # Updates the last_mode_measure (Keeps track of the last measure staff data)
                                 changed_last_mode_measure: int = last_mode_measure
                                 while changed_last_mode_measure < note_measure and changed_last_mode_measure not in staff_modes:
                                     changed_last_mode_measure += 1
@@ -1965,7 +1965,7 @@ class Composition(Container):
                             
                                 mode_0: int = note["mode"]
                                 if last_mode_measure < 0 or staff_modes[last_mode_measure] != mode_0:
-                                    staff_modes[note_measure] = mode_0
+                                    staff_modes[note_measure] = mode_0  # It's the Note KeySignature that is Plotted
                                     scale_mode: int = mode_0 % 9 + 1
                                     mode_marker: str = og.Scale._names[scale_mode][0]
                                     base_pitch: int = max_pitch - 12
