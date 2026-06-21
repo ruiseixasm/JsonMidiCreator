@@ -2071,8 +2071,7 @@ class Note(ChannelElement):
                     and self._velocity  == other._velocity \
                     and self._gate      == other._gate \
                     and self._tied      == other._tied \
-                    and self._pitch     == other._pitch \
-                    and self._note_effect == o.Operand.deep_copy(other._note_effect)
+                    and self._pitch     == other._pitch
             case Element():
                 # Makes a playlist comparison
                 return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
@@ -2180,6 +2179,7 @@ class Note(ChannelElement):
                     case og.Pitch():        return self._pitch
                     case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
                                             return self._pitch % operand
+                    case og.NoteEffect():   return self._note_effect
                     case _:                 return super().__mod__(operand)
             case ou.Velocity():     return ou.Velocity() << od.Pipe(self._velocity)
             case ra.Gate():         return ra.Gate() << od.Pipe(self._gate)
@@ -2187,6 +2187,7 @@ class Note(ChannelElement):
             case og.Pitch():        return self._pitch.copy()
             case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale() | ou.Mode():
                                     return self._pitch % operand
+            case og.NoteEffect():   return o.Operand.deep_copy(self._note_effect)
             case ou.PitchCentroid():
                 return ou.PitchCentroid(self.pitch_centroid())
             case ou.DrumKit():
@@ -2402,20 +2403,22 @@ class Note(ChannelElement):
         serialization["parameters"]["gate"]     = self.serialize( self._gate )
         serialization["parameters"]["tied"]     = self.serialize( self._tied )
         serialization["parameters"]["pitch"]    = self.serialize( self._pitch )
+        serialization["parameters"]["note_effect"] = self.serialize( self._note_effect )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Note':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "velocity" in serialization["parameters"] and "gate" in serialization["parameters"] and
-            "tied" in serialization["parameters"] and "pitch" in serialization["parameters"]):
+            "velocity" in serialization["parameters"] and "gate" in serialization["parameters"] and "tied" in serialization["parameters"] and
+            "pitch" in serialization["parameters"] and "note_effect" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._velocity  = self.deserialize( serialization["parameters"]["velocity"] )
             self._gate      = self.deserialize( serialization["parameters"]["gate"] )
             self._tied      = self.deserialize( serialization["parameters"]["tied"] )
             self._pitch     = self.deserialize( serialization["parameters"]["pitch"] )
+            self._note_effect = self.deserialize( serialization["parameters"]["note_effect"] )
         return self
 
 
@@ -2428,6 +2431,7 @@ class Note(ChannelElement):
                 self._gate          = operand._gate
                 self._tied          = operand._tied
                 self._pitch         << operand._pitch
+                self._note_effect   = o.Operand.deep_copy(operand._note_effect)
             case od.Pipe():
                 match operand._data:
                     case ou.Velocity():     self._velocity  = operand._data._unit
@@ -2436,6 +2440,7 @@ class Note(ChannelElement):
                     case og.Pitch():        self._pitch     = operand._data
                     case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
                                             self._pitch << operand
+                    case og.NoteEffect():   self._note_effect = operand._data
                     case _:                 super().__lshift__(operand)
             case ou.Velocity():     self._velocity = operand._unit
             case ra.Gate():         self._gate = operand._rational
@@ -2448,6 +2453,8 @@ class Note(ChannelElement):
                     self._pitch << operand
             case og.Pitch() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale() | ou.Mode():
                 self._pitch << operand
+            case og.NoteEffect():
+                self._note_effect = o.Operand.deep_copy(operand._data)
 
             case ou.DrumKit():
                 self._channel_0 = operand._channel_0
