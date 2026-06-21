@@ -246,15 +246,6 @@ class Accidentals(PitchParameter):
     def __init__(self, *parameters):
         super().__init__(1, *parameters)
 
-class Sharps(Accidentals):  # Sharps (###)
-    """`Unit -> PitchParameter -> Accidentals -> Sharps`
-
-    Sharps() is intended to be used with KeySignature to set its amount of Sharps.
-    
-    Parameters
-    ----------
-    int(1) : Sets the amount of sharps from 0 to 7 where 3 means "###".
-    """
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
@@ -265,11 +256,28 @@ class Sharps(Accidentals):  # Sharps (###)
                     self._unit = 0
                 else:
                     total_sharps = len(re.findall(r"#", operand))
+                    total_flats = len(re.findall(r"b", operand))
                     if total_sharps > 0:
                         self._unit = total_sharps
+                    elif total_flats > 0:
+                        total_flats = len(re.findall(r"b", operand))
+                        if total_flats > 0:
+                            self._unit = total_flats * (-1)
+
             case _:
                 super().__lshift__(operand)
         return self
+
+class Sharps(Accidentals):  # Sharps (###)
+    """`Unit -> PitchParameter -> Accidentals -> Sharps`
+
+    Sharps() is intended to be used with KeySignature to set its amount of Sharps.
+    
+    Parameters
+    ----------
+    int(1) : Sets the amount of sharps from 0 to 7 where 3 means "###".
+    """
+    pass
 
 class Flats(Accidentals):   # Flats (bbb)
     """`Unit -> Accidentals -> Flats`
@@ -286,12 +294,8 @@ class Flats(Accidentals):   # Flats (bbb)
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case str():
-                if len(operand) == 0:
-                    self._unit = 0
-                else:
-                    total_flats = len(re.findall(r"b", operand))
-                    if total_flats > 0:
-                        self._unit = total_flats
+                super().__lshift__(operand)
+                self._unit *= -1    # Flips the signal, from sharp to flat
             case _:
                 super().__lshift__(operand)
         return self
