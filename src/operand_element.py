@@ -2188,6 +2188,11 @@ class Note(ChannelElement):
             case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale() | ou.Mode():
                                     return self._pitch % operand
             case og.NoteEffect():   return o.Operand.deep_copy(self._note_effect)
+            case ou.Order() | ra.Swing() | ch.Chaos():
+                if isinstance(self._note_effect, og.NoteEffect):
+                    return self._note_effect % operand
+                else:
+                    return ol.Null()
             case ou.PitchCentroid():
                 return ou.PitchCentroid(self.pitch_centroid())
             case ou.DrumKit():
@@ -2539,12 +2544,8 @@ class KeyScale(Note):
             case od.Pipe():
                 match operand._data:
                     case ou.Inversion():    return ou.Inversion() << od.Pipe(self._inversion)
-                    case og.Arpeggio():     return self._arpeggio
                     case _:                 return super().__mod__(operand)
             case ou.Inversion():    return ou.Inversion() << od.Pipe(self._inversion)
-            # case og.Arpeggio():     return self._arpeggio.copy()
-            case ou.Order() | ra.Swing() | ch.Chaos():
-                                    return self._arpeggio % operand
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
