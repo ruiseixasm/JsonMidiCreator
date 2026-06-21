@@ -2594,8 +2594,7 @@ class KeyScale(Note):
         scale_notes = self._apply_inversion(scale_notes)
         if isinstance(self._note_effect, og.NoteEffect):
             scale_notes = self._note_effect.apply(scale_notes)
-        return self._arpeggio.apply( scale_notes )
-        # return super().get_component_elements(scale_notes)
+        return scale_notes
     
 
     def getPlotlist(self,
@@ -2636,18 +2635,16 @@ class KeyScale(Note):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["inversion"]    = self.serialize( self._inversion )
-        serialization["parameters"]["arpeggio"]     = self.serialize( self._arpeggio )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'KeyScale':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "inversion" in serialization["parameters"] and "arpeggio" in serialization["parameters"]):
+            "inversion" in serialization["parameters"]):
             
             super().loadSerialization(serialization)
             self._inversion = self.deserialize( serialization["parameters"]["inversion"] )
-            self._arpeggio  = self.deserialize( serialization["parameters"]["arpeggio"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
