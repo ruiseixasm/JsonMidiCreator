@@ -2786,6 +2786,47 @@ class Clip(Composition):  # Just a container of Elements
                 return super().__mod__(operand)
 
 
+    @staticmethod
+    def _get_left_note_index(notes: list['oe.Note'], extended_durations: list[Fraction], tied_note: 'oe.Note') -> int:
+        right_start: Fraction = tied_note._position_beats
+        right_pitch: int = tied_note._pitch._get_chromatic_pitch()
+        for index, single_note in enumerate(notes):
+            if extended_durations[index] >= 0:
+                left_end: Fraction = single_note._position_beats + single_note._duration_beats + extended_durations[index]
+                if left_end == right_start:
+                    left_pitch: int = single_note._pitch._get_chromatic_pitch()
+                    if left_pitch == right_pitch:
+                        return index
+        return -1
+
+    def get_component_elements(self) -> list['oe.Element']:
+        """Ties notes is marked as such"""
+        component_elements: list[oe.Element] = []
+        component_notes: list[oe.Note] = []
+        for clip_element in self._items:
+            element_components = clip_element.get_component_elements()
+            for element_element in element_components:
+                if isinstance(element_element, oe.Note):
+                    component_notes.append(element_element)
+                else:
+                    component_elements.append(element_element)
+        note_extended_durations: list[Fraction] = [0] * len(component_notes)
+        for index, clip_note in enumerate(component_notes):
+            if clip_note._tied: # For tied notes processing
+                note_tied_index: int = Clip._get_left_note_index(component_notes, note_extended_durations, clip_note)
+                if note_tied_index >= 0:
+                    note_extended_durations[note_tied_index] += clip_note._duration_beats
+                    note_extended_durations[index] = -1 # Negative extended duration, means to be excluded
+        for single_note, extended_duration in zip(component_notes, note_extended_durations):
+            if extended_duration == 0:    # Typical scenario comes first (optimization)
+                component_elements.append(single_note)  # Note as is, no extension, untouched
+            elif extended_duration > 0:
+                copied_note = single_note.copy()    # Needs to be decouples
+                copied_note._duration_beats += extended_duration
+                component_elements.append(copied_note)
+        return sorted(component_elements)
+
+
     def getPlotlist(self, position_beats: Fraction = None) -> list[dict]:
         """
         Returns the plotlist for a given Position.
