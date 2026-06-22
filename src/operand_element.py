@@ -219,6 +219,7 @@ class Element(o.Operand):
 
 
     def get_component_elements(self) -> list['Element']:
+        """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         return [ self ]
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -981,6 +982,7 @@ class Unison(Element):
                 return super().__eq__(other)
     
     def get_component_elements(self) -> list[Element]:
+        """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         # Makes sure all elements share the same Locus
         self_locus: og.Locus = self % og.Locus()
         for single_element in self._elements:
@@ -2148,6 +2150,7 @@ class Note(ChannelElement):
         return self
 
     def get_component_elements(self) -> list['Note']:
+        """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         component_notes: list[Note] = [self]
         if isinstance(self._note_effect, og.NoteEffect):
             return self._note_effect.apply(component_notes)
@@ -2578,6 +2581,7 @@ class KeyScale(Note):
         return notes
             
     def get_component_elements(self) -> list[Note]:
+        """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         scale_notes: list[Note] = []
         active_scale: list[int] = self._pitch._scale
         if not active_scale:
@@ -2587,6 +2591,7 @@ class KeyScale(Note):
             new_note: Note = Note(self)
             scale_notes.append( new_note )
             new_note._pitch._transposition += shifting
+            new_note._note_effect = None    # Clears any possible existing effect
         scale_notes = self._apply_inversion(scale_notes)
         if isinstance(self._note_effect, og.NoteEffect):
             scale_notes = self._note_effect.apply(scale_notes)
@@ -2725,6 +2730,7 @@ class Cluster(KeyScale):
 
 
     def get_component_elements(self) -> list[Note]:
+        """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         cluster_notes: list[Note] = []
         for pitch_parameter in self._pitches:
             single_note: Note = Note(self)  # Owned by same clip
@@ -2733,6 +2739,7 @@ class Cluster(KeyScale):
             else:
                 single_note._pitch << pitch_parameter
             cluster_notes.append( single_note )
+            single_note._note_effect = None # Clears any possible existing effect
         cluster_notes = self._apply_inversion(cluster_notes)
         if isinstance(self._note_effect, og.NoteEffect):
             cluster_notes = self._note_effect.apply(cluster_notes)
@@ -2957,11 +2964,12 @@ class Chord(KeyScale):
 
 
     def get_component_elements(self) -> list[Note]:
-
+        """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         chord_notes: list[Note] = []
         for key_i in range(self._size):        # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...
             single_note: Note = Note(self)  # Owned by same clip
             chord_notes.append( single_note )
+            single_note._note_effect = None # Clears any possible existing effect
             key_degree: int = key_i * 2 + 1    # all odd numbers, 1, 3, 5, ...
             if key_degree == 3:   # Third
                 if self._sus2:
@@ -3154,6 +3162,7 @@ class Retrigger(Note):
             case _:                 return super().__mod__(operand)
 
     def get_component_elements(self) -> list[Note]:
+        """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         retrigger_notes: list[Note] = []
         self_iteration: int = 0
         note_position: ra.Position = ra.Position(self, self._position_beats)
@@ -3163,7 +3172,9 @@ class Retrigger(Note):
             if self_iteration % 2:
                 swing_ratio = 1 - swing_ratio
             note_duration: ra.Duration = single_note_duration * Fraction(2) * swing_ratio
-            retrigger_notes.append( Note(self, note_duration, note_position) )
+            single_note = Note(self, note_duration, note_position)
+            retrigger_notes.append( single_note )
+            single_note._note_effect = None # Clears any possible existing effect
             note_position += note_duration
             self_iteration += 1
         return retrigger_notes
@@ -3387,6 +3398,7 @@ class Tuplet(ChannelElement):
                 return super().__eq__(other)
     
     def get_component_elements(self) -> list[Element]:
+        """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         tuplet_elements: list[Element] = []
         element_position: ra.Position = self % ra.Position()
         self_iteration: int = 0
@@ -5013,6 +5025,7 @@ class Automation(Element):
         return t2 * (Fraction(3) - Fraction(2) * t)
 
     def get_component_elements(self) -> list[ChannelElement]:
+        """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         component_elements: list[ChannelElement] = []
         if isinstance(self._parameter, Automatable):
             first_element = self._parameter.copy()

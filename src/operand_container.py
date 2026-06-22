@@ -2800,7 +2800,7 @@ class Clip(Composition):  # Just a container of Elements
         return -1
 
     def get_component_elements(self) -> list['oe.Element']:
-        """Ties notes is marked as such"""
+        """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         component_elements: list[oe.Element] = []
         component_notes: list[oe.Note] = []
         for clip_element in self._items:
