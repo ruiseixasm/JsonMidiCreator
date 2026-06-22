@@ -2817,12 +2817,12 @@ class Clip(Composition):  # Just a container of Elements
                 if note_tied_index >= 0:
                     note_extended_durations[note_tied_index] += clip_note._duration_beats
                     note_extended_durations[index] = -1 # Negative extended duration, means to be excluded
-                clip_note._tied = False # Temporary setting to avoid post processing
         for single_note, extended_duration in zip(component_notes, note_extended_durations):
             if extended_duration == 0:    # Typical scenario comes first (optimization)
                 component_elements.append(single_note)  # Note as is, no extension, untouched
             elif extended_duration > 0:
                 copied_note = single_note.copy()    # Needs to be decouples
+                copied_note._tied = False # Temporary setting to avoid post processing
                 copied_note._duration_beats += extended_duration
                 component_elements.append(copied_note)
         return sorted(component_elements)
