@@ -333,7 +333,8 @@ start_time = time.time()
 settings << Minor()
 (Chord("A") << Octave(3) << Scale([])) / 7 + Iterate()**Degree() \
     >> og.LeftShift(result_save) >> og.LeftShift(result_export) \
-    << Inversion(1) >> og.LeftShift(result_save) >> og.LeftShift(result_export)
+    << Inversion(1) >> og.LeftShift(result_save) >> og.LeftShift(result_export) \
+    >> Save("json/testing/_Save_Play_p.11.2_first_note_compare.json") >> Export("json/testing/_Export_Play_p.11.2_sequence_compare.json")
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
     "test":     "TEST 5.2",
