@@ -4035,18 +4035,11 @@ class Settings(Generic):
 
     def reset_notes_on(self) -> Self:
         self._notes_on = set()
-        return self
-    
-
-    def reset_notes_off(self) -> Self:
-        self._notes_off = {}
-        return self
-    
+        return self    
 
     def reset(self, *parameters) -> Self:
         super().reset()
         self.reset_notes_on()
-        self.reset_notes_off()
         return self << parameters
     
     

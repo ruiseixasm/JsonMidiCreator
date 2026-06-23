@@ -2887,7 +2887,6 @@ class Clip(Composition):  # Just a container of Elements
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0, 1)
             og.settings.reset_notes_on()
-        og.settings.reset_notes_off()
 
         component_elements = self.get_component_elements()
         for single_element in component_elements:
@@ -2915,7 +2914,6 @@ class Clip(Composition):  # Just a container of Elements
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0, 1)
             og.settings.reset_notes_on()
-        og.settings.reset_notes_off()
 
         self_midilist: list[dict] = []
         component_elements = self.get_component_elements()
