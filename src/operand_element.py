@@ -2328,19 +2328,6 @@ class Note(ChannelElement):
                     f"and Pitch {pitch_int} with same time start at {round(absolute_position_beats, 2)} beats!")
                 return []
 
-            if self._tied:
-                tied_to: list | None = og.settings._add_note_off(
-                    absolute_position_beats,
-                    absolute_position_beats + self._duration_beats,
-                    pitch_channel_0,
-                    self_playlist[1]
-                )
-                if tied_to is not None:
-                    position_off_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats + self._duration_beats)
-                    tied_to["time_ms"] = o.minutes_to_time_ms(position_off_min)
-
-                    return []   # Discards note
-            
         return self_playlist
 
 
@@ -2385,18 +2372,6 @@ class Note(ChannelElement):
                     f"and Pitch {pitch_int} with same time start at {round(absolute_position_beats, 2)} beats!")
                 return []
 
-            if self._tied:
-                tied_to: list | None = og.settings._add_note_off(
-                    absolute_position_beats,
-                    absolute_position_beats + self._duration_beats,
-                    pitch_channel_0,
-                    self_midilist[0]
-                )
-                if tied_to is not None:
-                    tied_to["duration"] = float(absolute_position_beats + self._duration_beats - tied_to["position_on"])
-
-                    return []   # Discards note
-            
         return self_midilist
 
 

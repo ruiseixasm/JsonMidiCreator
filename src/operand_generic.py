@@ -4038,13 +4038,6 @@ class Settings(Generic):
         return self
     
 
-    def _add_note_off(self, position_on: Fraction, position_off: Fraction, pitch_channel_0: int, note_off: dict) -> dict | None:
-        tied_to: dict | None = None
-        if (position_on, pitch_channel_0) in self._notes_off:
-            note_off = tied_to = self._notes_off[(position_on, pitch_channel_0)]
-        self._notes_off[(position_off, pitch_channel_0)] = note_off
-        return tied_to
-    
     def reset_notes_off(self) -> Self:
         self._notes_off = {}
         return self
