@@ -2202,8 +2202,7 @@ class Note(ChannelElement):
     # CREATION VS REPRESENTATION
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None, derived_note: 'Note' = None,
-            apply_effect: bool = True) -> list[dict]:
+            channels: dict[str, set[int]] = None, derived_note: 'Note' = None) -> list[dict]:
         
         if self._duration_beats == 0:
             return []
@@ -2264,8 +2263,7 @@ class Note(ChannelElement):
     # NEEDS TO BE REVIEWED TO ONLY SET ELEMENT POSITION IF CALLED FROM A Clip
     # CASE WHEN midi_track IS NOT None
     # AS AN Element IT STARTS PLAYING, OR IT IS TRIGGERED, RIGHT AWAY
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True,
-            apply_effect: bool = True) -> list[dict]:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         if not self._enabled:
             return []
         
@@ -2349,8 +2347,7 @@ class Note(ChannelElement):
     # NEEDS TO BE REVIEWED TO ONLY SET ELEMENT POSITION IF CALLED FROM A Clip
     # CASE WHEN midi_track IS NOT None
     # AS AN Element IT STARTS PLAYING, OR IT IS TRIGGERED, RIGHT AWAY
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
-            apply_effect: bool = True) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list:
         if not self._enabled:
             return []
         
@@ -2607,7 +2604,7 @@ class KeyScale(Note):
         elif position_beats < 0:
             return []
         for single_note in self.get_component_elements():
-            self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels, self, False))
+            self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels, self))
         # Makes sure the self middle pitch os passed once and only once to the last dict to be added on top of it
         if self_plotlist:
             self_plotlist[-1]["note"]["middle_pitch"] = self._pitch._get_chromatic_pitch()
@@ -2620,7 +2617,7 @@ class KeyScale(Note):
         elif position_beats < 0:
             return []
         for single_note in self.get_component_elements():
-            self_playlist.extend(single_note.getPlaylist(midi_track, position_beats, devices_header, False))
+            self_playlist.extend(single_note.getPlaylist(midi_track, position_beats, devices_header))
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list[dict]:
@@ -2630,7 +2627,7 @@ class KeyScale(Note):
         elif position_beats < 0:
             return []
         for single_note in self.get_component_elements():
-            self_midilist.extend(single_note.getMidilist(midi_track, position_beats, False))
+            self_midilist.extend(single_note.getMidilist(midi_track, position_beats))
         return self_midilist
 
     def getSerialization(self) -> dict:
@@ -3188,7 +3185,7 @@ class Retrigger(Note):
         elif position_beats < 0:
             return []
         for single_note in self.get_component_elements():
-            self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels, self, False))
+            self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels, self))
         return self_plotlist
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
@@ -3198,7 +3195,7 @@ class Retrigger(Note):
         elif position_beats < 0:
             return []
         for single_note in self.get_component_elements():
-            self_playlist.extend(single_note.getPlaylist(midi_track, position_beats, devices_header, False))
+            self_playlist.extend(single_note.getPlaylist(midi_track, position_beats, devices_header))
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list[dict]:
@@ -3208,7 +3205,7 @@ class Retrigger(Note):
         elif position_beats < 0:
             return []
         for single_note in self.get_component_elements():
-            self_midilist.extend(single_note.getMidilist(midi_track, position_beats, False))    # extends the list with other list
+            self_midilist.extend(single_note.getMidilist(midi_track, position_beats))    # extends the list with other list
         return self_midilist
     
     def getSerialization(self) -> dict:
