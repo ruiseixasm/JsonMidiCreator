@@ -2888,11 +2888,17 @@ class Clip(Composition):  # Just a container of Elements
             position_beats = Fraction(0, 1)
             og.settings.reset_notes_on()
         og.settings.reset_notes_off()
-    
-        for single_element in self._items:
+
+        component_elements = self.get_component_elements()
+        for single_element in component_elements:
             self_playlist.extend(
                 single_element.getPlaylist(self._midi_track, position_beats, False)
             )
+
+        # for single_element in self._items:
+        #     self_playlist.extend(
+        #         single_element.getPlaylist(self._midi_track, position_beats, False)
+        #     )
         return self_playlist
 
 
@@ -2911,11 +2917,20 @@ class Clip(Composition):  # Just a container of Elements
             og.settings.reset_notes_on()
         og.settings.reset_notes_off()
 
-        return [
-            single_midilist
-                for single_element in self._items
-                for single_midilist in single_element.getMidilist(self._midi_track, position_beats)
-        ]
+        self_midilist: list[dict] = []
+        component_elements = self.get_component_elements()
+        for single_element in component_elements:
+            self_midilist.extend(
+                single_element.getMidilist(self._midi_track, position_beats)
+            )
+
+        return self_midilist
+
+        # return [
+        #     single_midilist
+        #         for single_element in self._items
+        #         for single_midilist in single_element.getMidilist(self._midi_track, position_beats)
+        # ]
 
     def getSerialization(self) -> dict:
         """
