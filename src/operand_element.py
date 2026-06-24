@@ -2151,10 +2151,11 @@ class Note(ChannelElement):
 
     def get_component_elements(self) -> list['Note']:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
-        component_notes: list[Note] = [self]
         if isinstance(self._note_effect, og.NoteEffect):
-            return self._note_effect.apply(component_notes)
-        return component_notes
+            cleaned_note = self.copy()
+            cleaned_note._note_effect = None
+            return self._note_effect.apply([cleaned_note])
+        return [self]
     
 
     def __mod__(self, operand: o.T) -> o.T:
