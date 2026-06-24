@@ -1456,6 +1456,13 @@ def test_frame_masking():
 
 # test_frame_masking()
 
+def test_note_effect():
+    single_note = Note(1/1, Repeat()) * 1
+    clip_components = single_note.get_component_elements()
+    assert len(clip_components) == 16
+
+# test_note_effect()
+
 
 def test_clip_multi():
     pitch_bends = PitchBend() / 17

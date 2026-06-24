@@ -2332,7 +2332,7 @@ class Repeat(NoteEffect):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["duration"] = self.serialize( self._duration )
+        serialization["parameters"]["duration"] = self.serialize( self._duration_beats )
         serialization["parameters"]["swing"]    = self.serialize( self._swing )
         serialization["parameters"]["chaos"]    = self.serialize( self._chaos )
         return serialization
@@ -2344,9 +2344,9 @@ class Repeat(NoteEffect):
             "duration" in serialization["parameters"] and "swing" in serialization["parameters"] and "chaos" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._duration  = self.deserialize( serialization["parameters"]["duration"] )
-            self._swing     = self.deserialize( serialization["parameters"]["swing"] )
-            self._chaos     = self.deserialize( serialization["parameters"]["chaos"] )
+            self._duration_beats    = self.deserialize( serialization["parameters"]["duration"] )
+            self._swing             = self.deserialize( serialization["parameters"]["swing"] )
+            self._chaos             = self.deserialize( serialization["parameters"]["chaos"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -2354,11 +2354,11 @@ class Repeat(NoteEffect):
         match operand:
             case Repeat():
                 super().__lshift__(operand)
-                self._duration  = operand._duration
-                self._swing     = operand._swing
+                self._duration_beats    = operand._duration_beats
+                self._swing             = operand._swing
             case od.Pipe():
                 match operand._data:
-                    case ra.Duration():             self._duration = operand._data._rational
+                    case ra.Duration():             self._duration_beats = operand._data._rational
                     case ra.Swing():                self._swing = operand._data._rational
                     case _:                         super().__lshift__(operand)
             case ra.Duration():
