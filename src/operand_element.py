@@ -2238,7 +2238,6 @@ class Note(ChannelElement):
                     "velocity": self._velocity,
                     "channel": self._channel_0,
                     "masked": self._masked,
-                    "tied": self._tied,
                     "self": self_to_plot
                 }
             }
