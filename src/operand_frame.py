@@ -947,9 +947,11 @@ class BasicComparison(Selector):
     def _compare(input: Any, condition: Any) -> bool:
         return True
 
-    def reset(self, *parameters) -> Self:
-        super().reset()
-        return self << parameters
+    def _set_inside_container(self, container: 'Container') -> Self:
+        for condition in self._parameters:
+            if isinstance(condition, Frame):
+                condition._set_inside_container(container)
+        return super()._set_inside_container(container)
 
 class Match(BasicComparison):
     """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> Match`
