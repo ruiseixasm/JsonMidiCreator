@@ -4023,8 +4023,6 @@ class Settings(Generic):
         # Volatile variable not intended to be user defined
         # (position_on, pitch_channel_0)
         self._notes_on: set[tuple[Fraction, int]] = set()
-        # (position_on, pitch_channel_0, note_on)
-        self._notes_off: dict[tuple[Fraction, int], dict] = {}
 
 
     def _add_note_on(self, position_on: Fraction, pitch_channel_0: int) -> bool:
