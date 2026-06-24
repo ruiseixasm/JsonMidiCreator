@@ -2204,64 +2204,64 @@ class Note(ChannelElement):
             midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
             channels: dict[str, set[int]] = None, derived_note: 'Note' = None) -> list[dict]:
         
-        if self._duration_beats == 0:
-            return []
-
-        if channels is not None:
-            channels["note"].add(self._channel_0)
-
-        pitch_int: int = self._pitch._get_chromatic_pitch()
-        if self.is_clipped(pitch_int):
-            return []
-
         self_plotlist: list[dict] = []
-    
-        position_on: Fraction = Fraction(0)
-        if position_beats is not None:
-            position_on = position_beats + self._position_beats
+        component_notes: list[Note] = self.get_component_elements()
 
-        position_off: Fraction = position_on + self._duration_beats
-        self_to_plot: Note = self if derived_note is None else derived_note
+        for single_note in component_notes:
 
-        self_plotlist.append(
-            {
-                "note": {
-                    "position_on": position_on,
-                    "position_off": position_off,
-                    "enabled": self._enabled,
-                    "pitch": pitch_int,
-                    "tonic_key": self._pitch._tonic_key % 12,
-                    "sharps": self._pitch._key_signature._unit,
-                    "mode": self._pitch._key_signature._mode_0,
-                    "key_tonic": self._pitch._key_signature.get_tonic_key(),
-                    "accidentals": self._pitch % ou.Accidental() % int(),
-                    "velocity": self._velocity,
-                    "channel": self._channel_0,
-                    "masked": self._masked,
-                    "self": self_to_plot
+            if single_note._duration_beats == 0:
+                continue    # Next note
+
+            if channels is not None:
+                channels["note"].add(single_note._channel_0)
+
+            pitch_int: int = single_note._pitch._get_chromatic_pitch()
+            if single_note.is_clipped(pitch_int):
+                continue    # Next note
+
+            position_on: Fraction = Fraction(0)
+            if position_beats is not None:
+                position_on = position_beats + single_note._position_beats
+
+            position_off: Fraction = position_on + single_note._duration_beats
+            self_to_plot: Note = single_note if derived_note is None else derived_note
+
+            self_plotlist.append(
+                {
+                    "note": {
+                        "position_on": position_on,
+                        "position_off": position_off,
+                        "enabled": single_note._enabled,
+                        "pitch": pitch_int,
+                        "tonic_key": single_note._pitch._tonic_key % 12,
+                        "sharps": single_note._pitch._key_signature._unit,
+                        "mode": single_note._pitch._key_signature._mode_0,
+                        "key_tonic": single_note._pitch._key_signature.get_tonic_key(),
+                        "accidentals": single_note._pitch % ou.Accidental() % int(),
+                        "velocity": single_note._velocity,
+                        "channel": single_note._channel_0,
+                        "masked": single_note._masked,
+                        "self": self_to_plot
+                    }
                 }
-            }
-        )
+            )
 
-        # This only applies for Clip owned Notes called by the Clip class!
-        if midi_track is not None and self._owner_clip is not None:
+            # This only applies for Clip owned Notes called by the Clip class!
+            if midi_track is not None and single_note._owner_clip is not None:
 
-            pitch_channel_0: int = pitch_int << 4 | self._channel_0 # (7 bits, 4 bits)
-            # Record present Note on the TimeSignature stacked notes
-            if not og.settings._add_note_on(
-                position_on,
-                pitch_channel_0
-            ):
-                print(f"Warning (PLL): Ignored redundant Note on Channel {self._channel_0 + 1} "
-                    f"and Pitch {pitch_int} with same time start at {round(position_on, 2)} beats!")
-                return []
+                pitch_channel_0: int = pitch_int << 4 | single_note._channel_0 # (7 bits, 4 bits)
+                # Record present Note on the TimeSignature stacked notes
+                if not og.settings._add_note_on(
+                    position_on,
+                    pitch_channel_0
+                ):
+                    print(f"Warning (PLL): Ignored redundant Note on Channel {single_note._channel_0 + 1} "
+                        f"and Pitch {pitch_int} with same time start at {round(position_on, 2)} beats!")
+                    continue    # Next note
 
         return self_plotlist
 
 
-    # NEEDS TO BE REVIEWED TO ONLY SET ELEMENT POSITION IF CALLED FROM A Clip
-    # CASE WHEN midi_track IS NOT None
-    # AS AN Element IT STARTS PLAYING, OR IT IS TRIGGERED, RIGHT AWAY
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
 
         self_playlist: list[dict] = []
