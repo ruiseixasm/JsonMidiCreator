@@ -1754,10 +1754,10 @@ class Composition(Container):
 
                                 info: str = ""
                                 if note["self"]._tied:
-                                    info += " TIED"
+                                    info += " Tied"
                                 if isinstance(note["self"]._note_effect, og.NoteEffect):
-                                    info += " EFFECT"
-                                self._ax.text(float(note["position_on"]), note["pitch"] + 0.5, info, ha='left', va='bottom', fontsize=5,
+                                    info += " FX"
+                                self._ax.text(float(note["position_on"]), note["pitch"] + 0.3, info, ha='left', va='bottom', fontsize=4,
                                     color='black',  # Outline color
                                     path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
                                     alpha=color_alpha)
@@ -1943,10 +1943,10 @@ class Composition(Container):
 
                             info: str = ""
                             if note["self"]._tied:
-                                info += " TIED"
+                                info += " Tied"
                             if isinstance(note["self"]._note_effect, og.NoteEffect):
-                                info += " EFFECT"
-                            self._ax.text(float(note["position_on"]), note["pitch"] + 0.5, info, ha='left', va='bottom', fontsize=5,
+                                info += " FX"
+                            self._ax.text(float(note["position_on"]), note["pitch"] + 0.3, info, ha='left', va='bottom', fontsize=4,
                                 color='black',  # Outline color
                                 path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
                                 alpha=color_alpha)
