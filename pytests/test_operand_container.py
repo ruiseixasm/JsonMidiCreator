@@ -1456,6 +1456,7 @@ def test_frame_masking():
 
 # test_frame_masking()
 
+
 def test_note_effect():
     single_note = Note(1/1, Repeat()) * 1
     assert single_note[0]._note_effect is not None

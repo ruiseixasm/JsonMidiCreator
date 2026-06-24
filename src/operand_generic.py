@@ -2327,7 +2327,7 @@ class Repeat(NoteEffect):
         from operand_element import Note
         repeated_notes: list[Note] = []
         for single_note in notes:
-            repeated_notes.append( self._repeat_note(single_note) )
+            repeated_notes = self._repeat_note(single_note)
         return super().apply(repeated_notes)
 
     def getSerialization(self) -> dict:
