@@ -1523,6 +1523,13 @@ def test_pitch_semitone():
 
 # test_pitch_semitone()
 
+def test_effect_repeat():
+    note_repeat = Repeat()
+    single_note = Note(1/1) # Whole note is the same as 16 Steps
+    multiple_notes = note_repeat._repeat_note(single_note)
+    assert len(multiple_notes) == 16
+# test_effect_repeat()
+
 
 def test_pitch_multi():
 

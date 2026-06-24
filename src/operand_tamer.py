@@ -1081,42 +1081,6 @@ class Contract(Manipulator):
         return numeral, validated
 
 
-class Repeat(Manipulator):
-    """`Tamer -> Manipulator -> Repeat`
-
-    `Repeat` returns the previous `Rational` numeral resulting in its repetition.
-
-    Parameters
-    ----------
-    None
-    """
-    def __init__(self, *parameters):
-        super().__init__()
-        self._parameter = None  # Previous Rational (None for the first one)
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
-
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral)
-        # A `Manipulator` shall always be triggered regardless of being previously validated or not
-        if isinstance(self._parameter, Fraction):
-            numeral = self._parameter
-        if iterate: # Has to be after the fact
-            self.next(numeral)
-        return numeral, validated
-    
-    # CHAINABLE OPERATIONS
-
-    def reset(self, *parameters) -> Self:
-        self._parameter = None
-        return super().reset(*parameters)
-    
-    def next(self, numeral: o.TypeNumeral) -> Self:
-        """Only called by the first link of the chain if all links are validated"""
-        self._parameter = numeral
-        return super().next(numeral)
-
-
 class Wrap(Manipulator):
     """`Tamer -> Manipulator -> Wrap`
 
