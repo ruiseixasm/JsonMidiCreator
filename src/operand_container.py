@@ -2822,7 +2822,6 @@ class Clip(Composition):  # Just a container of Elements
                 component_elements.append(single_note)  # Note as is, no extension, untouched
             elif extended_duration > 0:
                 copied_note = single_note.copy()    # Needs to be decouples
-                copied_note._tied = False # Temporary setting to avoid post processing
                 copied_note._duration_beats += extended_duration
                 component_elements.append(copied_note)
         return sorted(component_elements)
@@ -2893,11 +2892,6 @@ class Clip(Composition):  # Just a container of Elements
             self_playlist.extend(
                 single_element.getPlaylist(self._midi_track, position_beats, False)
             )
-
-        # for single_element in self._items:
-        #     self_playlist.extend(
-        #         single_element.getPlaylist(self._midi_track, position_beats, False)
-        #     )
         return self_playlist
 
 
@@ -2921,14 +2915,7 @@ class Clip(Composition):  # Just a container of Elements
             self_midilist.extend(
                 single_element.getMidilist(self._midi_track, position_beats)
             )
-
         return self_midilist
-
-        # return [
-        #     single_midilist
-        #         for single_element in self._items
-        #         for single_midilist in single_element.getMidilist(self._midi_track, position_beats)
-        # ]
 
     def getSerialization(self) -> dict:
         """
