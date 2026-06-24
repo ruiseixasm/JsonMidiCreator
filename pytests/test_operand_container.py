@@ -1463,6 +1463,11 @@ def test_note_effect():
     clip_components = single_note.get_component_elements()
     assert len(clip_components) == 16
 
+    chord = Chord(1/1, Repeat()) * 1
+    assert chord[0]._note_effect is not None
+    clip_components = chord.get_component_elements()
+    assert len(clip_components) == 16 * 3
+
 # test_note_effect()
 
 
