@@ -1935,16 +1935,19 @@ class Composition(Container):
                             if note["masked"]:
                                 color_alpha = 0.2
 
-                            if note["tied"]:
-                                self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                        height=bar_height - 0.1, color='none', hatch='|', edgecolor=channel_color, linewidth=0, linestyle='solid', alpha=color_alpha)
-                                self._ax.barh(y = note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                        height=bar_height, color='none', hatch=bar_hatch, edgecolor=edge_color, linewidth=1.0, linestyle=line_style, alpha=color_alpha)
+                            self._ax.barh(y=note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
+                                    height=bar_height, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.0, linestyle=line_style, alpha=color_alpha)
 
-                            else:
-                                self._ax.barh(y=note["pitch"], width = float(note["position_off"] - note["position_on"]), left = float(note["position_on"]), 
-                                        height=bar_height, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.0, linestyle=line_style, alpha=color_alpha)
-
+                            info: str = ""
+                            if note["self"]._tied:
+                                info += " TIED"
+                            if isinstance(note["self"]._note_effect, og.NoteEffect):
+                                info += " EFFECT"
+                            self._ax.text(float(note["position_on"]), note["pitch"] + 0.5, info, ha='left', va='bottom', fontsize=5,
+                                color='black',  # Outline color
+                                path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
+                                alpha=color_alpha)
+                        
                             if "middle_pitch" in note:
                                 self._ax.hlines(y=note["middle_pitch"], xmin=float(note["position_on"]), xmax=float(note["position_off"]), 
                                                 color='black', linewidth=0.5, alpha=color_alpha)
