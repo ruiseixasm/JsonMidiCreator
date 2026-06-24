@@ -2263,69 +2263,73 @@ class Note(ChannelElement):
     # CASE WHEN midi_track IS NOT None
     # AS AN Element IT STARTS PLAYING, OR IT IS TRIGGERED, RIGHT AWAY
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
-        if not self._enabled:
-            return []
-        
-        absolute_position_beats: Fraction = Fraction(0)
-        if position_beats is not None:
-            absolute_position_beats = position_beats + self._position_beats
-
-        self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
-        self_duration_min: Fraction = og.settings.beats_to_minutes(self._duration_beats)
-
-        if self_duration_min == 0:
-            return []
-
-        pitch_int: int = self._pitch._get_chromatic_pitch()
-        if self.is_clipped(pitch_int):
-            return []
-        devices: list[str] = midi_track._devices if midi_track else og.settings._devices
 
         self_playlist: list[dict] = []
-    
-        if devices_header:
+        component_notes: list[Note] = self.get_component_elements()
+
+        for single_note in component_notes:
+
+            if not single_note._enabled:
+                continue    # Next note
+            
+            absolute_position_beats: Fraction = Fraction(0)
+            if position_beats is not None:
+                absolute_position_beats = position_beats + single_note._position_beats
+
+            self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
+            self_duration_min: Fraction = og.settings.beats_to_minutes(single_note._duration_beats)
+
+            if self_duration_min == 0:
+                continue    # Next note
+
+            pitch_int: int = single_note._pitch._get_chromatic_pitch()
+            if single_note.is_clipped(pitch_int):
+                continue    # Next note
+            devices: list[str] = midi_track._devices if midi_track else og.settings._devices
+
+            if devices_header:
+                self_playlist.append(
+                    {
+                        "devices": devices
+                    }
+                )
+
+            # Midi validation is done in the JsonMidiPlayer program
             self_playlist.append(
                 {
-                    "devices": devices
+                    "time_ms": o.minutes_to_time_ms(self_position_min),
+                    "midi_message": {
+                        "status_byte": 0x90 | single_note._channel_0,
+                        "data_byte_1": pitch_int,
+                        "data_byte_2": single_note._velocity
+                    }
+                }
+            )
+            self_playlist.append(
+                {
+                    "time_ms": o.minutes_to_time_ms(self_position_min + self_duration_min * single_note._gate),
+                    "midi_message": {
+                        "status_byte": 0x80 | single_note._channel_0,
+                        "data_byte_1": pitch_int,
+                        "data_byte_2": 0
+                    }
                 }
             )
 
-        # Midi validation is done in the JsonMidiPlayer program
-        self_playlist.append(
-            {
-                "time_ms": o.minutes_to_time_ms(self_position_min),
-                "midi_message": {
-                    "status_byte": 0x90 | self._channel_0,
-                    "data_byte_1": pitch_int,
-                    "data_byte_2": self._velocity
-                }
-            }
-        )
-        self_playlist.append(
-            {
-                "time_ms": o.minutes_to_time_ms(self_position_min + self_duration_min * self._gate),
-                "midi_message": {
-                    "status_byte": 0x80 | self._channel_0,
-                    "data_byte_1": pitch_int,
-                    "data_byte_2": 0
-                }
-            }
-        )
+            # Already with a Playlist at this point
 
-        # Already with a Playlist at this point
+            # This only applies for Clip owned Notes called by the Clip class!
+            if midi_track is not None and single_note._owner_clip is not None:
 
-        # This only applies for Clip owned Notes called by the Clip class!
-        if midi_track is not None and self._owner_clip is not None:
-
-            pitch_channel_0: int = pitch_int << 4 | self._channel_0 # (7 bits, 4 bits)
-            # Record present Note on the TimeSignature stacked notes
-            if not og.settings._add_note_on(
-                absolute_position_beats,
-                pitch_channel_0
-            ):
-                print(f"Warning (PL): Ignored redundant Note on Channel {self._channel_0 + 1} "
-                    f"and Pitch {pitch_int} with same time start at {round(absolute_position_beats, 2)} beats!")
-                return []
+                pitch_channel_0: int = pitch_int << 4 | single_note._channel_0 # (7 bits, 4 bits)
+                # Record present Note on the TimeSignature stacked notes
+                if not og.settings._add_note_on(
+                    absolute_position_beats,
+                    pitch_channel_0
+                ):
+                    print(f"Warning (PL): Ignored redundant Note on Channel {single_note._channel_0 + 1} "
+                        f"and Pitch {pitch_int} with same time start at {round(absolute_position_beats, 2)} beats!")
+                    continue    # Next note
 
         return self_playlist
 
