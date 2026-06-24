@@ -3078,8 +3078,8 @@ class Retrigger(Note):
         self._count: int        = 8
         self._swing: Fraction   = Fraction(1, 2)
         super().__init__()
-        self._duration_beats  *= 2 # Equivalent to twice single note duration
-        self._gate      = ra.Gate(0.5)._rational
+        self._duration_beats    *= 2 # Equivalent to twice single note duration
+        self._gate              = Fraction(1, 2)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
