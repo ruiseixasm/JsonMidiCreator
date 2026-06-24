@@ -2059,7 +2059,7 @@ class Arpeggio(NoteEffect):
     def __init__(self, *parameters):
         import operand_chaos as ch
         self._order: int = 1    # "Up" by default
-        self._duration_beats: Fraction = Fraction(1, 16)
+        self._duration_beats: Fraction = Fraction(1, 4) # duration in beats, NOT note value
         self._swing: Fraction = Fraction(1, 2)
         self._chaos: ch.Chaos = ch.SinX()
         super().__init__(*parameters)
@@ -2126,6 +2126,7 @@ class Arpeggio(NoteEffect):
     def apply(self, notes: list['Note']) -> list['Note']:
         from operand_element import Note
 
+        arpeggiated_notes: list[Note] = []
         if self._order > 0 and len(notes) > 0:
 
             time_signature: TimeSignature = notes[0]._get_time_signature()
@@ -2137,7 +2138,6 @@ class Arpeggio(NoteEffect):
             even_length: ra.Length = note_length * 2 - odd_length
             
             sequenced_notes: list[Note] = self._generate_sequence(notes)
-            arpeggiated_notes: list[Note] = []
             nth_note: int = 1
             while note_start_position < arpeggio_end_position:
                 for source_note in sequenced_notes:
@@ -2155,9 +2155,9 @@ class Arpeggio(NoteEffect):
                         break
                     note_start_position = note_end_position
                     nth_note += 1
-            return arpeggiated_notes
+        
+        return super().apply(arpeggiated_notes)
 
-        return notes
 
     def arpeggiate_source(self, notes: list['Note'], start_position: ra.Position, arpeggio_length: ra.Length) -> list['Note']:
         from operand_element import Note
@@ -2276,7 +2276,7 @@ class Repeat(NoteEffect):
     """
     def __init__(self, *parameters):
         import operand_chaos as ch
-        self._duration_beats: Fraction  = Fraction(1, 16)
+        self._duration_beats: Fraction  = Fraction(1, 4)    # duration in beats, NOT note value
         self._swing: Fraction           = Fraction(1, 2)
         self._chaos: ch.Chaos           = ch.SinX()
         super().__init__(*parameters)
@@ -2309,6 +2309,7 @@ class Repeat(NoteEffect):
         self._swing = max(Fraction(0), self._swing, min(Fraction(1), self._swing))
         for cycle in range(total_cycles + 1):
             new_note = single_note.copy()
+            repeated_note.append(new_note)
             if cycle % 2 == 0:
                 new_note._position_beats = single_note_position + cycle_duration * cycle
                 new_note._duration_beats = cycle_duration * self._swing
@@ -2327,7 +2328,7 @@ class Repeat(NoteEffect):
         repeated_notes: list[Note] = []
         for single_note in notes:
             repeated_notes.append( self._repeat_note(single_note) )
-        return repeated_notes
+        return super().apply(repeated_notes)
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()

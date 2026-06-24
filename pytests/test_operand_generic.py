@@ -1528,7 +1528,8 @@ def test_effect_repeat():
     single_note = Note(1/1) # Whole note is the same as 16 Steps
     multiple_notes = note_repeat._repeat_note(single_note)
     assert len(multiple_notes) == 16
-# test_effect_repeat()
+
+test_effect_repeat()
 
 
 def test_pitch_multi():
