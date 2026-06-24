@@ -2059,8 +2059,8 @@ class Arpeggio(NoteEffect):
     def __init__(self, *parameters):
         import operand_chaos as ch
         self._order: int = 1    # "Up" by default
-        self._duration_beats: Fraction = ra.Duration(1/16)._rational
-        self._swing: Fraction = ra.Swing(0.5)._rational
+        self._duration_beats: Fraction = Fraction(1, 16)
+        self._swing: Fraction = Fraction(1, 2)
         self._chaos: ch.Chaos = ch.SinX()
         super().__init__(*parameters)
 
@@ -2259,9 +2259,125 @@ class Arpeggio(NoteEffect):
 
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
         self._initiated = True
-        self._chaos @ number
+        self._chaos *= number
         self._index += self.convert_to_int(number)    # keeps track of each iteration
         return self
+
+class Repeat(NoteEffect):
+    """`Generic -> NoteEffect -> Repeat`
+
+    A `Repeat` repeats the note being pressed accordingly to a given Duration.
+
+    Parameters
+    ----------
+    Duration(1/16), int, float : int for steps and float for note value.
+    Swing(0.5) : Sets the amount of time the note is effectively pressed relatively to its total duration.
+    Chaos(SinX()) : For the `Order` 5, "Chaotic", it uses the set Chaotic `Operand`.
+    """
+    def __init__(self, *parameters):
+        import operand_chaos as ch
+        self._duration_beats: Fraction  = Fraction(1, 16)
+        self._swing: Fraction           = Fraction(1, 2)
+        self._gate: Fraction            = Fraction(1, 2)
+        self._chaos: ch.Chaos           = ch.SinX()
+        super().__init__(*parameters)
+
+    def __mod__(self, operand: o.T) -> o.T:
+        """
+        The % symbol is used to extract a Parameter, in the case of a Retrigger,
+        those Parameters are the ones of the Element, like Position and Duration,
+        plus the ones of a Note and the Count as 16 by default.
+
+        Examples
+        --------
+        >>> retrigger = Retrigger("G") << Count(32)
+        >>> retrigger % Count() % int() >> Print()
+        32
+        """
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case ra.Duration():        return operand._data << od.Pipe(self._count)
+                    case ra.Swing():        return operand._data << od.Pipe(self._swing)
+                    case _:                 return super().__mod__(operand)
+            case ra.Duration():        return ra.Duration() << od.Pipe(self._count)
+            case ra.Swing():        return ra.Swing() << od.Pipe(self._swing)
+            # Returns the SYMBOLIC value of each note
+            case ra.Duration():
+                return operand.copy() << od.Pipe( self._duration_beats / 2 )
+            case ra.NoteValue() | ra.TimeValue():
+                return operand.copy() << self % ra.Duration()
+            case float():           return self % ra.NoteValue() % float()
+            case _:                 return super().__mod__(operand)
+
+    def get_component_elements(self) -> list['Note']:
+        """Returns the elements directly, NO decoupling guaranteed (no copy)"""
+        retrigger_notes: list[Note] = []
+        self_iteration: int = 0
+        note_position: ra.Position = ra.Position(self, self._position_beats)
+        single_note_duration: ra.Duration = ra.Duration( self._duration_beats/(self._count) ) # Already 2x single note duration
+        for _ in range(self._count):
+            swing_ratio: Fraction = self._swing
+            if self_iteration % 2:
+                swing_ratio = 1 - swing_ratio
+            note_duration: ra.Duration = single_note_duration * Fraction(2) * swing_ratio
+            single_note = Note(self, note_duration, note_position)
+            retrigger_notes.append( single_note )
+            single_note._note_effect = None # Clears any possible existing effect
+            note_position += note_duration
+            self_iteration += 1
+        return retrigger_notes
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["count"]    = self.serialize( self._count )
+        serialization["parameters"]["swing"]    = self.serialize( self._swing )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "count" in serialization["parameters"] and "swing" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._count     = self.deserialize( serialization["parameters"]["count"] )
+            self._swing     = self.deserialize( serialization["parameters"]["swing"] )
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Retrigger():
+                super().__lshift__(operand)
+                self._count  = operand._count
+                self._swing     = operand._swing
+            case od.Pipe():
+                match operand._data:
+                    case ra.Duration():             self._count = operand._data.__mod__(od.Pipe( int() ))
+                    case ra.Swing():                self._swing = operand._data._rational
+                    case _:                         super().__lshift__(operand)
+            case ra.Duration():
+                if operand > 0:
+                    self._count = operand.__mod__(od.Pipe( int() ))
+            case ra.Swing():
+                if operand < 0:
+                    self._swing = Fraction(0)
+                elif operand > 1:
+                    self._swing = Fraction(1)
+                else:
+                    self._swing = operand._rational
+            case ra.Duration():
+                self._duration_beats = operand._rational * 2  # Equivalent to two sized Notes
+            case ra.NoteValue() | ra.TimeValue():
+                self << ra.Duration(self, operand)
+            case float():
+                self << ra.NoteValue(operand)
+            case _:
+                super().__lshift__(operand)
+        return self
+
+
 
 
 class Segment(Generic):

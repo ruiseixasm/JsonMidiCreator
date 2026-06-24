@@ -3076,7 +3076,7 @@ class Retrigger(Note):
     """
     def __init__(self, *parameters):
         self._count: int        = 8
-        self._swing: Fraction   = ra.Swing(0.5)._rational
+        self._swing: Fraction   = Fraction(1, 2)
         super().__init__()
         self._duration_beats  *= 2 # Equivalent to twice single note duration
         self._gate      = ra.Gate(0.5)._rational
