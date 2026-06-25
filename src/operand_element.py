@@ -2446,6 +2446,9 @@ class Note(ChannelElement):
             case ou.Order() | ra.Swing() | ch.Chaos():
                 if isinstance(self._note_effect, og.NoteEffect):
                     self._note_effect << operand
+            case od.Remove():
+                if isinstance(operand._data, og.NoteEffect):
+                    self._note_effect = None
 
             case ou.DrumKit():
                 self._channel_0 = operand._channel_0
