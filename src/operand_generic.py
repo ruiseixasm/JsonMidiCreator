@@ -2311,11 +2311,12 @@ class Repeat(NoteEffect):
             new_note = single_note.copy()
             repeated_note.append(new_note)
             if repeat_i % 2 == 0:
-                new_note._position_beats = single_note_position + repeat_duration * repeat_i
                 new_note._duration_beats = repeat_duration * 2 * self._swing
+                new_note._position_beats = single_note_position + repeat_duration * repeat_i
             else:
-                new_note._position_beats = single_note_position + repeat_duration * (repeat_i + self._swing)
                 new_note._duration_beats = repeat_duration * 2 * (1 - self._swing)
+                new_note._position_beats = single_note_position + repeat_duration * (repeat_i + 1)
+                new_note._position_beats -= new_note._duration_beats
             # Trim exceeding duration
             new_note_finish: Fraction = new_note._position_beats + new_note._duration_beats
             if new_note_finish >= single_note_finish:
