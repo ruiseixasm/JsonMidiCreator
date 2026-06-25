@@ -2222,7 +2222,7 @@ class Note(ChannelElement):
                 position_on = position_beats + single_note._position_beats
 
             position_off: Fraction = position_on + single_note._duration_beats
-            self_to_plot: Note = single_note if derived_note is None else derived_note
+            self_to_plot: Note = self if derived_note is None else derived_note # Info to be represented
 
             # This only applies for Clip owned Notes called by the Clip class!
             if midi_track is not None and single_note._owner_clip is not None:
