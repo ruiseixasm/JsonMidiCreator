@@ -35,7 +35,7 @@ def test_cycle_setter():
     notes_setting = I_Setter(Semitone(), Cycle(), no_repetitions=True)
     for semitone in range(12):
         new_iteration: Clip = notes_setting.new_iteration(two_notes)
-        second_note: Note = new_iteration[1]
+        second_note: Note = new_iteration[0]
         print(f"Semitone {semitone}: {second_note._pitch._get_chromatic_pitch()} VS {60 + semitone}")
         assert second_note._pitch._get_chromatic_pitch() == 60 + semitone
     four_notes = Clip(
@@ -43,7 +43,7 @@ def test_cycle_setter():
     ) << Select(At(2)) << Name("Four Notes")
     for semitone in range(12):
         new_iteration: Clip = notes_setting.new_iteration(four_notes)
-        second_note: Note = new_iteration[2]
+        second_note: Note = new_iteration[0]
         print(f"Semitone {semitone}: {second_note._pitch._get_chromatic_pitch()} VS {60 + 2*12 + semitone}")
         assert second_note._pitch._get_chromatic_pitch() == 60 + 2*12 + semitone
 

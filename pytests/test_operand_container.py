@@ -1441,18 +1441,18 @@ def test_clip_line():
 
 def test_frame_masking():
     two_notes = Note(1/2) / 2
-    assert not two_notes[0] % Masked()
-    assert not two_notes[1] % Masked()
+    assert not two_notes._items[0] % Masked()
+    assert not two_notes._items[1] % Masked()
 
     two_notes << Select(Last())
     # two_notes >> Plot()
-    assert two_notes[0] % Masked()
-    assert not two_notes[1] % Masked()
+    assert two_notes._items[0] % Masked()
+    assert not two_notes._items[1] % Masked()
 
     two_notes << Select(First())
     # two_notes >> Plot()
-    assert not two_notes[0] % Masked()
-    assert two_notes[1] % Masked()
+    assert not two_notes._items[0] % Masked()
+    assert two_notes._items[1] % Masked()
 
 # test_frame_masking()
 
