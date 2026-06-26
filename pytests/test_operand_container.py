@@ -907,7 +907,7 @@ def test_position_shift():
     print(f"Chords Length: {chords % Length() % float()}")
     assert chords % Position() == 0.0   # Clip has no Position on its own
     # chords has ALL notes at negative Measure, so, Length ends up being 0.0 !!
-    assert chords % Length() == 0.0 # All Elements became at the same NEGATIVE position, -1.0 position each one
+    assert chords % Length() % Measure() == 1.0
     print(f"Fifth Length: {fifth_measure_chords % Length() % float()}")
     print(f"Duration: {fifth_measure_chords % Duration() % float()}")
     assert fifth_measure_chords % Position() == 0.0   # Clip has no Position on its own
