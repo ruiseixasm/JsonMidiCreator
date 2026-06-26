@@ -907,7 +907,7 @@ def test_position_shift():
     print(f"Chords Length: {chords % Length() % float()}")
     assert chords % Position() == 0.0   # Clip has no Position on its own
     # chords has ALL notes at negative Measure, so, Length ends up being 0.0 !!
-    assert chords % Length() % Measure() == 1.0
+    assert chords % Length() == 0.0 # All Elements became at the same NEGATIVE position, -1.0 position each one
     print(f"Fifth Length: {fifth_measure_chords % Length() % float()}")
     print(f"Duration: {fifth_measure_chords % Duration() % float()}")
     assert fifth_measure_chords % Position() == 0.0   # Clip has no Position on its own
@@ -959,7 +959,7 @@ def test_clip_duration():
 
     single_beat_note = Clip(Note(Beats(1)))
     print(f"single_beat_note Length: {single_beat_note % Length() % float()}")
-    assert single_beat_note % Length() % Measure() == 1.0
+    assert single_beat_note % Length() == 1.0
 
 # test_clip_duration()
 
@@ -1106,16 +1106,14 @@ test_part_operations()
 def test_clip_length():
 
     two_notes = Note() / 2
-    assert two_notes % Duration() % Beats() == 2
+    assert two_notes % Duration() == Beats(2)
     two_notes << Length(1.0)    # Imposed Length
-    assert two_notes % Length() % Beat() == 1 + 4
+    assert two_notes % Length() == Beats(4)
 
-    # two_notes >> Plot()
-    # two_notes * 2 >> Plot()
-    assert two_notes * 2 % Length() % Beat() == 4 + 5
-    assert two_notes * two_notes % Length() % Beat() == 4 + 5
-    assert two_notes * 3 % Length() % Beat() == 4*2 + 5
-    assert two_notes * two_notes * two_notes % Length() % Beat() == 4*2 + 5
+    assert two_notes * 2 % Length() == Beats(4) * 2
+    assert two_notes * two_notes % Length() == Beats(4) * 2
+    assert two_notes * 3 % Length() == Beats(4) * 3
+    assert two_notes * two_notes * two_notes % Length() == Beats(4) * 3
 
 # test_clip_length()
 
