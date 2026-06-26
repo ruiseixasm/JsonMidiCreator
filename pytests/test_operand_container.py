@@ -959,7 +959,7 @@ def test_clip_duration():
 
     single_beat_note = Clip(Note(Beats(1)))
     print(f"single_beat_note Length: {single_beat_note % Length() % float()}")
-    assert single_beat_note % Length() == 1.0
+    assert single_beat_note % Length() % Measure() == 1.0
 
 # test_clip_duration()
 
