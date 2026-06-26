@@ -105,5 +105,22 @@ from JsonMidiCreator import *
 # sixteen_notes >> Recur(lambda d: d/1.5) >> Stack() >> Play()
 
 settings << Device("loop")
-(Chord("A") << Octave(3) << Scale([])) / 7 + Iterate()**Degree() << Inversion(1) >> Plot()
+# (Chord("A") << Octave(3) << Scale([])) / 7 + Iterate()**Degree() << Inversion(1) >> Plot()
 
+
+Note(":1s") + Note(":3s_1s") / 5 >> Plot(block=False, title="By Operators")
+Clip("n:1s, :3s, :3s, :3s, :3s, :3s") >> Plot(block=False, title="By String (Token)")
+
+second_pattern = Note(":3s") / 6    # Heavy-duty
+second_pattern << First()**Steps(1) # Low-duty
+second_pattern >>= Stack()          # Heavy-duty (a process)
+second_pattern >> Plot(block=False, title="Purely Heavy-duty")
+
+
+heavy_duty = Note(":3s") / 6    # Heavy-duty
+low_duty = heavy_duty << First()**Steps(1) >> Stack()
+low_duty >> Plot(block=False, title="Final Low-duty result")
+
+
+duty_precedences = Note(":3s") / 6 << First()**Steps(1) >> Stack()
+duty_precedences >> Plot(block=True, title="Single line multi-duty precedences")
