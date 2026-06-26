@@ -1427,9 +1427,10 @@ class Composition(Container):
             case ra.Position():
                 return operand.copy( ra.Position(self, 0) )
             case ra.Length():
-                return operand.copy( self.length() )
+                duration_beats: Fraction = self.duration(True)._rational
+                return ra.Length(self, duration_beats)
             case ra.Duration():
-                return self.duration()
+                return self.duration(True)
             case og.TimeSignature():
                 return self._time_signature.copy()
             case int():
@@ -3143,7 +3144,7 @@ class Clip(Composition):  # Just a container of Elements
                 start_position: ra.Position = operand_copy.start(include_masked=True)
                 if start_position is not None:
 
-                    self_length: ra.Length = self % ra.Length() # Position needs to come after
+                    self_length: ra.Length = self.length(include_masked=True).roundMeasures()
 
                     for single_element in operand_copy._items:
                         single_element._position_beats += self_length._rational   # Does a position offset
@@ -3164,7 +3165,7 @@ class Clip(Composition):  # Just a container of Elements
             case ra.TimeValue() | ra.TimeUnit():
                 self_repeating: int = 0
                 operand_beats: Fraction = ra.Beats(self, operand)._rational
-                self_length: ra.Length = self % ra.Length()
+                self_length: ra.Length = self.length(include_masked=True).roundMeasures()
                 self_beats: Fraction = self_length.roundMeasures()._rational  # Beats default unit
                 if self_beats > 0:
                     self_repeating = operand_beats // self_beats
@@ -4963,19 +4964,19 @@ class Block(Composition):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Block():
-                self_length: ra.Length = self.length(include_masked=True)
+                self_length: ra.Length = self.length(include_masked=True).roundMeasures()
                 if self_length is not None:
                     return Part(self._time_signature, self, operand.copy(ra.Position(self_length)))
                 else:
                     return Part(self._time_signature, self, operand)  # Implicit copy
             case Clip():
-                self_length: ra.Length = self.length()
+                self_length: ra.Length = self.length(include_masked=True).roundMeasures()
                 if self_length is not None:
                     self._append(operand + ra.Position(self_length))  # Implicit copy
                 else:
                     self._append(operand.copy())    # Explicit copy
             case oe.Element():
-                self_length: ra.Length = self.length()
+                self_length: ra.Length = self.length(include_masked=True).roundMeasures()
                 if self_length is not None:
                     self._append(Clip(operand._time_signature, operand + ra.Position(self_length)))   # Implicit copy
                 else:
@@ -4983,7 +4984,7 @@ class Block(Composition):
             case int():
                 new_blocks: list[Block] = []
                 if operand > 0:
-                    single_length: ra.Length = self.length()
+                    single_length: ra.Length = self.length(include_masked=True).roundMeasures()
                     if single_length is not None:
                         next_position: ra.Position = self % ra.Position()
                         for _ in range(operand):

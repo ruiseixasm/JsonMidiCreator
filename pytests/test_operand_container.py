@@ -1106,14 +1106,16 @@ test_part_operations()
 def test_clip_length():
 
     two_notes = Note() / 2
-    assert two_notes % Duration() == Beats(2)
+    assert two_notes % Duration() % Beats() == 2
     two_notes << Length(1.0)    # Imposed Length
-    assert two_notes % Length() == Beats(4)
+    assert two_notes % Length() % Beat() == 1 + 4
 
-    assert two_notes * 2 % Length() == Beats(4) * 2
-    assert two_notes * two_notes % Length() == Beats(4) * 2
-    assert two_notes * 3 % Length() == Beats(4) * 3
-    assert two_notes * two_notes * two_notes % Length() == Beats(4) * 3
+    # two_notes >> Plot()
+    # two_notes * 2 >> Plot()
+    assert two_notes * 2 % Length() % Beat() == 4 + 5
+    assert two_notes * two_notes % Length() % Beat() == 4 + 5
+    assert two_notes * 3 % Length() % Beat() == 4*2 + 5
+    assert two_notes * two_notes * two_notes % Length() % Beat() == 4*2 + 5
 
 # test_clip_length()
 
