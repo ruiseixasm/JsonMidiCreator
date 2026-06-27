@@ -108,19 +108,31 @@ settings << Device("loop")
 # (Chord("A") << Octave(3) << Scale([])) / 7 + Iterate()**Degree() << Inversion(1) >> Plot()
 
 
-Note(":1s") + Note(":3s_1s") / 5 >> Plot(block=False, title="By Operators")
-Clip("n:1s, :3s, :3s, :3s, :3s, :3s") >> Plot(block=False, title="By String (Token)")
+# Note(":1s") + Note(":3s_1s") / 5 >> Plot(block=False, title="By Operators")
+# Clip("n:1s, :3s, :3s, :3s, :3s, :3s") >> Plot(block=False, title="By String (Token)")
 
-second_pattern = Note(":3s") / 6    # Heavy-duty
-second_pattern << First()**Steps(1) # Low-duty
-second_pattern >>= Stack()          # Heavy-duty (a process)
-second_pattern >> Plot(block=False, title="Purely Heavy-duty")
-
-
-heavy_duty = Note(":3s") / 6    # Heavy-duty
-low_duty = heavy_duty << First()**Steps(1) >> Stack()
-low_duty >> Plot(block=False, title="Final Low-duty result")
+# second_pattern = Note(":3s") / 6    # Heavy-duty
+# second_pattern << First()**Steps(1) # Low-duty
+# second_pattern >>= Stack()          # Heavy-duty (a process)
+# second_pattern >> Plot(block=False, title="Purely Heavy-duty")
 
 
-duty_precedences = Note(":3s") / 6 << First()**Steps(1) >> Stack()
-duty_precedences >> Plot(block=True, title="Single line multi-duty precedences")
+# heavy_duty = Note(":3s") / 6    # Heavy-duty
+# low_duty = heavy_duty << First()**Steps(1) >> Stack()
+# low_duty >> Plot(block=False, title="Final Low-duty result")
+
+
+# duty_precedences = Note(":3s") / 6 << First()**Steps(1) >> Stack()
+# duty_precedences >> Plot(block=True, title="Single line multi-duty precedences")
+
+
+basic_repetition = Note(1/4) / 8 << NoteValue(1/16)
+basic_repetition -= Last()**Step(2)
+basic_repetition >> Plot(block=False, title="Basic repetition")
+
+
+timed_repetition = Note(1/16) / Beat(8)
+timed_repetition -= Last()**Step(2)
+timed_repetition >> Plot(block=True, title="Timed repetition")
+
+
