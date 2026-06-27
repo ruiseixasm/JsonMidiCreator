@@ -20,8 +20,8 @@ four_notes = Note(1/1) * 4
 def pre_filter(clip) -> bool:
     """Uses a `Frame` selector `Equal`, resulting in a new list of same type of content, `Element`, in this case"""
     if clip[Equal(Duration(Steps(2)))].len() > 0:
-        return True
-    return False
+        return False
+    return True
 
 notes_splitter = I_Splitter(3*6, chaos=SinX(540), pre_filter=pre_filter, max_tries=200)
 four_notes >> Plot(n_button=notes_splitter.get_clip)

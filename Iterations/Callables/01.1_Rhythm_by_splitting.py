@@ -19,8 +19,8 @@ four_notes = Note(1/1) * 4
 
 def pre_filter(clip) -> bool:
     if clip[Equal(Duration(Steps(1)))].len() > 0:
-        return True
-    return False
+        return False
+    return True
 
 notes_splitter = I_Splitter(2*6, pre_filter=pre_filter)
 four_notes >> Plot(n_button=notes_splitter.get_clip)
