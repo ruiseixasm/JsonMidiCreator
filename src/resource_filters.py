@@ -36,20 +36,18 @@ import operand_chaos as ch
 
 
 
-class RF_Iterations:
-
-    def filter_all_but_one_same_duration(clip: 'oc.Clip'):
-        durations: dict[Fraction, int] = {}
-        for element in clip:
-            duration_beats: Fraction = element._duration_beats
-            if duration_beats in durations:
-                durations[duration_beats] += 1
-            else:
-                durations[duration_beats] = 1
-        if len(durations) == 2:
-            for amount in durations.values():
-                if amount == 1:
-                    return True
-        return False
+def filter_all_but_one_same_duration(clip: 'oc.Clip'):
+    durations: dict[Fraction, int] = {}
+    for element in clip:
+        duration_beats: Fraction = element._duration_beats
+        if duration_beats in durations:
+            durations[duration_beats] += 1
+        else:
+            durations[duration_beats] = 1
+    if len(durations) == 2:
+        for amount in durations.values():
+            if amount == 1:
+                return True
+    return False
         
 
