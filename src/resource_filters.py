@@ -36,7 +36,7 @@ import operand_chaos as ch
 
 
 
-def filter_all_but_one_same_duration(clip: 'oc.Clip'):
+def filter_all_but_one_same_duration(clip: 'oc.Clip') -> bool:
     durations: dict[Fraction, int] = {}
     for element in clip:
         duration_beats: Fraction = element._duration_beats
