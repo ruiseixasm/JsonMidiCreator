@@ -61,7 +61,7 @@ class Iterations(o.Operand):
             for _ in range(times):
                 for _ in range(self._max_tries):    # Gets a non-empty iteration
                     if isinstance(self._next_operand, Iterations):
-                        tail_iteration = self._next_operand.new_iteration(composition_0.copy())
+                        tail_iteration = self._next_operand.get_clip(composition_0.copy())
                         candidate = self._single_iteration(tail_iteration)
                     else:
                         candidate = self._single_iteration(composition_0.copy())
@@ -77,7 +77,7 @@ class Iterations(o.Operand):
                 self._index += 1    # Each new_composition is added to the list, so, the index has to increase
         return self
     
-    def new_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
+    def get_clip(self, composition_0: 'oc.Composition') -> 'oc.Composition':
         """Also applies the post processing on the original iteration"""
         if self._freeze_at < 0:
             self.iterate(composition_0)

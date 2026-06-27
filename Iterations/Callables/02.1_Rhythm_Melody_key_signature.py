@@ -24,4 +24,4 @@ real_motif = Clip(
 
 
 key_signature_setter = I_Setter(KeySignature(), Counter(-7)**int(), global_setting=True)
-key_motif = real_motif >> Plot(n_button=key_signature_setter.new_iteration)
+key_motif = real_motif >> Plot(n_button=key_signature_setter.get_clip)

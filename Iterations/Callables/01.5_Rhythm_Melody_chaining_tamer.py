@@ -34,5 +34,5 @@ degrees_chooser = I_Chooser(["1", "2", "3", "4", "5", "6", "7"], freeze_at=6)
 accidental_sharp = I_Chooser([Natural(), Sharp()], SinX(540, Probability(1/6)), post_processing=post_processing, no_repetitions=True)
 degrees_splitter = accidental_sharp**degrees_chooser**notes_splitter
 
-rhythm_motif = measure_note >> Plot(n_button=degrees_splitter.new_iteration, title="Rhythm Melody", iterations=6)
+rhythm_motif = measure_note >> Plot(n_button=degrees_splitter.get_clip, title="Rhythm Melody", iterations=6)
 

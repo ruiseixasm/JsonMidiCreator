@@ -35,7 +35,7 @@ SinX(340).first_collision_index() >> Print()    # If -1 it means no collision (c
 octave_setter = I_Setter(Octave(), SinX(340, Interval([6, 8])))    # 8 is excluded
 semitone_setter = I_Setter(Semitone(), SinX(340, Interval([0, 12]))**SinX(), post_processing=post_processing, no_repetitions=True, max_tries=1000)
 motif_generator = semitone_setter**octave_setter
-indochine_motif >> Plot(n_button=motif_generator.new_iteration)
+indochine_motif >> Plot(n_button=motif_generator.get_clip)
 
 
 
