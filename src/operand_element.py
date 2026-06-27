@@ -2224,19 +2224,6 @@ class Note(ChannelElement):
             position_off: Fraction = position_on + single_note._duration_beats
             self_to_plot: Note = self if derived_note is None else derived_note # Info to be represented
 
-            # This only applies for Clip owned Notes called by the Clip class!
-            if midi_track is not None and single_note._owner_clip is not None:
-
-                pitch_channel_0: int = pitch_int << 4 | single_note._channel_0 # (7 bits, 4 bits)
-                # Record present Note on the TimeSignature stacked notes
-                if not og.settings._add_note_on(
-                    position_on,
-                    pitch_channel_0
-                ):
-                    print(f"Warning (PLL): Ignored redundant Note on Channel {single_note._channel_0 + 1} "
-                        f"and Pitch {pitch_int} with same time start at {round(position_on, 2)} beats!")
-                    continue    # Next note
-
             if channels is not None:
                 channels["note"].add(single_note._channel_0)
 
