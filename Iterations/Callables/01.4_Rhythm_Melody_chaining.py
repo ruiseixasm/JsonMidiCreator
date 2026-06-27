@@ -21,7 +21,7 @@ def pre_filter(clip) -> bool:
     """Makes sure each Note matches a specific duration pattern"""
     # Last 4 notes must have the same duration
     last_four = clip[Last(4)]
-    return last_four != AllMatch(Duration())
+    return last_four == AllMatch(Duration())
 
 def post_process(clip) -> Clip:
     """Adds a 1 measure Rest"""

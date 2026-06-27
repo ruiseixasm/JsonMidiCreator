@@ -65,7 +65,7 @@ class Iterations(o.Operand):
                         candidate = self._single_iteration(tail_iteration)
                     else:
                         candidate = self._single_iteration(clip_0.copy())
-                    if not callable(self._pre_filter) or not self._pre_filter(candidate):
+                    if not callable(self._pre_filter) or self._pre_filter(candidate):
                         iteration: oc.Clip = self._post_process(candidate)
                         if not self._no_repetitions or not iteration in self._iterations:
                             iteration._index = self._index
@@ -94,8 +94,8 @@ class Iterations(o.Operand):
 
     def _pre_exclude(self, composition: oc.Clip) -> bool:
         # The external user defined method is called if and only if the composition is internally validated
-        return self._no_repetitions and composition in self._iterations \
-            or callable(self._pre_filter) and self._pre_filter(composition)
+        return (not self._no_repetitions or not composition in self._iterations) \
+            and (not callable(self._pre_filter) or self._pre_filter(composition))
 
     def _post_process(self, composition: oc.Clip) -> oc.Clip:
         if callable(self._post_processing):
@@ -156,7 +156,7 @@ class Iterations(o.Operand):
             super().loadSerialization(serialization)
             self._iterations        = self.deserialize( serialization["parameters"]["iterations"] )
             self._chaos             = self.deserialize( serialization["parameters"]["chaos"] )
-            self._pre_filter     = self.deserialize( serialization["parameters"]["pre_filter"] )
+            self._pre_filter        = self.deserialize( serialization["parameters"]["pre_filter"] )
             self._post_processing   = self.deserialize( serialization["parameters"]["post_process"] )
             self._max_tries         = self.deserialize( serialization["parameters"]["max_tries"] )
             self._no_repetitions    = self.deserialize( serialization["parameters"]["no_repetitions"] )
@@ -169,7 +169,7 @@ class Iterations(o.Operand):
                 super().__lshift__(operand)
                 self._iterations        = operand._iterations.copy()
                 self._chaos             = operand._chaos.copy()
-                self._pre_filter     = operand._pre_filter
+                self._pre_filter        = operand._pre_filter
                 self._post_processing   = operand._post_processing
                 self._max_tries         = operand._max_tries
                 self._no_repetitions    = operand._no_repetitions
