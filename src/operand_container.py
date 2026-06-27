@@ -2848,8 +2848,6 @@ class Clip(Composition):  # Just a container of Elements
         self_plotlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0, 1)
-            og.settings.reset_notes_on()
-            og.settings.reset_notes()
 
         channels: dict[str, set[int]] = {
             "note":         set(),
@@ -2894,7 +2892,6 @@ class Clip(Composition):  # Just a container of Elements
         ]
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0, 1)
-            og.settings.reset_notes_on()
             og.settings.reset_notes()
 
         component_elements = self.get_component_elements()
@@ -2917,7 +2914,6 @@ class Clip(Composition):  # Just a container of Elements
         """
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0, 1)
-            og.settings.reset_notes_on()
             og.settings.reset_notes()
 
         self_midilist: list[dict] = []
@@ -4791,8 +4787,6 @@ class Block(Composition):
         # AS A BLOCK THE PLAYING IS DONE RIGHT AWAY, WITHOUT ANY CONSIDERATION TO POSITION
         # ONLY WHEN from_part, IS THE Block POSITION SET
         if not from_part:   # Block by itself is played right away, so, no position considered
-            og.settings.reset_notes_on()
-            og.settings.reset_notes()
             for single_clip in self._items:
                 clip_plotlist: list[dict] = single_clip.getPlotlist()
                 plot_list.extend( clip_plotlist )
@@ -4817,7 +4811,6 @@ class Block(Composition):
         # AS A BLOCK THE PLAYING IS DONE RIGHT AWAY, WITHOUT ANY CONSIDERATION TO POSITION
         # ONLY WHEN from_part, IS THE Block POSITION SET
         if not from_part:   # Block by itself is played right away, so, no position considered
-            og.settings.reset_notes_on()
             og.settings.reset_notes()
             for single_clip in self._items:
                 play_list.extend(single_clip.getPlaylist())
@@ -4837,7 +4830,6 @@ class Block(Composition):
             list[dict]: A list with multiple Midi file configuration dictionaries.
         """
         if not from_part:
-            og.settings.reset_notes_on()
             og.settings.reset_notes()
         midi_list: list = []
         for single_clip in self:
@@ -5351,7 +5343,6 @@ class Part(Composition):
             list[dict]: A list with multiple Plot configuration dictionaries.
         """
         plot_list: list = []
-        og.settings.reset_notes_on()
         
         for block in self._items:
             block_plotlist: list[dict] = block.getPlotlist(True)
@@ -5372,7 +5363,7 @@ class Part(Composition):
             list[dict]: A list with multiple Play configuration dictionaries.
         """
         play_list: list = []
-        og.settings.reset_notes_on()
+        og.settings.reset_notes()
         for block in self._items:
             play_list.extend(block.getPlaylist(True))
         return play_list
@@ -5387,7 +5378,7 @@ class Part(Composition):
         Returns:
             list[dict]: A list with multiple Midi file configuration dictionaries.
         """
-        og.settings.reset_notes_on()
+        og.settings.reset_notes()
         midi_list: list = []
         for block in self:
             midi_list.extend(block.getMidilist(True))

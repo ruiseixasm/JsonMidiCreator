@@ -4154,12 +4154,6 @@ class Settings(Generic):
         self._notes: dict[int, list[tuple]] = {}
 
 
-    def _add_note_on(self, position_on: Fraction, pitch_channel_0: int) -> bool:
-        if (position_on, pitch_channel_0) in self._notes_on:
-            return False
-        self._notes_on.add((position_on, pitch_channel_0))
-        return True
-
     def reset_notes_on(self) -> Self:
         self._notes_on = set()
         return self
@@ -4183,7 +4177,6 @@ class Settings(Generic):
 
     def reset(self, *parameters) -> Self:
         super().reset()
-        self.reset_notes_on()
         self.reset_notes()
         return self << parameters
     
