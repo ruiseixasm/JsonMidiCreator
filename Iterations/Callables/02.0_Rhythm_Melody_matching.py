@@ -22,7 +22,7 @@ indochine_motif = Clip() << Line(
 
 indochine_motif[0] >> Print()
 
-def pre_exclusion(clip) -> bool:
+def pre_filter(clip) -> bool:
     return clip[0] != "C#7"
 
 def post_process(clip) -> Composition:

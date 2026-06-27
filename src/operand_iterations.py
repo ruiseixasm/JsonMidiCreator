@@ -39,12 +39,12 @@ import operand_tamer as ot
 
 class Iterations(o.Operand):
     def __init__(self, chaos: ch.Chaos = ch.SinX(340),
-                 pre_exclusion: Optional[Callable[['oc.Clip'], bool]] = None,
+                 pre_filter: Optional[Callable[['oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 4, no_repetitions: bool = False, freeze_at: int = -1):
         self._iterations: list[oc.Clip] = []
         self._chaos: ch.Chaos = chaos
-        self._pre_exclusion: Callable | None = pre_exclusion
+        self._pre_exclusion: Callable | None = pre_filter
         self._post_processing: Callable | None = post_process
         self._max_tries: int = max_tries
         self._no_repetitions: bool = no_repetitions
@@ -138,7 +138,7 @@ class Iterations(o.Operand):
         serialization = super().getSerialization()
         serialization["parameters"]["iterations"]       = self.serialize( self._iterations )
         serialization["parameters"]["chaos"]            = self.serialize( self._chaos )
-        serialization["parameters"]["pre_exclusion"]    = self.serialize( self._pre_exclusion )
+        serialization["parameters"]["pre_filter"]    = self.serialize( self._pre_exclusion )
         serialization["parameters"]["post_process"]  = self.serialize( self._post_processing )
         serialization["parameters"]["max_tries"]        = self.serialize( self._max_tries )
         serialization["parameters"]["no_repetitions"]   = self.serialize( self._no_repetitions )
@@ -149,14 +149,14 @@ class Iterations(o.Operand):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "iterations" in serialization["parameters"] and "chaos" in serialization["parameters"] and "pre_exclusion" in serialization["parameters"] and
+            "iterations" in serialization["parameters"] and "chaos" in serialization["parameters"] and "pre_filter" in serialization["parameters"] and
             "post_process" in serialization["parameters"] and "max_tries" in serialization["parameters"] and "no_repetitions" in serialization["parameters"] and
             "freeze_at" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._iterations        = self.deserialize( serialization["parameters"]["iterations"] )
             self._chaos             = self.deserialize( serialization["parameters"]["chaos"] )
-            self._pre_exclusion     = self.deserialize( serialization["parameters"]["pre_exclusion"] )
+            self._pre_exclusion     = self.deserialize( serialization["parameters"]["pre_filter"] )
             self._post_processing   = self.deserialize( serialization["parameters"]["post_process"] )
             self._max_tries         = self.deserialize( serialization["parameters"]["max_tries"] )
             self._no_repetitions    = self.deserialize( serialization["parameters"]["no_repetitions"] )
@@ -210,10 +210,10 @@ class Iterations(o.Operand):
 class I_Function(Iterations):
     def __init__(self, function: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  chaos: ch.Chaos = ch.SinX(340),
-                 pre_exclusion: Optional[Callable[['oc.Clip'], bool]] = None,
+                 pre_filter: Optional[Callable[['oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(chaos, pre_exclusion, post_process, max_tries, no_repetitions, freeze_at)
+        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
         self._function: list[Any] = function
 
 
@@ -227,10 +227,10 @@ class I_Function(Iterations):
 class I_Splitter(Iterations):
     def __init__(self, elements: int = 8,
                  chaos: ch.Chaos = ch.SinX(340),
-                 pre_exclusion: Optional[Callable[['oc.Clip'], bool]] = None,
+                 pre_filter: Optional[Callable[['oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(chaos, pre_exclusion, post_process, max_tries, no_repetitions, freeze_at)
+        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
         self._elements: int = elements
 
 
@@ -267,10 +267,10 @@ class I_Splitter(Iterations):
 class I_Chooser(Iterations):
     def __init__(self, parameters: list[Any] = ["1", "3", "5"],
                  chaos: ch.Chaos = ch.SinX(340),
-                 pre_exclusion: Optional[Callable[['oc.Clip'], bool]] = None,
+                 pre_filter: Optional[Callable[['oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(chaos, pre_exclusion, post_process, max_tries, no_repetitions, freeze_at)
+        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
         self._parameters: list[Any] = parameters
 
 
@@ -288,10 +288,10 @@ class I_Setter(Iterations):
     def __init__(self, operand: o.Operand = ou.Degree(),
                  chaos: ch.Chaos = ch.SinX(340, ot.Increase(1)**ot.Modulo(7)),
                  global_setting: bool = False,
-                 pre_exclusion: Optional[Callable[['oc.Clip'], bool]] = None,
+                 pre_filter: Optional[Callable[['oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(chaos, pre_exclusion, post_process, max_tries, no_repetitions, freeze_at)
+        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
         self._operand: o.Operand = operand
         self._global_setting: bool = global_setting
 
