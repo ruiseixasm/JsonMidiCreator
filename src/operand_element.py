@@ -2277,6 +2277,13 @@ class Note(ChannelElement):
             # This only applies for Clip owned Notes called by the Clip class!
             if midi_track is not None and single_note._owner_clip is not None:
 
+                colliding_note: bool = not og.settings._add_note(
+                        self._channel_0,
+                        pitch_int,
+                        absolute_position_beats,
+                        single_note._duration_beats
+                    )
+
                 pitch_channel_0: int = pitch_int << 4 | single_note._channel_0 # (7 bits, 4 bits)
                 # Record present Note on the TimeSignature stacked notes
                 if not og.settings._add_note_on(
@@ -2348,6 +2355,13 @@ class Note(ChannelElement):
 
             # This only applies for Clip owned Notes called by the Clip class!
             if midi_track is not None and single_note._owner_clip is not None:
+
+                colliding_note: bool = not og.settings._add_note(
+                        self._channel_0,
+                        pitch_int,
+                        absolute_position_beats,
+                        single_note._duration_beats
+                    )
 
                 pitch_channel_0: int = pitch_int << 4 | single_note._channel_0 # (7 bits, 4 bits)
                 # Record present Note on the TimeSignature stacked notes
