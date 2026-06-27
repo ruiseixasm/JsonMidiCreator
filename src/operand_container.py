@@ -3231,11 +3231,16 @@ class Clip(Composition):  # Just a container of Elements
             case ra.TimeUnit(): # Replicates elements with the TimeUnit offset for each add
                 self_repeating: int = operand % int() - 1
                 if self_repeating > 0:
-                    offset_beats: Fraction = operand.copy(1) % ra.Beats() % Fraction()
-                    original_self_copy = self.copy()
+                    position_time_unit = operand.copy(0)
+                    time_unit_clip = self.empty_copy()
+                    for single_element in self._items:
+                        if single_element == position_time_unit:
+                            time_unit_clip += single_element
+                    position_time_unit += 1 # For length amount
+                    offset_beats: Fraction = position_time_unit % ra.Beats() % Fraction()
                     for _ in range(self_repeating):
-                        original_self_copy += ra.Position(offset_beats) # Fraction is direct, no conversion
-                        self += original_self_copy
+                        time_unit_clip += ra.Position(offset_beats) # Fraction is direct, no conversion
+                        self += time_unit_clip
 
             case list():
                 segments_list: list[og.Segment] = [
