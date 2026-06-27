@@ -3228,13 +3228,14 @@ class Clip(Composition):  # Just a container of Elements
                 elif operand == 0:
                     self._delete()
 
-            case ra.TimeUnit():
-                self_repeating: int = 0
-                self_duration: Fraction = self % ra.Duration() % Fraction() # Kept in Beats
-                if self_duration > 0:
-                    operand_duration: Fraction = operand % ra.Beats(self) % Fraction()  # Converted to Beats
-                    self_repeating = int( operand_duration / self_duration )
-                self.__itruediv__(self_repeating)
+            case ra.TimeUnit(): # Replicates elements with the TimeUnit offset for each add
+                self_repeating: int = operand % int() - 1
+                if self_repeating > 0:
+                    offset_beats: Fraction = operand.copy(1) % ra.Beats() % Fraction()
+                    original_self_copy = self.copy()
+                    for _ in range(self_repeating):
+                        original_self_copy += ra.Position(offset_beats) # Fraction is direct, no conversion
+                        self += original_self_copy
 
             case list():
                 segments_list: list[og.Segment] = [

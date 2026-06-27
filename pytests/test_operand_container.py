@@ -727,16 +727,16 @@ def test_lshift_clip():
 
     base_line: Clip = Note(dotted_eight) / Measure(4)
     print(f"Duration: {base_line % Duration() % float()}")
-    assert base_line % Duration() == Measures(3/16 * 21) # 3.9375 measures
+    assert base_line % Duration() == Measures(3 + 1/8+1/16)
     base_line += Step(1)
     print(f"Duration: {base_line % Duration() % float()}")
-    assert base_line % Duration() == Measures(3/16 * 21) + Step(1) # 4.0 measures
+    assert base_line % Duration() == Measures(3 + 1/8+1/16) + Step(1)
     base_line -= Step(1)
     print(f"Duration: {base_line % Duration() % float()}")
-    assert base_line % Duration() == Measures(3/16 * 21) # 3.9375 measures
+    assert base_line % Duration() == Measures(3 + 1/8+1/16)
     base_line << 1/16
     print(f"Duration: {base_line % Duration() % float()}")
-    assert base_line % Duration() == Measures(3/16 * 21 - 1/8) # 3.8125 measures
+    assert base_line % Duration() == Measures(3 + 1/16)
 
     two_measures: Clip = Note() / 8
     two_measures << All()**Beat(0)
