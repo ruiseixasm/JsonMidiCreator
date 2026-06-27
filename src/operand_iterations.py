@@ -39,10 +39,10 @@ import operand_tamer as ot
 
 class Iterations(o.Operand):
     def __init__(self, chaos: ch.Chaos = ch.SinX(340),
-                 pre_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
-                 post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
+                 pre_exclusion: Optional[Callable[['oc.Clip'], bool]] = None,
+                 post_processing: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 4, no_repetitions: bool = False, freeze_at: int = -1):
-        self._iterations: list[oc.Composition] = []
+        self._iterations: list[oc.Clip] = []
         self._chaos: ch.Chaos = chaos
         self._pre_exclusion: Callable | None = pre_exclusion
         self._post_processing: Callable | None = post_processing
@@ -56,48 +56,48 @@ class Iterations(o.Operand):
         super().reset()
         return self
     
-    def iterate(self, composition_0: 'oc.Composition', times: int = 1) -> Self:
+    def iterate(self, clip_0: 'oc.Clip', times: int = 1) -> Self:
         if times > 0:
             for _ in range(times):
                 for _ in range(self._max_tries):    # Gets a non-empty iteration
                     if isinstance(self._next_operand, Iterations):
-                        tail_iteration = self._next_operand.get_clip(composition_0.copy())
+                        tail_iteration = self._next_operand.get_clip(clip_0.copy())
                         candidate = self._single_iteration(tail_iteration)
                     else:
-                        candidate = self._single_iteration(composition_0.copy())
+                        candidate = self._single_iteration(clip_0.copy())
                     if not callable(self._pre_exclusion) or not self._pre_exclusion(candidate):
-                        iteration: oc.Composition = self._post_process(candidate)
+                        iteration: oc.Clip = self._post_process(candidate)
                         if not self._no_repetitions or not iteration in self._iterations:
                             iteration._index = self._index
                             self._iterations.append(iteration)
                             return self
-                empty_iteration: oc.Composition = self._post_process(composition_0.empty_copy())
+                empty_iteration: oc.Clip = self._post_process(clip_0.empty_copy())
                 empty_iteration._index = self._index
                 self._iterations.append(empty_iteration)
                 self._index += 1    # Each new_composition is added to the list, so, the index has to increase
         return self
     
-    def get_clip(self, composition_0: 'oc.Composition') -> 'oc.Composition':
+    def get_clip(self, clip_0: 'oc.Clip') -> 'oc.Clip':
         """Also applies the post processing on the original iteration"""
         if self._freeze_at < 0:
-            self.iterate(composition_0)
+            self.iterate(clip_0)
         elif self._freeze_at > self._index: # self._index is the last item
             iterations: int = self._freeze_at - self._index
             for _ in range(iterations):
-                self.iterate(composition_0)
+                self.iterate(clip_0)
         return self._iterations[-1].copy()
 
 
-    def _single_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
-        return composition_0
+    def _single_iteration(self, clip_0: 'oc.Clip') -> 'oc.Clip':
+        return clip_0
 
 
-    def _pre_exclude(self, composition: oc.Composition) -> bool:
+    def _pre_exclude(self, composition: oc.Clip) -> bool:
         # The external user defined method is called if and only if the composition is internally validated
         return self._no_repetitions and composition in self._iterations \
             or callable(self._pre_exclusion) and self._pre_exclusion(composition)
 
-    def _post_process(self, composition: oc.Composition) -> oc.Composition:
+    def _post_process(self, composition: oc.Clip) -> oc.Clip:
         if callable(self._post_processing):
             return self._post_processing(composition)
         return composition
@@ -130,6 +130,7 @@ class Iterations(o.Operand):
                     case ch.Chaos():            return self._chaos
                     case _:                     return super().__mod__(operand)
             case ch.Chaos():            return self._chaos.copy()
+            case oc.Clip():             return self.get_clip(operand)
             case int():                 return self._freeze_at
             case _:                     return super().__mod__(operand)
 
@@ -194,7 +195,7 @@ class Iterations(o.Operand):
                 self.iterate(seed_composition)
         return self
     
-    def __getitem__(self, index: int) -> oc.Composition | None:
+    def __getitem__(self, index: int) -> oc.Clip | None:
         """To set the initial seed, use new_iteration with it"""
         if isinstance(index, int) and self._iterations:
             if index > self._index: # self._index is the last item
@@ -207,30 +208,27 @@ class Iterations(o.Operand):
     
 
 class I_Function(Iterations):
-    def __init__(self, function: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
+    def __init__(self, function: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  chaos: ch.Chaos = ch.SinX(340),
-                 pre_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
-                 post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
+                 pre_exclusion: Optional[Callable[['oc.Clip'], bool]] = None,
+                 post_processing: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
         super().__init__(chaos, pre_exclusion, post_processing, max_tries, no_repetitions, freeze_at)
         self._function: list[Any] = function
 
 
-    def _single_iteration(self, composition_0: 'oc.Composition') -> 'oc.Composition':
+    def _single_iteration(self, clip_0: 'oc.Clip') -> 'oc.Clip':
         if callable(self._function):
-            new_iteration: oc.Composition = self._function(composition_0)
+            new_iteration: oc.Clip = self._function(clip_0)
             return new_iteration
-        return composition_0.empty_copy()  # No valid Composition made
+        return clip_0.empty_copy()  # No valid Composition made
 
 
-class I_Clips(Iterations):
-    pass
-
-class I_Splitter(I_Clips):
+class I_Splitter(Iterations):
     def __init__(self, elements: int = 8,
                  chaos: ch.Chaos = ch.SinX(340),
-                 pre_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
-                 post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
+                 pre_exclusion: Optional[Callable[['oc.Clip'], bool]] = None,
+                 post_processing: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
         super().__init__(chaos, pre_exclusion, post_processing, max_tries, no_repetitions, freeze_at)
         self._elements: int = elements
@@ -266,11 +264,11 @@ class I_Splitter(I_Clips):
         return decoupled_clip_0.empty_copy()   # Tags as invalid
 
 
-class I_Chooser(I_Clips):
+class I_Chooser(Iterations):
     def __init__(self, parameters: list[Any] = ["1", "3", "5"],
                  chaos: ch.Chaos = ch.SinX(340),
-                 pre_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
-                 post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
+                 pre_exclusion: Optional[Callable[['oc.Clip'], bool]] = None,
+                 post_processing: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
         super().__init__(chaos, pre_exclusion, post_processing, max_tries, no_repetitions, freeze_at)
         self._parameters: list[Any] = parameters
@@ -286,12 +284,12 @@ class I_Chooser(I_Clips):
         return decoupled_clip_0  # The Clip is already decoupled
 
 
-class I_Setter(I_Clips):
+class I_Setter(Iterations):
     def __init__(self, operand: o.Operand = ou.Degree(),
                  chaos: ch.Chaos = ch.SinX(340, ot.Increase(1)**ot.Modulo(7)),
                  global_setting: bool = False,
-                 pre_exclusion: Optional[Callable[['oc.Composition'], bool]] = None,
-                 post_processing: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None,
+                 pre_exclusion: Optional[Callable[['oc.Clip'], bool]] = None,
+                 post_processing: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
         super().__init__(chaos, pre_exclusion, post_processing, max_tries, no_repetitions, freeze_at)
         self._operand: o.Operand = operand
