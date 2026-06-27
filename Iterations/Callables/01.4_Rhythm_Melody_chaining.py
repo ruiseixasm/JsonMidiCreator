@@ -17,7 +17,7 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 
 measure_note = Note(1/1) * 1
 
-def exclusion(clip) -> bool:
+def pre_filter(clip) -> bool:
     """Makes sure each Note matches a specific duration pattern"""
     # Last 4 notes must have the same duration
     last_four = clip[Last(4)]
@@ -29,7 +29,7 @@ def post_process(clip) -> Clip:
     return clip
 
 
-notes_splitter = I_Splitter(6, chaos=SinX(540), pre_filter=exclusion, max_tries=1000)
+notes_splitter = I_Splitter(6, chaos=SinX(540), pre_filter=pre_filter, max_tries=1000)
 degrees_chooser = I_Chooser(["1", "2", "3", "4", "5", "6", "7"], post_process=post_process, no_repetitions=True)
 degrees_splitter = degrees_chooser**notes_splitter
 
