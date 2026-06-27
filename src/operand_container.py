@@ -2849,6 +2849,7 @@ class Clip(Composition):  # Just a container of Elements
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0, 1)
             og.settings.reset_notes_on()
+            og.settings.reset_notes()
 
         channels: dict[str, set[int]] = {
             "note":         set(),
@@ -2894,6 +2895,7 @@ class Clip(Composition):  # Just a container of Elements
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0, 1)
             og.settings.reset_notes_on()
+            og.settings.reset_notes()
 
         component_elements = self.get_component_elements()
         for single_element in component_elements:
@@ -2916,6 +2918,7 @@ class Clip(Composition):  # Just a container of Elements
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0, 1)
             og.settings.reset_notes_on()
+            og.settings.reset_notes()
 
         self_midilist: list[dict] = []
         component_elements = self.get_component_elements()
@@ -4789,6 +4792,7 @@ class Block(Composition):
         # ONLY WHEN from_part, IS THE Block POSITION SET
         if not from_part:   # Block by itself is played right away, so, no position considered
             og.settings.reset_notes_on()
+            og.settings.reset_notes()
             for single_clip in self._items:
                 clip_plotlist: list[dict] = single_clip.getPlotlist()
                 plot_list.extend( clip_plotlist )
@@ -4814,6 +4818,7 @@ class Block(Composition):
         # ONLY WHEN from_part, IS THE Block POSITION SET
         if not from_part:   # Block by itself is played right away, so, no position considered
             og.settings.reset_notes_on()
+            og.settings.reset_notes()
             for single_clip in self._items:
                 play_list.extend(single_clip.getPlaylist())
         else:
@@ -4833,6 +4838,7 @@ class Block(Composition):
         """
         if not from_part:
             og.settings.reset_notes_on()
+            og.settings.reset_notes()
         midi_list: list = []
         for single_clip in self:
             if isinstance(single_clip, Clip):   # Can't get Midilist from Playlist !
