@@ -3161,14 +3161,16 @@ class Clip(Composition):  # Just a container of Elements
                 elif operand == 0:
                     self._delete()
 
-            case ra.TimeValue() | ra.TimeUnit():
-                self_repeating: int = 0
-                operand_beats: Fraction = ra.Beats(self, operand)._rational
-                self_length: ra.Length = self.length(include_masked=True)
-                self_beats: Fraction = self_length.roundMeasures()._rational  # Beats default unit
-                if self_beats > 0:
-                    self_repeating = operand_beats // self_beats
-                self.__imul__(self_repeating)
+            case ra.TimeUnit(): # Replicates elements with the TimeUnit offset for each add
+                self_repeating: int = operand % int() - 1
+                if self_repeating > 0:
+                    time_unit_clip = self.empty_copy()
+                    position_time_unit = operand.copy(0)
+                    for single_element in self._items:
+                        if single_element == position_time_unit:
+                            time_unit_clip += single_element
+                    for _ in range(self_repeating):
+                        self *= time_unit_clip
 
             case list():
                 segments_list: list[og.Segment] = [
@@ -3231,8 +3233,8 @@ class Clip(Composition):  # Just a container of Elements
             case ra.TimeUnit(): # Replicates elements with the TimeUnit offset for each add
                 self_repeating: int = operand % int() - 1
                 if self_repeating > 0:
-                    position_time_unit = operand.copy(0)
                     time_unit_clip = self.empty_copy()
+                    position_time_unit = operand.copy(0)
                     for single_element in self._items:
                         if single_element == position_time_unit:
                             time_unit_clip += single_element

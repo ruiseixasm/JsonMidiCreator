@@ -570,8 +570,8 @@ def test_mul_clip():
     assert two_notes % Duration() == Beats(2)
     assert two_notes * 2 % Duration() == Beats(6)
     assert two_notes / 2 % Duration() == Beats(4)
-    assert two_notes * Beat(6) % Duration() == Beats(2)
     settings << Quantization(2/1)   # Sets a Step as 2 Beats
+    assert two_notes * Step(3) % Duration() == Measures(2) + Beats(2)
     print(f"Duration_/: {two_notes / Step(3) % Duration() % Beats() % float()}")
     assert two_notes / Step(3) % Duration() == Beats(6)
     settings << Quantization(1/4)   # 1/4 Beats again
