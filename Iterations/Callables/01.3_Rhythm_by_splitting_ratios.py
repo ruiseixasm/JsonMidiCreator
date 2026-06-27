@@ -23,18 +23,18 @@ def exclusion(clip) -> bool:
     last_four = clip[Last(4)]
     return last_four != AllMatch(Duration())
 
-def post_processing(clip) -> Clip:
+def post_process(clip) -> Clip:
     """Adds a 1 measure Rest"""
     clip *= 4
     clip *= Rest(1/1)
     return clip
     
 
-notes_splitter = I_Splitter(6, chaos=SinX(540), pre_exclusion=exclusion, post_processing=post_processing, max_tries=1000, no_repetitions=True)
+notes_splitter = I_Splitter(6, chaos=SinX(540), pre_exclusion=exclusion, post_process=post_process, max_tries=1000, no_repetitions=True)
 rhythm_motif = measure_note >> Plot(n_button=notes_splitter.get_clip, title="Rhythm")
 rhythm_motif *= [0] # Just the first Measure
 
 # # Build a melody from motifs and short phrases
-# degrees_chooser = I_Chooser(["1", "2", "3", "4", "5", "6", "7"], post_processing=post_processing)
+# degrees_chooser = I_Chooser(["1", "2", "3", "4", "5", "6", "7"], post_process=post_process)
 # rhythm_phrase = rhythm_motif >> Plot(n_button=degrees_chooser.new_iteration, title="Melody")
 

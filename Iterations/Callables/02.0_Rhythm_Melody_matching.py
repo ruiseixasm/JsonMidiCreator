@@ -25,7 +25,7 @@ indochine_motif[0] >> Print()
 def pre_exclusion(clip) -> bool:
     return clip[0] != "C#7"
 
-def post_processing(clip) -> Composition:
+def post_process(clip) -> Composition:
     
     clip[0] << "C#7"
     return clip
@@ -33,7 +33,7 @@ def post_processing(clip) -> Composition:
 SinX(340).first_collision_index() >> Print()    # If -1 it means no collision (cycling results)
 
 octave_setter = I_Setter(Octave(), SinX(340, Interval([6, 8])))    # 8 is excluded
-semitone_setter = I_Setter(Semitone(), SinX(340, Interval([0, 12]))**SinX(), post_processing=post_processing, no_repetitions=True, max_tries=1000)
+semitone_setter = I_Setter(Semitone(), SinX(340, Interval([0, 12]))**SinX(), post_process=post_process, no_repetitions=True, max_tries=1000)
 motif_generator = semitone_setter**octave_setter
 indochine_motif >> Plot(n_button=motif_generator.get_clip)
 
