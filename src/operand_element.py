@@ -2286,10 +2286,7 @@ class Note(ChannelElement):
 
                 pitch_channel_0: int = pitch_int << 4 | single_note._channel_0 # (7 bits, 4 bits)
                 # Record present Note on the TimeSignature stacked notes
-                if not og.settings._add_note_on(
-                    absolute_position_beats,
-                    pitch_channel_0
-                ):
+                if colliding_note:
                     print(f"Warning (PL): Ignored redundant Note on Channel {single_note._channel_0 + 1} "
                         f"and Pitch {pitch_int} with same time start at {round(absolute_position_beats, 2)} beats!")
                     continue    # Next note
@@ -2365,10 +2362,7 @@ class Note(ChannelElement):
 
                 pitch_channel_0: int = pitch_int << 4 | single_note._channel_0 # (7 bits, 4 bits)
                 # Record present Note on the TimeSignature stacked notes
-                if not og.settings._add_note_on(
-                    absolute_position_beats,
-                    pitch_channel_0
-                ):
+                if colliding_note:
                     print(f"Warning (ML): Ignored redundant Note on Channel {single_note._channel_0 + 1} "
                         f"and Pitch {pitch_int} with same time start at {round(absolute_position_beats, 2)} beats!")
                     continue    # Next note
