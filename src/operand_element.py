@@ -2277,14 +2277,14 @@ class Note(ChannelElement):
             # This only applies for Clip owned Notes called by the Clip class!
             if midi_track is not None and single_note._owner_clip is not None:
 
-                colliding_note: bool = not og.settings._add_note(
+                overlapping_note: bool = not og.settings._add_note(
                         self._channel_0,
                         pitch_int,
                         absolute_position_beats,
                         single_note._duration_beats
                     )
-                if colliding_note:
-                    print(f"Warning (PL): Ignored redundant Note on Channel {single_note._channel_0 + 1} "
+                if overlapping_note:
+                    print(f"Warning (PL): Ignored overlapping Note on Channel {single_note._channel_0 + 1} "
                         f"and Pitch {pitch_int} with same time start at {round(absolute_position_beats, 2)} beats!")
                     continue    # Next note
 
@@ -2350,14 +2350,14 @@ class Note(ChannelElement):
             # This only applies for Clip owned Notes called by the Clip class!
             if midi_track is not None and single_note._owner_clip is not None:
 
-                colliding_note: bool = not og.settings._add_note(
+                overlapping_note: bool = not og.settings._add_note(
                         self._channel_0,
                         pitch_int,
                         absolute_position_beats,
                         single_note._duration_beats
                     )
-                if colliding_note:
-                    print(f"Warning (ML): Ignored redundant Note on Channel {single_note._channel_0 + 1} "
+                if overlapping_note:
+                    print(f"Warning (ML): Ignored overlapping Note on Channel {single_note._channel_0 + 1} "
                         f"and Pitch {pitch_int} with same time start at {round(absolute_position_beats, 2)} beats!")
                     continue    # Next note
 

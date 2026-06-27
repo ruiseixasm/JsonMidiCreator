@@ -4149,14 +4149,8 @@ class Settings(Generic):
             self << single_parameter
 
         # Volatile variable not intended to be user defined
-        # (position_on, pitch_channel_0)
-        self._notes_on: set[tuple[Fraction, int]] = set()
         self._notes: dict[int, list[tuple]] = {}
 
-
-    def reset_notes_on(self) -> Self:
-        self._notes_on = set()
-        return self
 
     def _add_note(self, channel_0: int, pitch: int, position: Fraction, duration: Fraction) -> bool:
         channel_pitch: int = channel_0 << 7 | pitch # (4 bits, 7 bits)
