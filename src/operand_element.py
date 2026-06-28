@@ -538,9 +538,7 @@ class Element(o.Operand):
                 return operand.empty_copy(self).__iadd__(operand)   # Keeps the Clip TimeSignature and integrates self
             # For efficient reasons
             case ra.Position():
-                add_position_beats: Fraction = operand._rational
-                if self._position_beats + add_position_beats >= 0:
-                    self._position_beats += add_position_beats
+                self._position_beats += operand._rational
             case ra.Duration() | ra.Length():
                 add_duration_beats: Fraction = operand._rational
                 if self._duration_beats + add_duration_beats > 0:
@@ -548,9 +546,9 @@ class Element(o.Operand):
             case od.NoteSide():
                 add_duration_beats: Fraction = ra.Duration(self, operand._data)._rational
                 if self._duration_beats + add_duration_beats > 0:
+                    self._duration_beats += add_duration_beats
                     if isinstance(operand, od.Left()):
-                        self._position_beats -= add_duration_beats - self._duration_beats
-                    self._duration_beats = add_duration_beats
+                        self._position_beats -= add_duration_beats
             case _:
                 self_operand: any = self % operand
                 self_operand += operand
@@ -564,7 +562,15 @@ class Element(o.Operand):
             case ra.Position():
                 self._position_beats -= operand._rational
             case ra.Duration() | ra.Length():
-                self._duration_beats -= operand._rational
+                add_duration_beats: Fraction = operand._rational
+                if self._duration_beats - add_duration_beats > 0:
+                    self._duration_beats -= add_duration_beats
+            case od.NoteSide():
+                add_duration_beats: Fraction = ra.Duration(self, operand._data)._rational
+                if self._duration_beats - add_duration_beats > 0:
+                    self._duration_beats -= add_duration_beats
+                    if isinstance(operand, od.Left()):
+                        self._position_beats += add_duration_beats
             case _:
                 self_operand: any = self % operand
                 self_operand -= operand
