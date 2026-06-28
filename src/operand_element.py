@@ -4386,27 +4386,29 @@ class Aftertouch(Automatable):
 
         self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
 
-        devices: list[str] = midi_track._devices if midi_track else og.settings._devices
+        if self_position_min >= 0:
 
-        # Midi validation is done in the JsonMidiPlayer program
-        self_playlist: list[dict] = []
-        
-        if devices_header:
+            devices: list[str] = midi_track._devices if midi_track else og.settings._devices
+
+            # Midi validation is done in the JsonMidiPlayer program
+            self_playlist: list[dict] = []
+            
+            if devices_header:
+                self_playlist.append(
+                    {
+                        "devices": devices
+                    }
+                )
+            # Midi validation is done in the JsonMidiPlayer program
             self_playlist.append(
                 {
-                    "devices": devices
+                    "time_ms": o.minutes_to_time_ms(self_position_min),
+                    "midi_message": {
+                        "status_byte": 0xD0 | self._channel_0,
+                        "data_byte": clamp_value_128(self._pressure)
+                    }
                 }
             )
-        # Midi validation is done in the JsonMidiPlayer program
-        self_playlist.append(
-            {
-                "time_ms": o.minutes_to_time_ms(self_position_min),
-                "midi_message": {
-                    "status_byte": 0xD0 | self._channel_0,
-                    "data_byte": clamp_value_128(self._pressure)
-                }
-            }
-        )
         return self_playlist
     
 
@@ -4554,31 +4556,32 @@ class PolyAftertouch(Aftertouch):
 
         self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
 
-        devices: list[str] = midi_track._devices if midi_track else og.settings._devices
-        pitch_int: int = self._pitch._get_chromatic_pitch()
+        if self_position_min >= 0:
 
-        # Midi validation is done in the JsonMidiPlayer program
-        self_playlist: list[dict] = []
-        
-        if devices_header:
+            devices: list[str] = midi_track._devices if midi_track else og.settings._devices
+            pitch_int: int = self._pitch._get_chromatic_pitch()
+
+            # Midi validation is done in the JsonMidiPlayer program
+            self_playlist: list[dict] = []
+            
+            if devices_header:
+                self_playlist.append(
+                    {
+                        "devices": devices
+                    }
+                )
+
+            # Midi validation is done in the JsonMidiPlayer program
             self_playlist.append(
                 {
-                    "devices": devices
+                    "time_ms": o.minutes_to_time_ms(self_position_min),
+                    "midi_message": {
+                        "status_byte": 0xA0 | self._channel_0,
+                        "data_byte_1": pitch_int,
+                        "data_byte_2": self._pressure
+                    }
                 }
             )
-
-        # Midi validation is done in the JsonMidiPlayer program
-        self_playlist.append(
-            {
-                "time_ms": o.minutes_to_time_ms(self_position_min),
-                "midi_message": {
-                    "status_byte": 0xA0 | self._channel_0,
-                    "data_byte_1": pitch_int,
-                    "data_byte_2": self._pressure
-                }
-            }
-        )
-
         return self_playlist
     
     def getSerialization(self) -> dict:
@@ -4766,29 +4769,30 @@ class PitchBend(Automatable):
 
         self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
         
-        devices: list[str] = midi_track._devices if midi_track else og.settings._devices
+        if self_position_min >= 0:
 
-        # Midi validation is done in the JsonMidiPlayer program
-        self_playlist: list[dict] = []
-        
-        if devices_header:
+            devices: list[str] = midi_track._devices if midi_track else og.settings._devices
+
+            # Midi validation is done in the JsonMidiPlayer program
+            self_playlist: list[dict] = []
+            
+            if devices_header:
+                self_playlist.append(
+                    {
+                        "devices": devices
+                    }
+                )
+
             self_playlist.append(
                 {
-                    "devices": devices
+                    "time_ms": o.minutes_to_time_ms(self_position_min),
+                    "midi_message": {
+                        "status_byte": 0xE0 | self._channel_0,
+                        "data_byte_1": clamp_value_128(self._lsb),
+                        "data_byte_2": clamp_value_128(self._msb)
+                    }
                 }
             )
-
-        self_playlist.append(
-            {
-                "time_ms": o.minutes_to_time_ms(self_position_min),
-                "midi_message": {
-                    "status_byte": 0xE0 | self._channel_0,
-                    "data_byte_1": clamp_value_128(self._lsb),
-                    "data_byte_2": clamp_value_128(self._msb)
-                }
-            }
-        )
-
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list:
@@ -5286,35 +5290,36 @@ class ProgramChange(ChannelElement):
 
         self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
 
-        devices: list[str] = midi_track._devices if midi_track else og.settings._devices
+        if self_position_min >= 0:
 
-        # Midi validation is done in the JsonMidiPlayer program
-        self_playlist: list[dict] = []
-        
-        if devices_header:
+            devices: list[str] = midi_track._devices if midi_track else og.settings._devices
+
+            # Midi validation is done in the JsonMidiPlayer program
+            self_playlist: list[dict] = []
+            
+            if devices_header:
+                self_playlist.append(
+                    {
+                        "devices": devices
+                    }
+                )
+
+            if self._bank > 0:
+                # Has to pass self first to set equivalent parameters like position and staff
+                self_playlist.extend(
+                    BankSelect(self, self % od.Pipe( ou.Bank() ), self % od.Pipe( ou.HighResolution() ))
+                        .getPlaylist(devices_header=False)
+                )
+
             self_playlist.append(
                 {
-                    "devices": devices
+                    "time_ms": o.minutes_to_time_ms(self_position_min),
+                    "midi_message": {
+                        "status_byte": 0xC0 | self._channel_0,
+                        "data_byte": self._program_0
+                    }
                 }
             )
-
-        if self._bank > 0:
-            # Has to pass self first to set equivalent parameters like position and staff
-            self_playlist.extend(
-                BankSelect(self, self % od.Pipe( ou.Bank() ), self % od.Pipe( ou.HighResolution() ))
-                    .getPlaylist(devices_header=False)
-            )
-
-        self_playlist.append(
-            {
-                "time_ms": o.minutes_to_time_ms(self_position_min),
-                "midi_message": {
-                    "status_byte": 0xC0 | self._channel_0,
-                    "data_byte": self._program_0
-                }
-            }
-        )
-
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list:
