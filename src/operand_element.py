@@ -366,7 +366,7 @@ class Element(o.Operand):
             case ra.Duration() | ra.Length():
                 if operand > Fraction(0):   # Allows innocuous non positive setting (neutral)
                     self._duration_beats    = operand._rational
-            case ra.NoteValue() | ra.TimeValue():
+            case ra.TimeValue():
                 self << ra.Duration(self, operand)
             case ra.Position():
                 self._position_beats        = operand._rational

@@ -218,6 +218,37 @@ class AsIs(Data):
     pass
 
 
+class NoteSide(Data):
+    """`Data -> NoteSide`
+
+    `NoteSide` sets the side where the Note Duration will result in extension or contraction. The side picked.
+    
+    Parameters
+    ----------
+    Duration(0), TimeValue : The amount of duration.
+    """
+
+class Left(Data):
+    """`Data -> NoteSide -> Left`
+
+    `Left` sets the side as LEFT where the Note Duration will result in extension or contraction. The left side picked.
+    
+    Parameters
+    ----------
+    Duration(0), TimeValue : The amount of duration.
+    """
+
+class Right(Data):
+    """`Data -> NoteSide -> Right`
+
+    `Right` sets the side as RIGHT, the default, where the Note Duration will result in extension or contraction. The right side picked.
+    
+    Parameters
+    ----------
+    Duration(0), TimeValue : The amount of duration.
+    """
+
+
 class Masking(Data):
     """`Data -> Masking`
 
