@@ -1205,7 +1205,7 @@ class Talkie(Element):
         self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
         self_duration_min: Fraction = og.settings.beats_to_minutes(self._duration_beats)
 
-        if self_duration_min == 0:
+        if self_position_min < 0 or self_duration_min <= 0:
             return []
 
         # Keys:
@@ -1542,6 +1542,8 @@ class DeviceElement(Element):
 
         self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
 
+        if self_position_min < 0:
+            return []
         return [
                 {
                     "time_ms": o.minutes_to_time_ms(self_position_min)
@@ -1713,25 +1715,28 @@ class Clock(DeviceElement):
             total_clock_pulses: int = int(self._duration_beats * pulses_per_beat)
             # Global duration of the entire clocking period
             self_duration_min: Fraction = og.settings.beats_to_minutes(self._duration_beats)
-            single_pulse_duration_min: Fraction = self_duration_min / total_clock_pulses
+            
+            if self_duration_min > 0:
 
-            # Always send the clock/tempo data
-            self_playlist.append(
-                {
-                    "clock": {
-                        # Has to add the extra Stop pulse message afterwards at (single_pulse_duration_min * total_clock_pulses)
-                        "total_clock_pulses": total_clock_pulses,
-                        "pulse_duration_min_numerator": single_pulse_duration_min.numerator,
-                        "pulse_duration_min_denominator": single_pulse_duration_min.denominator,
-                        "clocked_devices": list(set(self._clocked_devices)),
-                        "controlled_devices": list(set(self._controlled_devices))
-                    },
-                    "tempo": {
-                        "f": "JsonMidiCreator",
-                        "bpm_10": round(float(og.settings._tempo * 10))
+                single_pulse_duration_min: Fraction = self_duration_min / total_clock_pulses
+
+                # Always send the clock/tempo data
+                self_playlist.append(
+                    {
+                        "clock": {
+                            # Has to add the extra Stop pulse message afterwards at (single_pulse_duration_min * total_clock_pulses)
+                            "total_clock_pulses": total_clock_pulses,
+                            "pulse_duration_min_numerator": single_pulse_duration_min.numerator,
+                            "pulse_duration_min_denominator": single_pulse_duration_min.denominator,
+                            "clocked_devices": list(set(self._clocked_devices)),
+                            "controlled_devices": list(set(self._controlled_devices))
+                        },
+                        "tempo": {
+                            "f": "JsonMidiCreator",
+                            "bpm_10": round(float(og.settings._tempo * 10))
+                        }
                     }
-                }
-            )
+                )
 
         # NORMAL use case scenario
         else:
@@ -1743,58 +1748,60 @@ class Clock(DeviceElement):
             self_position_min: Fraction = og.settings.beats_to_minutes(position_beats + self._position_beats)
             self_duration_min: Fraction = og.settings.beats_to_minutes(self._duration_beats)
 
-            # Starts by setting the Devices
-            if devices_header and isinstance(midi_track, ou.MidiTrack):
+            if self_position_min >= 0 and self_duration_min > 0:
+
+                # Starts by setting the Devices
+                if devices_header and isinstance(midi_track, ou.MidiTrack):
+                    self_playlist.append(
+                        {
+                            "devices": midi_track._devices if midi_track else og.defaults._devices
+                        }
+                    )
+
+                # First quarter note pulse (total 1 in 24 pulses per quarter note)
                 self_playlist.append(
                     {
-                        "devices": midi_track._devices if midi_track else og.defaults._devices
+                        "time_ms": o.minutes_to_time_ms(self_position_min),
+                        "midi_message": {
+                            "status_byte": 0xFA     # Start Track
+                        }
                     }
                 )
+            
+                single_pulse_duration_min: Fraction = self_duration_min / total_clock_pulses
 
-            # First quarter note pulse (total 1 in 24 pulses per quarter note)
-            self_playlist.append(
-                {
-                    "time_ms": o.minutes_to_time_ms(self_position_min),
-                    "midi_message": {
-                        "status_byte": 0xFA     # Start Track
-                    }
-                }
-            )
-        
-            single_pulse_duration_min: Fraction = self_duration_min / total_clock_pulses
+                # Middle quarter note pulses (total 23 in 24 pulses per quarter note)
+                for clock_pulse in range(1, total_clock_pulses):
+                    self_playlist.append(
+                        {
+                            "time_ms": o.minutes_to_time_ms(single_pulse_duration_min * clock_pulse),
+                            "midi_message": {
+                                "status_byte": 0xF8     # Timing Clock
+                            }
+                        }
+                    )
 
-            # Middle quarter note pulses (total 23 in 24 pulses per quarter note)
-            for clock_pulse in range(1, total_clock_pulses):
+                # Last quarter note pulse (45 pulses where this last one sets the stop)
                 self_playlist.append(
                     {
-                        "time_ms": o.minutes_to_time_ms(single_pulse_duration_min * clock_pulse),
+                        "time_ms": o.minutes_to_time_ms(single_pulse_duration_min * total_clock_pulses),
                         "midi_message": {
-                            "status_byte": 0xF8     # Timing Clock
+                            "status_byte": 0xFC         # Stop Track
                         }
                     }
                 )
 
-            # Last quarter note pulse (45 pulses where this last one sets the stop)
-            self_playlist.append(
-                {
-                    "time_ms": o.minutes_to_time_ms(single_pulse_duration_min * total_clock_pulses),
-                    "midi_message": {
-                        "status_byte": 0xFC         # Stop Track
+                # Resets the position back to 0
+                self_playlist.append(
+                    {
+                        "time_ms": o.minutes_to_time_ms(single_pulse_duration_min * total_clock_pulses),
+                        "midi_message": {
+                            "status_byte": 0xF2,    # Send a Part Position Pointer (SPP)
+                            "data_byte_1": 0,       # Reset
+                            "data_byte_2": 0        # Reset
+                        }
                     }
-                }
-            )
-
-            # Resets the position back to 0
-            self_playlist.append(
-                {
-                    "time_ms": o.minutes_to_time_ms(single_pulse_duration_min * total_clock_pulses),
-                    "midi_message": {
-                        "status_byte": 0xF2,    # Send a Part Position Pointer (SPP)
-                        "data_byte_1": 0,       # Reset
-                        "data_byte_2": 0        # Reset
-                    }
-                }
-            )
+                )
 
         return self_playlist
 
@@ -2289,7 +2296,7 @@ class Note(ChannelElement):
             self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
             self_duration_min: Fraction = og.settings.beats_to_minutes(single_note._duration_beats)
 
-            if self_duration_min == 0:
+            if self_duration_min <= 0:
                 continue    # Next note
 
             pitch_int: int = single_note._pitch._get_chromatic_pitch()
