@@ -196,10 +196,10 @@ class Frame(o.Operand):
         return self
 
 
-class Left(Frame):  # LEFT TO RIGHT
-    """`Frame -> Left`
+class LeftToRight(Frame):  # LEFT TO RIGHT
+    """`Frame -> LeftToRight`
 
-    The `Left` frames are processed from left to right in the framing chain made with the `**` operator.
+    The `LeftToRight` frames are processed from left to right in the framing chain made with the `**` operator.
 
     Parameters
     ----------
@@ -245,7 +245,7 @@ class Left(Frame):  # LEFT TO RIGHT
         return self_operand
 
 
-class Input(Left):
+class Input(LeftToRight):
     """`Frame -> Left -> Input`
 
     By default a `Frame` uses the data being passed trough it as input, \
@@ -275,7 +275,7 @@ class Input(Left):
         return super().frame(self._named_parameters['input'])
 
 
-class Previous(Left):
+class Previous(LeftToRight):
     """`Frame -> Left -> Previous`
 
     Represents the previous processed `Element` given parameter, passes `Null()` for the first one if `first_null=True`.
@@ -306,7 +306,7 @@ class Previous(Left):
         return parameter
 
 
-class PassThrough(Left):
+class PassThrough(LeftToRight):
     """`Frame -> Left -> PassThrough`
 
     Allows to pass the input trough an `Operand` with `>>` before sending it to the next `Frame`.
@@ -324,7 +324,7 @@ class PassThrough(Left):
             return super().frame(input >> self._named_parameters['operand'])
         return super().frame(input)
 
-class SendTo(Left):
+class SendTo(LeftToRight):
     """`Frame -> Left -> SendTo`
 
     Allows to send the input to an `Operand` with `>>` before sending it to the next `Frame`.
@@ -343,7 +343,7 @@ class SendTo(Left):
             input >> self._named_parameters['operand']
         return super().frame(input)
 
-class Choice(Left):
+class Choice(LeftToRight):
     """`Frame -> Left -> Choice`
 
     A `Choice` is a group of items that can be chosen from based on the input as the chooser.
@@ -366,7 +366,7 @@ class Choice(Left):
             return super().frame(self._parameters[choice])
         return super().frame(ol.Null())
 
-class Pick(Left):
+class Pick(LeftToRight):
     """`Frame -> Left -> Pick`
 
     A `Pick` is a group of items that can be picketed from based on the input as the picker.
@@ -396,7 +396,7 @@ class Pick(Left):
             return super().frame(self._named_parameters['pick'].pop(choice))
         return super().frame(ol.Null())
 
-class CountDown(Left):
+class CountDown(LeftToRight):
     """`Frame -> Left -> CountDown`
 
     A `CountDown` is a group of count down numbers that work as selectors when they reach 0.
@@ -478,7 +478,7 @@ class Frequency(CountDown):
                 until_list.append(-1)
         super().__init__(*until_list)   # Saves a CountDown as self._multi_data['operand']
 
-class Formula(Left):
+class Formula(LeftToRight):
     """`Frame -> Left -> Formula`
 
     A `Formula` processes the input data with the given function and passes its result to the next `Frame`.
@@ -494,7 +494,7 @@ class Formula(Left):
     def frame(self, input: o.T) -> o.T:
         return super().frame(self._named_parameters['operand'](input))
     
-class Iterate(Left):
+class Iterate(LeftToRight):
     """`Frame -> Left -> Iterate`
 
     An `Iterate` returns a series of values much alike the Python `range` method, where this
@@ -546,7 +546,7 @@ class Iterate(Left):
         self._named_parameters['iterator']['current'] += self._named_parameters['iterator']['step']
         return self_operand
 
-class Drag(Left):
+class Drag(LeftToRight):
     """`Frame -> Left -> Drag`
 
     A `Drag` works similarly the a drag in Excel\xa9, where the first inputted `Operand`'s extracted item is the one bring dragged.
@@ -570,7 +570,7 @@ class Drag(Left):
         return super().frame(input)
 
 
-class Mux(Left):
+class Mux(LeftToRight):
     """`Frame -> Left -> Mux`
 
     A `Mux` does a multiplexing of multiple elements into single ones, allowing this way a more versatile way of flow.
@@ -616,7 +616,7 @@ class Mux(Left):
         return self._last_parameter
 
 
-class Foreach(Left):
+class Foreach(LeftToRight):
     """`Frame -> Left -> Foreach`
 
     A `Foreach` cycles through a set of items and returns to the first one whenever reaches the end of it.
@@ -656,7 +656,7 @@ class Once(Foreach):
         return ol.Null()
 
 
-class InputFilter(Left):
+class InputFilter(LeftToRight):
     """`Frame -> Left -> InputFilter`
 
     An `InputFilter` only passes the input to the next `Frame` if its criteria is met.
@@ -1188,7 +1188,7 @@ class At(Alternator):
             return ol.Null()
 
 
-class Get(Left):
+class Get(LeftToRight):
     """`Frame -> Left -> Get`
 
     A `Get` does an `input % item` and passes it to the next `Frame`.
@@ -1205,7 +1205,7 @@ class Get(Left):
             return super().frame(parameter)
         return super().frame(input)
 
-class DeepCopy(Left):
+class DeepCopy(LeftToRight):
     """`Frame -> Left -> DeepCopy`
 
     A `DeepCopy` makes a deep copy of the input and passes it to the next `Frame`.
@@ -1218,7 +1218,7 @@ class DeepCopy(Left):
         input_duplication = self.deep_copy(input)
         return super().frame(input_duplication)
 
-class Inject(Left):
+class Inject(LeftToRight):
     """`Frame -> Left -> Inject`
 
     An `Inject` sets the input with extra parameters before passing it to the next `Frame`.
@@ -1260,7 +1260,7 @@ class Push(Inject):
         return super().frame(input)
 
 
-class BasicOperation(Left):
+class BasicOperation(LeftToRight):
     """`Frame -> Left -> BasicOperation`
 
     A `BasicOperation` does a basic operation like `+` or `/` on the input before passing it to the next `Frame`.
@@ -1333,10 +1333,10 @@ class Divide(BasicOperation):
         return super().frame(input / self._next_parameter())
 
 
-class Right(Frame):  # RIGHT TO LEFT
-    """`Frame -> Right`
+class RightToLeft(Frame):  # RIGHT TO LEFT
+    """`Frame -> RightToLeft`
 
-    The `Right` frames are processed from right to left in the framing chain made with the `**` operator.
+    The `RightToLeft` frames are processed from right to left in the framing chain made with the `**` operator.
 
     Parameters
     ----------
@@ -1352,7 +1352,7 @@ class Right(Frame):  # RIGHT TO LEFT
             right_input._set = True
         return right_input
 
-class IsNull(Right):
+class IsNull(RightToLeft):
     """`Frame -> Right -> IsNull`
 
     An `IsNull` converts a `Null` return into a `Full` one and any other to `Null`.
@@ -1367,7 +1367,7 @@ class IsNull(Right):
             return ol.Full()
         return ol.Null()
 
-class WrapR(Right):
+class WrapR(RightToLeft):
     """`Frame -> Right -> WrapR`
 
     A `WrapR` wraps the right side input with an `Operand` set as parameter before returning it.
@@ -1384,7 +1384,7 @@ class WrapR(Right):
                 wrapped_right_input._set = True
         return wrapped_right_input
 
-class GetR(Right):
+class GetR(RightToLeft):
     """`Frame -> Right -> GetR`
 
     A `GetR` extracts the right side input parameter with `%` before returning it.
@@ -1402,7 +1402,7 @@ class GetR(Right):
             extracted_data._set = extracted_data._set # Set status has to be kept
         return extracted_data
 
-class BasicOperationR(Right):
+class BasicOperationR(RightToLeft):
     """`Frame -> Right -> BasicOperationR`
 
     A `BasicOperationR` does a basic operation like `+` or `/` on the input before passing it to the next `Frame`.
