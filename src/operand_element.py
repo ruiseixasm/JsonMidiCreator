@@ -2296,7 +2296,7 @@ class Note(ChannelElement):
             self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
             self_duration_min: Fraction = og.settings.beats_to_minutes(single_note._duration_beats)
 
-            if self_duration_min <= 0:
+            if self_position_min < 0 or self_duration_min <= 0:
                 continue    # Next note
 
             pitch_int: int = single_note._pitch._get_chromatic_pitch()
@@ -3722,81 +3722,83 @@ class ControlChange(Automatable):
 
         self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
 
-        time_ms: float = o.minutes_to_time_ms(self_position_min)
-        devices: list[str] = midi_track._devices if midi_track else og.settings._devices
+        if self_position_min >= 0:
 
-        # Midi validation is done in the JsonMidiPlayer program
-        self_playlist: list[dict] = []
-        
-        if devices_header:
-            self_playlist.append(
-                {
-                    "devices": devices
-                }
-            )
+            time_ms: float = o.minutes_to_time_ms(self_position_min)
+            devices: list[str] = midi_track._devices if midi_track else og.settings._devices
 
-        if self._controller._nrpn:
-            cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
-            self_playlist.extend([
-                {
-                    "time_ms": time_ms,
-                    "midi_message": {
-                        "status_byte": 0xB0 | self._channel_0,
-                        "data_byte_1": 99,
-                        "data_byte_2": clamp_value_128(cc_99_msb)
+            # Midi validation is done in the JsonMidiPlayer program
+            self_playlist: list[dict] = []
+            
+            if devices_header:
+                self_playlist.append(
+                    {
+                        "devices": devices
                     }
-                },
-                {
-                    "time_ms": time_ms,
-                    "midi_message": {
-                        "status_byte": 0xB0 | self._channel_0,
-                        "data_byte_1": 98,
-                        "data_byte_2": clamp_value_128(cc_98_lsb)
+                )
+
+            if self._controller._nrpn:
+                cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
+                self_playlist.extend([
+                    {
+                        "time_ms": time_ms,
+                        "midi_message": {
+                            "status_byte": 0xB0 | self._channel_0,
+                            "data_byte_1": 99,
+                            "data_byte_2": clamp_value_128(cc_99_msb)
+                        }
+                    },
+                    {
+                        "time_ms": time_ms,
+                        "midi_message": {
+                            "status_byte": 0xB0 | self._channel_0,
+                            "data_byte_1": 98,
+                            "data_byte_2": clamp_value_128(cc_98_lsb)
+                        }
+                    },
+                    {
+                        "time_ms": time_ms,
+                        "midi_message": {
+                            "status_byte": 0xB0 | self._channel_0,
+                            "data_byte_1": 6,
+                            "data_byte_2": clamp_value_128(cc_6_msb)
+                        }
                     }
-                },
-                {
-                    "time_ms": time_ms,
-                    "midi_message": {
-                        "status_byte": 0xB0 | self._channel_0,
-                        "data_byte_1": 6,
-                        "data_byte_2": clamp_value_128(cc_6_msb)
-                    }
-                }
-            ])
-            if self._controller._high:
+                ])
+                if self._controller._high:
+                    self_playlist.append(
+                        {
+                            "time_ms": time_ms,
+                            "midi_message": {
+                                "status_byte": 0xB0 | self._channel_0,
+                                "data_byte_1": 38,
+                                "data_byte_2": clamp_value_128(cc_38_lsb)
+                            }
+                        }
+                    )
+            else:
+                msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
                 self_playlist.append(
                     {
                         "time_ms": time_ms,
                         "midi_message": {
                             "status_byte": 0xB0 | self._channel_0,
-                            "data_byte_1": 38,
-                            "data_byte_2": clamp_value_128(cc_38_lsb)
+                            "data_byte_1": self._controller._number_msb,
+                            "data_byte_2": clamp_value_128(msb_value)
                         }
                     }
                 )
-        else:
-            msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
-            self_playlist.append(
-                {
-                    "time_ms": time_ms,
-                    "midi_message": {
-                        "status_byte": 0xB0 | self._channel_0,
-                        "data_byte_1": self._controller._number_msb,
-                        "data_byte_2": clamp_value_128(msb_value)
-                    }
-                }
-            )
-            if self._controller._high:
-                self_playlist.append(
-                    {
-                        "time_ms": time_ms,
-                        "midi_message": {
-                            "status_byte": 0xB0 | self._channel_0,
-                            "data_byte_1": self._controller._lsb,
-                            "data_byte_2": clamp_value_128(lsb_value)
+                if self._controller._high:
+                    self_playlist.append(
+                        {
+                            "time_ms": time_ms,
+                            "midi_message": {
+                                "status_byte": 0xB0 | self._channel_0,
+                                "data_byte_1": self._controller._lsb,
+                                "data_byte_2": clamp_value_128(lsb_value)
+                            }
                         }
-                    }
-                )
+                    )
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list[dict]:
