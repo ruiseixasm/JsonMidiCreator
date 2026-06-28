@@ -368,6 +368,12 @@ class Element(o.Operand):
                     self._duration_beats    = operand._rational
             case ra.TimeValue():
                 self << ra.Duration(self, operand)
+            case od.NoteSide():
+                new_duration_beats: Fraction = ra.Duration(self, operand._data)._rational
+                if new_duration_beats > 0:
+                    if isinstance(operand, od.Left()):
+                        self._position_beats -= new_duration_beats - self._duration_beats
+                    self._duration_beats = new_duration_beats
             case ra.Position():
                 self._position_beats        = operand._rational
             case ra.TimeUnit():
@@ -532,9 +538,19 @@ class Element(o.Operand):
                 return operand.empty_copy(self).__iadd__(operand)   # Keeps the Clip TimeSignature and integrates self
             # For efficient reasons
             case ra.Position():
-                self._position_beats += operand._rational
+                add_position_beats: Fraction = operand._rational
+                if self._position_beats + add_position_beats >= 0:
+                    self._position_beats += add_position_beats
             case ra.Duration() | ra.Length():
-                self._duration_beats += operand._rational
+                add_duration_beats: Fraction = operand._rational
+                if self._duration_beats + add_duration_beats > 0:
+                    self._duration_beats += add_duration_beats
+            case od.NoteSide():
+                add_duration_beats: Fraction = ra.Duration(self, operand._data)._rational
+                if self._duration_beats + add_duration_beats > 0:
+                    if isinstance(operand, od.Left()):
+                        self._position_beats -= add_duration_beats - self._duration_beats
+                    self._duration_beats = add_duration_beats
             case _:
                 self_operand: any = self % operand
                 self_operand += operand
