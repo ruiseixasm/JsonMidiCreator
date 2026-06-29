@@ -2614,7 +2614,7 @@ class Clip(Composition):  # Just a container of Elements
         return super().unmasked_items()
 
 
-    def __getitem__(self, index: Any) -> Union['oe.Element', 'Clip']:
+    def __getitem__(self, index: Any) -> Union['oe.Element', TypeClip]:
         return super().__getitem__(index)
     
     def __setitem__(self, index: Any, value: Union['oe.Element', 'Clip']) -> Self:
