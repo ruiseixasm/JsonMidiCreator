@@ -59,6 +59,8 @@ except ImportError:
     print("Please install it by running 'pip install numpy'.")
 
 
+TypeContainer = TypeVar('TypeContainer', bound='Container')  # TypeContainer represents any subclass of Operand
+
 
 class Container(o.Operand):
     """`Container`
@@ -155,7 +157,7 @@ class Container(o.Operand):
     
     # To be used directly in for loops
     def __next__(self) -> any:
-        items_to_iterate: list = self._items
+        items_to_iterate: list = self._items    # Self iteration always ignore any mask
         if self._items_iterator < len(items_to_iterate):
             item = items_to_iterate[self._items_iterator]
             self._items_iterator += 1
