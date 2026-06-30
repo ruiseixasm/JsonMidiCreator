@@ -22,9 +22,8 @@ multiple_notes = measure_note >> Plot(n_button=notes_splitter.get_clip)
 
 
 notes_setter = I_Setter(no_repetitions=True)
-chained_iterations = \
-    multiple_notes  << Select(Beat(0)) >> Plot(n_button=notes_setter.get_clip) \
-                    << Select(Beat(1)) >> Plot(n_button=notes_setter.get_clip) \
-                    << Select(Beat(2)) >> Plot(n_button=notes_setter.get_clip) \
-                    << Select(Beat(3)) >> Plot(n_button=notes_setter.get_clip) << Unmask()
 
+looped_iterations = multiple_notes.copy()
+for beat in range(4):   # 4 Beats iteration range
+   looped_iterations = looped_iterations << Select(Beat(beat)) >> Plot(n_button=notes_setter.get_clip)
+looped_iterations << Unmask() >> Plot()
