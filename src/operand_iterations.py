@@ -258,7 +258,7 @@ class I_DurationsSplitter(Iterations):
                             break
                         continuous_start_beat = continuous_finish_beat
                     if iteration_clip.len() == self._durations:
-                        return iteration_clip
+                        return iteration_clip._sort_items() # Safe code
                     try_j += 1
                 try_i += 1
         return decoupled_clip_0.empty_copy()   # Tags as invalid
@@ -281,7 +281,7 @@ class I_ParametersChooser(Iterations):
                 index_choice: int = self._chaos % int()
                 chosen_parameter = self._parameters[index_choice % total_parameters]
                 element << o.Operand.deep_copy(chosen_parameter)    # copy guarantees parameter decoupling
-        return decoupled_clip_0  # The Clip is already decoupled
+        return decoupled_clip_0._sort_items()   # The Clip is already decoupled
 
 
 class I_ParameterSetter(Iterations):
@@ -306,7 +306,7 @@ class I_ParameterSetter(Iterations):
                 parameter = self._chaos.chaoticize()
                 operand = self._parameter.copy(parameter)     # copy guarantees operand decoupling
                 element << operand
-        return decoupled_clip_0  # The Clip is already decoupled
+        return decoupled_clip_0._sort_items()   # The Clip is already decoupled
 
 
 class I_DurationSwapper(Iterations):
