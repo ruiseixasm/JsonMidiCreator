@@ -309,3 +309,25 @@ class I_Setter(Iterations):
         return decoupled_clip_0  # The Clip is already decoupled
 
 
+class I_DurationSwapper(Iterations):
+    def _single_iteration(self, decoupled_clip_0: 'oc.Clip') -> 'oc.Clip':
+        clip_elements: list[oe.Element] = decoupled_clip_0.unmasked_items()
+        clip_len: int = len(clip_elements)
+        if clip_len > 1:
+            indexes: list[int] = [
+                i for i in range(clip_len - 1)  # Has to be paired, last index not considered
+            ]
+            picks: list[int] = []
+            for total_indexes in range(clip_len - 1, 0, -1):
+                index: int = self._chaos % int() % total_indexes
+                picks.append(indexes.pop(index))
+            for left_element_i in picks:
+                swap: int = self._chaos % int() % 2
+                if swap:
+                    left_duration = clip_elements[left_element_i] % ra.Duration()
+                    right_duration = clip_elements[left_element_i + 1] % ra.Duration()
+                    # Direct setting on `decoupled_clip_0` elements
+                    clip_elements[left_element_i] << right_duration
+                    clip_elements[left_element_i + 1] << od.Left(left_duration)
+        return decoupled_clip_0  # The Clip is already decoupled
+
