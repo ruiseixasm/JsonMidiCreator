@@ -220,18 +220,18 @@ class I_Function(Iterations):
     def _single_iteration(self, clip_0: 'oc.Clip') -> 'oc.Clip':
         if callable(self._function):
             new_iteration: oc.Clip = self._function(clip_0)
-            return new_iteration
+            return new_iteration._sort_items()  # Safe code
         return clip_0.empty_copy()  # No valid Composition made
 
 
-class I_Splitter(Iterations):
-    def __init__(self, elements: int = 8,
+class I_DurationsSplitter(Iterations):
+    def __init__(self, durations: int = 8,
                  chaos: ch.Chaos = ch.SinX(340),
                  pre_filter: Optional[Callable[['oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
         super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
-        self._elements: int = elements
+        self._durations: int = durations
 
 
     def _single_iteration(self, decoupled_clip_0: 'oc.Clip') -> 'oc.Clip':
@@ -244,7 +244,7 @@ class I_Splitter(Iterations):
             while try_i < 100:
                 iteration_clip: oc.Clip = decoupled_clip_0.copy() # Despite the clip_0 being already a copy, each iteration needs a new one
                 try_j: int = 0
-                while iteration_clip.len() < self._elements and try_j < 100 * 2:
+                while iteration_clip.len() < self._durations and try_j < 100 * 2:
                     continuous_split_step: int = self._chaos % int()
                     continuous_split_beat: Fraction = quantization_beats * continuous_split_step % total_duration_beats
                     continuous_start_beat = Fraction(0)
@@ -257,14 +257,14 @@ class I_Splitter(Iterations):
                                 single_element //= element_split_position
                             break
                         continuous_start_beat = continuous_finish_beat
-                    if iteration_clip.len() == self._elements:
+                    if iteration_clip.len() == self._durations:
                         return iteration_clip
                     try_j += 1
                 try_i += 1
         return decoupled_clip_0.empty_copy()   # Tags as invalid
 
 
-class I_Chooser(Iterations):
+class I_ParametersChooser(Iterations):
     def __init__(self, parameters: list[Any] = ["1", "3", "5"],
                  chaos: ch.Chaos = ch.SinX(340),
                  pre_filter: Optional[Callable[['oc.Clip'], bool]] = None,
@@ -284,27 +284,27 @@ class I_Chooser(Iterations):
         return decoupled_clip_0  # The Clip is already decoupled
 
 
-class I_Setter(Iterations):
-    def __init__(self, operand: o.Operand = ou.Degree(),
+class I_ParameterSetter(Iterations):
+    def __init__(self, parameter: o.Operand = ou.Degree(),
                  chaos: ch.Chaos = ch.SinX(340, ot.Increase(1)**ot.Modulo(7)),
                  global_setting: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
         super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
-        self._operand: o.Operand = operand
+        self._parameter: o.Operand = parameter
         self._global_setting: bool = global_setting
 
 
     def _single_iteration(self, decoupled_clip_0: 'oc.Clip') -> 'oc.Clip':
         if self._global_setting:
             global_parameter = self._chaos.chaoticize()
-            operand = self._operand.copy(global_parameter)  # copy guarantees operand decoupling
+            operand = self._parameter.copy(global_parameter)  # copy guarantees operand decoupling
             decoupled_clip_0 << operand
         else:
             for element in decoupled_clip_0.unmasked_items():
                 parameter = self._chaos.chaoticize()
-                operand = self._operand.copy(parameter)     # copy guarantees operand decoupling
+                operand = self._parameter.copy(parameter)     # copy guarantees operand decoupling
                 element << operand
         return decoupled_clip_0  # The Clip is already decoupled
 
@@ -329,5 +329,5 @@ class I_DurationSwapper(Iterations):
                     # Direct setting on `decoupled_clip_0` elements
                     clip_elements[left_element_i] << right_duration
                     clip_elements[left_element_i + 1] << od.Left(left_duration)
-        return decoupled_clip_0  # The Clip is already decoupled
+        return decoupled_clip_0._sort_items()   # The Clip is already decoupled, elements manipulated directly thus sorting is needed
 

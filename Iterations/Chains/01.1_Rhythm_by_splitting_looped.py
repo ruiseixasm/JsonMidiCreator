@@ -17,11 +17,11 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 
 measure_note = Note(1/1) * 1
 
-notes_splitter = I_Splitter()
+notes_splitter = I_DurationsSplitter()
 multiple_notes = measure_note >> Plot(n_button=notes_splitter.get_clip)
 
 
-notes_setter = I_Setter(no_repetitions=True)
+notes_setter = I_ParameterSetter(no_repetitions=True)
 
 looped_iterations = multiple_notes.copy()
 for beat in range(4):   # 4 Beats iteration range

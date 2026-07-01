@@ -32,7 +32,7 @@ import sys
 
 def test_cycle_setter():
     two_notes = Note(1/2) / 2 << Select(At(1)) << Name("Two Notes")
-    notes_setting = I_Setter(Semitone(), Cycle(), no_repetitions=True)
+    notes_setting = I_ParameterSetter(Semitone(), Cycle(), no_repetitions=True)
     for semitone in range(12):
         new_iteration: Clip = notes_setting.get_clip(two_notes)
         second_note: Note = new_iteration[0]

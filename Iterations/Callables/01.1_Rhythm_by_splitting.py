@@ -22,6 +22,6 @@ def pre_filter(clip) -> bool:
         return False
     return True
 
-notes_splitter = I_Splitter(2*6, pre_filter=pre_filter)
+notes_splitter = I_DurationsSplitter(2*6, pre_filter=pre_filter)
 four_notes >> Plot(n_button=notes_splitter.get_clip)
 
