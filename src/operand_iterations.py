@@ -284,6 +284,30 @@ class I_ParametersChooser(Iterations):
         return decoupled_clip_0._sort_items()   # The Clip is already decoupled
 
 
+class I_ParameterShuffler(Iterations):
+    def __init__(self, parameter: Any = ou.Degree(),
+                 chaos: ch.Chaos = ch.SinX(340, ot.Increase(1)**ot.Modulo(7)),
+                 pre_filter: Optional[Callable[['oc.Clip'], bool]] = None,
+                 post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
+                 max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
+        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+        self._parameter: Any = parameter
+
+    def _single_iteration(self, decoupled_clip_0: 'oc.Clip') -> 'oc.Clip':
+        clip_elements: list[oe.Element] = decoupled_clip_0.unmasked_items()
+        clip_len: int = len(clip_elements)
+        parameters: list[Any] = [
+            element % self._parameter for element in clip_elements
+        ]
+        picks: list[Any] = []
+        for total_indexes in range(clip_len, 0, -1):
+            index: int = self._chaos % int() % total_indexes
+            picks.append(parameters.pop(index))
+        for element, parameter in zip(clip_elements, picks):
+            element << parameter
+        return decoupled_clip_0._sort_items()   # The Clip is already decoupled
+
+
 class I_ParameterSetter(Iterations):
     def __init__(self, parameter: o.Operand = ou.Degree(),
                  chaos: ch.Chaos = ch.SinX(340, ot.Increase(1)**ot.Modulo(7)),
