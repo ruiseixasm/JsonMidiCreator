@@ -496,12 +496,11 @@ def test_add_clip():
     two_notes += Octave()
     assert two_notes[0] % Octave() == 4
 
-    assert two_notes % Duration() == Beats(2)
-    # assert two_notes >> Duration() == Beats(2)
-    assert (two_notes + two_notes) % Duration() == Beats(2)
+    assert two_notes % Net(Duration()) == Beats(2)
+    assert (two_notes + two_notes) % Net(Duration()) == Beats(2)
     four_measures: Clip = two_notes * 4
-    assert four_measures % Duration() == Beats(3 * 4 + 2)
-    assert (four_measures + four_measures) % Duration() == Beats(3 * 4 + 2)
+    assert four_measures % Net(Duration()) == Beats(3 * 4 + 2)
+    assert (four_measures + four_measures) % Net(Duration()) == Beats(3 * 4 + 2)
 
 # test_add_clip()
 
