@@ -656,8 +656,8 @@ def test_clip_composition():
     settings << Quantization(1/4)   # 1/4 Beats again
 
     measure_bell: Clip = Note(DrumKit(34)) / 1 * 4
-    print(f"Duration: {measure_bell % Duration() % float()}")
-    assert measure_bell % Duration() == Measures(3.25)
+    print(f"Duration: {measure_bell % Net(Duration()) % float()}")
+    assert measure_bell % Net(Duration()) == Measures(3.25)
     print(f"Length: {measure_bell % Length() % float()}")
     assert measure_bell % Length() == Measures(4)
     assert measure_bell % Length() == Measure(4)    # Measure rounds the Length!!
@@ -667,40 +667,40 @@ def test_clip_composition():
     print("------")
     beat_tick: Clip = (Note(DrumKit(35)) / 3 + Beat(1)) * 4   # Position basic operations work on elements
     print(f"Net Measures: {beat_tick.net_duration() % Measures() % float()}")
-    print(f"Measures: {beat_tick % Duration() % Measures() % float()}")
+    print(f"Measures: {beat_tick % Net(Finish()) % Measures() % float()}")
     assert beat_tick.net_duration() == Measures(3.75)
-    assert beat_tick % Duration() == Measures(4.0)
-    print(f"Measure: {beat_tick % Duration() % Measure() % int()}")
-    assert beat_tick % Duration() == Measure(4)
+    assert beat_tick % Net(Finish()) == Measures(4.0)
+    print(f"Measure: {beat_tick % Net(Finish()) % Measure() % int()}")
+    assert beat_tick % Net(Finish()) == Measure(4)
     print(f"Position: {beat_tick % Position() % Measures() % float()}")
     assert beat_tick % Position() == 0.0    # Position basic operations work on elements
 
     print("------")
     metronome: Clip = measure_bell + beat_tick
-    print(f"Measure: {metronome % Duration() % Measure() % int()}")
-    assert metronome % Duration() == Measure(4)
-    print(f"Measures: {metronome % Duration() % Measures() % float()}")
-    assert metronome % Duration() == Measures(4.0)
+    print(f"Measure: {metronome % Net(Duration()) % Measure() % int()}")
+    assert metronome % Net(Duration()) == Measure(4)
+    print(f"Measures: {metronome % Net(Duration()) % Measures() % float()}")
+    assert metronome % Net(Duration()) == Measures(4.0)
     print(f"Position: {metronome % Position() % Measures() % float()}")
     assert metronome % Position() == 0.0
 
     print("---------------------")
     # correct version working with frame All()
     beat_tick = (Note(DrumKit(35)) / 3 + All()**Beat(1)) * 4
-    print(f"Measure: {beat_tick % Duration() % Measure() % int()}")
-    assert beat_tick % Duration() == Measure(4)
-    print(f"Measures: {beat_tick % Duration() % Measures() % float()}")
+    print(f"Measure: {beat_tick % Net(Finish()) % Measure() % int()}")
+    assert beat_tick % Net(Finish()) == Measure(4)
+    print(f"Measures: {beat_tick % Net(Finish()) % Measures() % float()}")
     assert beat_tick.net_duration() == Measures(3.75)
-    assert beat_tick % Duration() == Measures(4.0)
+    assert beat_tick % Net(Finish()) == Measures(4.0)
     print(f"Position: {beat_tick % Position() % Measures() % float()}")
     assert beat_tick % Position() == 0.0
 
     print("------")
     metronome: Clip = measure_bell + beat_tick
-    print(f"Measure: {metronome % Duration() % Measure() % int()}")
-    assert metronome % Duration() == Measure(4)
-    print(f"Measures: {metronome % Duration() % Measures() % float()}")
-    assert metronome % Duration() == Measures(4.0)
+    print(f"Measure: {metronome % Net(Duration()) % Measure() % int()}")
+    assert metronome % Net(Duration()) == Measure(4)
+    print(f"Measures: {metronome % Net(Duration()) % Measures() % float()}")
+    assert metronome % Net(Duration()) == Measures(4.0)
     print(f"Position: {metronome % Position() % Measures() % float()}")
     assert metronome % Position() == 0.0
 
