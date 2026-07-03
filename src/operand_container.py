@@ -1401,7 +1401,9 @@ class Composition(Container):
         Returns:
             Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
         """
-        return ra.Length(self.net_duration(include_masked))
+        if self._has_elements():
+            return ra.Length(self.net_finish(include_masked) - self.net_start(include_masked))
+        return ra.Length(self, 0)
     
     
     def gross_duration(self) -> 'ra.Duration':
