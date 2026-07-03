@@ -1458,6 +1458,22 @@ class Composition(Container):
                 return self.gross_length(include_masked=True)
             case ra.Duration():
                 return self.gross_duration(True)
+            case od.CompositionConvertible():
+                convertible: ra.Convertible = operand._data
+                if isinstance(operand, od.Net):
+                    match convertible:
+                        case ra.Finish():
+                            return self.net_finish()
+                        case ra.Position():
+                            return self.net_start()
+                        case ra.Length():
+                            return self.net_length()
+                        case ra.Duration():
+                            return self.net_duration()
+                        case _:
+                            return ol.Null()
+                else:
+                    return self % convertible
             case og.TimeSignature():
                 return self._time_signature.copy()
             case int():

@@ -188,7 +188,7 @@ def test_note_length():
 def test_note_mul():
 
     single_note: Note = Note()
-    assert single_note / 2 % Duration() == Beats(2)   # Results in a Clip of 2 Notes
+    assert single_note / 2 % Net(Duration()) == Beats(2)   # Results in a Clip of 2 Notes
     assert type(single_note / 2) == Clip
     assert single_note * 2.0 % Duration() == Beats(2) # Multiplies the Duration instead, still a single Note, NOT a Clip!
     assert type(single_note * 2.0) == Note
@@ -218,7 +218,7 @@ def test_note_mul():
     assert type(mul_clip[1]) == type(Note())
     assert type(mul_clip[2]) == type(Rest())
 
-# test_note_mul()
+test_note_mul()
 
 
 def test_note_shift():
