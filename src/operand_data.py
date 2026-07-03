@@ -227,6 +227,7 @@ class NoteSide(Data):
     ----------
     Duration(0), TimeValue : The amount of duration.
     """
+    pass
 
 class Left(Data):
     """`Data -> NoteSide -> Left`
@@ -237,6 +238,7 @@ class Left(Data):
     ----------
     Duration(0), TimeValue : The amount of duration.
     """
+    pass
 
 class Right(Data):
     """`Data -> NoteSide -> Right`
@@ -247,6 +249,44 @@ class Right(Data):
     ----------
     Duration(0), TimeValue : The amount of duration.
     """
+    pass
+
+
+class CompositionConvertible(Data):
+    """`Data -> CompositionMeasurement`
+
+    Because in a Composition convertibles can be gross or net, this specifies what time amount to be returned.
+    
+    Parameters
+    ----------
+    Convertible(0) : The amount of the convertible operand, like, Length or Duration.
+    """
+    pass
+
+class Gross(CompositionConvertible):
+    """`Data -> CompositionMeasurement -> Gross`
+
+    This corresponds to the values returned by the respective gross methods, the ones that return the
+    entirety of the composition rounded in Measures. This is the **default** return.
+    
+    Parameters
+    ----------
+    Convertible(0) : The amount of the convertible operand, like, Length or Duration.
+    """
+    pass
+
+class Net(CompositionConvertible):
+    """`Data -> CompositionMeasurement -> Net`
+
+    This corresponds to the values returned by the respective net methods, the ones that return the
+    timed amount specific to the Composition contained elements. This means that an empty composition
+    will return `None`.
+    
+    Parameters
+    ----------
+    Convertible(0) : The amount of the convertible operand, like, Length or Duration.
+    """
+    pass
 
 
 class Masking(Data):

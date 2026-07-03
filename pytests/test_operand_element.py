@@ -218,7 +218,7 @@ def test_note_mul():
     assert type(mul_clip[1]) == type(Note())
     assert type(mul_clip[2]) == type(Rest())
 
-test_note_mul()
+# test_note_mul()
 
 
 def test_note_shift():

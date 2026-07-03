@@ -1314,6 +1314,19 @@ class Composition(Container):
 
 
     # Ignores the self Length
+    def gross_start(self) -> 'ra.Position':
+        """
+        This is the same as `self % Position()`.
+
+        Args:
+            None
+
+        Returns:
+            Position: The gross position equivalent to `Position`.
+        """
+        return self % ra.Position()
+
+
     def net_start(self, include_masked: bool = False) -> 'ra.Position':
         """
         Gets the starting position of all its Elements.
@@ -1326,6 +1339,19 @@ class Composition(Container):
             Position: The minimum Position of all Elements.
         """
         return None
+
+    # Ignores the self Length
+    def gross_finish(self) -> 'ra.Position':
+        """
+        This is the same as `ra.Position(self % ra.Length())`.
+
+        Args:
+            None
+
+        Returns:
+            Position: The gross position equivalent to `Length`.
+        """
+        return ra.Position(self % ra.Length())
 
 
     # Ignores the self Length
@@ -1381,7 +1407,7 @@ class Composition(Container):
         return self_net_length
     
     
-    def duration(self, include_masked: bool = False) -> 'ra.Duration':
+    def gross_duration(self, include_masked: bool = False) -> 'ra.Duration':
         """
         Returns the `Duration` that goes from 0 to the `finish` of all elements.
 
@@ -1392,7 +1418,7 @@ class Composition(Container):
             Duration: Equal to `Clip.finish()` converted to `Duration`.
         """
         if self._has_elements():
-            return ra.Duration(self.net_finish(include_masked))
+            return ra.Duration(self.gross_finish())
         return ra.Duration(self, 0)
     
     def net_duration(self, include_masked: bool = False) -> 'ra.Duration':
@@ -1431,7 +1457,7 @@ class Composition(Container):
             case ra.Length():
                 return self.gross_length(include_masked=True)
             case ra.Duration():
-                return self.duration(True)
+                return self.gross_duration(True)
             case og.TimeSignature():
                 return self._time_signature.copy()
             case int():
