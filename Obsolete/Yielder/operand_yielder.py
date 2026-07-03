@@ -94,12 +94,12 @@ class Yielder(o.Operand):
     def _yield_elements(self) -> list['oe.Element']:
         yielded_elements: list[oe.Element] = self._get_yielded_elements()
         if not yielded_elements:
-            next_position: ra.Position = self._element.start()
+            next_position: ra.Position = self._element.net_start()
             end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
             while next_position < end_position:
                 new_element: oe.Element = self._element.copy(next_position)
                 yielded_elements.append(new_element)
-                next_position = new_element.finish()
+                next_position = new_element.net_finish()
         return yielded_elements
 
 
@@ -232,7 +232,7 @@ class YieldOnBeat(Yielder):
 
     def _yield_elements(self) -> list['oe.Element']:
         yielded_elements: list[oe.Element] = []
-        next_position: ra.Position = self._element.start() << ra.Beats(0)
+        next_position: ra.Position = self._element.net_start() << ra.Beats(0)
         end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
         while next_position < end_position:
             new_element: oe.Element = self._element.copy(next_position)
@@ -256,7 +256,7 @@ class YieldOffBeat(Yielder):
 
     def _yield_elements(self) -> list['oe.Element']:
         yielded_elements: list[oe.Element] = []
-        next_position: ra.Position = self._element.start() << ra.Beats(1/2)
+        next_position: ra.Position = self._element.net_start() << ra.Beats(1/2)
         end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
         while next_position < end_position:
             new_element: oe.Element = self._element.copy(next_position)
@@ -280,7 +280,7 @@ class YieldDownBeat(Yielder):
 
     def _yield_elements(self) -> list['oe.Element']:
         yielded_elements: list[oe.Element] = []
-        next_position: ra.Position = self._element.start() << ra.Beats(0)
+        next_position: ra.Position = self._element.net_start() << ra.Beats(0)
         end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
         while next_position < end_position:
             new_element: oe.Element = self._element.copy(next_position)
@@ -304,7 +304,7 @@ class YieldUpBeat(Yielder):
 
     def _yield_elements(self) -> list['oe.Element']:
         yielded_elements: list[oe.Element] = []
-        next_position: ra.Position = self._element.start() << ra.Measures(1)
+        next_position: ra.Position = self._element.net_start() << ra.Measures(1)
         next_position -= ra.Beats(1/2)
         end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
         while next_position < end_position:
@@ -347,7 +347,7 @@ class YieldPattern(Yielder):
             if yielded_elements:
                 previous_measure: int = 0
                 for new_element in yielded_elements:
-                    next_measure: int = new_element.start() % int() % self._measures
+                    next_measure: int = new_element.net_start() % int() % self._measures
                     if next_measure > previous_measure and next_measure == 0:
                         _parameter_i = 0
                     previous_measure = next_measure
@@ -355,14 +355,14 @@ class YieldPattern(Yielder):
                     self._set_element_parameter(new_element, parameter)
                     _parameter_i += 1
             else:
-                next_position: ra.Position = self._element.start()
+                next_position: ra.Position = self._element.net_start()
                 end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
                 while next_position < end_position:
                     new_element: oe.Element = self._element.copy(next_position)
                     yielded_elements.append(new_element)
                     parameter: Any = self._pattern[_parameter_i % parameters_len]
                     self._set_element_parameter(new_element, parameter)
-                    next_position = new_element.finish()
+                    next_position = new_element.net_finish()
                     _parameter_i += 1
         return yielded_elements
 
@@ -448,7 +448,7 @@ class YieldSteps(YieldPositions):
         yielded_elements: list[oe.Element] = []
         if self._pattern:
             parameters_len: int = len(self._pattern)
-            next_position: ra.Position = self._element.start()
+            next_position: ra.Position = self._element.net_start()
             end_position: ra.Position = next_position.copy(ra.Measures(self._measures))
             _parameter_i: int = 0
             while next_position < end_position:

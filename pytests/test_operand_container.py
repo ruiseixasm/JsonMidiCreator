@@ -1014,12 +1014,12 @@ def test_clip_operations():
     three_notes += Measure(1)
 
     # NOT at Position 0.0, so length != net_duration
-    three_notes_net_length: Length = Length( three_notes.finish() - three_notes.start() )
+    three_notes_net_length: Length = Length( three_notes.net_finish() - three_notes.net_start() )
     assert three_notes_net_length == 1.25
     assert three_notes[0] % Position() == 1.0
 
     three_notes.reverse()
-    reversed_notes_net_length: Length = Length( three_notes.finish() - three_notes.start() )
+    reversed_notes_net_length: Length = Length( three_notes.net_finish() - three_notes.net_start() )
     assert reversed_notes_net_length == 1.25
     print(three_notes[0] % Position() % float())
     assert three_notes[0] % Position() == 1.75

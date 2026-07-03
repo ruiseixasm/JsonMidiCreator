@@ -166,10 +166,10 @@ class Locus(Generic):
             case _:
                 return self % other > other
     
-    def start(self) -> ra.Position:
+    def net_start(self) -> ra.Position:
         return ra.Position(self, self._position_beats)
 
-    def finish(self) -> ra.Position:
+    def net_finish(self) -> ra.Position:
         return ra.Position(self, self._position_beats + self._duration_beats)
 
     def overlaps(self, other: 'Locus') -> bool:
@@ -2768,7 +2768,7 @@ class Process(Generic):
                 if isinstance(operand, oc.Composition) and not operand._has_elements():
                     return playlist # exists with nothing right away
                 # Generates the Clock data regardless, needed for correct JsonMidiPlayer processing
-                clock_length: ra.Length = (operand.finish() % ra.Length()).roundMeasures()
+                clock_length: ra.Length = (operand.net_finish() % ra.Length()).roundMeasures()
                 default_clock: oe.Clock = settings % oe.Clock()
                 default_clock._duration_beats = ra.Duration(clock_length)._rational # The same staff will be given next
                 playlist.extend( default_clock.getPlaylist( time_signature = operand._get_time_signature() ) )  # Clock Playlist

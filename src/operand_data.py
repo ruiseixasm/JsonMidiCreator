@@ -984,7 +984,7 @@ class Playlist(Data):
                 return self._data == other.getPlaylist()
         return super().__eq__(other)
 
-    def start(self) -> float:
+    def net_start(self) -> float:
         if len(self._data) > 0:
             start_position_ms: float = self._data[0]["time_ms"]
             for self_dict in self._data:
@@ -993,7 +993,7 @@ class Playlist(Data):
             return start_position_ms
         return 0.0
 
-    def finish(self) -> float:
+    def net_finish(self) -> float:
         if len(self._data) > 0:
             finish_position_ms: float = self._data[0]["time_ms"]
             for self_dict in self._data:

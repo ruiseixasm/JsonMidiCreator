@@ -120,8 +120,8 @@ class Element(o.Operand):
 
     def last_measure(self) -> ra.Measure:
         # Starts by checking if it's a starting measure Element
-        start_measure: int = self.start() % ra.Measure() % int()
-        finish_measure: int = self.finish() % ra.Measure() % int()
+        start_measure: int = self.net_start() % ra.Measure() % int()
+        finish_measure: int = self.net_finish() % ra.Measure() % int()
         if finish_measure > start_measure + 1:
             return ra.Measure(finish_measure - 1)
         return ra.Measure(start_measure)
@@ -136,12 +136,12 @@ class Element(o.Operand):
         if last_position is None:   # An empty Composition doesn't count
             return False
         # Starts by checking if it's a starting measure Element
-        start_position: ra.Position = self.start()
+        start_position: ra.Position = self.net_start()
         start_measure: int = start_position % ra.Measure() % int()
         if start_position % ra.Measures() == ra.Measures(start_measure) and start_measure > 0:
             return True
         # Finally checks if it finishes at or beyond the end of the Measure
-        finish_position: ra.Position = self.finish()
+        finish_position: ra.Position = self.net_finish()
         finish_measure: int = finish_position % ra.Measure() % int()
         last_measure: int = last_position % ra.Measure() % int()
         return finish_measure < last_measure + 1 and finish_measure > start_measure
@@ -207,10 +207,10 @@ class Element(o.Operand):
                                     self << ra.Position(position)
         return self
 
-    def start(self) -> ra.Position:
+    def net_start(self) -> ra.Position:
         return ra.Position(self, self._position_beats)
 
-    def finish(self) -> ra.Position:
+    def net_finish(self) -> ra.Position:
         return ra.Position(self, self._position_beats + self._duration_beats)
 
     def overlaps(self, other: 'Element') -> bool:
@@ -412,7 +412,7 @@ class Element(o.Operand):
                     if self._owner_clip is not None:
                         if not self._owner_clip._set:
                             if operand:
-                                position_offset: ra.Position = self.start() - operand[0].start()
+                                position_offset: ra.Position = self.net_start() - operand[0].start()
                                 elements_list: list[Element] = [
                                     element.copy()._set_owner_clip(self._owner_clip) for element in operand
                                 ]
@@ -423,7 +423,7 @@ class Element(o.Operand):
                 if self._owner_clip is not None:
                     if not self._owner_clip._set:
                         if operand.len() > 0:
-                            position_offset: ra.Position = self.start() - operand.start()
+                            position_offset: ra.Position = self.net_start() - operand.net_start()
                             elements_list: list[Element] = [
                                 (element + position_offset)._set_owner_clip(self._owner_clip) for element in operand.unmasked_items()
                             ]
@@ -485,7 +485,7 @@ class Element(o.Operand):
             case og.Merge():
                 if self._owner_clip is not None:
                     if operand._previous_item is not None \
-                        and operand._previous_item is not None and self.start() == operand._previous_item.finish():
+                        and operand._previous_item is not None and self.net_start() == operand._previous_item.net_finish():
 
                         operand._previous_item._duration_beats += self._duration_beats
                         self._owner_clip._remove(self, True)
@@ -716,7 +716,7 @@ class Element(o.Operand):
                     return oc.Clip(self)._set_owner_clip().__itruediv__(operand)
             case list():
                 new_elements: list[Element] = []
-                next_position: ra.Position = self.start()
+                next_position: ra.Position = self.net_start()
                 for element_parameter in operand:
                     match element_parameter:
                         case int():
