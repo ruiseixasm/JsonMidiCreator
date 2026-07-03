@@ -1482,12 +1482,12 @@ def test_note_effect():
 def test_clip_multi():
     pitch_bends = PitchBend() / 17
     assert pitch_bends.len() == 17
-    print(f"pitch_bends % Steps(): {pitch_bends % Duration() % Steps() % int()}")
-    assert pitch_bends % Duration() % Steps() == 16 + 1
+    print(f"pitch_bends % Steps(): {pitch_bends % Net(Finish()) % Steps() % int()}")
+    assert pitch_bends % Net(Finish()) % Steps() == 16 + 1
 
     pitch_bends = PitchBend() / (2*16 + 1)
-    print(f"pitch_bends % Steps(): {pitch_bends % Duration() % Steps() % int()}")
-    assert pitch_bends % Duration() % Steps() == (2*16 + 1)
+    print(f"pitch_bends % Steps(): {pitch_bends % Net(Finish()) % Steps() % int()}")
+    assert pitch_bends % Net(Finish()) % Steps() == (2*16 + 1)
 
 # test_clip_multi()
 
