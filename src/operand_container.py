@@ -1372,7 +1372,7 @@ class Composition(Container):
         return self._last_element_position()
 
 
-    def gross_length(self, include_masked: bool = False) -> 'ra.Length':
+    def gross_length(self) -> 'ra.Length':
         """
         Returns the rounded `Length` to `Measures` that goes from 0 to position of the last `Element`.
 
@@ -1382,10 +1382,10 @@ class Composition(Container):
         Returns:
             Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
         """
-        if self._has_elements(include_masked):
-            last_position: ra.Position = self._last_element_position(include_masked)
+        if self._items:
+            last_position: ra.Position = self._last_element_position(True)
             position_length: ra.Length = ra.Length( last_position.roundMeasures() ) + ra.Measure(1)
-            finish_length: ra.Length = ra.Length( self.net_finish(include_masked).roundMeasures() )
+            finish_length: ra.Length = ra.Length( self.net_finish(True).roundMeasures() )
             if finish_length > position_length:
                 return finish_length
             return position_length
@@ -1401,13 +1401,10 @@ class Composition(Container):
         Returns:
             Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
         """
-        self_net_length: ra.Length = self.gross_length(include_masked)
-        if self_net_length > Fraction(0):
-            self_net_length -= self.net_start(include_masked).roundMeasures()
-        return self_net_length
+        return ra.Length(self.net_duration(include_masked))
     
     
-    def gross_duration(self, include_masked: bool = False) -> 'ra.Duration':
+    def gross_duration(self) -> 'ra.Duration':
         """
         Returns the `Duration` that goes from 0 to the `finish` of all elements.
 
@@ -1455,9 +1452,9 @@ class Composition(Container):
             case ra.Position():
                 return operand.copy( ra.Position(self, 0) )
             case ra.Length():
-                return self.gross_length(include_masked=True)
+                return self.gross_length()
             case ra.Duration():
-                return self.gross_duration(True)
+                return self.gross_duration()
             case od.CompositionConvertible():
                 convertible: ra.Convertible = operand._data
                 if isinstance(operand, od.Net):
@@ -3186,7 +3183,7 @@ class Clip(Composition):  # Just a container of Elements
                 start_position: ra.Position = operand_copy.net_start(include_masked=True)
                 if start_position is not None:
 
-                    self_length: ra.Length = self.gross_length(include_masked=True)
+                    self_length: ra.Length = self.gross_length()
 
                     for single_element in operand_copy._items:
                         single_element._position_beats += self_length._rational   # Does a position offset
@@ -5013,19 +5010,19 @@ class Block(Composition):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Block():
-                self_length: ra.Length = self.gross_length(include_masked=True)
+                self_length: ra.Length = self.gross_length()
                 if self_length is not None:
                     return Part(self._time_signature, self, operand.copy(ra.Position(self_length)))
                 else:
                     return Part(self._time_signature, self, operand)  # Implicit copy
             case Clip():
-                self_length: ra.Length = self.gross_length(include_masked=True)
+                self_length: ra.Length = self.gross_length()
                 if self_length is not None:
                     self._append(operand + ra.Position(self_length))  # Implicit copy
                 else:
                     self._append(operand.copy())    # Explicit copy
             case oe.Element():
-                self_length: ra.Length = self.gross_length(include_masked=True)
+                self_length: ra.Length = self.gross_length()
                 if self_length is not None:
                     self._append(Clip(operand._time_signature, operand + ra.Position(self_length)))   # Implicit copy
                 else:
@@ -5033,7 +5030,7 @@ class Block(Composition):
             case int():
                 new_blocks: list[Block] = []
                 if operand > 0:
-                    single_length: ra.Length = self.gross_length(include_masked=True)
+                    single_length: ra.Length = self.gross_length()
                     if single_length is not None:
                         next_position: ra.Position = self % ra.Position()
                         for _ in range(operand):
