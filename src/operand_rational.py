@@ -978,6 +978,20 @@ class Position(Measurement):
     def roundSteps(self) -> Self:
         return self.copy(self % Steps() % Step() % Steps())
 
+class Start(Position):
+    """`Rational -> Convertible -> Measurement -> Position -> Start`
+
+    The `Start` is equivalent to the `Position`, given that `Position` is already the start of the `Element`.
+    """
+    pass
+
+class Finish(Position):
+    """`Rational -> Convertible -> Measurement -> Position -> Finish`
+
+    The `Finish` is the `Position` equivalent to the `Start` plus the Element duration.
+    """
+    pass
+
 
 class Length(Measurement):
     """`Rational -> Convertible -> Measurement -> Length`

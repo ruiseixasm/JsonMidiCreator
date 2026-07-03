@@ -2028,7 +2028,7 @@ class NoteEffect(Generic):
     """`Generic -> NoteEffect`
 
     A `NoteEffect` represents a manipulation of simultaneously played notes, like and Arpeggio.
-    Effects concern time changing behavior of notes, concerning their Position or Duration manipulation.
+    `NoteEffect` concern time changing behavior of notes, concerning their Position or Duration manipulation.
 
     Effects can be chained, their never set each other because they don't share common parameters, once chained,
     with the operator `**`, they are read from left to right.
@@ -2390,6 +2390,51 @@ class Repeat(NoteEffect):
         self._chaos *= number
         self._index += self.convert_to_int(number)    # keeps track of each iteration
         return self
+
+
+class Overhang(NoteEffect):
+    """`Generic -> NoteEffect -> Overhang`
+
+    An `Overhang` extends the duration of all notes like if the sustain pedal was pressed all the time.
+    It keeps retriggering the though, meaning, they are released only when they are retriggered.
+
+    Parameters
+    ----------
+    Any(None) : The `Operand` to be used as input.
+    """
+
+    @staticmethod
+    def _hanged_notes(notes: list['Note']) -> dict[int, list['Note']]:
+        global_finish = Fraction(0)
+        overhang_channel_pitch_notes: dict[int, list[Note]] = {} # channel_pitch based
+        # Add the hanged notes and respective sustain duration
+        for single_note in notes:
+            note_finish: Fraction = single_note % ra.Finish() % Fraction()
+            global_finish = max(global_finish, note_finish)
+            channel_0: int = single_note._channel_0
+            pitch: int = single_note._pitch._get_chromatic_pitch()
+            channel_pitch: int = channel_0 << 7 | pitch # (4 bits, 7 bits)
+            if channel_pitch in overhang_channel_pitch_notes:
+                channel_pitch_notes: list[Note] = overhang_channel_pitch_notes[channel_pitch]
+                channel_pitch_notes[-1] << ra.Finish(single_note % ra.Start())
+                channel_pitch_notes.append(single_note.copy())
+            else:
+                overhang_channel_pitch_notes[channel_pitch] = [single_note.copy()]
+        # Extend all notes to the global finish
+        for channel_pitch_notes in overhang_channel_pitch_notes.items():
+            channel_pitch_notes[-1] << ra.Finish(global_finish)
+        return overhang_channel_pitch_notes
+
+
+    @staticmethod
+    def apply(notes: list['Note']) -> list['Note']:
+        from operand_element import Note
+        overhang_notes: list[Note] = []
+        overhang_channel_pitch_notes: dict[int, list[Note]] = Overhang._hanged_notes(notes)
+        for channel_pitch_notes in overhang_channel_pitch_notes.items():
+            for single_note in channel_pitch_notes:
+                overhang_notes.append(single_note)
+        return super().apply(sorted(overhang_notes))
 
 
 class Segment(Generic):

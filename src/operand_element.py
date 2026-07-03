@@ -283,6 +283,8 @@ class Element(o.Operand):
                 locus_copy._position_beats = self._position_beats
                 locus_copy._duration_beats = self._duration_beats
                 return locus_copy
+            case ra.Finish():
+                return operand.copy(self, self._position_beats + self._duration_beats)
             case ra.Position():
                 return operand.copy(self, self._position_beats)
             case ra.TimeUnit():
@@ -374,6 +376,10 @@ class Element(o.Operand):
                     if isinstance(operand, od.Left()):
                         self._position_beats -= new_duration_beats - self._duration_beats
                     self._duration_beats = new_duration_beats
+            case ra.Finish():
+                finish: Fraction = operand._rational
+                if finish > self._position_beats:
+                    self._duration_beats = finish - self._position_beats
             case ra.Position():
                 self._position_beats        = operand._rational
             case ra.TimeUnit():
