@@ -567,17 +567,17 @@ def test_mul_clip():
 
     assert eight_notes_1 != eight_notes_2
 
-    assert two_notes % Duration() == Beats(2)
-    assert two_notes * 2 % Duration() == Beats(6)
-    assert two_notes / 2 % Duration() == Beats(4)
+    assert two_notes % Net(Duration()) == Beats(2)
+    assert two_notes * 2 % Net(Duration()) == Beats(6)
+    assert two_notes / 2 % Net(Duration()) == Beats(4)
     settings << Quantization(2/1)   # Sets a Step as 2 Beats
-    assert two_notes * Step(3) % Duration() == Measures(2) + Beats(2)
-    print(f"Duration_/: {two_notes / Step(3) % Duration() % Beats() % float()}")
-    assert two_notes / Step(3) % Duration() == Beats(6)
+    assert two_notes * Step(3) % Net(Duration()) == Measures(2) + Beats(2)
+    print(f"Duration_/: {two_notes / Step(3) % Net(Duration()) % Beats() % float()}")
+    assert two_notes / Step(3) % Net(Duration()) == Beats(6)
     settings << Quantization(1/4)   # 1/4 Beats again
 
     assert (two_notes * two_notes).len() == 4
-    assert two_notes * two_notes % Duration() == Measures(1.5) # Measures
+    assert two_notes * two_notes % Net(Duration()) == Measures(1.5) # Measures
 
     hi_hat: Clip = Note(DrumKit("Hi-Hat"), 1/16) / 4 << Iterate(step=2)**Step() << Pipe(TimeSignature(2, 4))
     assert hi_hat.len() == 4
@@ -608,7 +608,7 @@ def test_mul_clip():
     print("------")
     six_notes = 6 / Note()
     print(f"Length: {six_notes % Length() % float()}")
-    assert six_notes % Duration() == Measures(1.5)  # Measures
+    assert six_notes % Net(Duration()) == Measures(1.5)  # Measures
     # six_notes << Length(six_notes, 1.0)
     # print(f"Length: {six_notes % Length() % float()}")
     # assert six_notes.__mod__(od.Pipe( Length() )) == 1.0  # Measures
