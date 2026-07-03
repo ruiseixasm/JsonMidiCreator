@@ -1346,7 +1346,7 @@ class Composition(Container):
         return self._last_element_position()
 
 
-    def length(self, include_masked: bool = False) -> 'ra.Length':
+    def gross_length(self, include_masked: bool = False) -> 'ra.Length':
         """
         Returns the rounded `Length` to `Measures` that goes from 0 to position of the last `Element`.
 
@@ -1375,7 +1375,7 @@ class Composition(Container):
         Returns:
             Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
         """
-        self_net_length: ra.Length = self.length(include_masked)
+        self_net_length: ra.Length = self.gross_length(include_masked)
         if self_net_length > Fraction(0):
             self_net_length -= self.net_start(include_masked).roundMeasures()
         return self_net_length
@@ -1429,7 +1429,7 @@ class Composition(Container):
             case ra.Position():
                 return operand.copy( ra.Position(self, 0) )
             case ra.Length():
-                return self.length(include_masked=True)
+                return self.gross_length(include_masked=True)
             case ra.Duration():
                 return self.duration(True)
             case og.TimeSignature():
@@ -3144,7 +3144,7 @@ class Clip(Composition):  # Just a container of Elements
                 start_position: ra.Position = operand_copy.net_start(include_masked=True)
                 if start_position is not None:
 
-                    self_length: ra.Length = self.length(include_masked=True)
+                    self_length: ra.Length = self.gross_length(include_masked=True)
 
                     for single_element in operand_copy._items:
                         single_element._position_beats += self_length._rational   # Does a position offset
@@ -4234,7 +4234,7 @@ class Clip(Composition):  # Just a container of Elements
         if self._items:
             last_index: int = len(self._items) - 1
             last_element: oe.Element = self._items[last_index]
-            last_element._duration_beats = self.length()._rational - last_element._position_beats
+            last_element._duration_beats = self.gross_length()._rational - last_element._position_beats
         return self    # No need for sorting in stack because stack doesn't change order
 
 
@@ -4971,19 +4971,19 @@ class Block(Composition):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Block():
-                self_length: ra.Length = self.length(include_masked=True)
+                self_length: ra.Length = self.gross_length(include_masked=True)
                 if self_length is not None:
                     return Part(self._time_signature, self, operand.copy(ra.Position(self_length)))
                 else:
                     return Part(self._time_signature, self, operand)  # Implicit copy
             case Clip():
-                self_length: ra.Length = self.length(include_masked=True)
+                self_length: ra.Length = self.gross_length(include_masked=True)
                 if self_length is not None:
                     self._append(operand + ra.Position(self_length))  # Implicit copy
                 else:
                     self._append(operand.copy())    # Explicit copy
             case oe.Element():
-                self_length: ra.Length = self.length(include_masked=True)
+                self_length: ra.Length = self.gross_length(include_masked=True)
                 if self_length is not None:
                     self._append(Clip(operand._time_signature, operand + ra.Position(self_length)))   # Implicit copy
                 else:
@@ -4991,7 +4991,7 @@ class Block(Composition):
             case int():
                 new_blocks: list[Block] = []
                 if operand > 0:
-                    single_length: ra.Length = self.length(include_masked=True)
+                    single_length: ra.Length = self.gross_length(include_masked=True)
                     if single_length is not None:
                         next_position: ra.Position = self % ra.Position()
                         for _ in range(operand):
@@ -5546,7 +5546,7 @@ class Part(Composition):
                 for block_index in operand:
                     new_block: Block = self[block_index].copy(position_measure)
                     base_blocks.append(new_block)
-                    length_measures: ra.Measure = new_block.length() % ra.Measure()
+                    length_measures: ra.Measure = new_block.gross_length() % ra.Measure()
                     position_measure += length_measures
 
                 self._items = base_blocks

@@ -480,7 +480,7 @@ class Element(o.Operand):
                     if next_element is not None:
                         self._duration_beats = next_element._position_beats - self._position_beats
                     else:
-                        self._duration_beats = self._owner_clip.length()._rational - self._position_beats
+                        self._duration_beats = self._owner_clip.gross_length()._rational - self._position_beats
                 return self
             case og.Merge():
                 if self._owner_clip is not None:
