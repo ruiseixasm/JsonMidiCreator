@@ -980,12 +980,12 @@ def test_clip_operations():
     duration: float = 0.9375    # 15/16 Note
 
     # Starts at Position 0.0, so length == net_duration
-    clip_duration: Duration = straight_clip % Duration()
+    clip_duration: Duration = straight_clip % Net(Duration())
     print(clip_duration % float())
     assert clip_duration == duration
 
     # Starts at Position 0.0, so length == net_duration
-    straight_net_length: Length = Length( straight_clip % Duration() )
+    straight_net_length: Length = Length( straight_clip % Net(Duration()) )
     type(straight_net_length) >> Print()
     assert type(straight_net_length) == Length
     
@@ -994,7 +994,7 @@ def test_clip_operations():
     assert straight_serialization % Data("float") == 3.75
 
     # Starts at Position 0.0, so length == net_duration
-    reversed_net_length: Length = Length( reversed_clip % Duration() )
+    reversed_net_length: Length = Length( reversed_clip % Net(Duration()) )
     type(reversed_net_length) >> Print()
     assert type(reversed_net_length) == Length
     
@@ -1023,8 +1023,6 @@ def test_clip_operations():
     assert reversed_notes_net_length == 1.25
     print(three_notes[0] % Position() % float())
     assert three_notes[0] % Position() == 1.75
-
-
 
 # test_clip_operations()
 
