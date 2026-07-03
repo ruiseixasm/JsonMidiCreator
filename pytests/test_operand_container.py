@@ -952,16 +952,16 @@ def test_clip_duration():
     print(four_notes_2[0] % Beat() % int())
     assert four_notes_2[0] % Beat() == 0
 
-    print(f"Duration_0: {four_notes_1 % Duration() % float()}")
+    print(f"Duration_0: {four_notes_1 % Net(Duration()) % float()}")
     assert four_notes_1.len() == 4    # Total of 4 notes
     # Measures has to be wrapped with Position because by itself set the Duration!
     assert Position(Measures(1)) >> four_notes_1 == Beats(4)  # Operator >> is a pass trough operator, sets all notes Position
     # All Notes are now at position Measure 1
-    print(f"Duration_1: {four_notes_1 % Duration() % float()}")
+    print(f"Duration_1: {four_notes_1 % Net(Duration()) % float()}")
     assert four_notes_1.len() == 4    # Total of 4 notes
     assert four_notes_1.net_duration() == Beats(1/2)    # All Elements became at the same position, NoteValue(1/8) length each one
-    print(f"Total Duration: {four_notes_1 % Duration() % float()}")
-    assert four_notes_1 % Duration() == Measures(1) + Beats(1/2)    # All Elements became at the same position, NoteValue(1/8) length each one
+    print(f"Net Finish: {four_notes_1 % Net(Finish()) % float()}")
+    assert four_notes_1 % Net(Finish()) == Measures(1) + Beats(1/2)    # All Elements became at the same position, NoteValue(1/8) length each one
 
     single_beat_note = Clip(Note(Beats(1)))
     print(f"single_beat_note Length: {single_beat_note % Length() % float()}")
