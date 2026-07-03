@@ -732,17 +732,17 @@ def test_element_stacking():
 def test_lshift_clip():
 
     base_line: Clip = Note(dotted_eight) / Measure(4)
-    print(f"Duration: {base_line % Duration() % float()}")
-    assert base_line % Duration() == Measures(3 + 1/8+1/16)
+    print(f"Finish: {base_line % Net(Finish()) % float()}")
+    assert base_line % Net(Finish()) == Measures(3 + 1/8+1/16)
     base_line += Step(1)
-    print(f"Duration: {base_line % Duration() % float()}")
-    assert base_line % Duration() == Measures(3 + 1/8+1/16) + Step(1)
+    print(f"Finish: {base_line % Net(Finish()) % float()}")
+    assert base_line % Net(Finish()) == Measures(3 + 1/8+1/16) + Step(1)
     base_line -= Step(1)
-    print(f"Duration: {base_line % Duration() % float()}")
-    assert base_line % Duration() == Measures(3 + 1/8+1/16)
+    print(f"Finish: {base_line % Net(Finish()) % float()}")
+    assert base_line % Net(Finish()) == Measures(3 + 1/8+1/16)
     base_line << 1/16
-    print(f"Duration: {base_line % Duration() % float()}")
-    assert base_line % Duration() == Measures(3 + 1/16)
+    print(f"Finish: {base_line % Net(Finish()) % float()}")
+    assert base_line % Net(Finish()) == Measures(3 + 1/16)
 
     two_measures: Clip = Note() / 8
     two_measures << All()**Beat(0)
