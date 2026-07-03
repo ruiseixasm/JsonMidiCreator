@@ -827,7 +827,7 @@ def test_clip_fitting():
 
     long_notes: Clip = Note(2/1) / Note(2.5)    # Last note equal to 2.0 + 2.5 Measures !!!
     assert long_notes.len() == 2
-    assert long_notes % Duration() == 2.0 + 2.5
+    assert long_notes % Net(Duration()) == 2.0 + 2.5
 
     print(f"long_notes % Length() % float() {long_notes % Length() % float()}")
     assert long_notes % Length() == Measures(2.0 + 2.0)
@@ -836,7 +836,7 @@ def test_clip_fitting():
     assert long_notes[1] % Duration() == 2.5
     long_notes.fit()
     assert long_notes.len() == 2
-    assert long_notes % Duration() == 2.0 + 2.5
+    assert long_notes % Net(Duration()) == 2.0 + 2.5
     assert long_notes[0] % Duration() == 1/1
     assert long_notes[1] % Duration() == 3.5
 
