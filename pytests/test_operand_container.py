@@ -1112,7 +1112,7 @@ test_part_operations()
 def test_clip_length():
 
     two_notes = Note() / 2
-    assert two_notes % Duration() == Beats(2)
+    assert two_notes % Net(Duration()) == Beats(2)
     two_notes << Length(1.0)    # Imposed Length
     assert two_notes % Length() == Beats(4)
 
@@ -1136,8 +1136,8 @@ def test_part_position():
     part_60 << Measures(2)
     assert part_120 % Position() == part_60 % Position()
     print(f"Part Duration: {part_120 % Duration() % Fraction()}")
-    assert part_120 % Duration() == 1/4
-    assert part_120 % Duration() == part_60 % Duration() * 1/2
+    assert part_120 % Net(Duration()) == 1/4
+    assert part_120 % Net(Duration()) == part_60 % Net(Duration()) * 1/2
 
 # test_part_position()
 
@@ -1309,7 +1309,7 @@ def test_floordiv_clip():
     print(f"eight_notes[0] % Position(): {eight_notes[0] % Position() % float()}")
     assert eight_notes[0] == Position(1/8)
     print(f"eight_notes % Length(): {eight_notes % Length() % float()}")
-    assert eight_notes % Duration() == 1.0 + 1/8    # Duration in Measures
+    assert eight_notes % Net(Finish()) == 1.0 + 1/8    # Duration in Measures
 
 # test_floordiv_clip()
 
