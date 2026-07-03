@@ -294,6 +294,9 @@ class Element(o.Operand):
                 return operand.copy(self, self._duration_beats)
             case ra.NoteValue() | ra.TimeValue():
                 return operand.copy(ra.Beats(self, self._duration_beats))
+            case od.CompositionConvertible():
+                convertible: ra.Convertible = operand._data
+                return self % convertible
             case int():             return self % ra.Measure() % int()
             case og.Segment():      return operand.copy(self % ra.Position())
             case float():           return self % ra.NoteValue() % float()
