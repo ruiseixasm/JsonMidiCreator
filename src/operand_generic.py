@@ -2437,6 +2437,75 @@ class Overhang(NoteEffect):
         return super().apply(sorted(overhang_notes))
 
 
+class OctaveExpansion(NoteEffect):
+    """`Generic -> NoteEffect -> OctaveExpansion`
+
+    An `OctaveExpansion` repeats the note being pressed on one or two octaves above or bellow.
+
+    Parameters
+    ----------
+    int(1) : Sets the octaves above or bellow for positive or negative amount respectively.
+    """
+    def __init__(self, *parameters):
+        self._octaves: int = 1
+        super().__init__(*parameters)
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case int():             return self._octaves
+                    case _:                 return super().__mod__(operand)
+            case int():             return self._octaves
+            case _:                 return super().__mod__(operand)
+
+
+    def apply(self, notes: list['Note']) -> list['Note']:
+        from operand_element import Note
+        octaves_notes: list[Note] = []
+        for single_note in notes:
+            for octave in range(abs(self._octaves)):
+                note_octave: ou.Octave = single_note % ou.Octave()
+                if self._octaves > 0:
+                    note_octave += octave + 1
+                elif self._octaves < 0:
+                    note_octave -= octave + 1
+                octaves_notes.append( single_note.copy(note_octave) )
+        octaves_notes.extend(notes)
+        return super().apply(sorted(octaves_notes))
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["octaves"] = self.serialize( self._octaves )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "octaves" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._octaves = self.deserialize( serialization["parameters"]["octaves"] )
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Repeat():
+                super().__lshift__(operand)
+                self._octaves = operand._octaves
+            case od.Pipe():
+                match operand._data:
+                    case int():                     self._octaves = operand._data
+                    case _:                         super().__lshift__(operand)
+            case int():
+                self._octaves = operand
+            case _:
+                super().__lshift__(operand)
+        return self
+
+
 class Segment(Generic):
     """`Generic -> Segment`
 
