@@ -2437,6 +2437,77 @@ class Overhang(NoteEffect):
         return super().apply(sorted(overhang_notes))
 
 
+class Coupler(NoteEffect):
+    """`Generic -> NoteEffect -> Coupler`
+
+    A `Coupler` couples each note with the respective notes set in a list by keeping all its parameters
+    but `Pitch`, `Position` and `Duration`.
+
+    Parameters
+    ----------
+    list([Note]) : Sets the notes to be coupled with.
+    """
+    def __init__(self, *parameters):
+        self._notes: list['Note'] = []
+        super().__init__(*parameters)
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case list():            return self._notes
+                    case _:                 return super().__mod__(operand)
+            case list():            return self._notes
+            case _:                 return super().__mod__(operand)
+
+
+    def apply(self, notes: list['Note']) -> list['Note']:
+        coupled_notes: list['Note'] = []
+        for single_note in notes:
+            note_pitch: Pitch = single_note._pitch
+            note_locus: Locus = single_note % Locus()
+            for coupling_note in self._notes:
+                coupled_note = coupling_note.copy(note_pitch, note_locus)
+                coupled_notes.append( coupled_note )
+        coupled_notes.extend(notes)
+        return super().apply(sorted(coupled_notes))
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["notes"] = self.serialize( self._notes )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "notes" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._notes = self.deserialize( serialization["parameters"]["notes"] )
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Coupler():
+                super().__lshift__(operand)
+                self._notes = o.Operand.deep_copy(operand._notes)
+            case od.Pipe():
+                match operand._data:
+                    case list():
+                        if all(isinstance(note, Note) for note in operand._data):
+                            self._notes = operand._data
+                    case _:
+                        super().__lshift__(operand)
+            case list():
+                if all(isinstance(note, Note) for note in operand):
+                    self._notes = o.Operand.deep_copy(operand)
+            case _:
+                super().__lshift__(operand)
+        return self
+
+
 class OctaveExpansion(NoteEffect):
     """`Generic -> NoteEffect -> OctaveExpansion`
 
@@ -2487,7 +2558,7 @@ class OctaveExpansion(NoteEffect):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case Repeat():
+            case OctaveExpansion():
                 super().__lshift__(operand)
                 self._octaves = operand._octaves
             case od.Pipe():
