@@ -2038,9 +2038,13 @@ class NoteEffect(Generic):
         from operand_element import Note
 
     def apply(self, notes: list['Note']) -> list['Note']:
-        # DOES NOTHING HERE, LEFT TO RIGHT, APPLIES NEXT EFFECT, AFTERWARDS
+        # Makes sure the next effect takes a sorted list of notes
+        notes.sort()
         if isinstance(self._next_operand, NoteEffect):
             return self._next_operand.apply(notes)
+        # Finally removes all notes are cleaned from any possible existing `NoteEffect`
+        for single_note in notes:
+            single_note._note_effect = None
         return notes
 
 
@@ -2155,7 +2159,6 @@ class Arpeggio(NoteEffect):
                         break
                     note_start_position = note_end_position
                     nth_note += 1
-        
         return super().apply(arpeggiated_notes)
 
 
@@ -2434,7 +2437,7 @@ class Overhang(NoteEffect):
         for channel_pitch_notes in overhang_channel_pitch_notes.items():
             for single_note in channel_pitch_notes:
                 overhang_notes.append(single_note)
-        return super().apply(sorted(overhang_notes))
+        return super().apply(overhang_notes)
 
 
 class Coupler(NoteEffect):
@@ -2470,7 +2473,7 @@ class Coupler(NoteEffect):
                 coupled_note = coupling_note.copy(note_pitch, note_locus)
                 coupled_notes.append( coupled_note )
         coupled_notes.extend(notes)
-        return super().apply(sorted(coupled_notes))
+        return super().apply(coupled_notes)
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -2538,7 +2541,7 @@ class OctaveExpansion(NoteEffect):
             note_octave: ou.Octave = single_note % ou.Octave() + self._octaves
             octaves_notes.append( single_note.copy(note_octave) )
         octaves_notes.extend(notes)
-        return super().apply(sorted(octaves_notes))
+        return super().apply(octaves_notes)
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
