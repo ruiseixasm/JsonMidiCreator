@@ -2601,7 +2601,6 @@ class KeyScale(Note):
             new_note: Note = Note(self)
             scale_notes.append( new_note )
             new_note._pitch._transposition += shifting
-            new_note._note_effect = None    # Clears any possible existing effect
         scale_notes = self._apply_inversion(scale_notes)
         if isinstance(self._note_effect, og.NoteEffect):
             scale_notes = self._note_effect.apply(scale_notes)
@@ -2749,7 +2748,6 @@ class Cluster(KeyScale):
             else:
                 single_note._pitch << pitch_parameter
             cluster_notes.append( single_note )
-            single_note._note_effect = None # Clears any possible existing effect
         cluster_notes = self._apply_inversion(cluster_notes)
         if isinstance(self._note_effect, og.NoteEffect):
             cluster_notes = self._note_effect.apply(cluster_notes)
@@ -2979,7 +2977,6 @@ class Chord(KeyScale):
         for key_i in range(self._size):        # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...
             single_note: Note = Note(self)  # Owned by same clip
             chord_notes.append( single_note )
-            single_note._note_effect = None # Clears any possible existing effect
             key_degree: int = key_i * 2 + 1    # all odd numbers, 1, 3, 5, ...
             if key_degree == 3:   # Third
                 if self._sus2:
@@ -3184,9 +3181,10 @@ class Retrigger(Note):
             note_duration: ra.Duration = single_note_duration * Fraction(2) * swing_ratio
             single_note = Note(self, note_duration, note_position)
             retrigger_notes.append( single_note )
-            single_note._note_effect = None # Clears any possible existing effect
             note_position += note_duration
             self_iteration += 1
+        if isinstance(self._note_effect, og.NoteEffect):
+            retrigger_notes = self._note_effect.apply(retrigger_notes)
         return retrigger_notes
 
     def getPlotlist(self,
