@@ -2464,13 +2464,8 @@ class OctaveExpansion(NoteEffect):
         from operand_element import Note
         octaves_notes: list[Note] = []
         for single_note in notes:
-            for octave in range(abs(self._octaves)):
-                note_octave: ou.Octave = single_note % ou.Octave()
-                if self._octaves > 0:
-                    note_octave += octave + 1
-                elif self._octaves < 0:
-                    note_octave -= octave + 1
-                octaves_notes.append( single_note.copy(note_octave) )
+            note_octave: ou.Octave = single_note % ou.Octave() + self._octaves
+            octaves_notes.append( single_note.copy(note_octave) )
         octaves_notes.extend(notes)
         return super().apply(sorted(octaves_notes))
 
