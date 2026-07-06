@@ -2024,6 +2024,10 @@ class PitchTransitions(Generic):
         return self
 
 
+if TYPE_CHECKING:
+    from operand_element import Note
+
+
 class NoteEffect(Generic):
     """`Generic -> NoteEffect`
 
@@ -2034,9 +2038,6 @@ class NoteEffect(Generic):
     with the operator `**`, they are read from left to right.
     """
     
-    if TYPE_CHECKING:
-        from operand_element import Note
-
     def apply(self, notes: list['Note']) -> list['Note']:
         # Makes sure the next effect takes a sorted list of notes
         notes.sort()
@@ -2108,9 +2109,6 @@ class Arpeggio(NoteEffect):
 
         return shuffled_list
 
-    if TYPE_CHECKING:
-        from operand_element import Note
-
     def _generate_sequence(self, notes: list['Note']) -> list['Note']:
         """Generates the sequence of the arpeggio order."""
         match ou.Order.numberToName( self._order ):
@@ -2128,9 +2126,7 @@ class Arpeggio(NoteEffect):
                 return notes  # Default to "Up"
 
     def apply(self, notes: list['Note']) -> list['Note']:
-        from operand_element import Note
-
-        arpeggiated_notes: list[Note] = []
+        arpeggiated_notes: list['Note'] = []
         if self._order > 0 and len(notes) > 0:
 
             time_signature: TimeSignature = notes[0]._get_time_signature()
@@ -2141,7 +2137,7 @@ class Arpeggio(NoteEffect):
             odd_length: ra.Length = note_length * 2 * self._swing
             even_length: ra.Length = note_length * 2 - odd_length
             
-            sequenced_notes: list[Note] = self._generate_sequence(notes)
+            sequenced_notes: list['Note'] = self._generate_sequence(notes)
             nth_note: int = 1
             while note_start_position < arpeggio_end_position:
                 for source_note in sequenced_notes:
@@ -2163,8 +2159,6 @@ class Arpeggio(NoteEffect):
 
 
     def arpeggiate_source(self, notes: list['Note'], start_position: ra.Position, arpeggio_length: ra.Length) -> list['Note']:
-        from operand_element import Note
-
         if self._order > 0 and len(notes) > 0:
 
             note_start_position: ra.Position = start_position
@@ -2173,7 +2167,7 @@ class Arpeggio(NoteEffect):
             odd_length: ra.Length = note_length * 2 * self._swing
             even_length: ra.Length = note_length * 2 - odd_length
             
-            sequenced_notes: list[Note] = self._generate_sequence(notes)
+            sequenced_notes: list['Note'] = self._generate_sequence(notes)
             nth_note: int = 1
             for note_i in range(total_notes):
                 notes[note_i] = sequenced_notes[note_i]
@@ -2184,7 +2178,6 @@ class Arpeggio(NoteEffect):
                     notes[note_i] << even_length
                 note_start_position += notes[note_i] % od.Pipe( ra.Length() )
                 nth_note += 1
-
         return notes
 
     def __eq__(self, other: 'Arpeggio') -> bool:
@@ -2328,8 +2321,7 @@ class Repeat(NoteEffect):
         return repeated_note
 
     def apply(self, notes: list['Note']) -> list['Note']:
-        from operand_element import Note
-        repeated_notes: list[Note] = []
+        repeated_notes: list['Note'] = []
         for single_note in notes:
             repeated_notes.extend(self._repeat_note(single_note))
         return super().apply(repeated_notes)
@@ -2431,8 +2423,7 @@ class Overhang(NoteEffect):
 
     @staticmethod
     def apply(notes: list['Note']) -> list['Note']:
-        from operand_element import Note
-        overhang_notes: list[Note] = []
+        overhang_notes: list['Note'] = []
         overhang_channel_pitch_notes: dict[int, list[Note]] = Overhang._hanged_notes(notes)
         for channel_pitch_notes in overhang_channel_pitch_notes.items():
             for single_note in channel_pitch_notes:
@@ -2535,8 +2526,7 @@ class OctaveExpansion(NoteEffect):
 
 
     def apply(self, notes: list['Note']) -> list['Note']:
-        from operand_element import Note
-        octaves_notes: list[Note] = []
+        octaves_notes: list['Note'] = []
         for single_note in notes:
             note_octave: ou.Octave = single_note % ou.Octave() + self._octaves
             octaves_notes.append( single_note.copy(note_octave) )
