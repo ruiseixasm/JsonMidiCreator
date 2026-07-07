@@ -4079,10 +4079,10 @@ class Smooth(ClipProcess):
             | 2    | Considers only the previous note pitch distance.                          |
             | 3    | Considers only the first note pitch distance.                             |
             | 4    | Considers the middle_pitch in relation to the previous one.               |
-            | 5    | Considers the middle_pitch in relation to the first note.                 |
+            | 5    | Considers the middle_pitch in relation to the first note. (default)       |
             +------+---------------------------------------------------------------------------+
     """
-    def __init__(self, algorithm_type: int = 1):
+    def __init__(self, algorithm_type: int = 5):
         super().__init__(algorithm_type)
 
     def _process(self, operand: 'Clip') -> 'Clip':
