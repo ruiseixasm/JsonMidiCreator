@@ -1710,7 +1710,9 @@ class MidiTrack(Midi):
             case od.TrackName():        self._name = operand._data
             case str():                 self._name = operand
             case oc.Devices():          self._devices = operand % list()
-            case od.Device():           self._devices = oc.Devices(self._devices, operand) % od.Pipe( list() )
+            case od.Device():
+                if isinstance(operand._data, str):
+                    self._devices = [operand._data]
             case _:                     super().__lshift__(operand)
         return self
 
