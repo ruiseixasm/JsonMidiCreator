@@ -1143,7 +1143,6 @@ class DrumKit(Unit):
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        import operand_rational as ra
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case od.Pipe():
@@ -1538,7 +1537,6 @@ class Size(Unit):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        import operand_rational as ra
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case od.Pipe():
@@ -2041,7 +2039,6 @@ class Number(Midi):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        import operand_rational as ra
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case od.Pipe():

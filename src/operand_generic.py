@@ -2482,6 +2482,7 @@ class Coupler(NoteEffect):
         return self
 
     def __lshift__(self, operand: any) -> Self:
+        import operand_element as oe
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Coupler():
@@ -2495,7 +2496,7 @@ class Coupler(NoteEffect):
                     case _:
                         super().__lshift__(operand)
             case list():
-                if all(isinstance(note, Note) for note in operand):
+                if all(isinstance(note, oe.Note) for note in operand):
                     self._notes = o.Operand.deep_copy(operand)
             case _:
                 super().__lshift__(operand)

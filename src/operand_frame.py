@@ -624,6 +624,11 @@ class Foreach(LeftToRight):
     Parameters
     ----------
     Any(None) : The set of items to loop through.
+
+    Examples
+    --------
+    >>> chord_progression = Chord("7th") * 4 << Foreach(1, 3, 1, 6)**Degree()
+    >>> chord_progression >> Plot(title="Some degrees")
     """
     def __init__(self, *parameters):
         validated_parameters: list = []
@@ -648,6 +653,11 @@ class Once(Foreach):
     Parameters
     ----------
     Any(None) : The set of items to loop through only once.
+
+    Examples
+    --------
+    >>> chord_progression = Chord("7th") * 4 << Once(1, 3)**Degree()
+    >>> chord_progression >> Plot(title="Some degrees")
     """
     def frame(self, input: o.T) -> o.T:
         operand_len: int = len(self._parameters)
