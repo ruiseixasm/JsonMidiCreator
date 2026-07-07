@@ -1508,6 +1508,14 @@ def test_pitch_degrees_2():
     print(f"ninth_degree % Pipe(Key()): {ninth_degree % Pipe(Key()) % int()}")
     assert ninth_degree % Octave() == 5
 
+    third_degree = Pitch(3.0)
+    assert third_degree == Semitone(4)
+    third_degree = Pitch("iii")
+    assert third_degree == Semitone(4)
+    third_degree = Pitch("biii")
+    assert third_degree == Semitone(3)
+    assert third_degree == Degree("biii")
+
 # test_pitch_degrees_2()
 
 
