@@ -16,7 +16,8 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
 
 chord_progression = Chord("7th") * 4 << Get(Measure())**Add(1)**Degree() >> Smooth(5)
+chord_progression >> Plot(title="All degrees", block=False)
 
-
-chord_progression >> Plot()
+chord_progression = Chord("7th") * 8 << Foreach(1, 3, 1, 3, 1, 6, 1, 6)**Degree() >> Smooth(5)
+chord_progression >> Plot(title="Some degrees", block=True)
 
