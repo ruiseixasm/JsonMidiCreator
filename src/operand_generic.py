@@ -4322,33 +4322,7 @@ class Settings(Generic):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-        # Volatile variable not intended to be user defined
-        self._notes: dict[int, list[tuple]] = {}
 
-
-    def _add_note(self, channel_0: int, pitch: int, position: Fraction, duration: Fraction) -> bool:
-        channel_pitch: int = channel_0 << 7 | pitch # (4 bits, 7 bits)
-        on_off_positions: tuple[Fraction] = (position, position + duration)
-        if channel_pitch in self._notes:
-            notes_positions = self._notes[channel_pitch]
-            for positions in notes_positions:
-                if on_off_positions[0] < positions[1] and on_off_positions[1] > positions[0]:
-                    return False
-            self._notes[channel_pitch].append(on_off_positions)
-        else:
-            self._notes[channel_pitch] = [on_off_positions]
-        return True
-
-    def reset_notes(self) -> Self:
-        self._notes = {}
-        return self    
-
-    def reset(self, *parameters) -> Self:
-        super().reset()
-        self.reset_notes()
-        return self << parameters
-    
-    
     def convert_time_to_measures(self, minutes: int = 0, seconds: int = 0) -> int:
         actual_bps: Fraction = settings._tempo / 60 # Beats Per Second
         time_seconds: int = 60 * minutes + seconds

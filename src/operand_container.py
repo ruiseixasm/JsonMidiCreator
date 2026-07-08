@@ -2935,7 +2935,6 @@ class Clip(Composition):  # Just a container of Elements
         ]
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0, 1)
-            og.settings.reset_notes()
 
         component_elements = self.get_component_elements()
         for single_element in component_elements:
@@ -2957,7 +2956,6 @@ class Clip(Composition):  # Just a container of Elements
         """
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0, 1)
-            og.settings.reset_notes()
 
         self_midilist: list[dict] = []
         component_elements = self.get_component_elements()
@@ -4854,7 +4852,6 @@ class Block(Composition):
         # AS A BLOCK THE PLAYING IS DONE RIGHT AWAY, WITHOUT ANY CONSIDERATION TO POSITION
         # ONLY WHEN from_part, IS THE Block POSITION SET
         if not from_part:   # Block by itself is played right away, so, no position considered
-            og.settings.reset_notes()
             for single_clip in self._items:
                 play_list.extend(single_clip.getPlaylist())
         else:
@@ -4872,8 +4869,6 @@ class Block(Composition):
         Returns:
             list[dict]: A list with multiple Midi file configuration dictionaries.
         """
-        if not from_part:
-            og.settings.reset_notes()
         midi_list: list = []
         for single_clip in self:
             if isinstance(single_clip, Clip):   # Can't get Midilist from Playlist !
@@ -5406,7 +5401,6 @@ class Part(Composition):
             list[dict]: A list with multiple Play configuration dictionaries.
         """
         play_list: list = []
-        og.settings.reset_notes()
         for block in self._items:
             play_list.extend(block.getPlaylist(True))
         return play_list
@@ -5421,7 +5415,6 @@ class Part(Composition):
         Returns:
             list[dict]: A list with multiple Midi file configuration dictionaries.
         """
-        og.settings.reset_notes()
         midi_list: list = []
         for block in self:
             midi_list.extend(block.getMidilist(True))

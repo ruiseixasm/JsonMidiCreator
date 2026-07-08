@@ -2310,20 +2310,6 @@ class Note(ChannelElement):
             if single_note.is_clipped(pitch_int):
                 continue    # Next note
             
-            # This only applies for Clip owned Notes called by the Clip class!
-            if midi_track is not None and single_note._owner_clip is not None:
-
-                overlapping_note: bool = not og.settings._add_note(
-                        self._channel_0,
-                        pitch_int,
-                        absolute_position_beats,
-                        single_note._duration_beats
-                    )
-                if overlapping_note:
-                    print(f"Warning (PL): Ignored overlapping Note on Channel {single_note._channel_0 + 1} "
-                        f"and Pitch {pitch_int} with same time start at {round(absolute_position_beats, 2)} beats!")
-                    continue    # Next note
-
             devices: list[str] = midi_track._devices if midi_track else og.settings._devices
 
             if devices_header:
@@ -2382,20 +2368,6 @@ class Note(ChannelElement):
             pitch_int: int = single_note._pitch._get_chromatic_pitch()
             if single_note.is_clipped(pitch_int):
                 continue    # Next note
-
-            # This only applies for Clip owned Notes called by the Clip class!
-            if midi_track is not None and single_note._owner_clip is not None:
-
-                overlapping_note: bool = not og.settings._add_note(
-                        self._channel_0,
-                        pitch_int,
-                        absolute_position_beats,
-                        single_note._duration_beats
-                    )
-                if overlapping_note:
-                    print(f"Warning (ML): Ignored overlapping Note on Channel {single_note._channel_0 + 1} "
-                        f"and Pitch {pitch_int} with same time start at {round(absolute_position_beats, 2)} beats!")
-                    continue    # Next note
 
             # Validation is done by midiutil Midi Range Validation
             note_dict: dict = super().getMidilist(midi_track, position_beats)[0]
