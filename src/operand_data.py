@@ -251,6 +251,20 @@ class Right(Data):
     """
     pass
 
+class Sequencer(Data):
+    """`Data -> Sequencer`
+
+    A Sequencer as the name implies lets an Element be placed one a Clip accordingly to a sequence of `1`s and `.`s.
+    
+    Parameters
+    ----------
+    str("1... 1... 1... 1...") : The sequence being used, where `1` is the step triggering and `.` the non triggering step.
+    """
+    def __init__(self, *parameters):
+        super().__init__(*parameters)
+        if not isinstance(self._data, str): # Makes sure it's a string
+            self._data = "1... 1... 1... 1..."
+
 
 class CompositionConvertible(Data):
     """`Data -> CompositionConvertible`
