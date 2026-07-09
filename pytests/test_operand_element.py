@@ -793,6 +793,16 @@ def test_token_string():
 
 # test_token_string()
 
+def test_element_tuple():
+    delayed_note = Note(Beat(1))
+    assert delayed_note % Position() == 1/4 # Measures
+    assert delayed_note % Duration() == 1/4 # Note Value (default)
+    delayed_note /= (Position(2), Duration(2))
+    assert delayed_note % Position() == 1/8 # Measures
+    assert delayed_note % Duration() == 1/8 # Note Value (default)
+
+# test_element_tuple()
+
 
 def test_element_multi():
     third_degree_1 = Note(Degree(3))

@@ -936,39 +936,69 @@ class Operand:
 
 
     def __iadd__(self, operand: any) -> Self:
+        if isinstance(operand, tuple):
+            for single_parameter in operand:
+                self.__iadd__(single_parameter)
         return self
     
     def __isub__(self, operand: any) -> Self:
+        if isinstance(operand, tuple):
+            for single_parameter in operand:
+                self.__isub__(single_parameter)
         return self
 
     def __imul__(self, operand: any) -> Self:
+        if isinstance(operand, tuple):
+            for single_parameter in operand:
+                self.__imul__(single_parameter)
         return self
     
     def __itruediv__(self, operand: any) -> Self:
+        if isinstance(operand, tuple):
+            for single_parameter in operand:
+                self.__itruediv__(single_parameter)
         return self
     
     def __ifloordiv__(self, operand: any) -> Self:
+        if isinstance(operand, tuple):
+            for single_parameter in operand:
+                self.__ifloordiv__(single_parameter)
         return self
     
 
     # Makes sure no Non Operand has `+= Operand` applied
     def __riadd__(self, operand: T) -> T:
+        if isinstance(operand, tuple):
+            for single_parameter in operand:
+                self.__riadd__(single_parameter)
         return operand
 
     # Makes sure no Non Operand has `-= Operand` applied
     def __risub__(self, operand: T) -> T:
+        if isinstance(operand, tuple):
+            for single_parameter in operand:
+                self.__risub__(single_parameter)
         return operand
 
     # Makes sure no Non Operand has `*= Operand` applied
     def __rimul__(self, operand: T) -> T:
+        if isinstance(operand, tuple):
+            for single_parameter in operand:
+                self.__rimul__(single_parameter)
         return operand
 
     # Makes sure no Non Operand has `/= Operand` applied
     def __ritruediv__(self, operand: T) -> T:
+        if isinstance(operand, tuple):
+            for single_parameter in operand:
+                self.__ritruediv__(single_parameter)
         return operand
 
     # Makes sure no Non Operand has `//= Operand` applied
     def __rifloordiv__(self, operand: T) -> T:
+        if isinstance(operand, tuple):
+            for single_parameter in operand:
+                self.__rifloordiv__(single_parameter)
         return operand
 
     

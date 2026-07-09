@@ -755,7 +755,8 @@ class Element(o.Operand):
                     return self._owner_clip._delete(self, True)._extend(new_elements)._sort_items()
                 else:
                     return oc.Clip(self._time_signature)._extend(new_elements)._set_owner_clip()
-
+            case tuple():
+                return super().__itruediv__(operand)
             case _:
                 if operand != Fraction(0):
                     self_operand: any = self % operand
