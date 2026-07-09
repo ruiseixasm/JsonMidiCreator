@@ -253,7 +253,7 @@ class Right(Data):
 
 
 class CompositionConvertible(Data):
-    """`Data -> CompositionMeasurement`
+    """`Data -> CompositionConvertible`
 
     Because in a Composition convertibles can be gross or net, this specifies what time amount to be returned.
     
@@ -264,7 +264,7 @@ class CompositionConvertible(Data):
     pass
 
 class Gross(CompositionConvertible):
-    """`Data -> CompositionMeasurement -> Gross`
+    """`Data -> CompositionConvertible -> Gross`
 
     This corresponds to the values returned by the respective gross methods, the ones that return the
     entirety of the composition rounded in Measures. This is the **default** return.
@@ -276,7 +276,7 @@ class Gross(CompositionConvertible):
     pass
 
 class Net(CompositionConvertible):
-    """`Data -> CompositionMeasurement -> Net`
+    """`Data -> CompositionConvertible -> Net`
 
     This corresponds to the values returned by the respective net methods, the ones that return the
     timed amount specific to the Composition contained elements. This means that an empty composition
