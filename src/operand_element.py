@@ -660,6 +660,8 @@ class Element(o.Operand):
                             return self._owner_clip._set_owner_clip()._sort_items()
                         return oc.Clip(self)
                 return oc.Clip()    # Empty Clip, self excluded
+            case od.Sequencer():
+                return operand * self
             case tuple():
                 return super().__imul__(operand)
             case _:
