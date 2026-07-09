@@ -1165,6 +1165,13 @@ class TimeValue(Convertible):  # Works as Absolute Beats
     def _get_self_time(self) -> Fraction:
         return self._rational
 
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case str():
+                return str(float(self._rational))
+            case _:
+                return super().__mod__(operand)
+
 
 class Measures(TimeValue):
     """`Rational -> Convertible -> TimeValue -> Measures`
@@ -1240,7 +1247,6 @@ class Beats(TimeValue):
         self << int(self._rational)
         return self # NO copy !
     
-    
     # CHAINABLE OPERATIONS
 
     def __iadd__(self, operand: any) -> Self:
@@ -1298,6 +1304,13 @@ class Quantization(Beats):
     """
     def __init__(self, *parameters):
         super().__init__(1/4, *parameters)
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case str():
+                return str(self._rational)
+            case _:
+                return super().__mod__(operand)
 
 
 class Steps(TimeValue):
@@ -1391,6 +1404,12 @@ class NoteValue(TimeValue):
         beats_per_note: int = time_signature._bottom
         return beats / beats_per_note
 
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case str():
+                return str(self._rational)
+            case _:
+                return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS
 

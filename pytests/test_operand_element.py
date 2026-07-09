@@ -820,6 +820,8 @@ def test_element_stretch():
     delayed_note % Beat() >> Print()
     delayed_note % Beats() >> Print()
 
+test_element_stretch()
+
 
 def test_element_multi():
     third_degree_1 = Note(Degree(3))
