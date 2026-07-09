@@ -558,6 +558,8 @@ class Element(o.Operand):
                     self._duration_beats += add_duration_beats
                     if isinstance(operand, od.Left()):
                         self._position_beats -= add_duration_beats
+            case tuple():
+                return super().__iadd__(operand)
             case _:
                 self_operand: any = self % operand
                 self_operand += operand
@@ -580,6 +582,8 @@ class Element(o.Operand):
                     self._duration_beats -= add_duration_beats
                     if isinstance(operand, od.Left()):
                         self._position_beats += add_duration_beats
+            case tuple():
+                return super().__isub__(operand)
             case _:
                 self_operand: any = self % operand
                 self_operand -= operand
@@ -652,7 +656,8 @@ class Element(o.Operand):
                             return self._owner_clip._set_owner_clip()._sort_items()
                         return oc.Clip(self)
                 return oc.Clip()    # Empty Clip, self excluded
-
+            case tuple():
+                return super().__imul__(operand)
             case _:
                 self_operand: any = self % operand
                 self_operand *= operand # Generic `self_operand`
@@ -873,7 +878,8 @@ class Element(o.Operand):
                     return self._owner_clip._delete(self, True)._extend(new_elements)._sort_items()
                 else:
                     return oc.Clip(self._time_signature)._extend(new_elements)._sort_items()
-
+            case tuple():
+                return super().__ifloordiv__(operand)
             case _:
                 if operand != Fraction(0):
                     self_operand: any = self % operand
