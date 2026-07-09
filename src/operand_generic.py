@@ -124,7 +124,7 @@ class Locus(Generic):
                 return ra.Position(self._time_signature_reference, self._position_beats) % operand
             case ra.Duration() | ra.Length():
                 return operand.copy(self._time_signature_reference, self._duration_beats)
-            case ra.NoteValue() | ra.TimeValue():
+            case ra.TimeValue():
                 return operand.copy(ra.Beats(self._time_signature_reference, self._duration_beats))
             case list():            return [self._position_beats, self._duration_beats]
             case int():             return self % ra.Measure() % int()
@@ -221,7 +221,7 @@ class Locus(Generic):
                 self.loadSerialization( operand.getSerialization() )
             case ra.Duration() | ra.Length():
                 self._duration_beats        = operand._rational
-            case ra.NoteValue() | ra.TimeValue():
+            case ra.TimeValue():
                 self << ra.Duration(self._time_signature_reference, operand)
             case ra.Position():
                 self._position_beats        = operand._rational
@@ -2289,7 +2289,7 @@ class Repeat(NoteEffect):
             # Returns the SYMBOLIC value of each note
             case ra.Duration():
                 return operand.copy(self._duration_beats)
-            case ra.NoteValue() | ra.TimeValue():
+            case ra.TimeValue():
                 return operand.copy(ra.Duration(self._duration_beats))
             case float():           return self % ra.NoteValue() % float()
             case int():             return self % ra.Steps() % int()
@@ -2360,7 +2360,7 @@ class Repeat(NoteEffect):
             case ra.Duration():
                 if operand > 0:
                     self._duration = operand._rational
-            case ra.NoteValue() | ra.TimeValue():
+            case ra.TimeValue():
                 if operand > 0:
                     self << ra.Duration(operand)
             case float():

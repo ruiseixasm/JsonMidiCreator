@@ -292,7 +292,7 @@ class Element(o.Operand):
                 return ra.Position(self, self._position_beats) % operand
             case ra.Duration() | ra.Length():
                 return operand.copy(self, self._duration_beats)
-            case ra.NoteValue() | ra.TimeValue():
+            case ra.TimeValue():
                 return operand.copy(ra.Beats(self, self._duration_beats))
             case od.CompositionConvertible():
                 convertible: ra.Convertible = operand._data
@@ -3135,7 +3135,7 @@ class Retrigger(Note):
             # Returns the SYMBOLIC value of each note
             case ra.Duration():
                 return operand.copy() << od.Pipe( self._duration_beats / 2 )
-            case ra.NoteValue() | ra.TimeValue():
+            case ra.TimeValue():
                 return operand.copy() << self % ra.Duration()
             case float():           return self % ra.NoteValue() % float()
             case _:                 return super().__mod__(operand)
@@ -3232,7 +3232,7 @@ class Retrigger(Note):
                     self._swing = operand._rational
             case ra.Duration():
                 self._duration_beats = operand._rational * 2  # Equivalent to two sized Notes
-            case ra.NoteValue() | ra.TimeValue():
+            case ra.TimeValue():
                 self << ra.Duration(self, operand)
             case float():
                 self << ra.NoteValue(operand)
