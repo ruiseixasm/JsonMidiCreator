@@ -632,6 +632,10 @@ class Element(o.Operand):
                     new_clip: oc.Clip = oc.Clip()
                     return new_clip._extend(new_elements)._set_owner_clip()
 
+            case ra.Stretch():
+                if operand._rational > 0:
+                    self._position_beats *= operand._rational
+                    self._duration_beats *= operand._rational
             case ra.TimeValue() | ra.TimeUnit():
                 if self._owner_clip is not None:    # Owner clip is always the base container
                     new_elements: list[Element] = []
@@ -707,6 +711,10 @@ class Element(o.Operand):
                     new_clip: oc.Clip = oc.Clip()
                     return new_clip._extend(new_elements)._set_owner_clip()
 
+            case ra.Stretch():
+                if operand._rational > 0:
+                    self._position_beats /= operand._rational
+                    self._duration_beats /= operand._rational
             case ra.TimeUnit():
                 if self._owner_clip is not None:    # Owner clip is always the base container
                     new_elements: list[Element] = []
