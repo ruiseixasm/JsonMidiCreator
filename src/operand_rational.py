@@ -610,7 +610,7 @@ class Minutes(Rational):
 class Stretch(Rational):
     """`Rational -> Stretch`
     
-    Allows the stretching or even the contraction of elements as a factor for multiplication or division.
+    Allows the stretching or the contraction of elements as a factor for multiplication or division respectively.
     
     Examples
     --------

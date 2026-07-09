@@ -803,11 +803,22 @@ def test_element_tuple():
     delayed_note *= (Position(2.0), Duration(2.0))
     assert delayed_note % Position() == 1/4 # Measures
     assert delayed_note % Duration() == 1/4 # Note Value (default)
+
+# test_element_tuple()
+
+
+def test_element_stretch():
+    delayed_note = Note(Beat(1))
+    assert delayed_note % Position() == 1/4 # Measures
+    assert delayed_note % Duration() == 1/4 # Note Value (default)
     delayed_note *= Stretch(2)
     assert delayed_note % Position() == 1/2 # Measures
     assert delayed_note % Duration() == 1/2 # Note Value (default)
-
-# test_element_tuple()
+    delayed_note /= Stretch(2)
+    assert delayed_note % Position() == 1/4 # Measures
+    assert delayed_note % Duration() == 1/4 # Note Value (default)
+    delayed_note % Beat() >> Print()
+    delayed_note % Beats() >> Print()
 
 
 def test_element_multi():
