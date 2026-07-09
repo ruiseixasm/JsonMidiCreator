@@ -607,6 +607,27 @@ class Minutes(Rational):
     pass
 
 
+class Stretch(Rational):
+    """`Rational -> Stretch`
+    
+    Allows the stretching or even the contraction of elements as a factor for multiplication or division.
+    
+    Examples
+    --------
+    >>> note_on_upbeat = Note(Beat(1))
+    >>> note_on_upbeat % Beat() >> Print()
+    1
+    >>> note_on_upbeat % Beats() >> Print()
+    1.0
+    >>> note_on_upbeat *= Stretch(2)
+    >>> note_on_upbeat % Beat() >> Print()
+    2
+    >>> note_on_upbeat % Beats() >> Print()
+    2.0
+    """
+    pass
+
+
 if TYPE_CHECKING:
     from operand_generic import TimeSignature
 
