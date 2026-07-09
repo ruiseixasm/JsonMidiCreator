@@ -1021,7 +1021,10 @@ class Duration(Measurement):
     """`Rational -> Convertible -> Measurement -> Duration`
 
     Duration() represents the Note Value duration of a `Note`, a `Duration` typically comes as 1/4, 1/8 and 1/16.
-    
+
+    Internally, `Duration` values are normalized to `Beats`. However, multiplication and division expect a scalar (float),
+    such as 0.5 or 2.0. The scalar modifies the duration proportionally as `NoteValue` instead of the internal `Beats`.
+
     Parameters
     ----------
     Fraction(0) : Duration as 1, 1/2, 1/4, 1/8, 1/16, 1/32.
