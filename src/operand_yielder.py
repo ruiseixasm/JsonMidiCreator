@@ -148,21 +148,20 @@ class Sequencer(Yielder):
     def __mul__(self, element: 'Element') -> 'Clip':
         new_clip = oc.Clip()
         if isinstance(element, oe.Element):
-            element_0 = element.copy(ra.Position(0))
+            element_copy = element.copy()
             match self._trigger_steps:
                 case str():
                     steps_place = o.string_to_list(self._trigger_steps)
                     for single_step in steps_place:
                         if single_step == 1:
-                            new_clip += element_0   # Implicit copy of element_0
-                        element_0 += ra.Step(1)
+                            new_clip += element_copy   # Implicit copy of element_0
+                        element_copy += ra.Step(1)
                 case of.Frame():
                     self._trigger_steps._set_inside_container(new_clip)
-                    total_length_beats: Fraction = element_0._duration_beats
-                    if element_0 % ra.Position() < total_length_beats:
-                        if self._trigger_steps.frame(element_0) == ol.Full():
-                            new_clip += element_0
-                        element_0 += ra.Step(1)
+                    if element_copy % ra.Position() < self._length_beats:
+                        if self._trigger_steps.frame(element_copy) == ol.Full():
+                            new_clip += element_copy
+                        element_copy += ra.Step(1)
         return new_clip
 
 
