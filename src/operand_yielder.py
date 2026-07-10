@@ -65,6 +65,7 @@ class Sequencer(Yielder):
     """
     def __init__(self, *parameters):
         self._trigger_steps = "1... 1... 1... 1..."
+        self._swing = Fraction(1, 2)
         self._length_beats = Fraction(og.settings._time_signature._top) # top is beats per measure
         super().__init__(*parameters)
 
@@ -78,6 +79,8 @@ class Sequencer(Yielder):
                     case of.Frame():
                         if isinstance(self._trigger_steps, of.Frame):
                             return self._trigger_steps
+                    case ra.Swing():
+                        return operand._data << od.Pipe( self._swing )
                     case Fraction():
                         return self._length_beats
                     case _:
@@ -88,6 +91,8 @@ class Sequencer(Yielder):
             case of.Frame():
                 if isinstance(self._trigger_steps, of.Frame):
                     return self._trigger_steps
+            case ra.Swing():
+                return ra.Swing(self._swing)
             case Fraction():
                 return self._length_beats
             case ra.Length():
@@ -100,6 +105,7 @@ class Sequencer(Yielder):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["trigger_steps"]    = self.serialize(self._trigger_steps)
+        serialization["parameters"]["swing"]            = self.serialize( self._swing )
         serialization["parameters"]["length_beats"]     = self.serialize(self._length_beats)
         return serialization
 
@@ -107,10 +113,11 @@ class Sequencer(Yielder):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "trigger_steps" in serialization["parameters"] and "length_beats" in serialization["parameters"]):
+            "trigger_steps" in serialization["parameters"] and "swing" in serialization["parameters"] and "length_beats" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._trigger_steps = self.deserialize(serialization["parameters"]["trigger_steps"])
+            self._swing         = self.deserialize( serialization["parameters"]["swing"] )
             self._length_beats  = self.deserialize(serialization["parameters"]["length_beats"])
         return self
 
@@ -120,11 +127,14 @@ class Sequencer(Yielder):
             case Sequencer():  # Particular case Data restrict self copy to self, no wrapping possible!
                 super().__lshift__(operand)
                 self._trigger_steps = self.deep_copy(operand._trigger_steps)
+                self._swing         = operand._swing
                 self._length_beats  = operand._length_beats
             case od.Pipe():
                 match operand._data:
                     case str() | of.Frame():
                         self._trigger_steps = operand._data
+                    case ra.Swing():
+                        self._swing = operand._data._rational
                     case Fraction():
                         self._length_beats = operand._data
                     case _:
@@ -133,6 +143,13 @@ class Sequencer(Yielder):
                 self._trigger_steps = operand
             case of.Frame():
                 self._trigger_steps = operand.copy()
+            case ra.Swing():
+                if operand < 0:
+                    self._swing = Fraction(0)
+                elif operand > 1:
+                    self._swing = Fraction(1)
+                else:
+                    self._swing = operand._rational
             case Fraction():
                 self._length_beats = operand
             case ra.Length():
