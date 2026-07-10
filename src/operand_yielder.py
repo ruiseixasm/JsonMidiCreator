@@ -79,6 +79,9 @@ class Sequencer(Yielder):
                     case of.Frame():
                         if isinstance(self._trigger_steps, of.Frame):
                             return self._trigger_steps
+                    case ch.Chaos():
+                        if isinstance(self._trigger_steps, ch.Chaos):
+                            return self._trigger_steps
                     case ra.Swing():
                         return operand._data << od.Pipe( self._swing )
                     case Fraction():
@@ -90,6 +93,9 @@ class Sequencer(Yielder):
                     return self._trigger_steps
             case of.Frame():
                 if isinstance(self._trigger_steps, of.Frame):
+                    return self._trigger_steps
+            case ch.Chaos():
+                if isinstance(self._trigger_steps, ch.Chaos):
                     return self._trigger_steps
             case ra.Swing():
                 return ra.Swing(self._swing)
@@ -131,7 +137,7 @@ class Sequencer(Yielder):
                 self._length_beats  = operand._length_beats
             case od.Pipe():
                 match operand._data:
-                    case str() | of.Frame():
+                    case str() | of.Frame() | ch.Chaos():
                         self._trigger_steps = operand._data
                     case ra.Swing():
                         self._swing = operand._data._rational
@@ -141,7 +147,7 @@ class Sequencer(Yielder):
                         super().__lshift__(operand)
             case str():
                 self._trigger_steps = operand
-            case of.Frame():
+            case of.Frame() | ch.Chaos():
                 self._trigger_steps = operand.copy()
             case ra.Swing():
                 if operand < 0:
@@ -180,6 +186,13 @@ class Sequencer(Yielder):
                     self._trigger_steps._set_inside_container(new_clip)
                     while element_copy._position_beats < finish_position_beats:
                         if element_copy == self._trigger_steps:
+                            new_clip += element_copy
+                        element_copy._position_beats += beats_per_step
+                case ch.Chaos():
+                    finish_position_beats: Fraction = element._position_beats + self._length_beats
+                    while element_copy._position_beats < finish_position_beats:
+                        chaotic_int: int = int(self._trigger_steps % Fraction())
+                        if chaotic_int % 2:
                             new_clip += element_copy
                         element_copy._position_beats += beats_per_step
             # Apply the Swing
