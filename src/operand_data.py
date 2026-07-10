@@ -75,6 +75,29 @@ class Data(o.Operand):
         super().__init__()
         self._data = self.deep_copy(data)
 
+    def __eq__(self, other: o.Operand) -> bool:
+        if isinstance(other, Data):
+            return self._data == other._data
+        if isinstance(other, Conditional):
+            return other == self
+        return False
+    
+    def __lt__(self, other: o.Operand) -> bool:
+        if isinstance(other, Data):
+            return self._data < other._data
+        return False
+    
+    def __gt__(self, other: o.Operand) -> bool:
+        if isinstance(other, Data):
+            return self._data > other._data
+        return False
+    
+    def __le__(self, other: o.Operand) -> bool:
+        return self == other or self < other
+    
+    def __ge__(self, other: o.Operand) -> bool:
+        return self == other or self > other
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, because a Data has
@@ -111,29 +134,6 @@ class Data(o.Operand):
                 return {}
             case _:                         return ol.Null()
             
-    def __eq__(self, other: o.Operand) -> bool:
-        if isinstance(other, Data):
-            return self._data == other._data
-        if isinstance(other, Conditional):
-            return other == self
-        return False
-    
-    def __lt__(self, other: o.Operand) -> bool:
-        if isinstance(other, Data):
-            return self._data < other._data
-        return False
-    
-    def __gt__(self, other: o.Operand) -> bool:
-        if isinstance(other, Data):
-            return self._data > other._data
-        return False
-    
-    def __le__(self, other: o.Operand) -> bool:
-        return self == other or self < other
-    
-    def __ge__(self, other: o.Operand) -> bool:
-        return self == other or self > other
-
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["data"] = self.serialize(self._data)
@@ -160,12 +160,13 @@ class Data(o.Operand):
             # Data doesn't load serialization, just processed data!!
             case Serialization():
                 self.loadSerialization(operand % Pipe( dict() ))
-            case Data():
+            case Data():    # Not exactly the same as `case self.__class__()` above!!
                 super().__lshift__(operand)
                 self._data = self.deep_copy(operand._data)
             case _:
                 self._data = self.deep_copy(operand)
         return self
+
 
 class Pipe(Data):
     """

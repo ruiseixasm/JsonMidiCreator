@@ -62,18 +62,52 @@ class Sequencer(Yielder):
     str("1... 1... 1... 1...") : The sequence being used, where `1` is the step triggering and `.` the non triggering step.
     """
     def __init__(self, *parameters):
+        self._trigger_steps = "1... 1... 1... 1..."
         super().__init__(*parameters)
-        if not isinstance(self._data, str): # Makes sure it's a string
-            self._data = "1... 1... 1... 1..."
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case Data():                    return self
+                    case ol.Null() | None:          return ol.Null()
+                    case _:                         return self._data
+            case Data():
+                return operand.copy(self)
+            case _:                         return self.deep_copy(self._data)
+            
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["data"] = self.serialize(self._data)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Data':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "data" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._data = self.deserialize(serialization["parameters"]["data"])
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Sequencer():  # Particular case Data restrict self copy to self, no wrapping possible!
+                super().__lshift__(operand)
+                self._data = self.deep_copy(operand._data)
+            case od.Pipe():
+                self._data = operand._data
+            case _:
+                self._data = self.deep_copy(operand)
+        return self
 
     # NOT imul because it returns something different than a `Sequencer`
     def __mul__(self, element: 'Element') -> 'Clip':
-        import operand_rational as ra
-        import operand_element as oe
-        import operand_container as oc
         new_clip = oc.Clip()
-        if isinstance(self._data, str) and isinstance(element, oe.Element):
-            steps_place = o.string_to_list(self._data)
+        if isinstance(self._trigger_steps, str) and isinstance(element, oe.Element):
+            steps_place = o.string_to_list(self._trigger_steps)
             position_step: ra.Step = ra.Step(0)
             element_0 = element.copy(ra.Position(0))
             for single_step in steps_place:
