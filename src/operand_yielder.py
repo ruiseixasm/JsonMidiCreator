@@ -166,13 +166,19 @@ class Sequencer(Yielder):
         new_clip = oc.Clip()
         if isinstance(element, oe.Element):
             element_copy = element.copy()
+            step: int = 0
+            beats_per_step: Fraction = og.settings._quantization
+            swing_beats: Fraction = beats_per_step * (2 * self._swing - 1)
             match self._trigger_steps:
                 case str():
                     steps_place = o.string_to_list(self._trigger_steps)
                     for single_step in steps_place:
                         if single_step == 1:
                             new_clip += element_copy   # Implicit copy of element_0
-                        element_copy += ra.Step(1)
+                        step += 1
+                        element_copy._position_beats = beats_per_step * step
+                        if step % 2 == 1:
+                            element_copy._position_beats += swing_beats
                 case of.Frame():
                     finish_position_beats: Fraction = element_copy._position_beats + self._length_beats
                     self._trigger_steps._set_inside_container(new_clip)
