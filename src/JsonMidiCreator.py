@@ -27,6 +27,7 @@ from operand_frame import *
 from operand_tamer import *
 from operand_chaos import *
 from operand_container import *
+from operand_yielder import *
 from operand_iterations import *
 from resource_devices import *
 from resource_filters import *
