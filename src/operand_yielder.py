@@ -157,8 +157,10 @@ class Sequencer(Yielder):
                             new_clip += element_copy   # Implicit copy of element_0
                         element_copy += ra.Step(1)
                 case of.Frame():
+                    original_position_beats: Fraction = element_copy._position_beats
+                    finish_position_beats: Fraction = original_position_beats + self._length_beats
                     self._trigger_steps._set_inside_container(new_clip)
-                    while element_copy % ra.Position() < self._length_beats:
+                    while element_copy % ra.Position() < finish_position_beats:
                         if element_copy == self._trigger_steps:
                             new_clip += element_copy
                         element_copy += ra.Step(1)

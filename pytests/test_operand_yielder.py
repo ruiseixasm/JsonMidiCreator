@@ -34,5 +34,8 @@ def test_framed_sequence():
     on_beat = Note(Steps(1)) * Sequencer(OnBeat())
     assert on_beat.len() == 4
 
-test_framed_sequence()
+    on_beat = Note(Steps(1), Measure(1)) * Sequencer(OnBeat())
+    assert on_beat.len() == 4
+
+# test_framed_sequence()
 
