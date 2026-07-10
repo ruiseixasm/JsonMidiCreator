@@ -48,6 +48,7 @@ class Yielder(o.Operand):
     """
     # CHAINABLE OPERATIONS
 
+    # NOT imul because it returns something different than a `Sequencer`
     def __mul__(self, element: 'Element') -> 'Clip':    # Mandatory implementation
         return oc.Clip(element)
     
@@ -69,26 +70,33 @@ class Sequencer(Yielder):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case Data():                    return self
-                    case ol.Null() | None:          return ol.Null()
-                    case _:                         return self._data
-            case Data():
-                return operand.copy(self)
-            case _:                         return self.deep_copy(self._data)
+                    case str():
+                        if isinstance(self._trigger_steps, str):
+                            return self._trigger_steps
+                    case of.Frame():
+                        if isinstance(self._trigger_steps, of.Frame):
+                            return self._trigger_steps
+                    case _:
+                        return super().__mod__(operand)
+            case str():
+                if isinstance(self._trigger_steps, str):
+                    return self._trigger_steps
+            case _:
+                return super().__mod__(operand)
             
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["data"] = self.serialize(self._data)
+        serialization["parameters"]["trigger_steps"] = self.serialize(self._trigger_steps)
         return serialization
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'Data':
+    def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "data" in serialization["parameters"]):
+            "trigger_steps" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._data = self.deserialize(serialization["parameters"]["data"])
+            self._trigger_steps = self.deserialize(serialization["parameters"]["trigger_steps"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -96,24 +104,36 @@ class Sequencer(Yielder):
         match operand:
             case Sequencer():  # Particular case Data restrict self copy to self, no wrapping possible!
                 super().__lshift__(operand)
-                self._data = self.deep_copy(operand._data)
+                self._trigger_steps = self.deep_copy(operand._trigger_steps)
             case od.Pipe():
-                self._data = operand._data
-            case _:
-                self._data = self.deep_copy(operand)
+                match operand._data:
+                    case str() | of.Frame():
+                        self._trigger_steps = operand._data
+            case str():
+                self._trigger_steps = operand
+            case of.Frame():
+                self._trigger_steps = operand.copy()
         return self
 
-    # NOT imul because it returns something different than a `Sequencer`
+
     def __mul__(self, element: 'Element') -> 'Clip':
         new_clip = oc.Clip()
-        if isinstance(self._trigger_steps, str) and isinstance(element, oe.Element):
-            steps_place = o.string_to_list(self._trigger_steps)
-            position_step: ra.Step = ra.Step(0)
+        if isinstance(element, oe.Element):
             element_0 = element.copy(ra.Position(0))
-            for single_step in steps_place:
-                if single_step == 1:
-                    new_clip += element_0 + position_step
-                position_step += 1
+            match self._trigger_steps:
+                case str():
+                    steps_place = o.string_to_list(self._trigger_steps)
+                    for single_step in steps_place:
+                        if single_step == 1:
+                            new_clip += element_0   # Implicit copy of element_0
+                        element_0 += ra.Step(1)
+                case of.Frame():
+                    self._trigger_steps._set_inside_container(new_clip)
+                    total_length_beats: Fraction = element_0._duration_beats
+                    if element_0 % ra.Position() < total_length_beats:
+                        if self._trigger_steps.frame(element_0) == ol.Full():
+                            new_clip += element_0
+                        element_0 += ra.Step(1)
         return new_clip
 
 

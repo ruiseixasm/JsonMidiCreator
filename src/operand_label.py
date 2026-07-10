@@ -81,7 +81,7 @@ class Null(Carrier):
     """`Label -> Carrier -> Null`
 
     A `Null` label is an `Operand` that is processed as no data and as no effect when operated with other `Operands`.
-    It is returned by a `Frame` as a no `Operand` return.
+    It is returned by a `Frame` as a no `Operand` return, equivalent to `False`.
 
     Parameters
     ----------
@@ -126,7 +126,7 @@ class Full(Carrier):
     """`Label -> Carrier -> Full`
 
     A `Full` label is an `Operand` that is processed as existent data and validates any effect when operated with other `Operands`.
-    It is returned by a `Frame` as a validates or passed `Operand`.
+    It is returned by a `Frame` as a validated or passed `Operand`, equivalent to `True`.
 
     Parameters
     ----------
