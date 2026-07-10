@@ -165,30 +165,29 @@ class Sequencer(Yielder):
     def __mul__(self, element: 'Element') -> 'Clip':
         new_clip = oc.Clip()
         if isinstance(element, oe.Element):
+            # Yield the Elements
             element_copy = element.copy()
-            step: int = 0
             beats_per_step: Fraction = og.settings._quantization
-            swing_beats: Fraction = beats_per_step * (2 * self._swing - 1)
             match self._trigger_steps:
                 case str():
                     steps_place = o.string_to_list(self._trigger_steps)
                     for single_step in steps_place:
                         if single_step == 1:
                             new_clip += element_copy   # Implicit copy of element_0
-                        step += 1
-                        element_copy._position_beats = element._position_beats + beats_per_step * step
-                        if step % 2 == 1:
-                            element_copy._position_beats += swing_beats
+                        element_copy._position_beats += beats_per_step
                 case of.Frame():
                     finish_position_beats: Fraction = element._position_beats + self._length_beats
                     self._trigger_steps._set_inside_container(new_clip)
                     while element_copy._position_beats < finish_position_beats:
                         if element_copy == self._trigger_steps:
                             new_clip += element_copy
-                        step += 1
-                        element_copy._position_beats = element._position_beats + beats_per_step * step
-                        if step % 2 == 1:
-                            element_copy._position_beats += swing_beats
+                        element_copy._position_beats += beats_per_step
+            # Apply the Swing
+            swing_beats: Fraction = beats_per_step * (2 * self._swing - 1)
+            for single_element in new_clip._items:
+                element_step: int = single_element % ra.Step() % int()
+                if element_step % 2 == 1:
+                    single_element._position_beats += swing_beats
         return new_clip
 
 
