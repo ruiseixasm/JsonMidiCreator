@@ -19,5 +19,5 @@ from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCr
 # sequence >> Plot()
 
 
-sequence = Note(Steps(1)) * Sequencer("1..111.1..1.1") * Position(2)
-sequence >> Plot()
+sequence = Note(Steps(1)) * Sequencer("1.111.1...1.1") * Position(2)
+sequence >> Plot(title="Shave and a Haircut")

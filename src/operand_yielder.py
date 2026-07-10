@@ -185,7 +185,10 @@ class Sequencer(Yielder):
                     while element_copy % ra.Position() < finish_position_beats:
                         if element_copy == self._trigger_steps:
                             new_clip += element_copy
-                        element_copy += ra.Step(1)
+                        step += 1
+                        element_copy._position_beats = beats_per_step * step
+                        if step % 2 == 1:
+                            element_copy._position_beats += swing_beats
         return new_clip
 
 
