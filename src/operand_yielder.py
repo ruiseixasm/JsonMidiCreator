@@ -184,10 +184,11 @@ class Sequencer(Yielder):
                         element_copy._position_beats += beats_per_step
             # Apply the Swing
             swing_beats: Fraction = beats_per_step * (2 * self._swing - 1)
-            for single_element in new_clip._items:
-                element_step: int = single_element % ra.Step() % int()
-                if element_step % 2 == 1:
-                    single_element._position_beats += swing_beats
+            if swing_beats:
+                for single_element in new_clip._items:
+                    element_step: int = single_element % ra.Step() % int()
+                    if element_step % 2 == 1:
+                        single_element._position_beats += swing_beats
         return new_clip
 
 
