@@ -158,8 +158,8 @@ class Sequencer(Yielder):
                         element_copy += ra.Step(1)
                 case of.Frame():
                     self._trigger_steps._set_inside_container(new_clip)
-                    if element_copy % ra.Position() < self._length_beats:
-                        if self._trigger_steps.frame(element_copy) == ol.Full():
+                    while element_copy % ra.Position() < self._length_beats:
+                        if element_copy == self._trigger_steps:
                             new_clip += element_copy
                         element_copy += ra.Step(1)
         return new_clip
