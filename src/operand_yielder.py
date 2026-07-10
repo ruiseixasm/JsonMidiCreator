@@ -45,69 +45,8 @@ class Yielder(o.Operand):
     """`Yielder`
 
     An `Yielder` is intended to be multiplied with an `Element` and result in a `Clip`, the yield of that element as a seed.
-    
-    Parameters
-    ----------
-    Length(1), TimeValue, Fraction : The length of the yield.
     """
-    def __init__(self, *parameters):
-        self._length_beats = Fraction(og.settings._time_signature._top) # top is beats per measure
-        super().__init__(*parameters)
-
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case Fraction():
-                        return self._length_beats
-                    case _:
-                        return super().__mod__(operand)
-            case Fraction():
-                return self._length_beats
-            case ra.Length():
-                return operand.copy(self, self._length_beats)
-            case ra.TimeValue():
-                return operand.copy(ra.Beats(self, self._length_beats))
-            case _:
-                return super().__mod__(operand)
-            
-    def getSerialization(self) -> dict:
-        serialization = super().getSerialization()
-        serialization["parameters"]["length_beats"] = self.serialize(self._length_beats)
-        return serialization
-
     # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict) -> Self:
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "length_beats" in serialization["parameters"]):
-
-            super().loadSerialization(serialization)
-            self._length_beats = self.deserialize(serialization["parameters"]["length_beats"])
-        return self
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case Yielder():  # Particular case Data restrict self copy to self, no wrapping possible!
-                super().__lshift__(operand)
-                self._length_beats = operand._length_beats
-            case od.Pipe():
-                match operand._data:
-                    case Fraction():
-                        self._length_beats = operand._data
-                    case _:
-                        super().__lshift__(operand)
-            case Fraction():
-                self._length_beats = operand
-            case ra.Length():
-                if operand > Fraction(0):   # Allows innocuous non positive setting (neutral)
-                    self._duration_beats    = operand._rational
-            case ra.TimeValue():
-                self._duration_beats = ra.Length(operand)._rational
-            case _:
-                super().__lshift__(operand)
-        return self
 
     # NOT imul because it returns something different than a `Sequencer`
     def __mul__(self, element: 'Element') -> 'Clip':    # Mandatory implementation
@@ -121,10 +60,12 @@ class Sequencer(Yielder):
     
     Parameters
     ----------
-    str("1... 1... 1... 1...") : The sequence being used, where `1` is the step triggering and `.` the non triggering step.
+    str("1... 1... 1... 1..."), Frame : The sequence being used, where `1` is the step triggering and `.` the non triggering step.
+    Length(1), TimeValue, Fraction : The length of the yield to set the range for the `Frame`.
     """
     def __init__(self, *parameters):
         self._trigger_steps = "1... 1... 1... 1..."
+        self._length_beats = Fraction(og.settings._time_signature._top) # top is beats per measure
         super().__init__(*parameters)
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -137,27 +78,40 @@ class Sequencer(Yielder):
                     case of.Frame():
                         if isinstance(self._trigger_steps, of.Frame):
                             return self._trigger_steps
+                    case Fraction():
+                        return self._length_beats
                     case _:
                         return super().__mod__(operand)
             case str():
                 if isinstance(self._trigger_steps, str):
                     return self._trigger_steps
+            case of.Frame():
+                if isinstance(self._trigger_steps, of.Frame):
+                    return self._trigger_steps
+            case Fraction():
+                return self._length_beats
+            case ra.Length():
+                return operand.copy(self, self._length_beats)
+            case ra.TimeValue():
+                return operand.copy(ra.Beats(self, self._length_beats))
             case _:
                 return super().__mod__(operand)
             
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["trigger_steps"] = self.serialize(self._trigger_steps)
+        serialization["parameters"]["trigger_steps"]    = self.serialize(self._trigger_steps)
+        serialization["parameters"]["length_beats"]     = self.serialize(self._length_beats)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "trigger_steps" in serialization["parameters"]):
+            "trigger_steps" in serialization["parameters"] and "length_beats" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._trigger_steps = self.deserialize(serialization["parameters"]["trigger_steps"])
+            self._length_beats  = self.deserialize(serialization["parameters"]["length_beats"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -166,16 +120,26 @@ class Sequencer(Yielder):
             case Sequencer():  # Particular case Data restrict self copy to self, no wrapping possible!
                 super().__lshift__(operand)
                 self._trigger_steps = self.deep_copy(operand._trigger_steps)
+                self._length_beats  = operand._length_beats
             case od.Pipe():
                 match operand._data:
                     case str() | of.Frame():
                         self._trigger_steps = operand._data
+                    case Fraction():
+                        self._length_beats = operand._data
                     case _:
                         super().__lshift__(operand)
             case str():
                 self._trigger_steps = operand
             case of.Frame():
                 self._trigger_steps = operand.copy()
+            case Fraction():
+                self._length_beats = operand
+            case ra.Length():
+                if operand > Fraction(0):   # Allows innocuous non positive setting (neutral)
+                    self._duration_beats    = operand._rational
+            case ra.TimeValue():
+                self._duration_beats = ra.Length(operand)._rational
             case _:
                 super().__lshift__(operand)
         return self
