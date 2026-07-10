@@ -592,6 +592,7 @@ class Element(o.Operand):
 
     def __imul__(self, operand: any) -> Union[TypeElement, 'Clip']:
         import operand_container as oc
+        import operand_yielder as oy
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element():
@@ -660,7 +661,7 @@ class Element(o.Operand):
                             return self._owner_clip._set_owner_clip()._sort_items()
                         return oc.Clip(self)
                 return oc.Clip()    # Empty Clip, self excluded
-            case od.Sequencer():
+            case oy.Sequencer():
                 return operand * self
             case tuple():
                 return super().__imul__(operand)

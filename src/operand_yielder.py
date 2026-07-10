@@ -51,4 +51,35 @@ class Yielder(o.Operand):
     def __mul__(self, element: 'Element') -> 'Clip':    # Mandatory implementation
         return oc.Clip(element)
     
+
+class Sequencer(Yielder):
+    """`Yielder -> Sequencer`
+
+    A `Sequencer` as the name implies lets an Element be placed one a Clip accordingly to a sequence of `1`s and `.`s.
     
+    Parameters
+    ----------
+    str("1... 1... 1... 1...") : The sequence being used, where `1` is the step triggering and `.` the non triggering step.
+    """
+    def __init__(self, *parameters):
+        super().__init__(*parameters)
+        if not isinstance(self._data, str): # Makes sure it's a string
+            self._data = "1... 1... 1... 1..."
+
+    # NOT imul because it returns something different than a `Sequencer`
+    def __mul__(self, element: 'Element') -> 'Clip':
+        import operand_rational as ra
+        import operand_element as oe
+        import operand_container as oc
+        new_clip = oc.Clip()
+        if isinstance(self._data, str) and isinstance(element, oe.Element):
+            steps_place = o.string_to_list(self._data)
+            position_step: ra.Step = ra.Step(0)
+            element_0 = element.copy(ra.Position(0))
+            for single_step in steps_place:
+                if single_step == 1:
+                    new_clip += element_0 + position_step
+                position_step += 1
+        return new_clip
+
+
