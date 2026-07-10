@@ -176,17 +176,17 @@ class Sequencer(Yielder):
                         if single_step == 1:
                             new_clip += element_copy   # Implicit copy of element_0
                         step += 1
-                        element_copy._position_beats = beats_per_step * step
+                        element_copy._position_beats = element._position_beats + beats_per_step * step
                         if step % 2 == 1:
                             element_copy._position_beats += swing_beats
                 case of.Frame():
-                    finish_position_beats: Fraction = element_copy._position_beats + self._length_beats
+                    finish_position_beats: Fraction = element._position_beats + self._length_beats
                     self._trigger_steps._set_inside_container(new_clip)
-                    while element_copy % ra.Position() < finish_position_beats:
+                    while element_copy._position_beats < finish_position_beats:
                         if element_copy == self._trigger_steps:
                             new_clip += element_copy
                         step += 1
-                        element_copy._position_beats = beats_per_step * step
+                        element_copy._position_beats = element._position_beats + beats_per_step * step
                         if step % 2 == 1:
                             element_copy._position_beats += swing_beats
         return new_clip
