@@ -2607,7 +2607,35 @@ class Duple(Rhythm):
         second_note = Note(first_note)
         second_note._position_beats += first_note._duration_beats
         return [first_note, second_note]
-    
+
+
+class Triplet(Rhythm):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> Rhythm -> Triplet`
+
+    A `Triplet` is the given Note split three times resulting in each single resulting note with a 1/3 of the original duration.
+
+    Parameters
+    ----------
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(1) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def get_component_elements(self) -> list[Note]:
+        """Returns the elements directly, NO decoupling guaranteed (no copy)"""
+        first_note = Note(self)
+        first_note._duration_beats /= 3
+        second_note = Note(first_note)
+        second_note._position_beats += first_note._duration_beats
+        third_note = Note(second_note)
+        third_note._position_beats += second_note._duration_beats
+        return [first_note, second_note, third_note]
+
 
 class KeyScale(Note):
     """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale`
@@ -3376,53 +3404,6 @@ class Retrigger(Note):
                 super().__lshift__(operand)
         return self
 
-class Triplet(Retrigger):
-    """`Element -> DeviceElement -> ChannelElement -> Note -> Retrigger -> Triplet`
-
-    A `Triplet` is the repetition of a given Note three times on a row Triplets have each \
-        Note Duration set to the following Values:
-
-        +----------+-------------+-------------------+-----------------+
-        | Notation | Note Value  | Note Duration     | Total Duration  |
-        +----------+-------------+-------------------+-----------------+
-        | 1T       | 1           | 1    * 2/3 = 2/3  | 1    * 2 = 2    |
-        | 1/2T     | 1/2         | 1/2  * 2/3 = 1/3  | 1/2  * 2 = 1    |
-        | 1/4T     | 1/4         | 1/4  * 2/3 = 1/6  | 1/4  * 2 = 1/2  |
-        | 1/8T     | 1/8         | 1/8  * 2/3 = 1/12 | 1/8  * 2 = 1/4  |
-        | 1/16T    | 1/16        | 1/16 * 2/3 = 1/24 | 1/16 * 2 = 1/8  |
-        | 1/32T    | 1/32        | 1/32 * 2/3 = 1/48 | 1/32 * 2 = 1/16 |
-        +----------+-------------+-------------------+-----------------+
-
-    Parameters
-    ----------
-    Count(3) : The number above the notation beam with 3 as being a triplet, this can't be changed for `Triplet`.
-    Swing(0.5) : The ratio of time the `Note` is pressed.
-    Velocity(100), int : Sets the velocity of the note being pressed.
-    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
-    Tied(False) : Sets a `Note` as tied if set as `True`.
-    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
-        `Scale`, `Degree` and `KeySignature`.
-    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(1) : The Midi channel where the midi message will be sent to.
-    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
-    """
-    def __init__(self, *parameters):
-        super().__init__()
-        self._count = 3
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
-
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case ou.Count():
-                return self # disables the setting of Count, always 3
-            case _:
-                super().__lshift__(operand)
-        return self
 
 class Tuplet(ChannelElement):
     """`Element -> DeviceElement -> ChannelElement -> Tuplet`
