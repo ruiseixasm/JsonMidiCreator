@@ -2585,7 +2585,40 @@ class Rhythm(Note):
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
-    pass
+    def getPlotlist(self,
+            midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
+            channels: dict[str, set[int]] = None) -> list[dict]:
+        self_plotlist: list[dict] = []
+        if not isinstance(position_beats, Fraction):
+            position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
+        for single_note in self.get_component_elements():
+            self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels, self))
+        for plot_dict in self_plotlist:
+            plot_dict["self"] = self # Makes sure it's identified as `Subclip`
+        return self_plotlist
+    
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+        self_playlist: list[dict] = []
+        if not isinstance(position_beats, Fraction):
+            position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
+        for single_note in self.get_component_elements():
+            self_playlist.extend(single_note.getPlaylist(midi_track, position_beats, devices_header))
+        return self_playlist
+    
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list[dict]:
+        self_midilist: list[dict] = []
+        if not isinstance(position_beats, Fraction):
+            position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
+        for single_note in self.get_component_elements():
+            self_midilist.extend(single_note.getMidilist(midi_track, position_beats))
+        return self_midilist
+    
 
 class Duple(Rhythm):
     """`Element -> DeviceElement -> ChannelElement -> Note -> Rhythm -> Duple`
