@@ -1752,7 +1752,7 @@ class Composition(Container):
                                 line_style: str = 'solid'
                                 if isinstance(note["self"], oe.KeyScale):
                                     line_style = 'dashed'
-                                elif isinstance(note["self"], oe.Tuplet):
+                                elif isinstance(note["self"], (oe.Rhythm, oe.Tuplet)):
                                     line_style = 'dotted'
                                 edge_color: str = 'black'
                                 if not note["enabled"]:
