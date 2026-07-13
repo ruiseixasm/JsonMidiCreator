@@ -2596,7 +2596,7 @@ class Rhythm(Note):
         for single_note in self.get_component_elements():
             self_plotlist.extend(single_note.getPlotlist(midi_track, position_beats, channels, self))
         for plot_dict in self_plotlist:
-            plot_dict["self"] = self # Makes sure it's identified as `Subclip`
+            plot_dict["self"] = self # Makes sure it's identified as `Rhythm`
         return self_plotlist
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
