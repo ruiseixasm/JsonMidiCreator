@@ -39,7 +39,7 @@ first_note << "F" >> Save("json/testing/_Save_Play_p.2_first_note.json") >> Expo
 first_note << Load("json/testing/_Save_1.1_first_note.json") >> Save("json/testing/_Save_Play_p.3_first_note.json") >> Export("json/testing/_Export_Play_p.3_sequence.json")
 
 # Only a Clip takes into consideration the Element position, and thus, the '* 1'!
-Triplet() * 1 << MidiTrack(1, "Piano") << NoteValue(1/16) >> Save("json/testing/_Save_Play_p.3.1_first_note.json") >> Export("json/testing/_Export_Play_p.3.1_sequence.json") >> Save("json/testing/_Save_1.3_note_triad.json")
+Triplet(1/8) * 1 << MidiTrack(1, "Piano") >> Save("json/testing/_Save_Play_p.3.1_first_note.json") >> Export("json/testing/_Export_Play_p.3.1_sequence.json") >> Save("json/testing/_Save_1.3_note_triad.json")
 
 # Base Note creation to be used in the Sequencer
 # Only a Clip takes into consideration the Element position, and thus, the '* 1'!
@@ -94,10 +94,10 @@ composition: Block = Block(single_clock)
 single_note = Note() << (NoteValue() << Measures(2)) >> Save("json/testing/_Save_Play_p.7.2_first_note.json") >> Export("json/testing/_Export_Play_p.7.2_sequence.json")
 note_transposed = single_note + Semitone(5) >> Save("json/testing/_Save_Play_p.7.3_first_note.json") >> Export("json/testing/_Export_Play_p.7.3_sequence.json")
 
-triplets_one = (Triplet("E") << NoteValue(1/16)) / 8
+triplets_one = Triplet("E", 1/8) / 8
 triplets_one + single_clock >> Save("json/testing/_Save_3.1_triple_note3.json") >> Save("json/testing/_Save_Play_p.8_first_note.json") >> Export("json/testing/_Export_Play_p.8_sequence.json")
 
-triplets_two = (Triplet("G") << NoteValue(1/16)) / 8
+triplets_two = Triplet("G", 1/8) / 8
 triplets_two + single_clock >> Export("json/testing/_Export_3.1_triple_note3.json") >> Save("json/testing/_Save_Play_p.9_first_note.json") >> Export("json/testing/_Export_Play_p.9_sequence.json")
 
 # Duration needs to be adjusted because Elements are Stacked based on Duration and not on Duration!
