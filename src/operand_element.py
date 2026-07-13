@@ -1120,8 +1120,99 @@ class Subclip(Element):
                         super().__lshift__(operand)
             case oc.Clip():
                 self._subclip = operand.copy()
+                self << self._subclip.net_duration(True)    # Updates the Element Duration
             case _:
                 super().__lshift__(operand)
+        return self
+
+    def __iadd__(self, operand: any) -> Union[TypeElement, 'Clip']:
+        import operand_container as oc
+        import operand_frame as of
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Element() | oc.Clip() | ra.Convertible() | tuple():
+                return super().__iadd__(operand)
+            case of.Frame():
+                framed_operand: any = self % operand  # Unwraps the Frame
+                # Propagate the value to the rest
+                for element in self._subclip._items:
+                    element.__iadd__(framed_operand)
+            case _:
+                # Propagate the value to the rest
+                for element in self._subclip._items:
+                    element.__iadd__(operand)
+        return self
+
+    def __isub__(self, operand: any) -> Union[TypeElement, 'Clip']:
+        import operand_container as oc
+        import operand_frame as of
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Element() | oc.Clip() | ra.Convertible() | tuple():
+                return super().__isub__(operand)
+            case of.Frame():
+                framed_operand: any = self % operand  # Unwraps the Frame
+                # Propagate the value to the rest
+                for element in self._subclip._items:
+                    element.__isub__(framed_operand)
+            case _:
+                # Propagate the value to the rest
+                for element in self._subclip._items:
+                    element.__isub__(operand)
+        return self
+
+    def __imul__(self, operand: any) -> Union[TypeElement, 'Clip']:
+        import operand_container as oc
+        import operand_frame as of
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Element() | oc.Clip() | ra.Convertible() | tuple():
+                return super().__imul__(operand)
+            case of.Frame():
+                framed_operand: any = self % operand  # Unwraps the Frame
+                # Propagate the value to the rest
+                for element in self._subclip._items:
+                    element.__imul__(framed_operand)
+            case _:
+                # Propagate the value to the rest
+                for element in self._subclip._items:
+                    element.__imul__(operand)
+        return self
+
+    def __itruediv__(self, operand: any) -> Union[TypeElement, 'Clip']:
+        import operand_container as oc
+        import operand_frame as of
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Element() | oc.Clip() | ra.Convertible() | tuple():
+                return super().__itruediv__(operand)
+            case of.Frame():
+                framed_operand: any = self % operand  # Unwraps the Frame
+                # Propagate the value to the rest
+                for element in self._subclip._items:
+                    element.__itruediv__(framed_operand)
+            case _:
+                # Propagate the value to the rest
+                for element in self._subclip._items:
+                    element.__itruediv__(operand)
+        return self
+
+    def __ifloordiv__(self, operand: any) -> Union[TypeElement, 'Clip']:
+        import operand_container as oc
+        import operand_frame as of
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Element() | oc.Clip() | ra.Convertible() | tuple():
+                return super().__ifloordiv__(operand)
+            case of.Frame():
+                framed_operand: any = self % operand  # Unwraps the Frame
+                # Propagate the value to the rest
+                for element in self._subclip._items:
+                    element.__ifloordiv__(framed_operand)
+            case _:
+                # Propagate the value to the rest
+                for element in self._subclip._items:
+                    element.__ifloordiv__(operand)
         return self
 
 
