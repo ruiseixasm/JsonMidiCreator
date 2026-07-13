@@ -2564,9 +2564,27 @@ class Note(ChannelElement):
             case _:
                 return super().__isub__(operand)
 
+class Rhythm(Note):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> Rhythm`
 
-class Duple(Note):
-    """`Element -> DeviceElement -> ChannelElement -> Note -> Duple`
+    A `Rhythm` is a single Note converted to a Rhythm, tile a shuffle or a galop.
+
+    Parameters
+    ----------
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Measures(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(1) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    pass
+
+class Duple(Rhythm):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> Rhythm -> Duple`
 
     A `Duple` is a note played twice in its entire durations.
 
