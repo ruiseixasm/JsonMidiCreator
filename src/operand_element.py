@@ -2937,12 +2937,12 @@ class Offset(Rhythm):
     """
     def get_component_elements(self) -> list[Note]:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
-        first_rest = Rest(self)
-        first_rest._duration_beats /= 2 # Converts to 1/8 alike
-        second_note = Note(self)
-        second_note._position_beats += first_rest._duration_beats
-        second_note._duration_beats /= 2 # Converts to 1/8 alike
-        return [first_rest, second_note]
+        left_rest = Rest(self)
+        left_rest._duration_beats /= 2 # Converts to 1/8 alike
+        right_note = Note(self)
+        right_note._position_beats += left_rest._duration_beats
+        right_note._duration_beats /= 2 # Converts to 1/8 alike
+        return [left_rest, right_note]
 
 
 class KeyScale(Note):
