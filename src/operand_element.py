@@ -3525,10 +3525,10 @@ class Chord(KeyScale):
         self._sus4          = ou.Sus4(od.Pipe( self._sus4 ), data).__mod__(od.Pipe( bool() ))
 
 
-class Retrigger(Note):
-    """`Element -> DeviceElement -> ChannelElement -> Note -> Retrigger`
+class Tuplet(Note):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> Tuplet`
 
-    A `Retrigger` element allows the repeated triggering of a `Note`.
+    A `Tuplet` element allows the repeated triggering of a `Note`.
 
     Parameters
     ----------
@@ -3683,7 +3683,7 @@ class Retrigger(Note):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case Retrigger():
+            case Tuplet():
                 super().__lshift__(operand)
                 self._count  = operand._count
                 self._swing     = operand._swing
@@ -3713,197 +3713,7 @@ class Retrigger(Note):
         return self
 
 
-class Tuplet(ChannelElement):
-    """`Element -> DeviceElement -> ChannelElement -> Tuplet`
 
-    A `Tuplet` is a group of elements played in sequence where its len is equivalent to the `Count` of a `Retrigger`.
-
-    Parameters
-    ----------
-    Elements(Note(ra.Gate(0.5)), Note(ra.Gate(0.5)), Note(ra.Gate(0.5))) : Series of elements.
-    Swing(0.5) : The ratio of time the `Note` is pressed.
-    Velocity(100), int : Sets the velocity of the note being pressed.
-    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
-    Tied(False) : Sets a `Note` as tied if set as `True`.
-    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
-        `Scale`, `Degree` and `KeySignature`.
-    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(1) : The Midi channel where the midi message will be sent to.
-    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
-    """
-    def __init__(self, *parameters):
-        self._swing: Fraction           = Fraction(0.5)
-        self._elements: list[Element]   = [Note(ra.Gate(0.5)), Note(ra.Gate(0.5)), Note(ra.Gate(0.5))]
-        super().__init__()
-        self._duration_beats  *= 2 # Equivalent to twice single note duration
-        self.set_elements_duration()
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
-
-    def swing(self, swing: float = 0.5) -> Self:
-        self._swing = Fraction(swing)
-        return self
-
-    def elements(self, elements: Optional[List['Element']] = None) -> Self:
-        if isinstance(elements, list) and all(isinstance(element, Element) for element in elements):
-            self._elements = elements
-        return self
-
-    def set_elements_duration(self):
-        if len(self._elements) > 0:
-             # Already 2x single note duration
-            elements_duration = self._duration_beats / len(self._elements) # from 2 notes to division
-            if len(self._elements) == 2:
-                 # Already 2x single note duration
-                elements_duration = self._duration_beats/2 * 3/2 # from 3 notes to 2
-            for single_element in self._elements:
-                single_element << ra.Duration( elements_duration )
-
-    def __mod__(self, operand: o.T) -> o.T:
-        """
-        The % symbol is used to extract a Parameter, in the case of a Tuplet,
-        those Parameters are the ones of the Element, like Position and Duration,
-        and the Count and a List of Elements.
-
-        Examples
-        --------
-        >>> tuplet = Tuplet( Note("C"), Note("F"), Note("G"), Note("C") )
-        >>> tuplet % Count() % int() >> Print()
-        4
-        """
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case ra.Swing():        return ra.Swing() << od.Pipe(self._swing)
-                    case od.Elements():
-                        operand._data._data = self._elements
-                        return operand._data
-                    case _:
-                        return super().__mod__(operand)
-            case ra.Swing():        return ra.Swing() << od.Pipe(self._swing)
-            case ou.Count():       return ou.Count() << len(self._elements)
-            case ra.Duration() | ra.NoteValue():
-                return operand << od.Pipe( self._duration_beats / 2 )
-            case od.Elements():
-                return od.Elements(self._elements)
-            case _:
-                return super().__mod__(operand)
-
-    def __eq__(self, other: o.Operand) -> bool:
-        match other:
-            case self.__class__():
-                return super().__eq__(other) \
-                    and self._swing     == other._swing \
-                    and self._elements  == other._elements
-            case Element():
-                # Makes a playlist comparison
-                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
-            case _:
-                return super().__eq__(other)
-    
-    def get_component_elements(self) -> list[Element]:
-        """Returns the elements directly, NO decoupling guaranteed (no copy)"""
-        tuplet_elements: list[Element] = []
-        element_position: ra.Position = self % ra.Position()
-        self_iteration: int = 0
-        for single_element in self._elements:
-            element_duration = single_element % od.Pipe( ra.Duration() )
-            tuplet_elements.append(single_element.copy() << element_position)
-            swing_ratio: Fraction = self._swing
-            if self_iteration % 2:
-                swing_ratio = 1 - swing_ratio
-            element_position += element_duration * Fraction(2) * swing_ratio
-            self_iteration += 1
-        return tuplet_elements
-
-    def getPlotlist(self,
-            midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None) -> list[dict]:
-        self_plotlist: list[dict] = []
-        if not isinstance(position_beats, Fraction):
-            position_beats = Fraction(0)
-        elif position_beats < 0:
-            return []
-        for single_element in self.get_component_elements():
-            self_plotlist.extend(single_element.getPlotlist(midi_track, position_beats, channels, self))
-            # Makes sure the self is correctly set
-            if self_plotlist:
-                self_plotlist[-1]["note"]["masked"] = self._masked
-                self_plotlist[-1]["note"]["self"] = self
-        return self_plotlist
-    
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
-        self_playlist: list[dict] = []
-        if not isinstance(position_beats, Fraction):
-            position_beats = Fraction(0)
-        elif position_beats < 0:
-            return []
-        for single_element in self.get_component_elements():
-            self_playlist.extend(single_element.getPlaylist(midi_track, position_beats, devices_header))
-        return self_playlist
-    
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list[dict]:
-        self_midilist: list[dict] = []
-        if not isinstance(position_beats, Fraction):
-            position_beats = Fraction(0)
-        elif position_beats < 0:
-            return []
-        for single_element in self.get_component_elements():
-            self_midilist.extend(single_element.getMidilist(midi_track, position_beats))    # extends the list with other list
-        return self_midilist
-    
-    def getSerialization(self) -> dict:
-        serialization = super().getSerialization()
-        serialization["parameters"]["swing"]    = self.serialize( self._swing )
-        serialization["parameters"]["elements"] = self.serialize( self._elements )
-        return serialization
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict) -> 'Tuplet':
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "swing" in serialization["parameters"] and "elements" in serialization["parameters"]):
-
-            super().loadSerialization(serialization)
-            self._swing     = self.deserialize( serialization["parameters"]["swing"] )
-            self._elements  = self.deserialize( serialization["parameters"]["elements"] )
-        return self
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        if not isinstance(operand, tuple):
-            for single_element in self._elements:
-                single_element << operand
-        match operand:
-            case Tuplet():
-                super().__lshift__(operand)
-                self._swing     = operand._swing
-                self._elements  = self.deep_copy(operand._elements)
-            case od.Pipe():
-                match operand._data:
-                    case ra.Swing():            self._swing = operand._data._rational
-                    case od.Elements():
-                        if all(isinstance(single_element, Element) for single_element in operand._data._data):
-                            self._elements = list(operand._data._data)
-                    case _:
-                        super().__lshift__(operand)
-            case ra.Swing():
-                if operand < 0:
-                    self._swing = Fraction(0)
-                elif operand > 1:
-                    self._swing = Fraction(1)
-                else:
-                    self._swing = operand._rational
-            case ra.Duration() | ra.NoteValue() | ra.TimeValue():
-                self._duration_beats = operand % ra.Beats(self) % Fraction() * 2  # Equivalent to two sized Notes
-            case od.Elements():
-                if all(isinstance(single_element, Element) for single_element in operand._data):
-                    self._elements = self.deep_copy(list(operand._data))
-            case _:
-                super().__lshift__(operand)
-        self.set_elements_duration()
-        return self
 
 
     _automation_types: set = {
@@ -5877,7 +5687,7 @@ _element_type: dict[str, type] = {
     'r':        Rest,
     'n':        Note,
     'c':        Chord,
-    'rt':       Retrigger,
+    'rt':       Tuplet,
     'cl':       Cluster,
     'cc':       ControlChange,
     'at':       Aftertouch,
