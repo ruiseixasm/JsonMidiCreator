@@ -2841,6 +2841,54 @@ class ReversedGalop(Galop):
     def get_component_elements(self) -> list[Note]:
         return reversed(super().get_component_elements())
 
+class Shuffle(Rhythm):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> Rhythm -> Shuffle`
+
+    A `Shuffle` is the results in the typical sequence when a single 1/4 note is expanded to an 1/8 note followed by two 1/16 notes.
+
+    Parameters
+    ----------
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(1) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def get_component_elements(self) -> list[Note]:
+        """Returns the elements directly, NO decoupling guaranteed (no copy)"""
+        first_note = Note(self)
+        # Converts to 1/8 dotted alike
+        first_note._duration_beats *= 2
+        first_note._duration_beats /= 3
+        second_note = Note(first_note)
+        second_note._position_beats += first_note._duration_beats
+        second_note._duration_beats /= 2 # Converts to 1/16 alike
+        return [first_note, second_note]
+
+class ReversedShuffle(Shuffle):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> Rhythm -> Shuffle -> ReversedShuffle`
+
+    A `ReversedShuffle` is the results in the typical sequence when a single 1/4 note is expanded to two 1/16 notes followed by an 1/8 note.
+
+    Parameters
+    ----------
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(1) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def get_component_elements(self) -> list[Note]:
+        return reversed(super().get_component_elements())
+
 
 class KeyScale(Note):
     """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale`
