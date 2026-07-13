@@ -3609,7 +3609,6 @@ class Tuplet(Note):
                 return operand.copy() << od.Pipe( self._duration_beats / 2 )
             case ra.TimeValue():
                 return operand.copy() << self % ra.Duration()
-            case float():           return self % ra.NoteValue() % float()
             case _:                 return super().__mod__(operand)
 
     def get_component_elements(self) -> list[Note]:
@@ -3704,10 +3703,6 @@ class Tuplet(Note):
                     self._swing = operand._rational
             case ra.Duration():
                 self._duration_beats = operand._rational * 2  # Equivalent to two sized Notes
-            case ra.TimeValue():
-                self << ra.Duration(self, operand)
-            case float():
-                self << ra.NoteValue(operand)
             case _:
                 super().__lshift__(operand)
         return self
