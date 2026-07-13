@@ -79,6 +79,7 @@ class Element(o.Operand):
     def __init__(self, *parameters):
         import operand_container as oc
         super().__init__()
+        self._enabled: bool                 = True
         self._position_beats: Fraction      = Fraction(0)   # in Beats
         self._duration_beats: Fraction      = Fraction(1)
         self._time_signature: og.TimeSignature  = og.settings._time_signature.copy()
@@ -277,6 +278,7 @@ class Element(o.Operand):
                     case ra.Length():
                         return operand._data << ra.Length(self, self._duration_beats)
                     case Fraction():        return self._duration_beats
+                    case ou.Enable():       return ou.Enable(self._enabled)
                     case _:                 return super().__mod__(operand)
             case og.Locus():
                 locus_copy: og.Locus = operand.copy(self)
@@ -303,6 +305,8 @@ class Element(o.Operand):
             case Fraction():        return self._duration_beats
             case og.TimeSignature():
                                     return self._time_signature.copy()
+            case ou.Enable():       return ou.Enable(self._enabled)
+            case ou.Disable():      return ou.Disable(not self._enabled)
             case oc.Clip():         return oc.Clip(self)
             case Element():         return operand.copy(self)
             case _:                 return super().__mod__(operand)
@@ -323,6 +327,7 @@ class Element(o.Operand):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
+        serialization["parameters"]["enabled"]          = self.serialize(self._enabled)
         serialization["parameters"]["position"]         = self.serialize(self._position_beats)
         serialization["parameters"]["duration"]         = self.serialize(self._duration_beats)
         serialization["parameters"]["time_signature"]   = self.serialize(self._time_signature)
@@ -332,12 +337,14 @@ class Element(o.Operand):
 
     def loadSerialization(self, serialization: dict) -> 'Element':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "position" in serialization["parameters"] and "duration" in serialization["parameters"] and "time_signature" in serialization["parameters"]):
+            "enabled" in serialization["parameters"] and "position" in serialization["parameters"] and "duration" in serialization["parameters"] and
+            "time_signature" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._position_beats        = self.deserialize(serialization["parameters"]["position"])
-            self._duration_beats        = self.deserialize(serialization["parameters"]["duration"])
-            self._time_signature        = self.deserialize(serialization["parameters"]["time_signature"])
+            self._enabled           = self.deserialize(serialization["parameters"]["enabled"])
+            self._position_beats    = self.deserialize(serialization["parameters"]["position"])
+            self._duration_beats    = self.deserialize(serialization["parameters"]["duration"])
+            self._time_signature    = self.deserialize(serialization["parameters"]["time_signature"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -346,6 +353,7 @@ class Element(o.Operand):
         match operand:
             case Element():
                 super().__lshift__(operand)
+                self._enabled               = operand._enabled
                 # No conversion is done, beat and note_value values are directly copied (Same for Block)
                 self._position_beats        = operand._position_beats
                 self._duration_beats        = operand._duration_beats
@@ -362,6 +370,12 @@ class Element(o.Operand):
                     case Fraction():        self._duration_beats = operand._data
                     case og.TimeSignature():
                                             self._time_signature = operand._data
+                    case ou.Enable():
+                        self._enabled               = operand._data._unit != 0
+                    case ou.Disable():
+                        self._enabled               = operand._data._unit == 0
+                    case _:
+                        super().__lshift__(operand)
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
@@ -436,11 +450,17 @@ class Element(o.Operand):
 
             case og.TimeSignature():
                 self._time_signature << operand
+            case ou.Enable():
+                self._enabled               = operand._unit != 0
+            case ou.Disable():
+                self._enabled               = operand._unit == 0
             case oc.Composition():
                 self._time_signature << operand._time_signature
             case tuple():
                 for single_operand in operand:
                     self << single_operand
+            case _:
+                super().__lshift__(operand)
         return self
 
 
@@ -987,6 +1007,23 @@ class Element(o.Operand):
         kb.unblock_key('shift')
 
         return new_clip
+
+
+class Subclip(Element):
+    """`Element -> Subclip`
+
+    `Subclip` Allows a `Clip` to be treated like an Element making it grouped together.
+    All settings not concerning Convertibles like Position or Duration, are passed to the Subclip.
+
+    Parameters
+    ----------
+    Clip() : The `Clip` to be used as Subclip inside an `Element`
+    Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
+    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    pass
+
 
 
 class Unison(Element):
@@ -1539,25 +1576,6 @@ class DeviceElement(Element):
     Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
-    def __init__(self, *parameters):
-        super().__init__()
-        self._enabled: bool                 = True
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
-
-
-    def __mod__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case ou.Enable():       return ou.Enable(self._enabled)
-                    case _:                 return super().__mod__(operand)
-            case ou.Enable():       return ou.Enable(self._enabled)
-            case ou.Disable():      return ou.Disable(not self._enabled)
-            case _:                 return super().__mod__(operand)
-
-
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True,
                     derived_element: 'Element' = None) -> list[dict]:
         if not self._enabled:
@@ -1606,45 +1624,6 @@ class DeviceElement(Element):
                     "tempo":        self_tempo          # bpm
                 }
             ]
-
-
-    def getSerialization(self) -> dict:
-        serialization = super().getSerialization()
-        serialization["parameters"]["enabled"]      = self.serialize(self._enabled)
-        return serialization
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict) -> 'Element':
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "enabled" in serialization["parameters"]):
-
-            super().loadSerialization(serialization)
-            self._enabled = self.deserialize(serialization["parameters"]["enabled"])
-        return self
-
-    def __lshift__(self, operand: any) -> Self:
-        import operand_container as oc
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case DeviceElement():
-                super().__lshift__(operand)
-                self._enabled               = operand._enabled
-            case od.Pipe():
-                match operand._data:
-                    case ou.Enable():
-                        self._enabled               = operand._data._unit != 0
-                    case ou.Disable():
-                        self._enabled               = operand._data._unit == 0
-                    case _:
-                        super().__lshift__(operand)
-            case ou.Enable():
-                self._enabled               = operand._unit != 0
-            case ou.Disable():
-                self._enabled               = operand._unit == 0
-            case _:
-                super().__lshift__(operand)
-        return self
 
 
 class Clock(DeviceElement):
