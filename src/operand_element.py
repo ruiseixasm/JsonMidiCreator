@@ -75,6 +75,7 @@ class Element(o.Operand):
     ----------
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
         import operand_container as oc
@@ -1022,8 +1023,102 @@ class Subclip(Element):
     Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
-    pass
+    def __init__(self, *parameters):
+        import operand_container as oc
+        self._subclip: oc.Clip = oc.Clip()
+        super().__init__(*parameters)
 
+    def __mod__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case oc.Clip():
+                        return operand._subclip
+                    case _:
+                        return super().__mod__(operand)
+            case oc.Clip():
+                return operand._subclip.copy()
+            case _:
+                return super().__mod__(operand)
+
+    def __eq__(self, other: o.Operand) -> bool:
+        import operand_container as oc
+        match other:
+            case self.__class__():
+                return super().__eq__(other) and self._subclip == other._subclip
+            case Element():
+                # Makes a playlist comparison
+                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
+            case _:
+                return super().__eq__(other)
+    
+    def get_component_elements(self) -> list[Element]:
+        """Returns the elements directly, NO decoupling guaranteed (no copy)"""
+        return self._subclip.get_component_elements()
+
+    def getPlotlist(self,
+            midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
+            channels: dict[str, set[int]] = None) -> list[dict]:
+        if not self._enabled: return []
+        if not isinstance(position_beats, Fraction):
+            position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
+        return self._subclip.getPlotlist(position_beats)
+    
+
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+        if not self._enabled: return []
+        if not isinstance(position_beats, Fraction):
+            position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
+        return self._subclip.getPlaylist(position_beats)
+    
+
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None) -> list[dict]:
+        if not self._enabled: return []
+        if not isinstance(position_beats, Fraction):
+            position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
+        return self._subclip.getMidilist(position_beats)
+    
+    
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["subclip"] = self.serialize( self._subclip )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "subclip" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._subclip = self.deserialize( serialization["parameters"]["subclip"] )
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        import operand_container as oc
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Subclip():
+                super().__lshift__(operand)
+                self._subclip = operand._subclip.copy()
+            case od.Pipe():
+                match operand._data:
+                    case oc.Clip():
+                        self._subclip = operand._data
+                    case _:
+                        super().__lshift__(operand)
+            case oc.Clip():
+                self._subclip = operand.copy()
+            case _:
+                super().__lshift__(operand)
+        return self
 
 
 class Unison(Element):
