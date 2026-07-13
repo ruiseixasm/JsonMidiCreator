@@ -19,8 +19,14 @@ src_path = os.path.join(os.path.dirname(__file__), '.', 'src')
 if src_path not in sys.path:
     sys.path.append(src_path)
 
+# Update with: `python.exe -m pip install --upgrade pip`
+# Install with: `pip install ipython`
+# To add autocompletion: `pip install prompt_toolkit ptipython`
+
+
 from JsonMidiCreator import *
 
 
 # Run with -i for interact
+# or RUN whit: `ipython -i command_line.py`
 
