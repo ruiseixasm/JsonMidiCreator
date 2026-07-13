@@ -2565,6 +2565,32 @@ class Note(ChannelElement):
                 return super().__isub__(operand)
 
 
+class Duple(Note):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> Duple`
+
+    A `Duple` is a note played twice in its entire durations.
+
+    Parameters
+    ----------
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Measures(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(1) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def get_component_elements(self) -> list[Note]:
+        """Returns the elements directly, NO decoupling guaranteed (no copy)"""
+        first_note = Note(self)
+        first_note._duration_beats /= 2
+        second_note = Note(first_note)
+        second_note._position_beats += first_note._duration_beats
+        return [first_note, second_note]
+    
+
 class KeyScale(Note):
     """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale`
 
