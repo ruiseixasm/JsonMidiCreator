@@ -2889,10 +2889,10 @@ class ReversedShuffle(Shuffle):
     def get_component_elements(self) -> list[Note]:
         return reversed(super().get_component_elements())
 
-class Syncopated(Rhythm):
-    """`Element -> DeviceElement -> ChannelElement -> Note -> Rhythm -> Syncopated`
+class Syncopate(Rhythm):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> Rhythm -> Syncopate`
 
-    A `Syncopated` is the results in the typical sequence when a single 1/4 note is expanded to a 1/16 note followed by a 1/8 note
+    A `Syncopate` is the results in the typical sequence when a single 1/4 note is expanded to a 1/16 note followed by a 1/8 note
     and ends with a 1/16 note.
 
     Parameters
@@ -2918,10 +2918,10 @@ class Syncopated(Rhythm):
         third_note._position_beats += second_note._duration_beats
         return [first_note, second_note, third_note]
 
-class Shifted(Rhythm):
-    """`Element -> DeviceElement -> ChannelElement -> Note -> Rhythm -> Shifted`
+class Offset(Rhythm):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> Rhythm -> Offset`
 
-    A `Shifted` is the results in the typical sequence when a single 1/4 note is expanded to a 1/8 rest ending with a 1/8 note.
+    A `Offset` is the results in the typical sequence when a single 1/4 note is expanded to a 1/8 rest ending with a 1/8 note.
 
     Parameters
     ----------
