@@ -205,3 +205,18 @@ class Sequencer(Yielder):
         return new_clip
 
 
+class Decomposer(Yielder):
+    """`Yielder -> Decomposer`
+
+    A `Decomposer` calls the element's `get_component_elements` method and returns their elements as yield.
+    
+    Parameters
+    ----------
+    None
+    """
+    def __mul__(self, element: 'Element') -> 'Clip':
+        new_clip = oc.Clip()
+        if isinstance(element, oe.Element):
+            new_clip << od.Pipe( element.get_component_elements() )
+        return new_clip
+
