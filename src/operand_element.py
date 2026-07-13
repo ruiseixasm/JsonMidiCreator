@@ -1057,6 +1057,7 @@ class Subclip(Element):
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         return self._subclip.get_component_elements()
 
+
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
             channels: dict[str, set[int]] = None) -> list[dict]:
@@ -1065,7 +1066,10 @@ class Subclip(Element):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        return self._subclip.getPlotlist(position_beats)
+        self_plotlist: list[dict] = self._subclip.getPlaylist(position_beats)
+        for plotdata in self_plotlist:
+            plotdata["self"] = self # Makes sure it's identified as `Subclip`
+        return self_plotlist
     
 
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
