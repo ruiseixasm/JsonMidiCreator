@@ -2893,7 +2893,7 @@ class Syncopated(Rhythm):
     """`Element -> DeviceElement -> ChannelElement -> Note -> Rhythm -> Syncopated`
 
     A `Syncopated` is the results in the typical sequence when a single 1/4 note is expanded to a 1/16 note followed by a 1/8 note
-    nad ends with a 1/16 note.
+    and ends with a 1/16 note.
 
     Parameters
     ----------
@@ -2917,6 +2917,32 @@ class Syncopated(Rhythm):
         third_note = Note(first_note)
         third_note._position_beats += second_note._duration_beats
         return [first_note, second_note, third_note]
+
+class Shifted(Rhythm):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> Rhythm -> Shifted`
+
+    A `Shifted` is the results in the typical sequence when a single 1/4 note is expanded to a 1/8 rest ending with a 1/8 note.
+
+    Parameters
+    ----------
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(1) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def get_component_elements(self) -> list[Note]:
+        """Returns the elements directly, NO decoupling guaranteed (no copy)"""
+        first_rest = Rest(self)
+        first_rest._duration_beats /= 2 # Converts to 1/8 alike
+        second_note = Note(self)
+        second_note._position_beats += first_rest._duration_beats
+        second_note._duration_beats /= 2 # Converts to 1/8 alike
+        return [first_rest, second_note]
 
 
 class KeyScale(Note):
