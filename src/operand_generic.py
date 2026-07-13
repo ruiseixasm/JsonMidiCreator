@@ -3640,26 +3640,6 @@ class Transform(ContainerProcess):
         return operand.transform(self._parameters)
 
 
-class Shuffle(ContainerProcess):
-    """`Generic -> Process -> ContainerProcess -> Shuffle`
-
-    Reaffects the given parameter type in a chaotic manner.
-
-    Args:
-        chaos (Chaos): An Chaos object to be used as sorter.
-        parameter (type): The type of parameter being swapped around the items.
-    """
-    from operand_rational import Position
-
-    def __init__(self, chaos: 'Chaos' = None, parameter: type = Position):
-        super().__init__([chaos, parameter])
-        self._indexes = {
-            'chaos': 0, 'parameter': 1
-        }
-
-    def _process(self, operand: 'Container') -> 'Container':
-        return operand.shuffle(*self._parameters)
-
 class Swap(ContainerProcess):
     """`Generic -> Process -> ContainerProcess -> Swap`
 

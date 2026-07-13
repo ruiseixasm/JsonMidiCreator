@@ -570,8 +570,6 @@ class Container(o.Operand):
                 return self
             case og.Process():
                 return operand._direct_process(self)
-            case ch.Chaos():
-                return self.shuffle(operand)
             case of.Frame():
                 operand._set_inside_container(self)
                 unmasked_items: list = self.unmasked_items()
@@ -858,28 +856,6 @@ class Container(o.Operand):
             self._items.reverse()
         return self
 
-    def shuffle(self, chaos: ch.Chaos = None, parameter: type = ra.Position) -> Self:
-        """
-        Reaffects the given parameter type in a chaotic manner.
-
-        Args:
-            chaos (Chaos): An Chaos object to be used as sorter.
-            parameter (type): The type of parameter being swapped around the items.
-
-        Returns:
-            Container: The same self object with the items processed.
-        """
-        if chaos is None or not isinstance(chaos, ch.Chaos):
-            chaos = ch.SinX()
-        parameters: list = []
-        parameter_instance = parameter()
-        for item in self._items:
-            parameters.append(item % parameter_instance)   # No need to copy
-        for item in self._items:
-            data_index: int = chaos % 1 % len(parameters)
-            item << parameters[data_index]
-            del parameters[data_index] # Like picking up colored balls, pop out
-        return self._sort_items()
 
     def swap(self, left: Union[o.Operand, list, int] = 0, right: Union[o.Operand, list, int] = 1, what: type = ra.Position) -> Self:
         """
