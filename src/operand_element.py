@@ -1120,7 +1120,7 @@ class Subclip(Element):
                         super().__lshift__(operand)
             case oc.Clip():
                 self._subclip = operand.copy()
-                self << self._subclip.net_duration(True)    # Updates the Element Duration
+                self << ra.Duration(self._subclip.net_finish(True)) # Updates the Element Duration
             case _:
                 super().__lshift__(operand)
         return self
