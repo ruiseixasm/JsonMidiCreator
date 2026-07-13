@@ -1067,8 +1067,8 @@ class Subclip(Element):
         elif position_beats < 0:
             return []
         self_plotlist: list[dict] = self._subclip.getPlaylist(position_beats)
-        for plotdata in self_plotlist:
-            plotdata["self"] = self # Makes sure it's identified as `Subclip`
+        for plot_dict in self_plotlist:
+            plot_dict["self"] = self # Makes sure it's identified as `Subclip`
         return self_plotlist
     
 
