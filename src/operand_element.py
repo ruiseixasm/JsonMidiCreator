@@ -3528,7 +3528,7 @@ class Chord(KeyScale):
 class Tuplet(Note):
     """`Element -> DeviceElement -> ChannelElement -> Note -> Tuplet`
 
-    A `Tuplet` element allows the repeated triggering of a `Note`.
+    A `Tuplet` element allows the repeated triggering of a `Note` accordingly to the given Count.
 
     Parameters
     ----------
@@ -3548,8 +3548,6 @@ class Tuplet(Note):
         self._count: int        = 8
         self._swing: Fraction   = Fraction(1, 2)
         super().__init__()
-        self._duration_beats    *= 2 # Equivalent to twice single note duration
-        self._gate              = Fraction(1, 2)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -3604,11 +3602,6 @@ class Tuplet(Note):
                     case _:                 return super().__mod__(operand)
             case ou.Count():        return ou.Count() << od.Pipe(self._count)
             case ra.Swing():        return ra.Swing() << od.Pipe(self._swing)
-            # Returns the SYMBOLIC value of each note
-            case ra.Duration():
-                return operand.copy() << od.Pipe( self._duration_beats / 2 )
-            case ra.TimeValue():
-                return operand.copy() << self % ra.Duration()
             case _:                 return super().__mod__(operand)
 
     def get_component_elements(self) -> list[Note]:
@@ -3616,7 +3609,7 @@ class Tuplet(Note):
         retrigger_notes: list[Note] = []
         self_iteration: int = 0
         note_position: ra.Position = ra.Position(self, self._position_beats)
-        single_note_duration: ra.Duration = ra.Duration( self._duration_beats/(self._count) ) # Already 2x single note duration
+        single_note_duration: ra.Duration = ra.Duration( self._duration_beats/self._count ) # Already 2x single note duration
         for _ in range(self._count):
             swing_ratio: Fraction = self._swing
             if self_iteration % 2:
@@ -3701,13 +3694,9 @@ class Tuplet(Note):
                     self._swing = Fraction(1)
                 else:
                     self._swing = operand._rational
-            case ra.Duration():
-                self._duration_beats = operand._rational * 2  # Equivalent to two sized Notes
             case _:
                 super().__lshift__(operand)
         return self
-
-
 
 
 
