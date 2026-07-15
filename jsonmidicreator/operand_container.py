@@ -27,7 +27,7 @@ import re
 from . import creator as c
 from . import operand as o
 
-import operand_label as ol
+from . import operand_label as ol
 import operand_data as od
 import operand_unit as ou
 import operand_rational as ra

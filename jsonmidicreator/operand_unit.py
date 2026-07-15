@@ -25,7 +25,7 @@ import math
 from . import creator as c
 from . import operand as o
 import operand_data as od
-import operand_label as ol
+from . import operand_label as ol
 
 
 class Unit(o.Operand):

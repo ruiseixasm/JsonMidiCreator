@@ -671,7 +671,7 @@ class Operand:
 
 
     def __eq__(self, other: any) -> bool:
-        import operand_label as ol
+        from . import operand_label as ol
         import operand_data as od
         match other:
             case ol.Null():
@@ -700,11 +700,11 @@ class Operand:
         return self.__eq__(other) or self.__gt__(other)
     
     def net_start(self):
-        import operand_label as ol
+        from . import operand_label as ol
         return ol.Null()
 
     def net_finish(self):
-        import operand_label as ol
+        from . import operand_label as ol
         return ol.Null()
     
     def name(self) -> str:
@@ -723,7 +723,7 @@ class Operand:
         >>> print(given_operand % Duration() % NoteValue() % float())
         0.5
         """
-        import operand_label as ol
+        from . import operand_label as ol
         import operand_data as od
         import operand_unit as ou
         import operand_rational as ra
@@ -759,7 +759,7 @@ class Operand:
 
     # Makes sure no Non Operand has `% Operand` applied
     def __rmod__(self, operand: any) -> Self:
-        import operand_label as ol
+        from . import operand_label as ol
         return ol.Null()
 
     def getPlaylist(self, position_beats: Fraction | None = None) -> list[dict]:
@@ -792,7 +792,7 @@ class Operand:
         return self.__lshift__(operand)
 
     def __lshift__(self, operand: any) -> Self:
-        import operand_label as ol
+        from . import operand_label as ol
         import operand_data as od
         import operand_chaos as ch
         match operand:
@@ -909,7 +909,7 @@ class Operand:
     
     # Makes sure no Non Operand has `// Operand` applied
     def __rfloordiv__(self, operand: any) -> Self:
-        import operand_label as ol
+        from . import operand_label as ol
         return ol.Null()
 
     # Single word callers

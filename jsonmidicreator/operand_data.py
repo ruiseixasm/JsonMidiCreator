@@ -22,7 +22,7 @@ import re
 # Json Midi Creator Libraries
 from . import creator as c
 from . import operand as o
-import operand_label as ol
+from . import operand_label as ol
 
 
 def _normalize_dsl(dsl: str) -> str:
