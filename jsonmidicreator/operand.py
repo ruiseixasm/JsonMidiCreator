@@ -21,7 +21,7 @@ import ast
 
 from fractions import Fraction
 # Json Midi Creator Libraries
-import creator as c
+from . import creator as c
 
 DEBUG = False
 
