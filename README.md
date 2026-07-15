@@ -13,7 +13,7 @@ Program that creates files for the JsonMidiPlayer program: https://github.com/ru
 ## How to install jsonmidicreator
 Go to your command line and navigate to the root directory where you have the folder `jsonmidicreator` and type:
 ```
-python -m pip install -e .
+pip install -e .
 ```
 
 ## How to install matplotlib
