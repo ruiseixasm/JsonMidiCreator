@@ -15,29 +15,25 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 from fractions import Fraction
 import time
-# Json Midi Creator Libraries
-from operand import *
-from operand_label import *
-from operand_data import *
-from operand_unit import *
-from operand_rational import *
-from operand_generic import *
-from operand_element import *
-from operand_frame import *
-from operand_tamer import *
-from operand_chaos import *
-from operand_container import *
-from operand_yielder import *
-from operand_iterations import *
-from resource_devices import *
-from resource_filters import *
+
+# Local Json Midi Creator Libraries
+from .operand import *
+from .operand_label import *
+from .operand_data import *
+from .operand_unit import *
+from .operand_rational import *
+from .operand_generic import *
+from .operand_element import *
+from .operand_frame import *
+from .operand_tamer import *
+from .operand_chaos import *
+from .operand_container import *
+from .operand_yielder import *
+from .operand_iterations import *
+from .resource_devices import *
+from .resource_filters import *
 
 
-# Set group of constants
-
-# Class alias, abbreviations
-
-# Label aliases
 # Data aliases
 Title = Name = TrackName
 # Unit aliases
