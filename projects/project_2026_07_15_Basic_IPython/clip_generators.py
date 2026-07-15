@@ -16,7 +16,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from jsonmidicreator import *
 
 def some_notes(amount: int = 4) -> Clip:
-    notes = Note(Steps(0)) * Sequencer(UpBeat())
+    notes = Note(Steps(1)) * Sequencer(UpBeat())
     return notes
 
 
