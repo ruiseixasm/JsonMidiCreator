@@ -1,3 +1,8 @@
+# Enable the library locally (e for editable)
+```
+pip install -e .
+```
+
 # Interactive mode REPL
 ```
 ipython
