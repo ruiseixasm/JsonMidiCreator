@@ -1404,9 +1404,9 @@ def test_clip_masking():
 
 def test_empty_clips():
     empty_clip = Clip()
-    empty_clip >> Save()
-    empty_clip >> Export()
-    empty_clip >> Render()
+    empty_clip >> Save("diverse/empty_saved.json")
+    empty_clip >> Export("diverse/empty_exported.json")
+    empty_clip >> Render("diverse/empty_rendered.mid")
 
 
 def test_clip_line():
