@@ -19,7 +19,7 @@ src_path = os.path.join(os.path.dirname(__file__), '../../../../..', 'src')
 if src_path not in sys.path:
     sys.path.append(src_path)
 
-from JsonMidiCreator import *
+from jsonmidicreator import *
 
 motion = Foreach(0, 2, 1, 4)**Degree()
 parallel_1 = Note(1/1, Degree(6)) / 4 << TrackName("Parallel Motion")

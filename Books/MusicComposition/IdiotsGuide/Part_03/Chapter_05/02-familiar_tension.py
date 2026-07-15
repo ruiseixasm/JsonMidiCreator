@@ -19,7 +19,7 @@ src_path = os.path.join(os.path.dirname(__file__), '../../../../..', 'src')
 if src_path not in sys.path:
     sys.path.append(src_path)
 
-from JsonMidiCreator import *
+from jsonmidicreator import *
 
 familiar_bar1 = Note("F", 5) * 4 - Iterate()**0
 familiar_bar2 = Note("B", Dotted(1/2)) + Note("F", 5)

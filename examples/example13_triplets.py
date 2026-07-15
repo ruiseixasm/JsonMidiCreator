@@ -19,7 +19,7 @@ src_path = os.path.join(os.path.dirname(__file__), '..', 'src')
 if src_path not in sys.path:
     sys.path.append(src_path)
 
-from JsonMidiCreator import *
+from jsonmidicreator import *
 
 tuplet = Tuplet(1/2) >> Print()
 two_notes = Note("D", 1/2) * 2 << Gate(0.5)

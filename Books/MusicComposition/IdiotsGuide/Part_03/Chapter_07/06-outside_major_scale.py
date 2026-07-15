@@ -19,7 +19,7 @@ src_path = os.path.join(os.path.dirname(__file__), '../../../../..', 'src')
 if src_path not in sys.path:
     sys.path.append(src_path)
 
-from JsonMidiCreator import *
+from jsonmidicreator import *
 
 structural_tones: Clip = Note("E", Duration(1/1)) * 4 + Foreach(0, 2, 2, 4)
 chromatic_tones = Note("F#", Position(Beats(3))) + Note("Ab", Position(Measures(1), Beats(3))) + Note("A#", Position(Measures(2), Beats(3)))

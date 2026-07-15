@@ -22,10 +22,10 @@ if src_path not in sys.path:
     sys.path.append(src_path)
 
 start_time = time.time()
-from JsonMidiCreator import *
+from jsonmidicreator import *
 finish_time = time.time()
 print(f"Loading time (ms): {(finish_time - start_time) * 1000}")
-from . import creator as c
+import jsonmidicreator.creator as c
 
 result_save         = Serialization()
 result_export       = Playlist()

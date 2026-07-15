@@ -32,7 +32,7 @@ else:  # Assume Linux/Unix
     settings << Devices(["VMPK", "FLUID"])          # FLUID Synth
 
 
-from JsonMidiCreator import *
+from jsonmidicreator import *
 
 
 total_measures: int = settings.convert_time_to_measures(seconds=40)

@@ -19,7 +19,7 @@ src_path = os.path.join(os.path.dirname(__file__), '../../../../..', 'src')
 if src_path not in sys.path:
     sys.path.append(src_path)
 
-from JsonMidiCreator import *
+from jsonmidicreator import *
 
 settings << KeySignature("#")
 scale_tones = Note("G", 1/1) * 4 + Foreach(0, 2, 0, -1)

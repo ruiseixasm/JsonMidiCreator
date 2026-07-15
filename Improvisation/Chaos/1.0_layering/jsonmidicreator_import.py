@@ -37,6 +37,6 @@ def add_src_to_path():
 add_src_to_path()
 
 # Import everything from JsonMidiCreator
-from JsonMidiCreator import *
+from jsonmidicreator import *
 
 

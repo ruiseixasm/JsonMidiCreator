@@ -19,7 +19,7 @@ src_path = os.path.join(os.path.dirname(__file__), '../../../../..', 'src')
 if src_path not in sys.path:
     sys.path.append(src_path)
 
-from JsonMidiCreator import *
+from jsonmidicreator import *
 
 smooth_movement_p1: Clip = Note() * 4
 smooth_movement_p2: Clip = Note() * 3 << Foreach(Dotted(1/4), 1/8, 1/2) >> Stack() << Foreach("E", "D", "D")

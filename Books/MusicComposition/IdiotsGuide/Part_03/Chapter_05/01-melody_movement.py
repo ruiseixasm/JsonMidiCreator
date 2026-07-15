@@ -19,7 +19,7 @@ src_path = os.path.join(os.path.dirname(__file__), '../../../../..', 'src')
 if src_path not in sys.path:
     sys.path.append(src_path)
 
-from JsonMidiCreator import *
+from jsonmidicreator import *
 
 movement = Note() * (3*4 + 1)
 movement << Match(Measures(3))**Pitch("D", 5) << Match(Measures(3))**NoteValue(1) \

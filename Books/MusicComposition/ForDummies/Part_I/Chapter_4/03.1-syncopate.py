@@ -19,7 +19,7 @@ src_path = os.path.join(os.path.dirname(__file__), '../../../../..', 'src')
 if src_path not in sys.path:
     sys.path.append(src_path)
 
-from JsonMidiCreator import *
+from jsonmidicreator import *
 
 syncopation = Note(Octave(5)) / list_wrap([3, 1, 3, 1, 3, 1, 8, 3, 1, 4], Steps()) + Beat(1)
 syncopation += Foreach(0, 0, -3, -3, -2, -2, -3, -1, -1, 0)**Degree()

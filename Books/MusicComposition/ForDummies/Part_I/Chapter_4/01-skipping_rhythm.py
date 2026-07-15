@@ -19,7 +19,7 @@ src_path = os.path.join(os.path.dirname(__file__), '../../../../..', 'src')
 if src_path not in sys.path:
     sys.path.append(src_path)
 
-from JsonMidiCreator import *
+from jsonmidicreator import *
 
 left = Note(Channel(10), Pitch(43), Velocity(80)) / [Dotted(1/8), 1/16]
 right = left.copy(Pitch(37))

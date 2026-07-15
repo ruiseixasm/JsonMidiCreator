@@ -20,7 +20,7 @@ if src_path not in sys.path:
     sys.path.append(src_path)
 
 
-from JsonMidiCreator import *
+from jsonmidicreator import *
 
 settings << Folder("Books/EasyToPlayKeyboardTunes/")
 ProgramChange("Electric grand piano", Channel(1)) + ProgramChange("Synth voice", Channel(2)) >> Play()

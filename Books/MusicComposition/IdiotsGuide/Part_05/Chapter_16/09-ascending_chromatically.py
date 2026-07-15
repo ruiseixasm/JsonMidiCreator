@@ -19,7 +19,7 @@ src_path = os.path.join(os.path.dirname(__file__), '../../../../..', 'src')
 if src_path not in sys.path:
     sys.path.append(src_path)
 
-from JsonMidiCreator import *
+from jsonmidicreator import *
 
 
 settings << Tempo(160) << Folder("Books/MusicComposition/IdiotsGuide/Part_05/Chapter_16/")

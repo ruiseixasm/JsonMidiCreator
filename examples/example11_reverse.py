@@ -19,7 +19,7 @@ src_path = os.path.join(os.path.dirname(__file__), '..', 'src')
 if src_path not in sys.path:
     sys.path.append(src_path)
 
-from JsonMidiCreator import *
+from jsonmidicreator import *
 
 tension = Note("B", 5) * 12 << Nth(7)**Duration(1/2) >> Stack() << Match(Measures(3))**Duration(1/1) >> Stack()
 tension + Foreach(1, 0, 1, 2, 3, 5, 4, 3, 2, 1, 0, 1)

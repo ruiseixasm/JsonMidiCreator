@@ -24,7 +24,7 @@ if src_path not in sys.path:
 # To add autocompletion: `pip install prompt_toolkit ptipython`
 
 
-from JsonMidiCreator import *
+from jsonmidicreator import *
 
 
 # Run with -i for interact

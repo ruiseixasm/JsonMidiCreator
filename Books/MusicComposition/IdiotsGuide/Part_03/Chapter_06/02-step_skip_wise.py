@@ -19,7 +19,7 @@ src_path = os.path.join(os.path.dirname(__file__), '../../../../..', 'src')
 if src_path not in sys.path:
     sys.path.append(src_path)
 
-from JsonMidiCreator import *
+from jsonmidicreator import *
 
 step_wise = Note("F") * (4*4 - 3) + Nth(2, 3, 4, 7, 8, 9, 10)**Iterate()**0 << Match(Measures(3))**Duration(1/1)
 (step_wise | Nth(1, 5, 6, 11, 12, 13)) + Foreach(1, 3, 2, 5, 4, 3)

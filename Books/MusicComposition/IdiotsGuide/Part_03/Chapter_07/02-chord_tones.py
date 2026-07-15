@@ -19,7 +19,7 @@ src_path = os.path.join(os.path.dirname(__file__), '../../../../..', 'src')
 if src_path not in sys.path:
     sys.path.append(src_path)
 
-from JsonMidiCreator import *
+from jsonmidicreator import *
 
 settings << KeySignature("b") << Tempo(60)
 chords = Chord("F", 1/1) * 8 << Foreach(1, 4, 1, 5, 1, 4, 1, 5)**Degree() \
