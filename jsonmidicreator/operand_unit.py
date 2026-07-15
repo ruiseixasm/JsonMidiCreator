@@ -1643,7 +1643,7 @@ class MidiTrack(Midi):
         return self
 
     def __mod__(self, operand: o.T) -> o.T:
-        import operand_container as oc
+        from . import operand_container as oc
         match operand:
             case od.Pipe():
                 match operand._data:
@@ -1690,7 +1690,7 @@ class MidiTrack(Midi):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        import operand_container as oc
+        from . import operand_container as oc
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case MidiTrack():

@@ -28,7 +28,7 @@ from . import operand_data as od
 from . import operand_unit as ou
 from . import operand_rational as ra
 from . import operand_generic as og
-import operand_element as oe
+from . import operand_element as oe
 
 if TYPE_CHECKING:
     from operand_container import Container
@@ -45,7 +45,7 @@ class Frame(o.Operand):
     None : Frame doesn't have any self parameters.
     """
     def __init__(self, *parameters):
-        import operand_container as oc
+        from . import operand_container as oc
         super().__init__()
         # These parameters replace the homologous Operand's ones
         self._next_operand: any         = ol.Full()
@@ -260,8 +260,8 @@ class Input(LeftToRight):
         self._named_parameters['input'] = input
 
     def frame(self, input: o.T) -> o.T:
-        import operand_container as oc
-        import operand_chaos as ch
+        from . import operand_container as oc
+        from . import operand_chaos as ch
         self._index += 1
         if isinstance(self._named_parameters['input'], oc.Container):
             if self._named_parameters['input'].len() > 0:
@@ -531,7 +531,7 @@ class Iterate(LeftToRight):
         self._named_parameters['iterator'] = iterator
 
     def frame(self, input: o.T) -> o.T:
-        import operand_chaos as ch
+        from . import operand_chaos as ch
         self._index += 1
         if isinstance(input, ch.Chaos):
             if self._named_parameters['iterator']['current'] == self._named_parameters['iterator']['start']:
@@ -736,7 +736,7 @@ class First(Selector):
         self._named_parameters['amount'] = amount
 
     def frame(self, input: o.T) -> o.T:
-        import operand_container as oc
+        from . import operand_container as oc
         if isinstance(self._inside_container, oc.Container):
             item_index: int = self._inside_container._item_index(input)
             if item_index is not None and item_index < self._named_parameters['amount']:
@@ -758,7 +758,7 @@ class Last(Selector):
         self._named_parameters['amount'] = amount
 
     def frame(self, input: o.T) -> o.T:
-        import operand_container as oc
+        from . import operand_container as oc
         if isinstance(self._inside_container, oc.Container):
             item_index: int = self._inside_container._item_index(input)
             if item_index is not None:  # Empty container returns index None
@@ -782,8 +782,8 @@ class Crossing(Selector):
     None : `Crossing` doesn't have parameters to be set.
     """
     def frame(self, input: o.T) -> o.T:
-        import operand_element as oe
-        import operand_container as oc
+        from . import operand_element as oe
+        from . import operand_container as oc
         if isinstance(self._inside_container, oc.Container) \
             and isinstance(input, oe.Element) and input.crossing(self._inside_container):
             if isinstance(self._next_operand, Frame):
@@ -1110,7 +1110,7 @@ class Every(Alternator):
         nth (int): The nth input, as in every other 2nd or 4th in each `Measure`.
     """
     def __init__(self, nth: int = 4):
-        import operand_container as oc
+        from . import operand_container as oc
         super().__init__()
         self._measure_at: int = 0
         self._named_parameters['nths'] = nth
@@ -1123,7 +1123,7 @@ class Every(Alternator):
         return self << parameters
     
     def frame(self, input: o.T) -> o.T:
-        import operand_container as oc
+        from . import operand_container as oc
         if self._named_parameters['nths'] > 0 and isinstance(input, (oe.Element, oc.Composition)):
             present_measure: ra.Measure = input % ra.Measure()
             if isinstance(self._previous_measure, ra.Measure) and self._previous_measure < present_measure:

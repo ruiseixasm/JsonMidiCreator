@@ -156,7 +156,7 @@ class Rational(o.Operand):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        import operand_element as oe
+        from . import operand_element as oe
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Rational():
@@ -733,8 +733,8 @@ class Convertible(Rational):
 
     def __lshift__(self, operand: any) -> Self:
         from . import operand_generic as og
-        import operand_element as oe
-        import operand_container as oc
+        from . import operand_element as oe
+        from . import operand_container as oc
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Convertible():

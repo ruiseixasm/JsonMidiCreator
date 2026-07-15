@@ -195,8 +195,8 @@ class Locus(Generic):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        import operand_element as oe
-        import operand_container as oc
+        from . import operand_element as oe
+        from . import operand_container as oc
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         if self._time_signature_reference is None:
             match operand:
@@ -2062,7 +2062,7 @@ class Arpeggio(NoteEffect):
     Chaos(SinX()) : For the `Order` 5, "Chaotic", it uses the set Chaotic `Operand`.
     """
     def __init__(self, *parameters):
-        import operand_chaos as ch
+        from . import operand_chaos as ch
         self._order: int = 1    # "Up" by default
         self._duration_beats: Fraction = Fraction(1, 4) # duration in beats, NOT note value
         self._swing: Fraction = Fraction(1, 2)
@@ -2070,7 +2070,7 @@ class Arpeggio(NoteEffect):
         super().__init__(*parameters)
 
     def __mod__(self, operand: o.T) -> o.T:
-        import operand_chaos as ch
+        from . import operand_chaos as ch
         match operand:
             case od.Pipe():
                 match operand._data:
@@ -2214,7 +2214,7 @@ class Arpeggio(NoteEffect):
         return self
     
     def __lshift__(self, operand: any) -> Self:
-        import operand_chaos as ch
+        from . import operand_chaos as ch
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Arpeggio():
@@ -2271,7 +2271,7 @@ class Repeat(NoteEffect):
     Chaos(SinX()) : For the `Order` 5, "Chaotic", it uses the set Chaotic `Operand`.
     """
     def __init__(self, *parameters):
-        import operand_chaos as ch
+        from . import operand_chaos as ch
         self._duration_beats: Fraction  = Fraction(1, 4)    # duration in beats, NOT note value
         self._swing: Fraction           = Fraction(1, 2)
         self._chaos: ch.Chaos           = ch.SinX()
@@ -2482,7 +2482,7 @@ class Coupler(NoteEffect):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        import operand_element as oe
+        from . import operand_element as oe
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Coupler():
@@ -2718,8 +2718,8 @@ class Segment(Generic):
         return self
     
     def __lshift__(self, operand: any) -> Self:
-        import operand_element as oe
-        import operand_container as oc
+        from . import operand_element as oe
+        from . import operand_container as oc
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Segment():
@@ -2887,8 +2887,8 @@ class Process(Generic):
 
     @staticmethod
     def _clocked_playlist(operand: o.T) -> list[dict]:
-        import operand_element as oe
-        import operand_container as oc
+        from . import operand_element as oe
+        from . import operand_container as oc
 
         playlist: list[dict] = []
 
@@ -3100,7 +3100,7 @@ class Save(ReadOnly):
         super().__init__(filename)
 
     def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
+        from . import operand_container as oc
         if isinstance(operand, o.Operand):
             file_path: str = self._parameters
             folder: str = settings._folder
@@ -3128,7 +3128,7 @@ class Export(ReadOnly):
         super().__init__(filename)
 
     def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
+        from . import operand_container as oc
         match operand:
             case o.Operand():
                 file_path: str = self._parameters
@@ -3159,8 +3159,8 @@ class Render(ReadOnly):
         super().__init__(filename)
 
     def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_element as oe
-        import operand_container as oc
+        from . import operand_element as oe
+        from . import operand_container as oc
         # filepath and filename
         file_path: str = self._parameters
         folder: str = settings._folder
@@ -3218,8 +3218,8 @@ class Plot(ReadOnly):
 
     def __rrshift__(self, operand: o.T) -> o.T:
         from . import operand_unit as ou
-        import operand_element as oe
-        import operand_container as oc
+        from . import operand_element as oe
+        from . import operand_container as oc
         match operand:
             case oc.Composition() | oe.Element():
                 return operand.plot(*self._parameters)
@@ -3272,8 +3272,8 @@ class Call(ReadOnly):
         }
 
     def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_element as oe
-        import operand_container as oc
+        from . import operand_element as oe
+        from . import operand_container as oc
         if isinstance(operand, (oc.Composition, oe.Element)):
             return operand.call(*self._parameters)
         return operand
@@ -3297,8 +3297,8 @@ class Play(ReadOnly):
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import threading
-        import operand_element as oe
-        import operand_container as oc
+        from . import operand_element as oe
+        from . import operand_container as oc
         match operand:
             case oc.Composition():
                 if operand._items:
@@ -3413,7 +3413,7 @@ class Proxy(ReadOnly):
         super().__init__(parameters)
 
     def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
+        from . import operand_container as oc
         if isinstance(operand, oc.Container):
             return operand.shallow_copy(*self._parameters)
         return super().__rrshift__(operand)
@@ -3468,7 +3468,7 @@ class Read(Process):
         None
     """
     def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_element as oe
+        from . import operand_element as oe
         if isinstance(operand, (oe.Element, ra.Tempo)):
             return self._direct_process(operand.copy())
         else:
@@ -3476,7 +3476,7 @@ class Read(Process):
         return operand
 
     def _direct_process(self, operand: o.T) -> o.T:
-        import operand_element as oe
+        from . import operand_element as oe
         if isinstance(operand, (oe.Element, ra.Tempo)):
             return self._process(operand)
         else:
@@ -3552,14 +3552,14 @@ class ContainerProcess(Process):
         self._previous_item: Any = None
         
     def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
+        from . import operand_container as oc
         if isinstance(operand, oc.Container):
             return self._direct_process(operand.copy())
         print(f"Warning: Operand is NOT a `Container`!")
         return operand
 
     def _direct_process(self, operand: o.T) -> o.T:
-        import operand_container as oc
+        from . import operand_container as oc
         if isinstance(operand, oc.Container):
             return self._process(operand)
         else:
@@ -3807,12 +3807,12 @@ class ClipProcess(CompositionProcess):
     Processes applicable exclusively to `Clip` operands.
     """
     def __init__(self, parameters: list = []):
-        import operand_element as oe
+        from . import operand_element as oe
         super().__init__(parameters)
         self._previous_item: oe.Element | None = None
 
     def _direct_process(self, operand: o.T) -> o.T:
-        import operand_container as oc
+        from . import operand_container as oc
         if isinstance(operand, oc.Clip):
             return self._process(operand)
         else:
@@ -4234,7 +4234,7 @@ class SectionProcess(CompositionProcess):
     Processes applicable exclusively to `Block` operands.
     """
     def _direct_process(self, operand: o.T) -> o.T:
-        import operand_container as oc
+        from . import operand_container as oc
         if isinstance(operand, oc.Block):
             return self._process(operand)
         else:
@@ -4250,7 +4250,7 @@ class SongProcess(CompositionProcess):
     Processes applicable exclusively to `Part` operands.
     """
     def _direct_process(self, operand: o.T) -> o.T:
-        import operand_container as oc
+        from . import operand_container as oc
         if isinstance(operand, oc.Part):
             return self._process(operand)
         else:
@@ -4320,8 +4320,8 @@ class Settings(Generic):
 
 
     def __mod__(self, operand: o.T) -> o.T:
-        import operand_element as oe
-        import operand_container as oc
+        from . import operand_element as oe
+        from . import operand_container as oc
         match operand:
             case od.Pipe():
                 match operand._data:
@@ -4432,8 +4432,8 @@ class Settings(Generic):
         return self
     
     def __lshift__(self, operand: any) -> Self:
-        import operand_element as oe
-        import operand_container as oc
+        from . import operand_element as oe
+        from . import operand_container as oc
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Settings():
@@ -4492,7 +4492,7 @@ class Settings(Generic):
 
     
     def __iadd__(self, operand: any) -> Self:
-        import operand_container as oc
+        from . import operand_container as oc
         match operand:
             case od.Device():
                 if isinstance(operand._data, str):
@@ -4506,7 +4506,7 @@ class Settings(Generic):
         return super().__iadd__(operand)
 
     def __isub__(self, operand: any) -> Self:
-        import operand_container as oc
+        from . import operand_container as oc
         match operand:
             case od.Device():
                 self_devices: oc.Devices = self % od.Pipe( oc.Devices() )

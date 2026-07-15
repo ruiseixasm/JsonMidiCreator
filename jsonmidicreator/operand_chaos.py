@@ -28,7 +28,7 @@ from . import operand as o
 from . import operand_unit as ou
 from . import operand_rational as ra
 from . import operand_data as od
-import operand_tamer as ot
+from . import operand_tamer as ot
 
 
 class Chaos(o.Operand):

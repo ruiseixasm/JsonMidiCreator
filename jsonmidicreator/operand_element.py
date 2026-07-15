@@ -31,7 +31,7 @@ from . import operand_data as od
 from . import operand_unit as ou
 from . import operand_rational as ra
 from . import operand_generic as og
-import operand_chaos as ch
+from . import operand_chaos as ch
 
 # Define ANSI escape codes for colors
 RED = "\033[91m"
@@ -78,7 +78,7 @@ class Element(o.Operand):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        import operand_container as oc
+        from . import operand_container as oc
         super().__init__()
         self._enabled: bool                 = True
         self._position_beats: Fraction      = Fraction(0)   # in Beats
@@ -91,7 +91,7 @@ class Element(o.Operand):
 
 
     def _set_owner_clip(self, owner_clip: 'Clip') -> Self:
-        import operand_container as oc
+        from . import operand_container as oc
         if isinstance(owner_clip, oc.Clip):
             self._owner_clip = owner_clip
         return self
@@ -225,7 +225,7 @@ class Element(o.Operand):
         return [ self ]
 
     def __eq__(self, other: o.Operand) -> bool:
-        import operand_frame as of
+        from . import operand_frame as of
         match other:
             case Element():
                 return self._position_beats == other._position_beats \
@@ -268,7 +268,7 @@ class Element(o.Operand):
         >>> element % Devices() % list() >> Print()
         ['loopMIDI', 'Microsoft']
         """
-        import operand_container as oc
+        from . import operand_container as oc
         match operand:
             case od.Pipe():
                 match operand._data:
@@ -349,7 +349,7 @@ class Element(o.Operand):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        import operand_container as oc
+        from . import operand_container as oc
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Element():
@@ -559,7 +559,7 @@ class Element(o.Operand):
 
 
     def __iadd__(self, operand: any) -> Union[TypeElement, 'Clip']:
-        import operand_container as oc
+        from . import operand_container as oc
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Element():
@@ -612,8 +612,8 @@ class Element(o.Operand):
         return self
 
     def __imul__(self, operand: any) -> Union[TypeElement, 'Clip']:
-        import operand_container as oc
-        import operand_yielder as oy
+        from . import operand_container as oc
+        from . import operand_yielder as oy
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element():
@@ -693,7 +693,7 @@ class Element(o.Operand):
         return self
 
     def __itruediv__(self, operand: any) -> Union[TypeElement, 'Clip']:
-        import operand_container as oc
+        from . import operand_container as oc
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element():
@@ -803,7 +803,7 @@ class Element(o.Operand):
 
 
     def __ifloordiv__(self, operand: any) -> Union[TypeElement, 'Clip']:
-        import operand_container as oc
+        from . import operand_container as oc
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element():
@@ -938,7 +938,7 @@ class Element(o.Operand):
         Returns:
             Element: Returns the presently plotted element.
         """
-        import operand_container as oc
+        from . import operand_container as oc
         oc.Clip(self).plot(by_channel, block, pause, iterations, n_button, composition, title)
         return self
 
@@ -956,13 +956,13 @@ class Element(o.Operand):
         Returns:
             Element: Returns the presently plotted element.
         """
-        import operand_container as oc
+        from . import operand_container as oc
         oc.Clip(self).call(iterations, n_button)
         return self
 
 
     def read(self) -> 'Clip':
-        import operand_container as oc
+        from . import operand_container as oc
         new_clip: oc.Clip = oc.Clip(self._get_time_signature())
         shift_key_down: bool = kb.is_pressed('shift')
         enter_key_down: bool = kb.is_pressed('enter')
@@ -1024,12 +1024,12 @@ class Subclip(Element):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        import operand_container as oc
+        from . import operand_container as oc
         self._subclip: oc.Clip = oc.Clip()
         super().__init__(*parameters)
 
     def __mod__(self, operand: o.T) -> o.T:
-        import operand_container as oc
+        from . import operand_container as oc
         match operand:
             case od.Pipe():
                 match operand._data:
@@ -1043,7 +1043,7 @@ class Subclip(Element):
                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        import operand_container as oc
+        from . import operand_container as oc
         match other:
             case self.__class__():
                 return super().__eq__(other) and self._subclip == other._subclip
@@ -1106,8 +1106,8 @@ class Subclip(Element):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        import operand_container as oc
-        import operand_frame as of
+        from . import operand_container as oc
+        from . import operand_frame as of
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Subclip():
@@ -1131,8 +1131,8 @@ class Subclip(Element):
         return self
 
     def __iadd__(self, operand: any) -> Union[TypeElement, 'Clip']:
-        import operand_container as oc
-        import operand_frame as of
+        from . import operand_container as oc
+        from . import operand_frame as of
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case ou.Enable() | ou.Disable() | Element() | oc.Clip() | ra.Convertible() | tuple():
@@ -1145,8 +1145,8 @@ class Subclip(Element):
         return self
 
     def __isub__(self, operand: any) -> Union[TypeElement, 'Clip']:
-        import operand_container as oc
-        import operand_frame as of
+        from . import operand_container as oc
+        from . import operand_frame as of
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case ou.Enable() | ou.Disable() | Element() | oc.Clip() | ra.Convertible() | tuple():
@@ -1159,8 +1159,8 @@ class Subclip(Element):
         return self
 
     def __imul__(self, operand: any) -> Union[TypeElement, 'Clip']:
-        import operand_container as oc
-        import operand_frame as of
+        from . import operand_container as oc
+        from . import operand_frame as of
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case ou.Enable() | ou.Disable() | Element() | oc.Clip() | ra.Convertible() | tuple():
@@ -1173,8 +1173,8 @@ class Subclip(Element):
         return self
 
     def __itruediv__(self, operand: any) -> Union[TypeElement, 'Clip']:
-        import operand_container as oc
-        import operand_frame as of
+        from . import operand_container as oc
+        from . import operand_frame as of
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case ou.Enable() | ou.Disable() | Element() | oc.Clip() | ra.Convertible() | tuple():
@@ -1187,8 +1187,8 @@ class Subclip(Element):
         return self
 
     def __ifloordiv__(self, operand: any) -> Union[TypeElement, 'Clip']:
-        import operand_container as oc
-        import operand_frame as of
+        from . import operand_container as oc
+        from . import operand_frame as of
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case ou.Enable() | ou.Disable() | Element() | oc.Clip() | ra.Convertible() | tuple():
@@ -1843,7 +1843,7 @@ class Clock(DeviceElement):
         >>> clock % Duration() >> Print(0)
         {'class': 'Duration', 'parameters': {'time_unit': {'class': 'Measure', 'parameters': {'value': 4.0}}}}
         """
-        import operand_container as oc
+        from . import operand_container as oc
         match operand:
             case od.Pipe():
                 match operand._data:
@@ -2010,7 +2010,7 @@ class Clock(DeviceElement):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        import operand_container as oc
+        from . import operand_container as oc
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Clock():
@@ -2096,7 +2096,7 @@ class ChannelElement(DeviceElement):
         >>> element % Devices() % list() >> Print()
         ['loopMIDI', 'Microsoft']
         """
-        import operand_container as oc
+        from . import operand_container as oc
         match operand:
             case od.Pipe():
                 match operand._data:
@@ -2170,7 +2170,7 @@ class ChannelElement(DeviceElement):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        import operand_container as oc
+        from . import operand_container as oc
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case ChannelElement():

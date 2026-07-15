@@ -30,11 +30,11 @@ from . import operand_data as od
 from . import operand_unit as ou
 from . import operand_rational as ra
 from . import operand_generic as og
-import operand_element as oe
-import operand_container as oc
-import operand_frame as of
-import operand_chaos as ch
-import operand_tamer as ot
+from . import operand_element as oe
+from . import operand_container as oc
+from . import operand_frame as of
+from . import operand_chaos as ch
+from . import operand_tamer as ot
 
 if TYPE_CHECKING:
     from operand_element import Element

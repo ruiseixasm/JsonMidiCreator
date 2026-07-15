@@ -1073,8 +1073,8 @@ class Playlist(Data):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        import operand_container as oc
-        import operand_element as oe
+        from . import operand_container as oc
+        from . import operand_element as oe
     
         match operand:
             case Playlist():
@@ -1107,8 +1107,8 @@ class Playlist(Data):
     
     # Pass trough method that always results in a Container (Self)
     def __rshift__(self, operand) -> Self:
-        import operand_element as oe
-        import operand_container as oc
+        from . import operand_element as oe
+        from . import operand_container as oc
         match operand:
             case Playlist() | oe.Element() | oc.Container():
                 self += operand
@@ -1123,8 +1123,8 @@ class Playlist(Data):
 
     def __iadd__(self, operand: any) -> Self:
         from . import operand_rational as ra
-        import operand_element as oe
-        import operand_container as oc
+        from . import operand_element as oe
+        from . import operand_container as oc
         match operand:
             case ra.Position() | ra.TimeUnit():
                 # Position generates a dummy list with the position as ms

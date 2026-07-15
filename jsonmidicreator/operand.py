@@ -794,7 +794,7 @@ class Operand:
     def __lshift__(self, operand: any) -> Self:
         from . import operand_label as ol
         from . import operand_data as od
-        import operand_chaos as ch
+        from . import operand_chaos as ch
         match operand:
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
