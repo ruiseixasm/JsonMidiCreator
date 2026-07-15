@@ -21,8 +21,8 @@ from fractions import Fraction
 import json
 
 # Json Midi Creator Libraries
-import creator as c
-import operand as o
+from . import creator as c
+from . import operand as o
 
 import operand_unit as ou
 import operand_rational as ra

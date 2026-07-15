@@ -21,8 +21,8 @@ from fractions import Fraction
 import json
 
 # Json Midi Creator Libraries
-import creator as c
-import operand as o
+from . import creator as c
+from . import operand as o
 
 
 class Label(o.Operand):

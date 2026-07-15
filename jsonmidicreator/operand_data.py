@@ -20,8 +20,8 @@ from typing import Self
 from fractions import Fraction
 import re
 # Json Midi Creator Libraries
-import creator as c
-import operand as o
+from . import creator as c
+from . import operand as o
 import operand_label as ol
 
 

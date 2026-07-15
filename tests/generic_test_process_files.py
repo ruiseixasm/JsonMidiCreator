@@ -25,7 +25,7 @@ start_time = time.time()
 from JsonMidiCreator import *
 finish_time = time.time()
 print(f"Loading time (ms): {(finish_time - start_time) * 1000}")
-import creator as c
+from . import creator as c
 
 result_save         = Serialization()
 result_export       = Playlist()
