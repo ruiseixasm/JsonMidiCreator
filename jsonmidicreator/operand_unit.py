@@ -311,7 +311,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
     _major_scale = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)    # Major scale for the default staff
 
     def get_tonic_key(self) -> int:
-        import operand_generic as og
+        from . import operand_generic as og
         if self._mode_0 % 7 < 7:    # Diatonic scale
             zero_tonic_key: int = og.Scale.transpose_key(self._mode_0)
             circle_fifths_position: int = self._unit
@@ -319,7 +319,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
         return 9    # A key
 
     def get_scale(self) -> tuple[int]:
-        import operand_generic as og
+        from . import operand_generic as og
         scale_mode: int = self._mode_0 % 9 + 1
         return og.Scale._scales[scale_mode]
 
@@ -329,7 +329,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
 
 
     def __mod__(self, operand: o.T) -> o.T:
-        import operand_generic as og
+        from . import operand_generic as og
         match operand:
             case od.Pipe():
                 match operand._data:
@@ -399,7 +399,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
         return self
       
     def __lshift__(self, operand: any) -> Self:
-        import operand_generic as og
+        from . import operand_generic as og
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case KeySignature():
@@ -1629,13 +1629,13 @@ class MidiTrack(Midi):
     str("Track 1") : The name of the Track, there default is "Track 1".
     """
     def __init__(self, *parameters):
-        import operand_generic as og
+        from . import operand_generic as og
         self._name: str             = "Track 1"
         self._devices: list[str]    = og.settings._devices.copy()
         super().__init__(1, *parameters)
 
     def devices(self, devices: list[str] = None) -> Self:
-        import operand_generic as og
+        from . import operand_generic as og
         if devices is not None:
             self._devices = devices
         else:

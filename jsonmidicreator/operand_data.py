@@ -878,7 +878,7 @@ class Serialization(Data):
         return super().__eq__(other)
     
     if TYPE_CHECKING:
-        from operand_rational import Position
+        from .operand_rational import Position
 
     def getPlaylist(self, position_beats: Fraction | None = None) -> list:
         match self._data:
@@ -962,7 +962,7 @@ class Load(Serialization):
 
     @staticmethod
     def load_operand_data(filename: str) -> dict:
-        import operand_generic as og
+        from . import operand_generic as og
         file_path: str = filename
         folder: str = og.settings._folder
         if not isinstance(file_path, str):
@@ -1189,7 +1189,7 @@ class Import(Playlist):
 
     @staticmethod
     def load_playlist(filename: str) -> list[dict]:
-        import operand_generic as og
+        from . import operand_generic as og
         file_path: str = filename
         folder: str = og.settings._folder
         if not isinstance(file_path, str):

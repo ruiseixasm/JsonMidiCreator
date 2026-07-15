@@ -31,7 +31,7 @@ from . import operand_label as ol
 from . import operand_data as od
 from . import operand_unit as ou
 from . import operand_rational as ra
-import operand_generic as og
+from . import operand_generic as og
 import operand_element as oe
 import operand_frame as of
 import operand_chaos as ch
@@ -869,7 +869,7 @@ class Container(o.Operand):
         Returns:
             Container: The same self object with the operands processed.
         """
-        import operand_generic as og
+        from . import operand_generic as og
         if what == og.Segment:
             left_segment: og.Segment = og.Segment(left)
             right_segment: og.Segment = og.Segment(right)

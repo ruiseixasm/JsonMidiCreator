@@ -30,7 +30,7 @@ from . import operand_label as ol
 from . import operand_data as od
 from . import operand_unit as ou
 from . import operand_rational as ra
-import operand_generic as og
+from . import operand_generic as og
 import operand_chaos as ch
 
 # Define ANSI escape codes for colors

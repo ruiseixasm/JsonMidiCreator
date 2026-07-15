@@ -38,7 +38,7 @@ else:  # Assume Linux/Unix
 from operand_element import Chord
 from operand_data import Plot, Decompose, Stack, Copy
 from operand_frame import Nth
-from operand_rational import Duration
+from .operand_rational import Duration
 from operand_unit import Degree
 
 single_chord = Chord(1/4) * 1 >> Decompose() >> Stack()

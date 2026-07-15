@@ -3578,7 +3578,7 @@ class Sort(ContainerProcess):
         parameter (type): Defines the given parameter type to sort by.
         reverse (bool): Reverses the sorting if `True`.
     """
-    from operand_rational import Position
+    from .operand_rational import Position
 
     def __init__(self, parameter: type = Position, reverse: bool = False):
         super().__init__([parameter, reverse])
@@ -3650,7 +3650,7 @@ class Swap(ContainerProcess):
         right (any): The second item or `Segment` data.
         what (type): The parameter type that will be swapped between both left and right.
     """
-    from operand_rational import Position
+    from .operand_rational import Position
 
     def __init__(self, left: Union[o.Operand, list, int] = 0, right: Union[o.Operand, list, int] = 1, what: type = Position):
         super().__init__([left, right, what])
@@ -3682,7 +3682,7 @@ class Recur(ContainerProcess):
         recursion (Callable): recursive function.
         parameter (type): The type of parameter being processed by the recursive function.
     """
-    from operand_rational import Duration
+    from .operand_rational import Duration
 
     def __init__(self, recursion: Callable = lambda d: d/2, parameter: type = Duration):
         super().__init__([recursion, parameter])
@@ -3704,7 +3704,7 @@ class Rotate(ContainerProcess):
         right (int): The right amount of the list index, displacement.
         parameter (type): The type of parameter being displaced, rotated.
     """
-    from operand_rational import Position
+    from .operand_rational import Position
 
     def __init__(self, right: int = 1, parameter: type = ra.Position):
         super().__init__([right, parameter])
@@ -4086,7 +4086,7 @@ class Shift(ClipProcess):
             | Fraction | Beat        |
             +----------+-------------+
     """
-    from operand_rational import Position
+    from .operand_rational import Position
 
     def __init__(self, right: Union['ra.Position', 'ra.TimeUnit', int, float, Fraction] = 1):
         super().__init__([right])
@@ -4193,7 +4193,7 @@ class Cut(ClipProcess):
         start (Position): Starting position of the section to be cut.
         finish (Position): Finish position of the section to be cut.
     """
-    from operand_rational import Position
+    from .operand_rational import Position
 
     def __init__(self, start: Position = None, finish: Position = None):
         super().__init__([start, finish])

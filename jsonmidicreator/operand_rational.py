@@ -633,7 +633,7 @@ if TYPE_CHECKING:
 
 class Convertible(Rational):
     def __init__(self, *parameters):
-        import operand_generic as og
+        from . import operand_generic as og
         # By default Time values have no TimeSignature reference,
         # so, they aren't transformed, just converted !!
         self._time_signature_reference: og.TimeSignature = None
@@ -658,7 +658,7 @@ class Convertible(Rational):
 
 
     def _get_time_signature(self, other_time_signature: 'TimeSignature' = None) -> 'TimeSignature':
-        import operand_generic as og
+        from . import operand_generic as og
         if self._time_signature_reference is None:
             if isinstance(other_time_signature, og.TimeSignature):
                 return other_time_signature
@@ -725,14 +725,14 @@ class Convertible(Rational):
 
 
     def getPlaylist(self) -> list[dict]:
-        import operand_generic as og
+        from . import operand_generic as og
         beats: Fraction = self % Beats() % Fraction()
         return og.settings.getPlaylist(beats)
 
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
-        import operand_generic as og
+        from . import operand_generic as og
         import operand_element as oe
         import operand_container as oc
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -955,7 +955,7 @@ class Position(Measurement):
         return timeunit
 
     def __eq__(self, other: any) -> bool:
-        import operand_generic as og
+        from . import operand_generic as og
         match other:
             case og.Segment():
                 return other == self
@@ -1323,12 +1323,12 @@ class Steps(TimeValue):
     Fraction(0) : Steps as 1, 2, 4, 8...
     """
     def _convert_to_beats(self, self_time: Fraction, other_time_signature: 'TimeSignature' = None) -> Fraction:
-        import operand_generic as og
+        from . import operand_generic as og
         beats_per_step: Fraction = og.settings._quantization    # Quantization is in Beats ratio
         return self_time * beats_per_step
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
-        import operand_generic as og
+        from . import operand_generic as og
         beats_per_step: Fraction = og.settings._quantization    # Quantization is in Beats ratio
         return beats / beats_per_step
 
@@ -1590,7 +1590,7 @@ class TimeUnit(Convertible):
     Fraction(0) : The default value is 0.
     """
     def __init__(self, *parameters):
-        import operand_generic as og
+        from . import operand_generic as og
         # By default Time values have no TimeSignature reference,
         # so, they aren't transformed, just converted !!
         self._time_signature_reference: og.TimeSignature = None
@@ -1605,7 +1605,7 @@ class TimeUnit(Convertible):
 
 
     def __eq__(self, other: any) -> bool:
-        import operand_generic as og
+        from . import operand_generic as og
         match other:
             case Convertible():
                 return self._get_beats(other._time_signature_reference) \
@@ -1809,17 +1809,17 @@ class Step(TimeUnit):
     >>> step = Step()
     """
     def _convert_to_beats(self, self_time: Fraction, other_time_signature: 'TimeSignature' = None) -> Fraction:
-        import operand_generic as og
+        from . import operand_generic as og
         beats_per_step: Fraction = og.settings._quantization    # Quantization is in Beats ratio
         return int(self_time) * beats_per_step
 
     def _convert_from_beats(self, beats: Fraction) -> Fraction:
-        import operand_generic as og
+        from . import operand_generic as og
         beats_per_step: Fraction = og.settings._quantization    # Quantization is in Beats ratio
         return beats / beats_per_step   # As value NOT unitary
 
     def _set_position_value(self) -> Self:
-        import operand_generic as og
+        from . import operand_generic as og
         beats_per_step: Fraction = og.settings._quantization    # Quantization is in Beats ratio
         time_signature: TimeSignature = self._get_time_signature()
         beats_per_measure: int = time_signature._top

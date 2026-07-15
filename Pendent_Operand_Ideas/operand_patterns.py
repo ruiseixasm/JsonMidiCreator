@@ -30,7 +30,7 @@ from . import operand_unit as ou
 from . import operand_rational as ra
 from . import operand_data as od
 from . import operand_label as ol
-import operand_generic as og
+from . import operand_generic as og
 import operand_element as oe
 import operand_frame as of
 import operand_container as oc
