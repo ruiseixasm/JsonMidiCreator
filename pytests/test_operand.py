@@ -20,7 +20,7 @@ src_path = os.path.join(os.path.dirname(__file__), '..', 'src')
 if src_path not in sys.path:
     sys.path.append(src_path)
 
-from JsonMidiCreator import *
+from src.JsonMidiCreator import *
 
 
 # Run the tests with 'pytest tests\python_functions.py' on windows
