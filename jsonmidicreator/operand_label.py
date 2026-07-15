@@ -35,7 +35,7 @@ class Label(o.Operand):
     None : Labels don't have any parameters.
     """
     def __eq__(self, other: 'Label') -> bool:
-        import operand_data as od
+        from . import operand_data as od
         if type(self) == type(other):
             return True
         if isinstance(other, od.Conditional):
@@ -94,7 +94,7 @@ class Null(Carrier):
         return True
     
     def __eq__(self, other: 'Label') -> bool:
-        import operand_data as od
+        from . import operand_data as od
         if other is None: return True
         if other is False: return True  # What makes the generic testing fails
         if other is True: return False
@@ -106,7 +106,7 @@ class Null(Carrier):
 
 
     def __mod__(self, operand: o.T) -> o.T:
-        import operand_data as od
+        from . import operand_data as od
         match operand:
             case od.Pipe():
                 match operand._data:
@@ -139,7 +139,7 @@ class Full(Carrier):
         return False
     
     def __eq__(self, other: 'Label') -> bool:
-        import operand_data as od
+        from . import operand_data as od
         if other is None: return False
         if other is False: return False  # What makes the generic testing fails
         if other is True: return True

@@ -26,8 +26,8 @@ from . import creator as c
 from . import operand as o
 
 from . import operand_label as ol
-import operand_data as od
-import operand_unit as ou
+from . import operand_data as od
+from . import operand_unit as ou
 
 # Define ANSI escape codes for colors
 RED = "\033[91m"

@@ -41,8 +41,8 @@ TypeNumeral = TypeVar('TypeNumeral', 'Operand', int, float, Fraction)   # TypeNu
 # GENERIC HANDY FUNCTIONS
 
 def number_to_int(number: any) -> int:
-    import operand_unit as ou
-    import operand_rational as ra
+    from . import operand_unit as ou
+    from . import operand_rational as ra
     match number:
         case ou.Unit() | ra.Rational():
             return number % int()
@@ -157,7 +157,7 @@ def minutes_to_time_ms(minutes: Fraction) -> float:
     return round(float(minutes * 60_000), 3)
 
 def time_ms_to_minutes(time_ms: float | int) -> Fraction:
-    import operand_rational as ra
+    from . import operand_rational as ra
     return ra.Minutes(time_ms / 60_000)._rational
 
 
@@ -643,7 +643,7 @@ class Operand:
         """
         Temporary disables the `Operand` implicit copy by wrapping it in an `Inline` operand.
         """
-        import operand_data as od
+        from . import operand_data as od
         return od.Inline(self)
 
     def len(self) -> int:
@@ -658,7 +658,7 @@ class Operand:
 
     def access(self, operand: T) -> T:
         """Applies `% Pipe(operand)` returning the same the operand directly"""
-        import operand_data as od
+        from . import operand_data as od
         return self.__mod__(od.Pipe(operand))
 
 
@@ -672,7 +672,7 @@ class Operand:
 
     def __eq__(self, other: any) -> bool:
         from . import operand_label as ol
-        import operand_data as od
+        from . import operand_data as od
         match other:
             case ol.Null():
                 return False
@@ -724,9 +724,9 @@ class Operand:
         0.5
         """
         from . import operand_label as ol
-        import operand_data as od
-        import operand_unit as ou
-        import operand_rational as ra
+        from . import operand_data as od
+        from . import operand_unit as ou
+        from . import operand_rational as ra
         match operand:
             case od.Pipe():
                 return self.__mod__( operand % Operand() )
@@ -793,7 +793,7 @@ class Operand:
 
     def __lshift__(self, operand: any) -> Self:
         from . import operand_label as ol
-        import operand_data as od
+        from . import operand_data as od
         import operand_chaos as ch
         match operand:
             case od.Serialization():
@@ -826,7 +826,7 @@ class Operand:
         return self.__ilshift__(operand)
 
     def __ilshift__(self, operand: any) -> Self:
-        import operand_data as od
+        from . import operand_data as od
         return self << od.Pipe( operand )
     
     # Makes sure no Non Operand has `<< Operand` applied
@@ -1043,8 +1043,8 @@ class Operand:
 
     @staticmethod
     def convert_to_int(number: any) -> int:
-        import operand_unit as ou
-        import operand_rational as ra
+        from . import operand_unit as ou
+        from . import operand_rational as ra
         match number:
             case int():         return number
             case float():       return int(number)

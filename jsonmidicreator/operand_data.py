@@ -1044,7 +1044,7 @@ class Playlist(Data):
         return 0.0
   
     def getPlaylist(self, position_beats: Fraction | None = None) -> list[dict]:
-        import operand_rational as ra
+        from . import operand_rational as ra
         if isinstance(self._data, list) and len(self._data) > 0:
             # Position generates a dummy list with the position as ms
             operand_playlist_list: list[dict] = ra.Position(position_beats).getPlaylist()
@@ -1122,7 +1122,7 @@ class Playlist(Data):
 
 
     def __iadd__(self, operand: any) -> Self:
-        import operand_rational as ra
+        from . import operand_rational as ra
         import operand_element as oe
         import operand_container as oc
         match operand:
@@ -1147,7 +1147,7 @@ class Playlist(Data):
         return self
 
     def __isub__(self, operand: any) -> Self:
-        import operand_rational as ra
+        from . import operand_rational as ra
         match operand:
             case ra.Position() | ra.TimeUnit():
                 # Position generates a dummy list with the position as ms

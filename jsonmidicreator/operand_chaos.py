@@ -25,9 +25,9 @@ import math
 from . import creator as c
 from . import operand as o
 
-import operand_unit as ou
-import operand_rational as ra
-import operand_data as od
+from . import operand_unit as ou
+from . import operand_rational as ra
+from . import operand_data as od
 import operand_tamer as ot
 
 

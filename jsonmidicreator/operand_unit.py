@@ -24,7 +24,7 @@ import math
 # Json Midi Creator Libraries
 from . import creator as c
 from . import operand as o
-import operand_data as od
+from . import operand_data as od
 from . import operand_label as ol
 
 
@@ -57,7 +57,7 @@ class Unit(o.Operand):
         >>> print(channel_int)
         12
         """
-        import operand_rational as ra
+        from . import operand_rational as ra
         match operand:
             case od.Pipe():
                 match operand._data:
@@ -85,7 +85,7 @@ class Unit(o.Operand):
         return self._unit == 0
     
     def __eq__(self, other: any) -> bool:
-        import operand_rational as ra
+        from . import operand_rational as ra
         match other:
             case int() | float() | Fraction():
                 return self._unit == other
@@ -98,7 +98,7 @@ class Unit(o.Operand):
         return False
     
     def __lt__(self, other: any) -> bool:
-        import operand_rational as ra
+        from . import operand_rational as ra
         match other:
             case int() | float() | Fraction():
                 return self._unit < other
@@ -109,7 +109,7 @@ class Unit(o.Operand):
         return False
     
     def __gt__(self, other: any) -> bool:
-        import operand_rational as ra
+        from . import operand_rational as ra
         match other:
             case int() | float() | Fraction():
                 return self._unit > other
@@ -138,7 +138,7 @@ class Unit(o.Operand):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        import operand_rational as ra
+        from . import operand_rational as ra
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Unit():
@@ -174,7 +174,7 @@ class Unit(o.Operand):
         return self
 
     def __iadd__(self, number: any) -> Self:
-        import operand_rational as ra
+        from . import operand_rational as ra
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
         match number:
             case int() | Fraction() | float():
@@ -186,7 +186,7 @@ class Unit(o.Operand):
         return self
     
     def __isub__(self, number: any) -> Self:
-        import operand_rational as ra
+        from . import operand_rational as ra
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
         match number:
             case int() | Fraction() | float():
@@ -198,7 +198,7 @@ class Unit(o.Operand):
         return self
     
     def __imul__(self, number: any) -> Self:
-        import operand_rational as ra
+        from . import operand_rational as ra
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
         match number:
             case int() | Fraction() | float():
@@ -210,7 +210,7 @@ class Unit(o.Operand):
         return self
     
     def __itruediv__(self, number: any) -> Self:
-        import operand_rational as ra
+        from . import operand_rational as ra
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
         match number:
             case int() | Fraction() | float():

@@ -25,9 +25,9 @@ from . import creator as c
 from . import operand as o
 
 from . import operand_label as ol
-import operand_data as od
-import operand_unit as ou
-import operand_rational as ra
+from . import operand_data as od
+from . import operand_unit as ou
+from . import operand_rational as ra
 
 # Define ANSI escape codes for colors
 RED = "\033[91m"
@@ -3217,7 +3217,7 @@ class Plot(ReadOnly):
         }
 
     def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_unit as ou
+        from . import operand_unit as ou
         import operand_element as oe
         import operand_container as oc
         match operand:
@@ -3515,7 +3515,7 @@ class Modulate(ScaleProcess):    # Modal Modulation
     int(1) : Modulate a given Scale to 1 ("1st") as the default mode.
     """
     def __init__(self, mode: int | str = 1):
-        import operand_unit as ou
+        from . import operand_unit as ou
         unit = ou.Mode(mode)._unit
         super().__init__(unit)
 
