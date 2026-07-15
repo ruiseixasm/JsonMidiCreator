@@ -13,7 +13,7 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
-from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
+from jsonmidicreator import *
 
 chord_progression = Chord("7th") * 4 << Get(Measure())**Add(1)**Degree() >> Smooth(5)
 chord_progression >> Plot(title="All degrees", block=False)

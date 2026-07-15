@@ -13,7 +13,7 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
-from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
+from jsonmidicreator import *
 
 # sequence = Note(Steps(1/2)) * Sequencer("1.111.11") - Nth(3, 4)**Position(Steps(1/2)) << Device("loopMIDI")
 # sequence >> Plot()

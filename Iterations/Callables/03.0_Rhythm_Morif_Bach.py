@@ -13,7 +13,7 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
-from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
+from jsonmidicreator import *
 
 # https://youtu.be/x-zXfkV90fM?si=URTZ55NqK4Mlz4yX&t=17
 settings << Device("loopMIDI")

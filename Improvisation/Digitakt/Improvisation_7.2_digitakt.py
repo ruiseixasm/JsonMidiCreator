@@ -13,7 +13,7 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
-from jsonmidicreator_import import *    # This ensures src is added & JsonMidiCreator is imported
+from jsonmidicreator import *
 
 device_list = settings % Devices() % list() >> Print()
 device_list.insert(0, "Digitakt")
