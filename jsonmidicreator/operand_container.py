@@ -55,7 +55,7 @@ class Container(o.Operand):
         super().__init__()
         self._items: list = []
         self._items_iterator: int = 0
-        self._upper_container: Container = None
+        self._upper_container: Container | None = None
         for single_operand in operands:
             self << single_operand
 
