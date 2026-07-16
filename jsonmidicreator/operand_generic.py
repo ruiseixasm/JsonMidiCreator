@@ -3233,23 +3233,22 @@ class Plot(ReadOnly):
     title (str): A title to give to the chart in order to identify it.
     """
     def __init__(self, by_channel: bool = False, block: bool = True, pause: float = 0.0, iterations: int = 0,
-                 n_button: Optional[Callable[['Composition'], 'Composition']] = None,
-                 c_button: Optional['Composition'] = None, title: str | None = None):
-        super().__init__([by_channel, block, pause, iterations, n_button, c_button, title])
+                 composition: Optional['Composition'] = None, title: str | None = None):
+        super().__init__([by_channel, block, pause, iterations, composition, title])
         self._indexes = {
-            'by_channel': 0, 'block': 1, 'pause': 2, 'iterations': 3, 'n_button': 4, 'c_button': 5, 'title': 6
+            'by_channel': 0, 'block': 1, 'pause': 2, 'iterations': 3, 'composition': 5, 'title': 6
         }
         self._compositions: list[Composition] = []
         self._plot_lists: list[list] = []
         self._plot_checksums: list[str] = []
         self._by_channel: bool = by_channel
         self._iteration_index: int = 0
-        self._n_function = n_button
-        self._composition = c_button
+        self._composition = composition
         self._title: str = title
         self._block: bool = block
         self._pause: bool = pause
         self._iterations: int = iterations
+        self._n_function = None
 
     def __rrshift__(self, operand: o.T) -> o.T:
         from . import operand_unit as ou
@@ -4309,25 +4308,25 @@ class Plot(ReadOnly):
         play_button = Button(ax_button, 'P', color='white', hovercolor='grey')
         play_button.on_clicked(self._run_play)
 
-        # Previous Button Widget
+        # Composition Button Widget
         ax_button = plt.axes([0.979, 0.828, 0.015, 0.05])
+        composition_button = Button(ax_button, 'C', color='white', hovercolor='grey')
+        composition_button.on_clicked(self._run_composition)
+
+        # Previous Button Widget
+        ax_button = plt.axes([0.979, 0.768, 0.015, 0.05])
         self._previous_button = Button(ax_button, '<', color='white', hovercolor='grey')
         self._previous_button.on_clicked(self._run_previous)
 
         # Next Button Widget
-        ax_button = plt.axes([0.979, 0.768, 0.015, 0.05])
+        ax_button = plt.axes([0.979, 0.708, 0.015, 0.05])
         self._next_button = Button(ax_button, '>', color='white', hovercolor='grey')
         self._next_button.on_clicked(self._run_next)
 
         # New Button Widget
-        ax_button = plt.axes([0.979, 0.708, 0.015, 0.05])
+        ax_button = plt.axes([0.979, 0.648, 0.015, 0.05])
         new_button = Button(ax_button, 'N', color='white', hovercolor='grey')
         new_button.on_clicked(self._run_new)
-
-        # Composition Button Widget
-        ax_button = plt.axes([0.979, 0.648, 0.015, 0.05])
-        composition_button = Button(ax_button, 'C', color='white', hovercolor='grey')
-        composition_button.on_clicked(self._run_composition)
 
         # Buttons are vertically spaced by 0.060
 
@@ -4368,7 +4367,7 @@ class Plot(ReadOnly):
         else:
             plt.show(block=False)
 
-        return self._comp
+        return self._compositions[self._iteration_index]
 
 
     # CHAINABLE OPERATIONS
