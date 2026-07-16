@@ -3361,11 +3361,9 @@ class Plot(ReadOnly):
         else:
             chart_title += " - "
         chart_title += f"{"Masked - " if self._compositions[self._iteration_index].is_masked() else ""}"
-        if self._iteration_index > 0:
-            chart_title += f"Iteration {self._iteration_index} of {len(self._compositions) - 1} "
-        else:
-            chart_title += f"Seed "
-        chart_title += f"- ({checksum_str})"
+        if self._n_function is not None:
+            chart_title += f"Iteration {self._iteration_index} of {len(self._compositions) - 1} - "
+        chart_title += f"({checksum_str})"
         self._ax.set_title(chart_title)
 
         # Horizontal X-Axis, Time related (COMMON)
