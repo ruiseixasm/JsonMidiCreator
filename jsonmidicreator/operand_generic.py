@@ -3249,6 +3249,7 @@ class Plot(ReadOnly):
         self._title: str = title
         self._block: bool = block
         self._pause: bool = pause
+        self._iterations: int = iterations
 
     def __rrshift__(self, operand: o.T) -> o.T:
         from . import operand_unit as ou
@@ -4095,6 +4096,8 @@ class Plot(ReadOnly):
     
     def _onclick(self, event: MouseEvent) -> Self:
         import threading
+        from . import operand_element as oe
+        from . import operand_container as oc
         if event.button == 3 and event.xdata is not None and event.ydata is not None:   # 1=left, 2=middle, 3=right
             composition = self._compositions[self._chart_index]
             at_position_elements: list[oe.Element] = composition.at_position_elements(ra.Position(ra.Beats(event.xdata)))
@@ -4160,8 +4163,8 @@ class Plot(ReadOnly):
         if not isinstance(self._title, str):
             self._title: str = composition % str()
 
-        if callable(self._n_function) and isinstance(iterations, int) and iterations > 0:
-            for _ in range(iterations):
+        if callable(self._n_function) and isinstance(self._iterations, int) and self._iterations > 0:
+            for _ in range(self._iterations):
                 new_composition: Composition = self._n_function(self.copy())
                 new_plotlist: list[dict] = new_composition.getPlotlist()
                 new_checksum_str: str = o.checksum_to_string(new_composition.checksum())
@@ -4264,7 +4267,7 @@ class Plot(ReadOnly):
             plt.show(block=True)
         elif self._pause > 0:
             plt.draw()
-            plt.self._pause(pause)
+            plt.pause(self._pause)
         else:
             plt.show(block=False)
 
