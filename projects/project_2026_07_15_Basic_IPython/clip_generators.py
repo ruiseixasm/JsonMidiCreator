@@ -39,6 +39,10 @@ def pattern_beats(beats_iterations: list[int] = [0, 0, 0, 0], probability: float
     return pattern
 
 
+def pattern_beats_n(clip: Clip) -> Clip:
+    return clip
+
+
 pattern_beats([3, 9, 5, 2]) >> Plot()
 
 
