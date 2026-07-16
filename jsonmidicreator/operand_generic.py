@@ -4215,13 +4215,6 @@ class Plot(ReadOnly):
                 self._disable_button(self._next_button)
         return self
 
-    def _update_iteration(self, iteration: int, plotlist: list[dict], checksum_str: str) -> Self:
-        self._plot_lists[iteration] = plotlist
-        self._plot_checksums[iteration] = checksum_str
-        if iteration == self._iteration_index:
-            self._plot_elements()
-        return self
-
 
     def _run_new(self, even = None) -> Self:
         if callable(self._n_function):
