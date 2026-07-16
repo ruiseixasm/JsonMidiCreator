@@ -3273,7 +3273,8 @@ class Plot(ReadOnly):
                 Scale.plot(self._parameters[1], operand % list(), operand % ou.Key(), operand % str())
             case _:
                 if isinstance(operand, Callable):
-                    return self._checker
+                    self._n_function = operand
+                    return self.plot_iterations()
         return operand
 
 
@@ -4239,7 +4240,7 @@ class Plot(ReadOnly):
         return self
 
 
-    def plot_iterations(self, n_button: Callable[[int], 'Composition']) -> Self:
+    def plot_iterations(self) -> Self:
         """
         Plots the `Note`s in a `Composition`, if it has no Notes it plots the existing `Automation` instead.
 
@@ -4259,7 +4260,7 @@ class Plot(ReadOnly):
         from . import operand_element as oe
         from . import operand_container as oc
         # First composition and its plotting (i = 0) it's always the self copy
-        iteration_0: oc.Composition = n_button(0)
+        iteration_0: oc.Composition = self._n_function(0)
         self._compositions      = [ iteration_0 ]   # Works with a forced copy (Read Only)
         self._plot_lists        = [ iteration_0.getPlotlist() ]
         self._plot_checksums    = [ o.checksum_to_string(iteration_0.checksum()) ]
@@ -4268,7 +4269,7 @@ class Plot(ReadOnly):
 
         if callable(self._n_function) and isinstance(self._iterations, int) and self._iterations > 1:
             for i in range(self._iterations):
-                new_composition: Composition = n_button(i)
+                new_composition: Composition = self._n_function(i)
                 new_plotlist: list[dict] = new_composition.getPlotlist()
                 new_checksum_str: str = o.checksum_to_string(new_composition.checksum())
                 self._compositions.append(new_composition)
