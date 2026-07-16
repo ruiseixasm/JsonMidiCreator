@@ -3247,6 +3247,8 @@ class Plot(ReadOnly):
         self._n_function = n_button
         self._composition = c_button
         self._title: str = title
+        self._block: bool = block
+        self._pause: bool = pause
 
     def __rrshift__(self, operand: o.T) -> o.T:
         from . import operand_unit as ou
@@ -3254,7 +3256,7 @@ class Plot(ReadOnly):
         from . import operand_container as oc
         match operand:
             case oc.Composition():
-                return self.plot_composition(operand, *self._parameters)
+                return self.plot_composition(operand)
             case oe.Element():
                 return operand.plot(*self._parameters)
             case od.Line():
@@ -4132,9 +4134,7 @@ class Plot(ReadOnly):
         return self
 
 
-    def plot_composition(self, composition: 'Composition', by_channel: bool = False, block: bool = True, pause: float = 0, iterations: int = 0,
-            n_button: Optional[Callable[['Composition'], 'Composition']] = None,
-            c_button: Optional['Composition'] = None, title: str | None = None) -> Self:
+    def plot_composition(self, composition: 'Composition') -> Self:
         """
         Plots the `Note`s in a `Composition`, if it has no Notes it plots the existing `Automation` instead.
 
@@ -4260,11 +4260,11 @@ class Plot(ReadOnly):
             # Composition Button Widget
             self._disable_button(composition_button)
 
-        if block and pause == 0:
+        if self._block and self._pause == 0:
             plt.show(block=True)
-        elif pause > 0:
+        elif self._pause > 0:
             plt.draw()
-            plt.pause(pause)
+            plt.self._pause(pause)
         else:
             plt.show(block=False)
 
