@@ -3243,7 +3243,7 @@ class Plot(ReadOnly):
         self._plot_lists: list[list] = []
         self._plot_checksums: list[str] = []
         self._by_channel: bool = by_channel
-        self._chart_index: int = 0
+        self._iteration_index: int = 0
         self._n_function = n_button
         self._composition = c_button
         self._title: str = title
@@ -3343,9 +3343,9 @@ class Plot(ReadOnly):
         from . import operand_element as oe
         from . import operand_container as oc
         # The plotting is managed by the single and original Composition.
-        plotlist: list[dict] = self._plot_lists[self._chart_index]
-        time_signature = self._compositions[self._chart_index]._time_signature
-        checksum_str: str = self._plot_checksums[self._chart_index]
+        plotlist: list[dict] = self._plot_lists[self._iteration_index]
+        time_signature = self._compositions[self._iteration_index]._time_signature
+        checksum_str: str = self._plot_checksums[self._iteration_index]
 
         self._ax.clear()
 
@@ -3354,16 +3354,16 @@ class Plot(ReadOnly):
         steps_per_measure: Fraction = beats_per_measure / quantization_beats
 
         chart_title: str = f"{self._title + " - " if self._title != "" else ""}" \
-                        + f"{self._compositions[self._chart_index].__class__.__name__}"
+                        + f"{self._compositions[self._iteration_index].__class__.__name__}"
         # Chart title (TITLE)
         if isinstance(self, oc.Block):
             measure_position: int = int(self._position_beats / beats_per_measure)
             chart_title += f"({measure_position}) - "
         else:
             chart_title += " - "
-        chart_title += f"{"Masked - " if self._compositions[self._chart_index].is_masked() else ""}"
-        if self._chart_index > 0:
-            chart_title += f"Iteration {self._chart_index} of {len(self._compositions) - 1} "
+        chart_title += f"{"Masked - " if self._compositions[self._iteration_index].is_masked() else ""}"
+        if self._iteration_index > 0:
+            chart_title += f"Iteration {self._iteration_index} of {len(self._compositions) - 1} "
         else:
             chart_title += f"Seed "
         chart_title += f"- ({checksum_str})"
@@ -3938,14 +3938,14 @@ class Plot(ReadOnly):
 
     def _run_play(self, even = None, times: int = 1) -> Self:
         import threading
-        iteration_self: Composition = self._compositions[self._chart_index] * times
+        iteration_self: Composition = self._compositions[self._iteration_index] * times
         threading.Thread(target=Play.play, args=(iteration_self,)).start()
         return self
 
     def _run_composition(self, even = None, times: int = 1) -> Self:
         import threading
         if isinstance(self._composition, Composition):
-            iteration_self: Composition = self._compositions[self._chart_index]
+            iteration_self: Composition = self._compositions[self._iteration_index]
             iteration_composition: Composition = self._composition + iteration_self
             threading.Thread(target=Play.play, args=(iteration_composition * times,)).start()
         return self
@@ -3956,7 +3956,7 @@ class Plot(ReadOnly):
         composition_designations: list[str] = [
             processed_title,
             type(composition).__name__,
-            f"{self._chart_index}",
+            f"{self._iteration_index}",
             f"{len(self._compositions) - 1}",
             o.checksum_to_string(composition.checksum())
         ]
@@ -3970,19 +3970,19 @@ class Plot(ReadOnly):
         return "_".join(filtered_strings)
 
     def _run_save(self, even = None) -> Self:
-        composition = self._compositions[self._chart_index]
+        composition = self._compositions[self._iteration_index]
         file_name: str = self._plot_filename(composition) + "_save.json"
         composition >> Save(file_name)
         return self
 
     def _run_export(self, even = None) -> Self:
-        composition = self._compositions[self._chart_index]
+        composition = self._compositions[self._iteration_index]
         file_name: str = self._plot_filename(composition) + "_export.json"
         composition >> Export(file_name)
         return self
 
     def _run_render(self, even = None) -> Self:
-        composition = self._compositions[self._chart_index]
+        composition = self._compositions[self._iteration_index]
         file_name: str = self._plot_filename(composition) + "_render.mid"
         composition >> Render(file_name)
         return self
@@ -4045,7 +4045,7 @@ class Plot(ReadOnly):
         from . import operand_element as oe
         from . import operand_container as oc
         if event.button == 3 and event.xdata is not None and event.ydata is not None:   # 1=left, 2=middle, 3=right
-            composition = self._compositions[self._chart_index]
+            composition = self._compositions[self._iteration_index]
             at_position_elements: list[oe.Element] = composition.at_position_elements(ra.Position(ra.Beats(event.xdata)))
             at_position_notes: list[oe.Note] = [
                 single_note.copy() for single_note in at_position_elements
@@ -4180,45 +4180,45 @@ class Plot(ReadOnly):
 
 
     def _run_first(self, even = None) -> Self:
-        if self._chart_index > 0:
-            self._chart_index = 0
+        if self._iteration_index > 0:
+            self._iteration_index = 0
             self._plot_elements()
             self._enable_button(self._next_button)
-            if self._chart_index == 0:
+            if self._iteration_index == 0:
                 self._disable_button(self._previous_button)
         return self
 
     def _run_previous(self, even = None) -> Self:
-        if self._chart_index > 0:
-            self._chart_index -= 1
+        if self._iteration_index > 0:
+            self._iteration_index -= 1
             self._plot_elements()
             self._enable_button(self._next_button)
-            if self._chart_index == 0:
+            if self._iteration_index == 0:
                 self._disable_button(self._previous_button)
         return self
 
     def _run_next(self, even = None) -> Self:
-        if self._chart_index < len(self._plot_lists) - 1:
-            self._chart_index += 1
+        if self._iteration_index < len(self._plot_lists) - 1:
+            self._iteration_index += 1
             self._plot_elements()
             self._enable_button(self._previous_button)
-            if self._chart_index == len(self._plot_lists) - 1:
+            if self._iteration_index == len(self._plot_lists) - 1:
                 self._disable_button(self._next_button)
         return self
 
     def _run_last(self, even = None) -> Self:
-        if self._chart_index < len(self._plot_lists) - 1:
-            self._chart_index = len(self._plot_lists) - 1
+        if self._iteration_index < len(self._plot_lists) - 1:
+            self._iteration_index = len(self._plot_lists) - 1
             self._plot_elements()
             self._enable_button(self._previous_button)
-            if self._chart_index == len(self._plot_lists) - 1:
+            if self._iteration_index == len(self._plot_lists) - 1:
                 self._disable_button(self._next_button)
         return self
 
     def _update_iteration(self, iteration: int, plotlist: list[dict], checksum_str: str) -> Self:
         self._plot_lists[iteration] = plotlist
         self._plot_checksums[iteration] = checksum_str
-        if iteration == self._chart_index:
+        if iteration == self._iteration_index:
             self._plot_elements()
         return self
 
@@ -4226,9 +4226,9 @@ class Plot(ReadOnly):
     def _run_new(self, even = None) -> Self:
         if callable(self._n_function):
             # Keeps iterating the root/seed composition
-            new_iteration: Composition = self._n_function(self.copy())  # Always the first Composition (i = 0)
+            new_iteration: Composition = self._n_function(self._iteration_index + 1)
             if isinstance(new_iteration, Composition):
-                self._chart_index = len(self._compositions)
+                self._iteration_index = len(self._compositions)
                 plotlist: list[dict] = new_iteration.getPlotlist()
                 new_checksum_str: str = o.checksum_to_string(new_iteration.checksum())
                 self._compositions.append(new_iteration)
@@ -4275,7 +4275,7 @@ class Plot(ReadOnly):
                 self._compositions.append(new_composition)
                 self._plot_lists.append(new_plotlist)
                 self._plot_checksums.append(new_checksum_str)
-                self._chart_index += 1
+                self._iteration_index += 1
 
         # Enable interactive mode (doesn't block the execution)
         plt.ion()
@@ -4354,7 +4354,7 @@ class Plot(ReadOnly):
         render_button.on_clicked(self._run_render)
 
         # Previous Button Widget
-        if self._chart_index == 0:
+        if self._iteration_index == 0:
             self._disable_button(self._previous_button)
         # Next Button Widget
         self._disable_button(self._next_button)
