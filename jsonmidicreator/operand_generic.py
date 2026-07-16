@@ -3234,12 +3234,19 @@ class Plot(ReadOnly):
     """
     def __init__(self, by_channel: bool = False, block: bool = True, pause: float = 0.0, iterations: int = 0,
                  n_button: Optional[Callable[['Composition'], 'Composition']] = None,
-                 composition: Optional['Composition'] = None, title: str | None = None):
-        super().__init__([by_channel, block, pause, iterations, n_button, composition, title])
+                 c_button: Optional['Composition'] = None, title: str | None = None):
+        super().__init__([by_channel, block, pause, iterations, n_button, c_button, title])
         self._indexes = {
-            'by_channel': 0, 'block': 1, 'pause': 2, 'iterations': 3, 'n_button': 4, 'composition': 5, 'title': 6
+            'by_channel': 0, 'block': 1, 'pause': 2, 'iterations': 3, 'n_button': 4, 'c_button': 5, 'title': 6
         }
-        self._operand = None
+        self._compositions: list[Composition] = []
+        self._plot_lists: list[list] = []
+        self._plot_checksums: list[str] = []
+        self._by_channel: bool = by_channel
+        self._chart_index: int = 0
+        self._n_function = n_button
+        self._composition = c_button
+        self._title: str = title
 
     def __rrshift__(self, operand: o.T) -> o.T:
         from . import operand_unit as ou
@@ -4147,17 +4154,11 @@ class Plot(ReadOnly):
         from . import operand_element as oe
         from . import operand_container as oc
         # First composition and its plotting (i = 0) it's always the self copy
-        self._compositions: list[Composition] = [ composition.copy() ]   # Works with a forced copy (Read Only)
-        self._plot_lists: list[list] = [ composition.getPlotlist() ]
-        self._plot_checksums: list[str] = [ o.checksum_to_string(composition.checksum()) ]
-        self._by_channel: bool = by_channel
-        self._chart_index: int = 0
-        self._n_function = n_button
-        self._composition = c_button
-        if not isinstance(title, str):
+        self._compositions      = [ composition.copy() ]   # Works with a forced copy (Read Only)
+        self._plot_lists        = [ composition.getPlotlist() ]
+        self._plot_checksums    = [ o.checksum_to_string(composition.checksum()) ]
+        if not isinstance(self._title, str):
             self._title: str = composition % str()
-        else:
-            self._title: str = title
 
         if callable(self._n_function) and isinstance(iterations, int) and iterations > 0:
             for _ in range(iterations):
