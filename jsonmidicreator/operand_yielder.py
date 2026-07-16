@@ -160,9 +160,9 @@ class Sequencer(Yielder):
                 self._length_beats = operand
             case ra.Length():
                 if operand > Fraction(0):   # Allows innocuous non positive setting (neutral)
-                    self._duration_beats    = operand._rational
+                    self._length_beats = operand._rational
             case ra.TimeValue():
-                self._duration_beats = ra.Length(operand)._rational
+                self._length_beats = ra.Length(operand)._rational
             case _:
                 super().__lshift__(operand)
         return self

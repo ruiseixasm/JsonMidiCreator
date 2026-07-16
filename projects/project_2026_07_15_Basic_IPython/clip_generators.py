@@ -15,13 +15,31 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 from jsonmidicreator import *
 
-def snares(retrigger_step: int = 13) -> Clip:
+def snares() -> Clip:
     snares_16 = Note(Steps(1)) / 16
     snares_16[DownTo(Step(12))] //= Steps(1/2)
     snares_16[Less(Step(12))] -= Even()
     return snares_16
 
 
-snares() >> Plot()
+# snares() >> Plot()
+
+
+def pattern_beats(beats_iterations: list[int] = [0, 0, 0, 0]) -> Clip:
+
+    pattern = Clip()
+    for beat, iterations in enumerate(beats_iterations):
+        sequencer = Sequencer(SinX(23), Beats(1))
+        beat_clip = Note(Steps(1)) * sequencer
+        for _ in range(iterations):
+            beat_clip = Note(Steps(1)) * sequencer
+        beat_clip += Beat(beat)
+        pattern += beat_clip
+        
+    return pattern
+
+
+# pattern_beats() >> Plot()
+
 
 
