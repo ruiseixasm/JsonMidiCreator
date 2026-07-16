@@ -3259,10 +3259,11 @@ class Plot(ReadOnly):
             case oc.Composition():
                 return self.plot_composition(operand)
             case oe.Element():
-                return operand.plot(*self._parameters)
+                element_clip = oc.Clip(operand)
+                return self.__rrshift__(element_clip)
             case od.Line():
                 line_clip = oc.Clip(operand)
-                self.__rrshift__(line_clip)
+                return self.__rrshift__(line_clip)
             case str():
                 line = od.Line(operand)
                 self.__rrshift__(line)
@@ -3270,6 +3271,9 @@ class Plot(ReadOnly):
                 Scale.plot(self._parameters[1], operand % list())
             case ou.KeySignature():
                 Scale.plot(self._parameters[1], operand % list(), operand % ou.Key(), operand % str())
+            case _:
+                if isinstance(operand, Callable):
+                    return self._checker
         return operand
 
 
@@ -3937,65 +3941,6 @@ class Plot(ReadOnly):
         threading.Thread(target=Play.play, args=(iteration_self,)).start()
         return self
 
-    def _run_first(self, even = None) -> Self:
-        if self._chart_index > 0:
-            self._chart_index = 0
-            self._plot_elements()
-            self._enable_button(self._next_button)
-            if self._chart_index == 0:
-                self._disable_button(self._previous_button)
-        return self
-
-    def _run_previous(self, even = None) -> Self:
-        if self._chart_index > 0:
-            self._chart_index -= 1
-            self._plot_elements()
-            self._enable_button(self._next_button)
-            if self._chart_index == 0:
-                self._disable_button(self._previous_button)
-        return self
-
-    def _run_next(self, even = None) -> Self:
-        if self._chart_index < len(self._plot_lists) - 1:
-            self._chart_index += 1
-            self._plot_elements()
-            self._enable_button(self._previous_button)
-            if self._chart_index == len(self._plot_lists) - 1:
-                self._disable_button(self._next_button)
-        return self
-
-    def _run_last(self, even = None) -> Self:
-        if self._chart_index < len(self._plot_lists) - 1:
-            self._chart_index = len(self._plot_lists) - 1
-            self._plot_elements()
-            self._enable_button(self._previous_button)
-            if self._chart_index == len(self._plot_lists) - 1:
-                self._disable_button(self._next_button)
-        return self
-
-    def _update_iteration(self, iteration: int, plotlist: list[dict], checksum_str: str) -> Self:
-        self._plot_lists[iteration] = plotlist
-        self._plot_checksums[iteration] = checksum_str
-        if iteration == self._chart_index:
-            self._plot_elements()
-        return self
-
-    def _run_new(self, even = None) -> Self:
-        if callable(self._n_function):
-            # Keeps iterating the root/seed composition
-            new_iteration: Composition = self._n_function(self.copy())  # Always the first Composition (i = 0)
-            if isinstance(new_iteration, Composition):
-                self._chart_index = len(self._compositions)
-                plotlist: list[dict] = new_iteration.getPlotlist()
-                new_checksum_str: str = o.checksum_to_string(new_iteration.checksum())
-                self._compositions.append(new_iteration)
-                self._plot_lists.append(plotlist)
-                self._plot_checksums.append(new_checksum_str)
-                self._plot_elements()
-                self._enable_button(self._previous_button)
-                self._disable_button(self._next_button)
-        return self
-
     def _run_composition(self, even = None, times: int = 1) -> Self:
         import threading
         if isinstance(self._composition, Composition):
@@ -4142,6 +4087,163 @@ class Plot(ReadOnly):
         Plots the `Note`s in a `Composition`, if it has no Notes it plots the existing `Automation` instead.
 
         Args:
+            composition (Composition): A composition to be played together with the plotted one.
+
+        Returns:
+            Composition: Returns the presently plotted composition.
+        """
+        from . import operand_element as oe
+        from . import operand_container as oc
+        # First composition and its plotting (i = 0) it's always the self copy
+        self._compositions      = [ composition.copy() ]   # Works with a forced copy (Read Only)
+        self._plot_lists        = [ composition.getPlotlist() ]
+        self._plot_checksums    = [ o.checksum_to_string(composition.checksum()) ]
+        if not isinstance(self._title, str):
+            self._title: str = composition % str()
+
+        # Enable interactive mode (doesn't block the execution)
+        plt.ion()
+
+        # Where the window title is set too
+        self._fig, self._ax = plt.subplots(num=self._title, figsize=(12, 6))
+        # Replace handler
+        try:
+            # self._fig.canvas.mpl_disconnect(self._fig.canvas.manager.key_press_handler_id)
+            # mpl.rcParams['keymap.back'].remove('left')
+            # mpl.rcParams['keymap.forward'].remove('right')
+
+            # Get the current keymap
+            current_keymap: list = plt.rcParams['keymap.all_axes']
+            # Remove the 'p' key binding
+            current_keymap.remove('p')
+            current_keymap.remove('s')
+            # Update the rcParams
+            plt.rcParams['keymap.all_axes'] = current_keymap
+        except Exception as e:
+            pass    # No need to print anything
+            # print(f"Unable to disable default keys!")
+        self._fig.canvas.mpl_connect('key_press_event', lambda event: self._on_key(event))
+        self._fig.canvas.mpl_connect('button_press_event', lambda event: self._onclick(event))
+
+        # Plot the Composition
+        self._plot_elements()
+
+        # Where the padding is set
+        plt.tight_layout()
+
+        plt.subplots_adjust(right=0.975)  # 2.5% right padding
+        # Avoids too thick hatch lines
+        plt.rcParams['hatch.linewidth'] = 3.00  # Where the HATCH thickness is set
+
+        # Play Button Widget
+        ax_button = plt.axes([0.979, 0.888, 0.015, 0.05])
+        play_button = Button(ax_button, 'P', color='white', hovercolor='grey')
+        play_button.on_clicked(self._run_play)
+
+        # Composition Button Widget
+        ax_button = plt.axes([0.979, 0.828, 0.015, 0.05])
+        composition_button = Button(ax_button, 'C', color='white', hovercolor='grey')
+        composition_button.on_clicked(self._run_composition)
+
+        # Buttons are vertically spaced by 0.060
+
+        # Save Button Widget
+        ax_button = plt.axes([0.979, 0.528, 0.015, 0.05])
+        save_button = Button(ax_button, 'S', color='white', hovercolor='grey')
+        save_button.on_clicked(self._run_save)
+
+        # Execution Button Widget
+        ax_button = plt.axes([0.979, 0.468, 0.015, 0.05])
+        export_button = Button(ax_button, 'E', color='white', hovercolor='grey')
+        export_button.on_clicked(self._run_export)
+
+        # Render Button Widget
+        ax_button = plt.axes([0.979, 0.408, 0.015, 0.05])
+        render_button = Button(ax_button, 'R', color='white', hovercolor='grey')
+        render_button.on_clicked(self._run_render)
+
+        if not isinstance(self._composition, oc.Composition):
+            # Composition Button Widget
+            self._disable_button(composition_button)
+
+        if self._block and self._pause == 0:
+            plt.show(block=True)
+        elif self._pause > 0:
+            plt.draw()
+            plt.pause(self._pause)
+        else:
+            plt.show(block=False)
+
+        return composition
+    
+
+
+    def _run_first(self, even = None) -> Self:
+        if self._chart_index > 0:
+            self._chart_index = 0
+            self._plot_elements()
+            self._enable_button(self._next_button)
+            if self._chart_index == 0:
+                self._disable_button(self._previous_button)
+        return self
+
+    def _run_previous(self, even = None) -> Self:
+        if self._chart_index > 0:
+            self._chart_index -= 1
+            self._plot_elements()
+            self._enable_button(self._next_button)
+            if self._chart_index == 0:
+                self._disable_button(self._previous_button)
+        return self
+
+    def _run_next(self, even = None) -> Self:
+        if self._chart_index < len(self._plot_lists) - 1:
+            self._chart_index += 1
+            self._plot_elements()
+            self._enable_button(self._previous_button)
+            if self._chart_index == len(self._plot_lists) - 1:
+                self._disable_button(self._next_button)
+        return self
+
+    def _run_last(self, even = None) -> Self:
+        if self._chart_index < len(self._plot_lists) - 1:
+            self._chart_index = len(self._plot_lists) - 1
+            self._plot_elements()
+            self._enable_button(self._previous_button)
+            if self._chart_index == len(self._plot_lists) - 1:
+                self._disable_button(self._next_button)
+        return self
+
+    def _update_iteration(self, iteration: int, plotlist: list[dict], checksum_str: str) -> Self:
+        self._plot_lists[iteration] = plotlist
+        self._plot_checksums[iteration] = checksum_str
+        if iteration == self._chart_index:
+            self._plot_elements()
+        return self
+
+
+    def _run_new(self, even = None) -> Self:
+        if callable(self._n_function):
+            # Keeps iterating the root/seed composition
+            new_iteration: Composition = self._n_function(self.copy())  # Always the first Composition (i = 0)
+            if isinstance(new_iteration, Composition):
+                self._chart_index = len(self._compositions)
+                plotlist: list[dict] = new_iteration.getPlotlist()
+                new_checksum_str: str = o.checksum_to_string(new_iteration.checksum())
+                self._compositions.append(new_iteration)
+                self._plot_lists.append(plotlist)
+                self._plot_checksums.append(new_checksum_str)
+                self._plot_elements()
+                self._enable_button(self._previous_button)
+                self._disable_button(self._next_button)
+        return self
+
+
+    def plot_iterations(self, n_button: Callable[[int], 'Composition']) -> Self:
+        """
+        Plots the `Note`s in a `Composition`, if it has no Notes it plots the existing `Automation` instead.
+
+        Args:
             by_channel: Allows the visualization in a Drum Machine alike instead of by Pitch.
             block (bool): Suspends the program until the chart is closed.
             pause (float): Sets a time in seconds before the chart is closed automatically.
@@ -4157,15 +4259,16 @@ class Plot(ReadOnly):
         from . import operand_element as oe
         from . import operand_container as oc
         # First composition and its plotting (i = 0) it's always the self copy
-        self._compositions      = [ composition.copy() ]   # Works with a forced copy (Read Only)
-        self._plot_lists        = [ composition.getPlotlist() ]
-        self._plot_checksums    = [ o.checksum_to_string(composition.checksum()) ]
+        iteration_0: oc.Composition = n_button(0)
+        self._compositions      = [ iteration_0 ]   # Works with a forced copy (Read Only)
+        self._plot_lists        = [ iteration_0.getPlotlist() ]
+        self._plot_checksums    = [ o.checksum_to_string(iteration_0.checksum()) ]
         if not isinstance(self._title, str):
-            self._title: str = composition % str()
+            self._title: str = iteration_0 % str()
 
-        if callable(self._n_function) and isinstance(self._iterations, int) and self._iterations > 0:
-            for _ in range(self._iterations):
-                new_composition: Composition = self._n_function(self.copy())
+        if callable(self._n_function) and isinstance(self._iterations, int) and self._iterations > 1:
+            for i in range(self._iterations):
+                new_composition: Composition = n_button(i)
                 new_plotlist: list[dict] = new_composition.getPlotlist()
                 new_checksum_str: str = o.checksum_to_string(new_composition.checksum())
                 self._compositions.append(new_composition)
@@ -4271,7 +4374,8 @@ class Plot(ReadOnly):
         else:
             plt.show(block=False)
 
-        return self._compositions[self._chart_index]
+        return self._comp
+
 
     # CHAINABLE OPERATIONS
 
