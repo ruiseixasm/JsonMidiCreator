@@ -657,15 +657,18 @@ class Container(o.Operand):
             case of.Frame():
                 operand._set_inside_container(self)
                 for single_item in self.unmasked_items():
-                    framed_operand = operand.frame(single_item)
-                    if framed_operand == ol.Full():
+                    single_parameter = operand.frame(single_item)
+                    if single_parameter == ol.Full():
                         self._remove(single_item)
                     else:
-                        single_item -= framed_operand
+                        single_item -= single_parameter
             case ch.Chaos():
                 for single_item in self.unmasked_items():
                     single_parameter = operand.chaoticize()
-                    single_item -= single_parameter
+                    if single_parameter == ol.Full():
+                        self._remove(single_item)
+                    else:
+                        single_item -= single_parameter
             case _:
                 for single_item in self.unmasked_items():
                     single_item -= operand
