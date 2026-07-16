@@ -18,6 +18,7 @@ from jsonmidicreator import *
 def snares(retrigger_step: int = 13) -> Clip:
     snares_16 = Note(Steps(1)) / 16
     snares_16[DownTo(Step(12))] //= Steps(1/2)
+    snares_16[Less(Step(12))] -= Even()
     return snares_16
 
 
