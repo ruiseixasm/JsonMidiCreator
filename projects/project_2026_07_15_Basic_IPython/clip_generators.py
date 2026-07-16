@@ -25,11 +25,11 @@ def snares() -> Clip:
 # snares() >> Plot()
 
 
-def pattern_beats(beats_iterations: list[int] = [0, 0, 0, 0]) -> Clip:
+def pattern_beats(beats_iterations: list[int] = [0, 0, 0, 0], probability: float = 0.9) -> Clip:
 
     pattern = Clip()
     for beat, iterations in enumerate(beats_iterations):
-        sequencer = Sequencer(SinX(23), Beats(1))
+        sequencer = Sequencer(SinX(23, Probability(probability)), Beats(1))
         beat_clip = Note(Steps(1)) * sequencer
         for _ in range(iterations):
             beat_clip = Note(Steps(1)) * sequencer
@@ -39,7 +39,7 @@ def pattern_beats(beats_iterations: list[int] = [0, 0, 0, 0]) -> Clip:
     return pattern
 
 
-# pattern_beats() >> Plot()
+pattern_beats([3, 9, 5, 2]) >> Plot()
 
 
 
