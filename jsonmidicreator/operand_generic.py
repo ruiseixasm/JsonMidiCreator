@@ -3247,7 +3247,7 @@ class Plot(ReadOnly):
         from . import operand_container as oc
         match operand:
             case oc.Composition():
-                return operand.plot(operand, *self._parameters)
+                return self.plot_composition(operand, *self._parameters)
             case oe.Element():
                 return operand.plot(*self._parameters)
             case od.Line():
@@ -3619,7 +3619,7 @@ class Plot(ReadOnly):
                 # Plot notes per Channel
                 for channel_0 in note_channels:
                     printed_channel_number: bool = False
-                    channel_color = Composition._channel_colors[channel_0]
+                    channel_color = Plot._channel_colors[channel_0]
                     channel_plotlist = [
                         channel_note for channel_note in note_plotlist
                         if channel_note["channel"] == channel_0
@@ -4144,16 +4144,18 @@ class Plot(ReadOnly):
         Returns:
             Composition: Returns the presently plotted composition.
         """
+        from . import operand_element as oe
+        from . import operand_container as oc
         # First composition and its plotting (i = 0) it's always the self copy
         self._compositions: list[Composition] = [ composition.copy() ]   # Works with a forced copy (Read Only)
-        self._plot_lists: list[list] = [ self.getPlotlist() ]
+        self._plot_lists: list[list] = [ composition.getPlotlist() ]
         self._plot_checksums: list[str] = [ o.checksum_to_string(composition.checksum()) ]
         self._by_channel: bool = by_channel
         self._chart_index: int = 0
         self._n_function = n_button
         self._composition = c_button
         if not isinstance(title, str):
-            self._title: str = self % str()
+            self._title: str = composition % str()
         else:
             self._title: str = title
 
@@ -4253,7 +4255,7 @@ class Plot(ReadOnly):
             # New Button Widget
             self._disable_button(new_button)
 
-        if not isinstance(self._composition, Composition):
+        if not isinstance(self._composition, oc.Composition):
             # Composition Button Widget
             self._disable_button(composition_button)
 
@@ -4266,7 +4268,6 @@ class Plot(ReadOnly):
             plt.show(block=False)
 
         return self._compositions[self._chart_index]
-
 
     # CHAINABLE OPERATIONS
 
