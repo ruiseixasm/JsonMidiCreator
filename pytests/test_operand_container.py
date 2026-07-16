@@ -1162,6 +1162,11 @@ def test_split_note():
     # Frame split
     assert (note_clip // NoteValue(1/4) // All()**NoteValue(1/8)).len() == 8
 
+    # Steps split
+    steps_16 = Note(Steps(1)) / 16
+    steps_16[DownTo(Step(12))] //= Steps(1/2)
+    assert steps_16.len() == 16 + 4
+
 # test_split_note()
 
 

@@ -15,8 +15,12 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 from jsonmidicreator import *
 
-def some_notes(amount: int = 4) -> Clip:
-    notes = Note(Steps(1)) * Sequencer(OffBeat())
-    return notes
+def snares(retrigger_step: int = 13) -> Clip:
+    snares_16 = Note(Steps(1)) / 16
+    snares_16[DownTo(Step(12))] //= Steps(1/2)
+    return snares_16
+
+
+snares() >> Plot()
 
 
