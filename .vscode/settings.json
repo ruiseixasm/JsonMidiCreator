@@ -38,6 +38,7 @@
 		"fignums",
 		"figsize",
 		"fontsize",
+		"fontstyle",
 		"fontweight",
 		"Footswitch",
 		"getrefcount",
