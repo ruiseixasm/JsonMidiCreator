@@ -4074,15 +4074,20 @@ class Block(Composition):
     def __ifloordiv__(self, operand: any) -> Self:
         match operand:
             case Block():
+                new_part = Part(self._time_signature)
+                new_part += self
                 start_position: ra.Position = self.net_start()
                 if start_position is not None:
-                    return Part(self._time_signature, self, operand.copy(start_position))
+                    new_part += operand.copy(start_position)
                 else:
-                    return Part(self._time_signature, self, operand)  # Implicit copy
+                    new_part += operand
+                return new_part
             case Clip():
                 self._append(operand.copy())
             case oe.Element():
-                self._append(Clip(operand._time_signature, operand))
+                new_clip = Clip(operand._time_signature)
+                new_clip += operand
+                self._append(new_clip)
             case int():
                 if operand > 1:
                     single_shallow_copy: Block = self.shallow_copy()
