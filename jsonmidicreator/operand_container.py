@@ -2099,7 +2099,7 @@ class Clip(Composition):  # Just a container of Elements
                 return self._delete(self.unmasked_items(), True)._extend(kept_elements)._sort_items()
 
             case og.Process():
-                return super().__irshift__(operand)._sort_items()
+                return super().__irshift__(operand)
             case _:
                 super().__irshift__(operand)
 
