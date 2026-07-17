@@ -4214,10 +4214,11 @@ class Plot(ReadOnly):
 
 
     def _run_new(self, even = None) -> Self:
+        from . import operand_container as oc
         if callable(self._n_function):
             # Keeps iterating the root/seed composition
-            new_iteration: Composition = self._n_function(self._iteration_index + 1)
-            if isinstance(new_iteration, Composition):
+            new_iteration: oc.Composition = self._n_function(self._iteration_index + 1)
+            if isinstance(new_iteration, oc.Composition):
                 self._iteration_index = len(self._compositions)
                 plotlist: list[dict] = new_iteration.getPlotlist()
                 new_checksum_str: str = o.checksum_to_string(new_iteration.checksum())
