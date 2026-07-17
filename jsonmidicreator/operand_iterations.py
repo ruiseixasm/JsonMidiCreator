@@ -42,7 +42,7 @@ class Iterations(o.Operand):
                  pre_filter: Optional[Callable[['oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 4, no_repetitions: bool = False, freeze_at: int = -1):
-        self._seed: oc.Clip = seed  # Read Only
+        self._seed: oc.Clip = seed.copy()  # Read Only
         self._iterations: list[oc.Clip] = []
         self._chaos: ch.Chaos = chaos
         self._pre_filter: Callable | None = pre_filter
@@ -51,6 +51,11 @@ class Iterations(o.Operand):
         self._no_repetitions: bool = no_repetitions
         self._freeze_at: int = freeze_at
         super().__init__()
+        
+
+    def __rrshift__(self, operand: o.T) -> Self:
+        return self.set_seed(operand)
+
 
     def reset(self) -> Self:
         self._iterations = []
@@ -58,7 +63,8 @@ class Iterations(o.Operand):
         return self
     
     def set_seed(self, seed: 'oc.Clip') -> Self:
-        self._seed = seed
+        if isinstance(seed, oc.Clip):
+            self._seed = seed.copy()
         return self
     
     def n_function(self, iteration: int) -> 'oc.Clip':

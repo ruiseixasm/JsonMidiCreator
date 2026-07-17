@@ -3250,7 +3250,7 @@ class Plot(ReadOnly):
         self._iterations: int = iterations
         self._n_function: Callable[[int], 'Clip'] = None
 
-    def __rrshift__(self, operand: o.T) -> o.T:
+    def __rrshift__(self, operand: o.T) -> 'Composition':
         from . import operand_unit as ou
         from . import operand_element as oe
         from . import operand_container as oc
