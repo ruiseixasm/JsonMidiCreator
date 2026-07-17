@@ -39,7 +39,7 @@ def pattern_beats(beats_iterations: list[int] = [0, 0, 0, 0], probability: float
     return pattern
 
 
-def pattern_beats_n(iteration: int = 0) -> Clip:    # A wrapper (decorator)
+def pattern_beat_2(iteration: int = 0) -> Clip: # A wrapper (decorator)
     iterations: list[int] = [1, 2, 3, 4]
     iterations[2] = iteration
     return pattern_beats(iterations)
@@ -47,6 +47,6 @@ def pattern_beats_n(iteration: int = 0) -> Clip:    # A wrapper (decorator)
 
 # pattern_beats([3, 9, 5, 2]) >> Plot()
 
-pattern_beats_n >> Plot()
+pattern_beat_2 >> Plot()
 
 

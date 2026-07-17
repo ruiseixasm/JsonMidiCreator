@@ -3273,7 +3273,7 @@ class Plot(ReadOnly):
             case _:
                 if isinstance(operand, Callable):
                     self._n_function = operand
-                    return self.plot_iterations()
+                    return self.plot_callable()
         return operand
 
 
@@ -4231,7 +4231,7 @@ class Plot(ReadOnly):
         return self
 
 
-    def plot_iterations(self) -> Self:
+    def plot_callable(self) -> Self:
         """
         Plots the `Note`s in a `Composition`, if it has no Notes it plots the existing `Automation` instead.
 
