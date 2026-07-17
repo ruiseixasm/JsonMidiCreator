@@ -596,6 +596,7 @@ class Mux(LeftToRight):
         super().__init__(*validated_parameters)
 
     def frame(self, input: o.T) -> o.T:
+        self._index += 1    # INDEX -1 IN USAGE
         if self._parameters:
             if self._full_range > 0:
                 final_remainder: int = 0
@@ -612,7 +613,6 @@ class Mux(LeftToRight):
                 if self._last_time is None or self._last_time != actual_time:
                     self._last_time = actual_time
                     self._last_parameter = super().frame(input)
-        self._index += 1
         return self._last_parameter
 
 
@@ -661,7 +661,8 @@ class Once(Foreach):
     """
     def frame(self, input: o.T) -> o.T:
         operand_len: int = len(self._parameters)
-        if self._index < operand_len:   # Does only a single loop!
+        # Does only a single loop!
+        if self._index + 1 < operand_len:   # INDEX -1 IN USAGE
             return super().frame(input)
         return ol.Null()
 
