@@ -63,17 +63,17 @@ def test_container_content():
     assert container.len() == 1
     assert isinstance(container[0], str)
 
-    clip = Clip(Chord())
+    clip = Clip() + Chord()
     assert clip.len() == 1
     assert isinstance(clip[0], Element)
 
-    part = Block(clip)
-    assert part.len() == 1
-    assert isinstance(part[0], Clip)
+    block = Block() + clip
+    assert block.len() == 1
+    assert isinstance(block[0], Clip)
 
-    song = Part(part)
-    assert song.len() == 1
-    assert isinstance(song[0], Block)
+    part = Part() + block
+    assert part.len() == 1
+    assert isinstance(part[0], Block)
 
 # test_container_content()
 
@@ -131,7 +131,7 @@ def test_clip_mod():
         assert chords_clip[degree]._pitch._get_chromatic_pitch() == keys_float[degree]
 
     single_note = Note()
-    note_clip = Clip(single_note)
+    note_clip = Clip() + single_note
 
     assert note_clip.len() == 1
 
@@ -198,21 +198,22 @@ def test_or_clip():
 
 def test_copy_container():
 
-    clip = Clip(Note())
+    clip = Clip() + Note()
     assert clip.len() == 1
     assert clip.copy() == clip
 
-    part = Block(clip)
+    block = Block() + clip
+    assert block.len() == 1
+    assert block.copy() == block
+
+    part = Part() + block
     assert part.len() == 1
     assert part.copy() == part
-
-    song = Block(part)
-    assert song.len() == 1
-    assert song.copy() == song
 
     clip << TimeSignature(3, 4)
     assert clip.copy() == clip
 
+# test_copy_container()
 
 
 def test_add_container():
@@ -243,19 +244,19 @@ def test_add_container():
 
 def test_new_container():
 
-    clip = Clip(Note())
+    clip = Clip() + Note()
     assert clip.len() == 1
 
-    part = Block(clip)
+    part = Block() + clip
     assert part.len() == 1
-    part = Block(Note())
+    part = Block() + Note()
     assert part.len() == 1
 
-    song = Part(part)
+    song = Part(part)   # Works as a copy of part
     assert song.len() == 1
-    song = Part(clip)
+    song = Part() + clip
     assert song.len() == 1
-    song = Part(Note())
+    song = Part() + Note()
     assert song.len() == 1
 
 # test_new_container()
@@ -264,7 +265,7 @@ def test_new_container():
 def test_rshift_container():
 
     # Clip testing ###################################################
-    note_clip = Clip(Note())
+    note_clip = Clip() + Note()
     assert note_clip[0] % Position() == 0.0
 
     note_clip *= Note("E")
@@ -278,9 +279,9 @@ def test_rshift_container():
 
     # Part testing ###################################################
     # Beat sets Position while Beats set Duration
-    note_clip = Clip(Note(), Note("E")) << Iterate()**Beat() # A single Measure clip long!
+    note_clip = Clip() + Note() + Note("E") << Iterate()**Beat() # A single Measure clip long!
     note_clip % Length() % float() >> Print()
-    clip_part = Block(note_clip)
+    clip_part = Block() + note_clip
     assert clip_part % Position() == Beats(0)
 
     clip_part *= note_clip  # Moves to the next Measure
@@ -298,7 +299,7 @@ def test_rshift_container():
     assert new_song[0] % Position() == Measures(0) + Beats(0)
     assert new_song[1] % Position() == Measures(2) + Beats(0)
 
-    elements_part = Block(Note(), Note("A"))
+    elements_part = Block() + Note() + Note("A")
     assert elements_part.len() == 2
     assert elements_part[0][0] % Key() == "C"
     assert elements_part[1][0] % Key() == "A"
@@ -308,7 +309,7 @@ def test_rshift_container():
 
 
     # Part testing ###################################################
-    part_song = Part(clip_part)
+    part_song = Part(clip_part) # Works as a copy
     assert part_song.len() == 1
     assert part_song[0] % Position() == Measures(0) + Beats(0)
     assert part_song._test_owner_part()
@@ -839,8 +840,7 @@ def test_clip_fitting():
     assert long_notes[0] % Duration() == 1/1
     assert long_notes[1] % Duration() == 3.5
 
-    two_elements = Clip()
-    two_elements << Note() << Rest()
+    two_elements = Clip() + Note() + Rest()
     assert isinstance(two_elements[0], Note)
     assert isinstance(two_elements[1], Rest)
     two_elements_copy = two_elements.copy()
@@ -962,7 +962,7 @@ def test_clip_duration():
     print(f"Net Finish: {four_notes_1 % Net(Finish()) % float()}")
     assert four_notes_1 % Net(Finish()) == Measures(1) + Beats(1/2)    # All Elements became at the same position, NoteValue(1/8) length each one
 
-    single_beat_note = Clip(Note(Beats(1)))
+    single_beat_note = Clip() + Note(Beats(1))
     print(f"single_beat_note Length: {single_beat_note % Length() % float()}")
     assert single_beat_note % Length() == 1.0
 

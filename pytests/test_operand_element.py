@@ -31,6 +31,9 @@ import sys
 
 
 def test_element_equal():
+    
+    settings << None    # Reset the settings
+
     assert Note(1/1) == Note(1/1)
     assert Note(1/1) != Note(1/4)
     assert Note(1/1) != Rest(1/1)
@@ -119,7 +122,7 @@ def test_note_mod():
     ]
 
     # Only in a Clip is an Element positioned
-    first_note = Clip(Note()) << (Position() << Steps(3*4 + 2))
+    first_note = Clip() + Note(Position(Steps(3*4 + 2)))
     first_note_playlist = playlist_time_ms( first_note.getPlaylist() )
 
     # Sets the common device as that isn't being check
@@ -218,7 +221,7 @@ def test_note_mul():
     assert type(mul_clip[1]) == type(Note())
     assert type(mul_clip[2]) == type(Rest())
 
-# test_note_mul()
+test_note_mul()
 
 
 def test_note_shift():
@@ -415,6 +418,8 @@ def test_program_change_mod():
 
 def test_milliseconds_duration():
 
+    settings << None    # Reset the settings
+
     duration_steps = NoteValue(1/16 * (3*4 + 2))
     note = Note(duration_steps)
     note_playlist = playlist_time_ms( note.getPlaylist() )
@@ -442,6 +447,8 @@ def test_milliseconds_duration():
 
 
 def test_clock_element():
+
+    settings << None    # Reset the settings
 
     clock_measure = Clock(Length(1))
     clock_playlist: list = playlist_time_ms( clock_measure.getPlaylist() )

@@ -308,7 +308,7 @@ class Element(o.Operand):
                                     return self._time_signature.copy()
             case ou.Enable():       return ou.Enable(self._enabled)
             case ou.Disable():      return ou.Disable(not self._enabled)
-            case oc.Clip():         return oc.Clip(self)
+            case oc.Clip():         return oc.Clip().__iadd__(self)
             case Element():         return operand.copy(self)
             case _:                 return super().__mod__(operand)
 
@@ -676,7 +676,7 @@ class Element(o.Operand):
                             next_element._position_beats += ra.Beats(ra.Measures(self._owner_clip, 1) * next_element_i)._rational
                     return self._owner_clip._extend(new_elements)   # Allows the chaining of Clip operations
                 else:
-                    return oc.Clip(self).__imul__(operand)
+                    return oc.Clip().__iadd__(self).__imul__(operand)
             case list():
                 segments_list: list[og.Segment] = []
                 for single_segment in operand:
@@ -686,7 +686,7 @@ class Element(o.Operand):
                         self << ra.Measure(target_measure)  # Stacked by measure *
                         if self._owner_clip is not None:    # Owner clip is always the base container
                             return self._owner_clip._set_owner_clip()._sort_items()
-                        return oc.Clip(self)
+                        return oc.Clip().__iadd__(self)
                 return oc.Clip()    # Empty Clip, self excluded
             case oy.Sequencer():
                 return operand * self
@@ -762,7 +762,7 @@ class Element(o.Operand):
                                 next_position._position_beats += self._duration_beats * next_element_i
                     return self._owner_clip._extend(new_elements)   # Allows the chaining of Clip operations
                 else:
-                    return oc.Clip(self)._set_owner_clip().__itruediv__(operand)
+                    return oc.Clip().__iadd__(self)._set_owner_clip().__itruediv__(operand)
             case list():
                 new_elements: list[Element] = []
                 next_position: ra.Position = self.net_start()
@@ -864,7 +864,7 @@ class Element(o.Operand):
                             next_element._position_beats += self._duration_beats * next_element_i
                     return self._owner_clip._extend(new_elements)._sort_items()   # Allows the chaining of Clip operations
                 else:
-                    return oc.Clip(self).__ifloordiv__(operand)
+                    return oc.Clip().__iadd__(self).__ifloordiv__(operand)
             # Divides the `Duration` by sections with the given `Duration` (note value)
             case ra.Duration() | ra.NoteValue() | ra.TimeValue() | Fraction() | float():
                 if self._owner_clip is not None:    # Owner clip is always the base container
@@ -890,7 +890,7 @@ class Element(o.Operand):
                                 next_split += segment_duration_beats
                     return self._owner_clip._extend(new_elements)._sort_items()   # Allows the chaining of Clip operations
                 else:
-                    return oc.Clip(self).__ifloordiv__(operand)
+                    return oc.Clip().__iadd__(self).__ifloordiv__(operand)
             case ra.Position() | ra.TimeUnit():
                 if self._owner_clip is not None:    # Owner clip is always the base container
                     new_elements: list[Element] = []
@@ -908,7 +908,7 @@ class Element(o.Operand):
                             right_element._duration_beats = right_duration
                     return self._owner_clip._extend(new_elements)._sort_items()   # Allows the chaining of Clip operations
                 else:
-                    return oc.Clip(self).__ifloordiv__(operand)
+                    return oc.Clip().__iadd__(self).__ifloordiv__(operand)
 
             case list():
                 loci: list[og.Locus] = o.list_wrap(operand, og.Locus(self._get_time_signature()))
@@ -948,7 +948,7 @@ class Element(o.Operand):
             Element: Returns the presently plotted element.
         """
         from . import operand_container as oc
-        oc.Clip(self).plot(by_channel, block, pause, iterations, n_button, composition, title)
+        oc.Clip().__iadd__(self).plot(by_channel, block, pause, iterations, n_button, composition, title)
         return self
 
 
@@ -966,7 +966,7 @@ class Element(o.Operand):
             Element: Returns the presently plotted element.
         """
         from . import operand_container as oc
-        oc.Clip(self).call(iterations, n_button)
+        oc.Clip().__iadd__(self).call(iterations, n_button)
         return self
 
 

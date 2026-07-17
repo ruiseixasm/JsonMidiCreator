@@ -33,12 +33,16 @@ import sys
 
 def test_settings_reset():
 
+    settings << None    # Same as reset
+
     assert settings == Settings()
     settings << KeySignature("###") << Tempo(75) << TimeSignature(6, 8)
     assert settings != Settings()
     # Resets the defaults
     settings << None
     assert settings == Settings()
+
+# test_settings_reset()
 
 
 def test_timesignature_mod():

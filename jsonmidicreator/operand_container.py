@@ -2035,8 +2035,9 @@ class Clip(Composition):  # Just a container of Elements
             case ou.Auto():
                 self._auto = bool(operand._unit)
                 
-            case oe.Element():
-                self += operand
+            case oe.Element():  # Element wapping (wrap)
+                for single_element in self.unmasked_items():
+                    self._replace(single_element, operand.copy()._set_owner_clip(self) << single_element)
 
             case list():
                 if all(isinstance(item, oe.Element) for item in operand):
@@ -2182,7 +2183,9 @@ class Clip(Composition):  # Just a container of Elements
                     self._items.extend(operand_copy._items)
 
             case oe.Element():
-                self.__imul__(Clip(operand._time_signature, operand))
+                self.__imul__(
+                    Clip(operand._time_signature).__iadd__(operand)
+                )
 
             case int():
                 if operand > 1:
@@ -2251,7 +2254,9 @@ class Clip(Composition):  # Just a container of Elements
                         new_element._position_beats += position_shift
                     self._extend(operand_elements)
             case oe.Element():
-                self.__itruediv__(Clip(operand._time_signature, operand))
+                self.__itruediv__(
+                        Clip(operand._time_signature).__iadd__(operand)
+                    )
 
             case int():
                 if operand > 1:
@@ -3966,11 +3971,16 @@ class Block(Composition):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Block():
-                return Part(self, operand)
+                new_part = Part()
+                new_part += self
+                new_part += operand
+                return new_part
             case Clip():
                 self._append(operand.copy())
             case oe.Element():
-                self._append(Clip(operand._time_signature, operand))
+                self._append(
+                    Clip(operand._time_signature).__iadd__(operand)
+                )
 
             case ra.Position() | ra.TimeValue() | ra.TimeUnit():
                 self << self % ra.Position() + operand
