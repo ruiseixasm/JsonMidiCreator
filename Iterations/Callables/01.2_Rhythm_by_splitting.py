@@ -24,5 +24,5 @@ def pre_filter(clip) -> bool:
     return True
 
 notes_splitter = I_DurationsSplitter(3*6, chaos=SinX(540), pre_filter=pre_filter, max_tries=200)
-four_notes >> Plot(n_button=notes_splitter.get_clip)
+four_notes >> notes_splitter >> Plot()
 
