@@ -624,7 +624,7 @@ class Element(o.Operand):
                 new_clip += self
                 return new_clip.__imul__(operand)
             case oc.Clip():
-                return operand.empty_copy(self).__imul__(operand)   # Keeps the Clip TimeSignature and integrates self
+                return operand.empty_copy().__iadd__(self).__imul__(operand)   # Keeps the Clip TimeSignature and integrates self
             # Can be applied to owned elements
             case int():
                 if self._owner_clip is not None:    # Owner clip is always the base container
