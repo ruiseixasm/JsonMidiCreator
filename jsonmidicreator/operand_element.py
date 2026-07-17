@@ -563,7 +563,10 @@ class Element(o.Operand):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Element():
-                return oc.Clip(self._get_time_signature(), self, operand)    # Clip does an += for << operator
+                new_clip = oc.Clip(self._get_time_signature())
+                new_clip += self
+                new_clip += operand
+                return new_clip
             case oc.Clip():
                 return operand.empty_copy(self).__iadd__(operand)   # Keeps the Clip TimeSignature and integrates self
             # For efficient reasons
