@@ -144,15 +144,17 @@ class Iterations(o.Operand):
         match operand:
             case od.Pipe():
                 match operand._data:
+                    case oc.Clip():             return self._seed
                     case ch.Chaos():            return self._chaos
                     case _:                     return super().__mod__(operand)
             case ch.Chaos():            return self._chaos.copy()
-            case oc.Clip():             return self.get_clip(operand)
+            case oc.Clip():             return self.get_clip()
             case int():                 return self._freeze_at
             case _:                     return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
+        serialization["parameters"]["seed"]             = self.serialize( self._seed )
         serialization["parameters"]["iterations"]       = self.serialize( self._iterations )
         serialization["parameters"]["chaos"]            = self.serialize( self._chaos )
         serialization["parameters"]["pre_filter"]       = self.serialize( self._pre_filter )
@@ -166,11 +168,12 @@ class Iterations(o.Operand):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "iterations" in serialization["parameters"] and "chaos" in serialization["parameters"] and "pre_filter" in serialization["parameters"] and
+            "seed" in serialization["parameters"] and "iterations" in serialization["parameters"] and "chaos" in serialization["parameters"] and "pre_filter" in serialization["parameters"] and
             "post_process" in serialization["parameters"] and "max_tries" in serialization["parameters"] and "no_repetitions" in serialization["parameters"] and
             "freeze_at" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
+            self._seed              = self.deserialize( serialization["parameters"]["seed"] )
             self._iterations        = self.deserialize( serialization["parameters"]["iterations"] )
             self._chaos             = self.deserialize( serialization["parameters"]["chaos"] )
             self._pre_filter        = self.deserialize( serialization["parameters"]["pre_filter"] )
@@ -184,6 +187,7 @@ class Iterations(o.Operand):
         match operand:
             case Iterations():
                 super().__lshift__(operand)
+                self._seed              = operand._seed.copy()
                 self._iterations        = operand._iterations.copy()
                 self._chaos             = operand._chaos.copy()
                 self._pre_filter        = operand._pre_filter
@@ -193,9 +197,12 @@ class Iterations(o.Operand):
                 self._freeze_at         = operand._freeze_at
             case od.Pipe():
                 match operand._data:
+                    case oc.Clip():             self._seed = operand._data
                     case ch.Chaos():            self._chaos = operand._data
                     case int():                 self._freeze_at = operand._data
                     case _:                     super().__lshift__(operand)
+            case oc.Clip():
+                self._seed = operand.copy()
             case ch.Chaos():
                 self._chaos             = operand.copy()
             case int():
@@ -207,9 +214,8 @@ class Iterations(o.Operand):
     def __imul__(self, number: Union['ou.Unit', 'ra.Rational', int, float, Fraction]) -> Self:
         if self._iterations:
             number = o.number_to_int(number) # Results in a int, like int(float)
-            seed_composition = self._iterations[0]
             for _ in range(number):
-                self.iterate(seed_composition)
+                self.iterate()
         return self
     
     def __getitem__(self, index: int) -> oc.Clip | None:
