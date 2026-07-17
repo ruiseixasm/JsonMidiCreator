@@ -72,11 +72,10 @@ class Iterations(o.Operand):
     def iterate(self) -> Self:
         self._index += 1    # Each new_composition is added to the list, so, the index has to increase
         for _ in range(self._max_tries):    # Gets a non-empty iteration
+            candidate: oc.Clip = self._single_iteration()
             if isinstance(self._next_operand, Iterations):
-                tail_iteration = self._next_operand.get_clip(self._seed.copy())
-                candidate = self._single_iteration(tail_iteration)
-            else:
-                candidate = self._single_iteration(self._seed.copy())
+                self._next_operand._seed = candidate
+                candidate = self._next_operand._single_iteration()
             if candidate.len() > 0: # Only non empty candidates can be considered as solutions
                 if not callable(self._pre_filter) or self._pre_filter(candidate):
                     iteration: oc.Clip = self._post_process(candidate)
