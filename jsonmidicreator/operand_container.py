@@ -3182,7 +3182,7 @@ class Clip(Composition):  # Just a container of Elements
     def fit(self) -> Self:
         """
         Moves the `Position` of the following Elements to match the finish of the previous
-        `Element` by keeping its finish Position, meaaning, by changing its `Duration`.
+        `Element` by keeping its finish Position, meaning, by changing its `Duration`.
 
         Args:
             None

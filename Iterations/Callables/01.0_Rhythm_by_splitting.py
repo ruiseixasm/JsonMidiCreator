@@ -17,6 +17,5 @@ from jsonmidicreator import *
 
 four_notes = Note(1/1) * 4
 
-notes_splitter = I_DurationsSplitter(4*6)
-four_notes >> Plot(n_button=notes_splitter.get_clip)
+four_notes >> I_DurationsSplitter(durations=4*6) >> Plot()
 
