@@ -1794,9 +1794,13 @@ class Clip(Composition):  # Just a container of Elements
             case ou.Auto():
                 return ou.Auto(self._auto)
             case Block():
-                return Block(self._time_signature, self)
+                new_block = Block(self._time_signature)
+                new_block += self   # Implicit copy
+                return new_block
             case Part():
-                return Part(self._time_signature, self)
+                new_part = Part(self._time_signature)
+                new_part += self
+                return new_part
             case og.PitchTransitions():
                 pitch_transitions = og.PitchTransitions()
                 for i, single_element in enumerate(self._items):
@@ -3995,11 +3999,14 @@ class Block(Composition):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Block():
+                new_part = Part(self._time_signature)
+                new_part += self
                 self_length: ra.Length = self.gross_length()
                 if self_length is not None:
-                    return Part(self._time_signature, self, operand.copy(ra.Position(self_length)))
+                    new_part += operand.copy(ra.Position(self_length))
                 else:
-                    return Part(self._time_signature, self, operand)  # Implicit copy
+                    new_part += operand
+                return new_part
             case Clip():
                 self_length: ra.Length = self.gross_length()
                 if self_length is not None:
