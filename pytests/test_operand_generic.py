@@ -41,16 +41,16 @@ def test_settings_reset():
     assert settings == Settings()
 
 
-def test_staff_mod():
+def test_timesignature_mod():
 
     # Perform the operation
-    staff_1 = TimeSignature()
-    staff_2 = staff_1.copy()
+    timesignature_1 = TimeSignature()
+    timesignature_2 = timesignature_1.copy()
     
-    assert staff_1 == staff_2
+    assert timesignature_1 == timesignature_2
     # Tempo is centralized in defaults
     assert settings % Tempo() % float() == 120.0
-    assert staff_1 % BeatsPerMeasure() % float() == 4.0
+    assert timesignature_1 % BeatsPerMeasure() % float() == 4.0
 
 
 def test_pitch_tonic():

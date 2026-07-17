@@ -711,7 +711,8 @@ class Element(o.Operand):
                             next_position._position_beats += self._duration_beats * next_element_i
                     return self._owner_clip._extend(new_elements)._sort_items() # Allows the chaining of Clip operations
                 else:
-                    new_clip: oc.Clip = oc.Clip(self._get_time_signature(), self)
+                    new_clip: oc.Clip = oc.Clip(self._get_time_signature())
+                    new_clip += self
                     if operand > 1:
                         for _ in range(operand - 1):
                             new_clip.__itruediv__(self)
