@@ -3272,6 +3272,8 @@ class Plot(ReadOnly):
             case ou.KeySignature():
                 Scale.plot(self._parameters[1], operand % list(), operand % ou.Key(), operand % str())
             case oi.Iterations():
+                if not isinstance(self._title, str):
+                    self._title = operand.__class__.__name__
                 self._n_function = operand.n_function
                 return self.plot_iterations()
             case _:
