@@ -18,13 +18,13 @@ from jsonmidicreator import *
 measure_note = Note(1/1) * 1
 
 notes_splitter = I_DurationsSplitter()
-multiple_notes = measure_note >> Plot(n_button=notes_splitter.get_clip)
+multiple_notes = measure_note >> notes_splitter >> Plot()
 
 
 notes_setter = I_ParameterSetter(no_repetitions=True)
 chained_iterations = \
-    multiple_notes  << Select(Beat(0)) >> Plot(n_button=notes_setter.get_clip) \
-                    << Select(Beat(1)) >> Plot(n_button=notes_setter.get_clip) \
-                    << Select(Beat(2)) >> Plot(n_button=notes_setter.get_clip) \
-                    << Select(Beat(3)) >> Plot(n_button=notes_setter.get_clip) << Unmask()
+    multiple_notes  << Select(Beat(0)) >> notes_setter >> Plot() \
+                    << Select(Beat(1)) >> notes_setter >> Plot() \
+                    << Select(Beat(2)) >> notes_setter >> Plot() \
+                    << Select(Beat(3)) >> notes_setter >> Plot() << Unmask()
 

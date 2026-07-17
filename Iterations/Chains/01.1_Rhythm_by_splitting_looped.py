@@ -18,12 +18,12 @@ from jsonmidicreator import *
 measure_note = Note(1/1) * 1
 
 notes_splitter = I_DurationsSplitter()
-multiple_notes = measure_note >> Plot(n_button=notes_splitter.get_clip)
+multiple_notes = measure_note >> notes_splitter >> Plot()
 
 
 notes_setter = I_ParameterSetter(no_repetitions=True)
 
 looped_iterations = multiple_notes.copy()
 for beat in range(4):   # 4 Beats iteration range
-   looped_iterations = looped_iterations << Select(Beat(beat)) >> Plot(n_button=notes_setter.get_clip)
+   looped_iterations = looped_iterations << Select(Beat(beat)) >> notes_setter >> Plot()
 looped_iterations << Unmask() >> Plot()
