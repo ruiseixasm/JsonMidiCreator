@@ -62,54 +62,57 @@ class Iterations(o.Operand):
         return self
     
     def n_function(self, iteration: int) -> 'oc.Clip':
-
-        self.iterate()
-        return self._seed.copy()
+        extra_iterations = iteration - self._index
+        if extra_iterations > 0:
+            for _ in range(extra_iterations):
+                self.iterate()
+        return self._iterations[iteration].copy()   # Decoupled
     
     
     def iterate(self) -> Self:
+        self._index += 1    # Each new_composition is added to the list, so, the index has to increase
         for _ in range(self._max_tries):    # Gets a non-empty iteration
             if isinstance(self._next_operand, Iterations):
                 tail_iteration = self._next_operand.get_clip(self._seed.copy())
                 candidate = self._single_iteration(tail_iteration)
             else:
                 candidate = self._single_iteration(self._seed.copy())
-            if not callable(self._pre_filter) or self._pre_filter(candidate):
-                iteration: oc.Clip = self._post_process(candidate)
-                if not self._no_repetitions or not iteration in self._iterations:
-                    iteration._index = self._index
-                    self._iterations.append(iteration)
-                    return self
+            if candidate.len() > 0: # Only non empty candidates can be considered as solutions
+                if not callable(self._pre_filter) or self._pre_filter(candidate):
+                    iteration: oc.Clip = self._post_process(candidate)
+                    if not self._no_repetitions or not iteration in self._iterations:
+                        iteration._index = self._index
+                        self._iterations.append(iteration)
+                        return self
         empty_iteration: oc.Clip = self._post_process(self._seed.empty_copy())
         empty_iteration._index = self._index
         self._iterations.append(empty_iteration)
-        self._index += 1    # Each new_composition is added to the list, so, the index has to increase
         return self
     
-    def get_clip(self, clip_0: 'oc.Clip') -> 'oc.Clip':
+    def get_clip(self) -> 'oc.Clip':
         """Also applies the post processing on the original iteration"""
         if self._freeze_at < 0:
-            self.iterate(clip_0)
+            self.iterate()
         elif self._freeze_at > self._index: # self._index is the last item
             iterations: int = self._freeze_at - self._index
             for _ in range(iterations):
-                self.iterate(clip_0)
+                self.iterate()
         return self._iterations[-1].copy()
+    
 
+    def _single_iteration(self) -> 'oc.Clip':
+        return self._seed.copy()
 
-    def _single_iteration(self, clip_0: 'oc.Clip') -> 'oc.Clip':
-        return clip_0
+    def _pre_exclude(self, clip: oc.Clip) -> bool:
+        # The external user defined method is called if and only if the clip is internally validated
+        return (not self._no_repetitions or not clip in self._iterations) \
+            and (not callable(self._pre_filter) or self._pre_filter(clip))
 
-
-    def _pre_exclude(self, composition: oc.Clip) -> bool:
-        # The external user defined method is called if and only if the composition is internally validated
-        return (not self._no_repetitions or not composition in self._iterations) \
-            and (not callable(self._pre_filter) or self._pre_filter(composition))
-
-    def _post_process(self, composition: oc.Clip) -> oc.Clip:
+    def _post_process(self, clip: oc.Clip) -> oc.Clip:
         if callable(self._post_processing):
-            return self._post_processing(composition)
-        return composition
+            return self._post_processing(clip)
+        return clip
+    
     
     def len(self) -> int:
         return len(self._iterations)
@@ -226,11 +229,11 @@ class I_Function(Iterations):
         self._function: list[Any] = function
 
 
-    def _single_iteration(self, clip_0: 'oc.Clip') -> 'oc.Clip':
+    def _single_iteration(self) -> 'oc.Clip':
         if callable(self._function):
-            new_iteration: oc.Clip = self._function(clip_0)
+            new_iteration: oc.Clip = self._function(self._seed.copy())
             return new_iteration._sort_items()  # Safe code
-        return clip_0.empty_copy()  # No valid Composition made
+        return self._seed.empty_copy()  # No valid Composition made
 
 
 class I_DurationsSplitter(Iterations):
@@ -243,15 +246,16 @@ class I_DurationsSplitter(Iterations):
         self._durations: int = durations
 
 
-    def _single_iteration(self, decoupled_clip_0: 'oc.Clip') -> 'oc.Clip':
+    def _single_iteration(self) -> 'oc.Clip':
         quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
         total_duration_beats = Fraction(0)
-        for single_element in decoupled_clip_0.unmasked_items():
+        seed_copy: oc.Clip = self._seed.copy()
+        for single_element in seed_copy.unmasked_items():
             total_duration_beats += single_element._duration_beats
         if total_duration_beats > 0:
             try_i: int = 0
             while try_i < 100:
-                iteration_clip: oc.Clip = decoupled_clip_0.copy() # Despite the clip_0 being already a copy, each iteration needs a new one
+                iteration_clip: oc.Clip = seed_copy.copy()  # Despite the being already a copy, each iteration needs a new one
                 try_j: int = 0
                 while iteration_clip.len() < self._durations and try_j < 100 * 2:
                     continuous_split_step: int = self._chaos % int()
@@ -270,7 +274,7 @@ class I_DurationsSplitter(Iterations):
                         return iteration_clip._sort_items() # Safe code
                     try_j += 1
                 try_i += 1
-        return decoupled_clip_0.empty_copy()   # Tags as invalid
+        return self._seed.empty_copy()   # Tags as invalid
 
 
 class I_ParametersChooser(Iterations):
@@ -283,14 +287,15 @@ class I_ParametersChooser(Iterations):
         self._parameters: list[Any] = parameters
 
 
-    def _single_iteration(self, decoupled_clip_0: 'oc.Clip') -> 'oc.Clip':
+    def _single_iteration(self) -> 'oc.Clip':
         if self._parameters:
+            seed_copy: oc.Clip = self._seed.copy()
             total_parameters: int = len(self._parameters)
-            for element in decoupled_clip_0.unmasked_items():
+            for element in seed_copy.unmasked_items():
                 index_choice: int = self._chaos % int()
                 chosen_parameter = self._parameters[index_choice % total_parameters]
                 element << o.Operand.deep_copy(chosen_parameter)    # copy guarantees parameter decoupling
-        return decoupled_clip_0._sort_items()   # The Clip is already decoupled
+        return seed_copy._sort_items()
 
 
 class I_ParameterShuffler(Iterations):
@@ -302,8 +307,9 @@ class I_ParameterShuffler(Iterations):
         super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
         self._parameter: Any = parameter
 
-    def _single_iteration(self, decoupled_clip_0: 'oc.Clip') -> 'oc.Clip':
-        clip_elements: list[oe.Element] = decoupled_clip_0.unmasked_items()
+    def _single_iteration(self) -> 'oc.Clip':
+        seed_copy: oc.Clip = self._seed.copy()
+        clip_elements: list[oe.Element] = seed_copy.unmasked_items()
         clip_len: int = len(clip_elements)
         parameters: list[Any] = [
             element % self._parameter for element in clip_elements
@@ -314,7 +320,7 @@ class I_ParameterShuffler(Iterations):
             picks.append(parameters.pop(index))
         for element, parameter in zip(clip_elements, picks):
             element << parameter
-        return decoupled_clip_0._sort_items()   # The Clip is already decoupled
+        return seed_copy._sort_items()   # The Clip is already decoupled
 
 
 class I_ParameterSetter(Iterations):
@@ -329,22 +335,24 @@ class I_ParameterSetter(Iterations):
         self._global_setting: bool = global_setting
 
 
-    def _single_iteration(self, decoupled_clip_0: 'oc.Clip') -> 'oc.Clip':
+    def _single_iteration(self) -> 'oc.Clip':
+        seed_copy: oc.Clip = self._seed.copy()
         if self._global_setting:
             global_parameter = self._chaos.chaoticize()
             operand = self._parameter.copy(global_parameter)  # copy guarantees operand decoupling
-            decoupled_clip_0 << operand
+            seed_copy << operand
         else:
-            for element in decoupled_clip_0.unmasked_items():
+            for element in seed_copy.unmasked_items():
                 parameter = self._chaos.chaoticize()
                 operand = self._parameter.copy(parameter)     # copy guarantees operand decoupling
                 element << operand
-        return decoupled_clip_0._sort_items()   # The Clip is already decoupled
+        return seed_copy._sort_items()   # The Clip is already decoupled
 
 
 class I_DurationSwapper(Iterations):
-    def _single_iteration(self, decoupled_clip_0: 'oc.Clip') -> 'oc.Clip':
-        clip_elements: list[oe.Element] = decoupled_clip_0.unmasked_items()
+    def _single_iteration(self) -> 'oc.Clip':
+        seed_copy: oc.Clip = self._seed.copy()
+        clip_elements: list[oe.Element] = seed_copy.unmasked_items()
         clip_len: int = len(clip_elements)
         if clip_len > 1:
             indexes: list[int] = [
@@ -359,8 +367,8 @@ class I_DurationSwapper(Iterations):
                 if swap:
                     left_duration = clip_elements[left_element_i] % ra.Duration()
                     right_duration = clip_elements[left_element_i + 1] % ra.Duration()
-                    # Direct setting on `decoupled_clip_0` elements
+                    # Direct setting on `seed_copy` elements
                     clip_elements[left_element_i] << right_duration
                     clip_elements[left_element_i + 1] << od.Left(left_duration)
-        return decoupled_clip_0._sort_items()   # The Clip is already decoupled, elements manipulated directly thus sorting is needed
+        return seed_copy._sort_items()   # The Clip is already decoupled, elements manipulated directly thus sorting is needed
 
