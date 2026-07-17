@@ -265,7 +265,7 @@ class Input(LeftToRight):
         self._index += 1
         if isinstance(self._named_parameters['input'], oc.Container):
             if self._named_parameters['input'].len() > 0:
-                item = self._named_parameters['input'][(self._index - 1) % self._named_parameters['input'].len()]
+                item = self._named_parameters['input'][self._index % self._named_parameters['input'].len()] # INDEX -1 IN USAGE
                 return super().frame(item)
             return super().frame(ol.Null())
         if isinstance(self._named_parameters['input'], ch.Chaos):
@@ -292,7 +292,7 @@ class Previous(LeftToRight):
         self._named_parameters['previous'] = first_null
 
     def frame(self, input: o.T) -> o.T:
-        if self._index == 0:
+        if self._index == -1:   # INDEX -1 IN USAGE
             if self._named_parameters['previous']:
                 self._named_parameters['previous'] = ol.Null()
             else:
@@ -640,7 +640,7 @@ class Foreach(LeftToRight):
         self._index += 1
         operand_len: int = len(self._parameters)
         if operand_len > 0:    # In case it its own parameters to iterate trough
-            input = self._parameters[(self._index - 1) % operand_len]
+            input = self._parameters[self._index % operand_len] # INDEX -1 IN USAGE
             return super().frame(input)
         return ol.Null()
 
@@ -1075,7 +1075,8 @@ class Odd(Alternator):
     """
     def frame(self, input: o.T) -> o.T:
         self._index += 1
-        if self._index % 2 == 1:    # Selected to pass
+        # INDEX -1 IN USAGE
+        if self._index % 2 == 0:    # Odd is nth based
             if isinstance(self._next_operand, Frame):
                 return self._next_operand.frame(input)
             return self._next_operand
@@ -1093,7 +1094,8 @@ class Even(Alternator):
     """
     def frame(self, input: o.T) -> o.T:
         self._index += 1
-        if self._index % 2 == 0:
+        # INDEX -1 IN USAGE
+        if self._index % 2 == 1:    # It's Nth based
             if isinstance(self._next_operand, Frame):
                 return self._next_operand.frame(input)
             return self._next_operand
@@ -1167,7 +1169,8 @@ class Nth(Alternator):
 
     def frame(self, input: o.T) -> o.T:
         self._index += 1
-        if self._index in self._named_parameters['parameters']:
+        # INDEX -1 IN USAGE
+        if self._index + 1 in self._named_parameters['parameters']:
             if isinstance(self._next_operand, Frame):
                 return self._next_operand.frame(input)
             return self._next_operand
@@ -1190,7 +1193,8 @@ class At(Alternator):
 
     def frame(self, input: o.T) -> o.T:
         self._index += 1
-        if self._index - 1 in self._named_parameters['parameters']:
+        # INDEX -1 IN USAGE
+        if self._index in self._named_parameters['parameters']:
             if isinstance(self._next_operand, Frame):
                 return self._next_operand.frame(input)
             return self._next_operand
@@ -1286,9 +1290,9 @@ class BasicOperation(LeftToRight):
     def _next_parameter(self) -> Any:
         if isinstance(self._named_parameters['parameter'], tuple):
             if self._named_parameters['parameter']:
+                self._index += 1    # INDEX -1 IN USAGE
                 total_parameters: int = len(self._named_parameters['parameter'])
                 next_parameter = self._named_parameters['parameter'][self._index % total_parameters]
-                self._index += 1
                 return next_parameter
             else:
                 return 1    # By default processes 1

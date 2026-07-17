@@ -3248,12 +3248,13 @@ class Plot(ReadOnly):
         self._block: bool = block
         self._pause: bool = pause
         self._iterations: int = iterations
-        self._n_function = None
+        self._n_function: Callable[[int], 'Clip'] = None
 
     def __rrshift__(self, operand: o.T) -> o.T:
         from . import operand_unit as ou
         from . import operand_element as oe
         from . import operand_container as oc
+        from . import operand_iterations as oi
         match operand:
             case oc.Composition():
                 return self.plot_composition(operand)
@@ -3270,6 +3271,9 @@ class Plot(ReadOnly):
                 Scale.plot(self._parameters[1], operand % list())
             case ou.KeySignature():
                 Scale.plot(self._parameters[1], operand % list(), operand % ou.Key(), operand % str())
+            case oi.Iterations():
+                self._n_function = operand
+                return self.plot_iterations()
             case _:
                 if isinstance(operand, Callable):
                     self._n_function = operand

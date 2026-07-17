@@ -38,10 +38,11 @@ from . import operand_tamer as ot
 
 
 class Iterations(o.Operand):
-    def __init__(self, chaos: ch.Chaos = ch.SinX(340),
+    def __init__(self, seed: 'oc.Clip' = oc.Clip(), chaos: ch.Chaos = ch.SinX(340),
                  pre_filter: Optional[Callable[['oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 4, no_repetitions: bool = False, freeze_at: int = -1):
+        self._seed: oc.Clip = seed  # Read Only
         self._iterations: list[oc.Clip] = []
         self._chaos: ch.Chaos = chaos
         self._pre_filter: Callable | None = pre_filter
@@ -56,25 +57,33 @@ class Iterations(o.Operand):
         super().reset()
         return self
     
-    def iterate(self, clip_0: 'oc.Clip', times: int = 1) -> Self:
-        if times > 0:
-            for _ in range(times):
-                for _ in range(self._max_tries):    # Gets a non-empty iteration
-                    if isinstance(self._next_operand, Iterations):
-                        tail_iteration = self._next_operand.get_clip(clip_0.copy())
-                        candidate = self._single_iteration(tail_iteration)
-                    else:
-                        candidate = self._single_iteration(clip_0.copy())
-                    if not callable(self._pre_filter) or self._pre_filter(candidate):
-                        iteration: oc.Clip = self._post_process(candidate)
-                        if not self._no_repetitions or not iteration in self._iterations:
-                            iteration._index = self._index
-                            self._iterations.append(iteration)
-                            return self
-                empty_iteration: oc.Clip = self._post_process(clip_0.empty_copy())
-                empty_iteration._index = self._index
-                self._iterations.append(empty_iteration)
-                self._index += 1    # Each new_composition is added to the list, so, the index has to increase
+    def set_seed(self, seed: 'oc.Clip') -> Self:
+        self._seed = seed
+        return self
+    
+    def n_function(self, iteration: int) -> 'oc.Clip':
+
+        self.iterate()
+        return self._seed.copy()
+    
+    
+    def iterate(self) -> Self:
+        for _ in range(self._max_tries):    # Gets a non-empty iteration
+            if isinstance(self._next_operand, Iterations):
+                tail_iteration = self._next_operand.get_clip(self._seed.copy())
+                candidate = self._single_iteration(tail_iteration)
+            else:
+                candidate = self._single_iteration(self._seed.copy())
+            if not callable(self._pre_filter) or self._pre_filter(candidate):
+                iteration: oc.Clip = self._post_process(candidate)
+                if not self._no_repetitions or not iteration in self._iterations:
+                    iteration._index = self._index
+                    self._iterations.append(iteration)
+                    return self
+        empty_iteration: oc.Clip = self._post_process(self._seed.empty_copy())
+        empty_iteration._index = self._index
+        self._iterations.append(empty_iteration)
+        self._index += 1    # Each new_composition is added to the list, so, the index has to increase
         return self
     
     def get_clip(self, clip_0: 'oc.Clip') -> 'oc.Clip':

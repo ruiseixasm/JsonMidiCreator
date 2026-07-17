@@ -619,7 +619,7 @@ class Operand:
         self._next_operand: Operand | None  = None
         self._initiated: bool               = False
         self._set: bool                     = False # Intended to be used by Frame subclasses to flag set Operands
-        self._index: int                    = 0
+        self._index: int                    = -1    # negative means no iteration so far
         self._masked: bool                  = False
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -856,7 +856,7 @@ class Operand:
             self << self._next_operand.reset()
         self._initiated     = False
         self._set           = False
-        self._index         = 0
+        self._index         = -1    # negative means no iteration so far
         return self << parameters
     
     def clear(self, *parameters) -> Self:
