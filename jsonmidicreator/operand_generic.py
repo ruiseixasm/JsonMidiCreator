@@ -3272,12 +3272,12 @@ class Plot(ReadOnly):
             case ou.KeySignature():
                 Scale.plot(self._parameters[1], operand % list(), operand % ou.Key(), operand % str())
             case oi.Iterations():
-                self._n_function = operand
+                self._n_function = operand.n_function
                 return self.plot_iterations()
             case _:
                 if isinstance(operand, Callable):
                     self._n_function = operand
-                    return self.plot_callable()
+                    return self.plot_iterations()
         return operand
 
 
@@ -4235,7 +4235,7 @@ class Plot(ReadOnly):
         return self
 
 
-    def plot_callable(self) -> Self:
+    def plot_iterations(self) -> Self:
         """
         Plots the `Note`s in a `Composition`, if it has no Notes it plots the existing `Automation` instead.
 
