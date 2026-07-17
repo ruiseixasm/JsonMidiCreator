@@ -32,7 +32,7 @@ def post_process(clip) -> Clip:
 notes_splitter = I_DurationsSplitter(6, chaos=SinX(540), pre_filter=pre_filter, max_tries=1000, freeze_at=6)
 degrees_chooser = I_ParametersChooser(["1", "2", "3", "4", "5", "6", "7"], freeze_at=6)
 accidental_sharp = I_ParametersChooser([Natural(), Sharp()], SinX(540, Probability(1/6)), post_process=post_process, no_repetitions=True)
-degrees_splitter = accidental_sharp**degrees_chooser**notes_splitter
+degrees_splitter = notes_splitter**degrees_chooser**accidental_sharp
 
-rhythm_motif = measure_note >> Plot(n_button=degrees_splitter.get_clip, title="Rhythm Melody", iterations=6)
+rhythm_motif = measure_note >> degrees_splitter >> Plot(title="Rhythm Melody", iterations=6)
 
