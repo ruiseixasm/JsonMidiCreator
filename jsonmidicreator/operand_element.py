@@ -707,7 +707,7 @@ class Element(o.Operand):
                 new_clip += self
                 return new_clip.__itruediv__(operand)
             case oc.Clip():
-                return operand.empty_copy(self).__itruediv__(operand)   # Keeps the Clip TimeSignature and integrates self
+                return operand.empty_copy().__iadd__(self).__itruediv__(operand)   # Keeps the Clip TimeSignature and integrates self
             # Can be applied to owned elements
             case int():
                 if self._owner_clip is not None:    # Owner clip is always the base container
@@ -816,9 +816,9 @@ class Element(o.Operand):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element():
-                return oc.Clip(self._get_time_signature(), self).__ifloordiv__(operand)
+                return oc.Clip(self._get_time_signature()).__iadd__(self).__ifloordiv__(operand)
             case oc.Clip():
-                return operand.empty_copy(self).__ifloordiv__(operand)  # Keeps the Clip TimeSignature and integrates self
+                return operand.empty_copy().__iadd__(self).__ifloordiv__(operand)  # Keeps the Clip TimeSignature and integrates self
             # Can be applied to owned elements
 
             case int(): # Amounts of equal splits
