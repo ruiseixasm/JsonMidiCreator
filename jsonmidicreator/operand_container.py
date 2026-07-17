@@ -4000,8 +4000,8 @@ class Block(Composition):
         match operand:
             case Block():
                 new_part = Part(self._time_signature)
-                new_part += self
                 self_length: ra.Length = self.gross_length()
+                new_part += self
                 if self_length is not None:
                     new_part += operand.copy(ra.Position(self_length))
                 else:
@@ -4041,18 +4041,23 @@ class Block(Composition):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Block():
+                new_part = Part(self._time_signature)
+                new_part += self
                 finish_position: ra.Position = self.net_finish()
                 if finish_position is not None:
-                    return Part(self._time_signature, self, operand.copy(finish_position))
+                    new_part += operand.copy(finish_position)
                 else:
-                    return Part(self._time_signature, self, operand)  # Implicit copy
+                    new_part += operand
+                return new_part
             case Clip():
                 finish_position: ra.Position = self.net_finish()
                 repositioned_clip: Clip = operand + finish_position # Implicit copy
                 self._append(repositioned_clip) # No implicit copy
             case oe.Element():
                 finish_position: ra.Position = self.net_finish()
-                repositioned_clip: Clip = Clip(operand._time_signature, operand) + finish_position # Implicit copy
+                repositioned_clip: Clip = Clip(operand._time_signature)
+                repositioned_clip += operand
+                repositioned_clip += finish_position
                 self._append(repositioned_clip) # No implicit copy
             case int():
                 if operand > 1:
