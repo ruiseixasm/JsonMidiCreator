@@ -2067,9 +2067,17 @@ class Clip(Composition):  # Just a container of Elements
                 super().__lshift__(operand)
         return self._sort_items()
 
+
+    def __rshift__(self, operand) -> Any:
+        from . import operand_iterations as oi
+        match operand:
+            case oi.Iterations():
+                return operand.__rrshift__(self)
+            case _:
+                return super().__rshift__(operand)
+
     # Works as a Clip transformer
     def __irshift__(self, operand) -> Self:
-        from . import operand_iterations as oi
         match operand:
             case oe.Element():  # Element wapping (wrap)
                 for single_element in self.unmasked_items():
@@ -2092,8 +2100,6 @@ class Clip(Composition):  # Just a container of Elements
 
             case og.Process():
                 return super().__irshift__(operand)._sort_items()
-            case oi.Iterations():
-                return operand.__rrshift__(self)
             case _:
                 super().__irshift__(operand)
 

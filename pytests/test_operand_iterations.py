@@ -36,7 +36,7 @@ def test_cycle_setter():
     four_notes = Clip(
         Line("n:2:C#7, :6:E7, :2:F#6, :6:F6")
     ) << Select(At(2)) << Name("Four Notes")
-    four_notes >> notes_setting.set_seed
+    four_notes >> notes_setting
     for semitone in range(12):
         new_iteration: Clip = notes_setting.get_clip()
         second_note: Note = new_iteration[0]
