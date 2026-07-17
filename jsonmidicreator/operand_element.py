@@ -568,7 +568,7 @@ class Element(o.Operand):
                 new_clip += operand
                 return new_clip
             case oc.Clip():
-                return operand.empty_copy(self).__iadd__(operand)   # Keeps the Clip TimeSignature and integrates self
+                return operand.empty_copy().__iadd__(self).__iadd__(operand)   # Keeps the Clip TimeSignature and integrates self
             # For efficient reasons
             case ra.Position():
                 self._position_beats += operand._rational
