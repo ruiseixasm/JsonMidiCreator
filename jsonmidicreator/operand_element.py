@@ -620,7 +620,9 @@ class Element(o.Operand):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element():
-                return oc.Clip(self._get_time_signature(), self).__imul__(operand)
+                new_clip = oc.Clip(self._get_time_signature())
+                new_clip += self
+                return new_clip.__imul__(operand)
             case oc.Clip():
                 return operand.empty_copy(self).__imul__(operand)   # Keeps the Clip TimeSignature and integrates self
             # Can be applied to owned elements
@@ -634,7 +636,8 @@ class Element(o.Operand):
                             next_element._position_beats += ra.Beats(ra.Measures(self._owner_clip, 1) * next_element_i)._rational
                     return self._owner_clip._extend(new_elements)   # Allows the chaining of Clip operations
                 else:
-                    new_clip: oc.Clip = oc.Clip(self._get_time_signature(), self)
+                    new_clip: oc.Clip = oc.Clip(self._get_time_signature())
+                    new_clip += self
                     if operand > 1:
                         for _ in range(operand - 1):
                             new_clip.__imul__(self)
@@ -700,7 +703,9 @@ class Element(o.Operand):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element():
-                return oc.Clip(self._get_time_signature(), self).__itruediv__(operand)
+                new_clip = oc.Clip(self._get_time_signature())
+                new_clip += self
+                return new_clip.__itruediv__(operand)
             case oc.Clip():
                 return operand.empty_copy(self).__itruediv__(operand)   # Keeps the Clip TimeSignature and integrates self
             # Can be applied to owned elements
