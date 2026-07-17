@@ -53,8 +53,8 @@ class Iterations(o.Operand):
         super().__init__()
         
 
-    def __rrshift__(self, operand: o.T) -> Self:
-        return self.set_seed(operand)
+    def __rrshift__(self, clip: 'oc.Clip') -> Self:
+        return self.set_seed(clip)
 
 
     def reset(self) -> Self:

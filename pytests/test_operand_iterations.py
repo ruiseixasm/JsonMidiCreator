@@ -43,5 +43,5 @@ def test_cycle_setter():
         print(f"Semitone {semitone}: {second_note._pitch._get_chromatic_pitch()} VS {60 + 2*12 + semitone}")
         assert second_note._pitch._get_chromatic_pitch() == 60 + 2*12 + semitone
 
-test_cycle_setter()
+# test_cycle_setter()
 
