@@ -2084,11 +2084,6 @@ class Clip(Composition):  # Just a container of Elements
     # Works as a Clip transformer
     def __irshift__(self, operand) -> Self:
         match operand:
-            case oe.Element():  # Element wapping (wrap)
-                for single_element in self.unmasked_items():
-                    self._replace(single_element, operand.copy()._set_owner_clip(self) << single_element)
-                return self
-            
             case list():
                 kept_elements: list[oe.Element] = [
                     self[index] for index in operand    # No need to copy
