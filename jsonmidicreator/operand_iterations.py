@@ -220,12 +220,12 @@ class Iterations(o.Operand):
     
 
 class I_Function(Iterations):
-    def __init__(self, function: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
+    def __init__(self, seed: 'oc.Clip' = oc.Clip(), function: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  chaos: ch.Chaos = ch.SinX(340),
                  pre_filter: Optional[Callable[['oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+        super().__init__(seed, chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
         self._function: list[Any] = function
 
 
@@ -237,12 +237,12 @@ class I_Function(Iterations):
 
 
 class I_DurationsSplitter(Iterations):
-    def __init__(self, durations: int = 8,
+    def __init__(self, seed: 'oc.Clip' = oc.Clip(), durations: int = 8,
                  chaos: ch.Chaos = ch.SinX(340),
                  pre_filter: Optional[Callable[['oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+        super().__init__(seed, chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
         self._durations: int = durations
 
 
@@ -278,12 +278,12 @@ class I_DurationsSplitter(Iterations):
 
 
 class I_ParametersChooser(Iterations):
-    def __init__(self, parameters: list[Any] = ["1", "3", "5"],
+    def __init__(self, seed: 'oc.Clip' = oc.Clip(), parameters: list[Any] = ["1", "3", "5"],
                  chaos: ch.Chaos = ch.SinX(340),
                  pre_filter: Optional[Callable[['oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+        super().__init__(seed, chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
         self._parameters: list[Any] = parameters
 
 
@@ -299,12 +299,12 @@ class I_ParametersChooser(Iterations):
 
 
 class I_ParameterShuffler(Iterations):
-    def __init__(self, parameter: Any = ou.Degree(),
+    def __init__(self, seed: 'oc.Clip' = oc.Clip(), parameter: Any = ou.Degree(),
                  chaos: ch.Chaos = ch.SinX(340, ot.Increase(1)**ot.Modulo(7)),
                  pre_filter: Optional[Callable[['oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+        super().__init__(seed, chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
         self._parameter: Any = parameter
 
     def _single_iteration(self) -> 'oc.Clip':
@@ -324,13 +324,13 @@ class I_ParameterShuffler(Iterations):
 
 
 class I_ParameterSetter(Iterations):
-    def __init__(self, parameter: o.Operand = ou.Degree(),
+    def __init__(self, seed: 'oc.Clip' = oc.Clip(), parameter: o.Operand = ou.Degree(),
                  chaos: ch.Chaos = ch.SinX(340, ot.Increase(1)**ot.Modulo(7)),
                  global_setting: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+        super().__init__(seed, chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
         self._parameter: o.Operand = parameter
         self._global_setting: bool = global_setting
 
