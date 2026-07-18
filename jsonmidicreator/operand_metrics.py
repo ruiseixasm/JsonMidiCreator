@@ -49,4 +49,7 @@ class Metrics(o.Operand):
     pass
 
 
+class Vector(Metrics):
+    pass
+
 

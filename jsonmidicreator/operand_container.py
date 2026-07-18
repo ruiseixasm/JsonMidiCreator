@@ -2062,12 +2062,10 @@ class Clip(Composition):  # Just a container of Elements
     # Works as a Clip transformer
     def __irshift__(self, operand) -> Self:
         match operand:
-            
-            case og.Process():
+            case og.ClipProcess():
                 return super().__irshift__(operand)
             case _:
                 super().__irshift__(operand)
-
         return self._sort_items()
 
 
