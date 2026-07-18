@@ -341,7 +341,7 @@ def test_rshift_container():
     all_chords = Chord(1/4) / 7 << Size("7th")
     assert not all_chords.is_masked()
     assert all_chords[0].access(Pitch())._get_chromatic_pitch() == 60
-    first_chords = all_chords >> Beat(0)
+    first_chords = all_chords >> Filter(Beat(0))
     # assert not first_chords.is_masked()
     assert all_chords._test_owner_clip()
     assert first_chords._test_owner_clip()
@@ -1401,7 +1401,7 @@ def test_match_time_signature():
 def test_clip_masking():
     all_chords = Chord(1/4) / 2
     assert all_chords[Even()]._has_elements()
-    even_chords = all_chords >> Mask(Even())
+    even_chords = all_chords << Mask(Even())
     assert even_chords._has_elements()
 
 # test_clip_masking()

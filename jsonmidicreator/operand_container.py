@@ -547,13 +547,6 @@ class Container(o.Operand):
                         single_item << operand
         return self
 
-    # Pass trough method that always results in a Container (Self)
-    def __rshift__(self, operand) -> Self:
-        match operand:
-            case og.ReadOnly():
-                return operand.__rrshift__(self)
-            case _:
-                return self.copy().__irshift__(operand)
 
     # Pass trough method that always results in a Container (Self)
     def __irshift__(self, operand) -> Self:
