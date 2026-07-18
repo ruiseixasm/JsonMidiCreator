@@ -2885,7 +2885,10 @@ class Process(Generic):
         return self
     
     def _direct_process(self, operand: o.T) -> o.T:
-        return operand
+        return operand  # No copy
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        return self._direct_process( o.Operand.deep_copy(operand) )
 
 
     @staticmethod
@@ -2943,8 +2946,8 @@ class ReadOnly(Process):
     Returns:
         Any: All `Process` operands return the original left side `>>` input. Exceptions mentioned.
     """
-    def _direct_process(self, operand: o.T) -> o.T:	# The method __irrshift__ isn't truly a Python method!!
-        return self.__rrshift__(operand)
+    def __rrshift__(self, operand: o.T) -> o.T:
+        return self._direct_process(operand)
 
 
 class RightShift(ReadOnly):
