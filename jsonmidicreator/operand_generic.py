@@ -4632,20 +4632,13 @@ class Read(Process):
 class ScaleProcess(Process):
     """`Generic -> Process -> ScaleProcess`
     """
-    def __rrshift__(self, operand: o.T) -> o.T:
-        if isinstance(operand, Scale):
-            return self._direct_process(operand.copy())
-        return super().__rrshift__(operand)
-
     def _direct_process(self, operand: o.T) -> o.T:
         if isinstance(operand, Scale):
-            return self._direct_process(operand)
+            return operand
         else:
             print(f"Warning: Operand is NOT a `Scale`!")
         return super().__rrshift__(operand)
 
-    def _direct_process(self, operand: o.T) -> o.T:
-        return operand
 
 class Modulate(ScaleProcess):    # Modal Modulation
     """`Generic -> Process -> ScaleProcess -> Modulate`
@@ -4692,24 +4685,15 @@ class ContainerProcess(Process):
     def __init__(self, parameters: list = []):
         super().__init__(parameters)
         self._previous_item: Any = None
-        
-    def __rrshift__(self, operand: o.T) -> o.T:
-        from . import operand_container as oc
-        if isinstance(operand, oc.Container):
-            return self._direct_process(operand.copy())
-        print(f"Warning: Operand is NOT a `Container`!")
-        return operand
 
     def _direct_process(self, operand: o.T) -> o.T:
         from . import operand_container as oc
         if isinstance(operand, oc.Container):
-            return self._direct_process(operand)
+            return operand
         else:
             print(f"Warning: Operand is NOT a `Container`!")
         return super().__rrshift__(operand)
 
-    def _direct_process(self, operand: o.T) -> o.T:
-        return operand
 
 class Sort(ContainerProcess):
     """`Generic -> Process -> ContainerProcess -> Sort`
@@ -4881,19 +4865,6 @@ class CompositionProcess(ContainerProcess):
         return operand
 
 
-class Fit(CompositionProcess):
-    """`Generic -> Process -> ContainerProcess -> Fit`
-
-    Moves the `Position` of the following Elements to match the finish of the previous
-    `Element` by keeping its finish Position, meaaning, by changing its `Duration`.
-
-    Args:
-        None
-    """
-    def _direct_process(self, operand: TypeComposition) -> TypeComposition:
-        return operand.fit()
-
-
 class Loop(CompositionProcess):
     """`Generic -> Process -> ContainerProcess -> CompositionProcess -> Loop`
 
@@ -4963,6 +4934,20 @@ class ClipProcess(CompositionProcess):
 
     def _direct_process(self, operand: o.T) -> o.T:
         return operand
+    
+
+class Fit(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Fit`
+
+    Moves the `Position` of the following Elements to match the finish of the previous
+    `Element` by keeping its finish Position, meaning, by changing its `Duration`.
+
+    Args:
+        None
+    """
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
+        return operand.fit()
+
 
 class Link(ClipProcess):
     """`Generic -> Process -> ContainerProcess -> ClipProcess -> Link`
@@ -4972,9 +4957,6 @@ class Link(ClipProcess):
     Args:
         None.
     """
-    def __init__(self):
-        super().__init__()
-
     def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.link()
 
