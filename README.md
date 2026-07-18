@@ -10,6 +10,12 @@ Program that creates files for the JsonMidiPlayer program: https://github.com/ru
 1. Library [MIDIUtil](https://pypi.org/project/MIDIUtil/) to export Midi files with `>> Render("midi_file.mid")`;
 1. [Jupyter](https://jupyter.org/) library if you intend to use Notebooks. Highly recommended.
 
+## Upgrade pip installation (python package manager)
+Start by upgrading your pip installation with this command:
+```
+python -m pip install --upgrade pip
+```
+
 ## How to install jsonmidicreator
 Go to your command line and navigate to the root directory where you have the folder `jsonmidicreator` and type:
 ```
