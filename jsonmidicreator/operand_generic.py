@@ -2963,13 +2963,13 @@ class RightShift(ReadOnly):
     def __init__(self, operand: o.Operand = None, process: bool = True):
         super().__init__()
         self._parameters = operand    # needs to keep the original reference (no copy)
-        self._process: bool = process
+        self._direct_process: bool = process
 
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(self._parameters, o.Operand):
-            if self._process:
+            if self._direct_process:
                 return self._parameters.__rshift__(operand)
             return operand
         return super().__rrshift__(operand)
@@ -2988,7 +2988,7 @@ class SideEffect(ReadOnly):
     def __init__(self, operand: o.Operand = None, process: bool = True):
         super().__init__()
         self._parameters = operand    # needs to keep the original reference (no copy)
-        self._process: bool = process
+        self._direct_process: bool = process
 
 class LeftShift(SideEffect):
     """`Generic -> Process -> ReadOnly -> SideEffect -> LeftShift`
@@ -3002,7 +3002,7 @@ class LeftShift(SideEffect):
     # CHAINABLE OPERATIONS
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(self._parameters, o.Operand):
-            if self._process:
+            if self._direct_process:
                 self._parameters.__lshift__(operand)
             return operand
         return super().__rrshift__(operand)
@@ -3019,7 +3019,7 @@ class RightShift(SideEffect):
     # CHAINABLE OPERATIONS
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(self._parameters, o.Operand):
-            if self._process:
+            if self._direct_process:
                 self._parameters.__rshift__(operand)
             return operand
         return super().__rrshift__(operand)
@@ -3036,7 +3036,7 @@ class IAdd(SideEffect):    # i stands for "inplace"
     # CHAINABLE OPERATIONS
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(self._parameters, o.Operand):
-            if self._process:
+            if self._direct_process:
                 self._parameters.__iadd__(operand)
             return operand
         return super().__rrshift__(operand)
@@ -3053,7 +3053,7 @@ class ISub(SideEffect):
     # CHAINABLE OPERATIONS
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(self._parameters, o.Operand):
-            if self._process:
+            if self._direct_process:
                 self._parameters.__isub__(operand)
             return operand
         return super().__rrshift__(operand)
@@ -3070,7 +3070,7 @@ class IMul(SideEffect):
     # CHAINABLE OPERATIONS
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(self._parameters, o.Operand):
-            if self._process:
+            if self._direct_process:
                 self._parameters.__imul__(operand)
             return operand
         return super().__rrshift__(operand)
@@ -3087,7 +3087,7 @@ class IDiv(SideEffect):
     # CHAINABLE OPERATIONS
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(self._parameters, o.Operand):
-            if self._process:
+            if self._direct_process:
                 self._parameters.__itruediv__(operand)
             return operand
         return super().__rrshift__(operand)
@@ -4625,12 +4625,12 @@ class Read(Process):
     def _direct_process(self, operand: o.T) -> o.T:
         from . import operand_element as oe
         if isinstance(operand, (oe.Element, ra.Tempo)):
-            return self._process(operand)
+            return self._direct_process(operand)
         else:
             print(f"Warning: Operand is NOT an `Element` os a `Tempo`!")
         return super().__rrshift__(operand)
 
-    def _process(self, operand: Union['Element', 'ra.Tempo']) -> Union['Clip', 'ra.Tempo']:
+    def _direct_process(self, operand: Union['Element', 'ra.Tempo']) -> Union['Clip', 'ra.Tempo']:
         return operand.read()
 
 
@@ -4644,12 +4644,12 @@ class ScaleProcess(Process):
 
     def _direct_process(self, operand: o.T) -> o.T:
         if isinstance(operand, Scale):
-            return self._process(operand)
+            return self._direct_process(operand)
         else:
             print(f"Warning: Operand is NOT a `Scale`!")
         return super().__rrshift__(operand)
 
-    def _process(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         return operand
 
 class Modulate(ScaleProcess):    # Modal Modulation
@@ -4668,7 +4668,7 @@ class Modulate(ScaleProcess):    # Modal Modulation
 
     # CHAINABLE OPERATIONS
 
-    def _process(self, operand: 'Scale') -> 'Scale':
+    def _direct_process(self, operand: 'Scale') -> 'Scale':
         return operand.modulate(self._parameters)
 
 class Transpose(ScaleProcess):    # Chromatic Transposition
@@ -4685,7 +4685,7 @@ class Transpose(ScaleProcess):    # Chromatic Transposition
 
     # CHAINABLE OPERATIONS
 
-    def _process(self, operand: 'Scale') -> 'Scale':
+    def _direct_process(self, operand: 'Scale') -> 'Scale':
         return operand.transpose(self._parameters)
 
 
@@ -4708,12 +4708,12 @@ class ContainerProcess(Process):
     def _direct_process(self, operand: o.T) -> o.T:
         from . import operand_container as oc
         if isinstance(operand, oc.Container):
-            return self._process(operand)
+            return self._direct_process(operand)
         else:
             print(f"Warning: Operand is NOT a `Container`!")
         return super().__rrshift__(operand)
 
-    def _process(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         return operand
 
 class Sort(ContainerProcess):
@@ -4733,7 +4733,7 @@ class Sort(ContainerProcess):
             'parameter': 0, 'reverse': 1
         }
 
-    def _process(self, operand: 'Container') -> 'Container':
+    def _direct_process(self, operand: 'Container') -> 'Container':
         return operand.sort(*self._parameters)
 
 
@@ -4749,7 +4749,7 @@ class Filter(ContainerProcess):
     def __init__(self, *conditions):
         super().__init__(conditions)
 
-    def _process(self, operand: 'Container') -> 'Container':
+    def _direct_process(self, operand: 'Container') -> 'Container':
         return operand.filter(*self._parameters)
 
 
@@ -4768,7 +4768,7 @@ class Operate(ContainerProcess):
             'operand': 0, 'operator': 1
         }
 
-    def _process(self, operand: 'Container') -> 'Container':
+    def _direct_process(self, operand: 'Container') -> 'Container':
         return operand.operate(*self._parameters)
 
 
@@ -4783,7 +4783,7 @@ class Transform(ContainerProcess):
     def __init__(self, operand_type: type = 'Note'):
         super().__init__(operand_type)
 
-    def _process(self, operand: 'Container') -> 'Container':
+    def _direct_process(self, operand: 'Container') -> 'Container':
         return operand.transform(self._parameters)
 
 
@@ -4805,7 +4805,7 @@ class Swap(ContainerProcess):
             'left': 0, 'right': 1, 'what': 2
         }
 
-    def _process(self, operand: 'Container') -> 'Container':
+    def _direct_process(self, operand: 'Container') -> 'Container':
         return operand.swap(*self._parameters)
 
 class Reverse(ContainerProcess):
@@ -4816,7 +4816,7 @@ class Reverse(ContainerProcess):
     Args:
         None
     """
-    def _process(self, operand: 'Container') -> 'Container':
+    def _direct_process(self, operand: 'Container') -> 'Container':
         return operand.reverse()
 
 class Recur(ContainerProcess):
@@ -4837,7 +4837,7 @@ class Recur(ContainerProcess):
             'recursion': 0, 'parameter': 1
         }
 
-    def _process(self, operand: 'Container') -> 'Container':
+    def _direct_process(self, operand: 'Container') -> 'Container':
         return operand.recur(*self._parameters)
 
 class Rotate(ContainerProcess):
@@ -4859,7 +4859,7 @@ class Rotate(ContainerProcess):
             'left': 0, 'parameter': 1
         }
 
-    def _process(self, operand: 'Container') -> 'Container':
+    def _direct_process(self, operand: 'Container') -> 'Container':
         return operand.rotate(*self._parameters)
 
 class Erase(ContainerProcess):
@@ -4871,7 +4871,7 @@ class Erase(ContainerProcess):
     Args:
         *parameters: After deletion, any given parameter will be operated with `<<` in the sequence given.
     """
-    def _process(self, operand: 'Container') -> 'Container':
+    def _direct_process(self, operand: 'Container') -> 'Container':
         return operand.erase(*self._parameters)
 
 
@@ -4882,7 +4882,7 @@ class CompositionProcess(ContainerProcess):
 
     Processes applicable to any `Composition`.
     """
-    def _process(self, operand: TypeComposition) -> TypeComposition:
+    def _direct_process(self, operand: TypeComposition) -> TypeComposition:
         return operand
 
 
@@ -4895,7 +4895,7 @@ class Fit(CompositionProcess):
     Args:
         None
     """
-    def _process(self, operand: TypeComposition) -> TypeComposition:
+    def _direct_process(self, operand: TypeComposition) -> TypeComposition:
         return operand.fit()
 
 
@@ -4914,7 +4914,7 @@ class Loop(CompositionProcess):
             'position': 0, 'length': 1
         }
 
-    def _process(self, composition: TypeComposition) -> TypeComposition:
+    def _direct_process(self, composition: TypeComposition) -> TypeComposition:
         return composition.loop(*self._parameters)
 
 class Drop(CompositionProcess):
@@ -4929,7 +4929,7 @@ class Drop(CompositionProcess):
     def __init__(self, *measures):
         super().__init__(measures)
 
-    def _process(self, operand: TypeComposition) -> TypeComposition:
+    def _direct_process(self, operand: TypeComposition) -> TypeComposition:
         return operand.drop(*self._parameters)
 
 class Crop(CompositionProcess):
@@ -4944,7 +4944,7 @@ class Crop(CompositionProcess):
     def __init__(self, *measures):
         super().__init__(measures)
 
-    def _process(self, operand: TypeComposition) -> TypeComposition:
+    def _direct_process(self, operand: TypeComposition) -> TypeComposition:
         return operand.crop(*self._parameters)
 
 
@@ -4961,12 +4961,12 @@ class ClipProcess(CompositionProcess):
     def _direct_process(self, operand: o.T) -> o.T:
         from . import operand_container as oc
         if isinstance(operand, oc.Clip):
-            return self._process(operand)
+            return self._direct_process(operand)
         else:
             print(f"Warning: Operand is NOT a `Clip`!")
         return super().__rrshift__(operand)
 
-    def _process(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         return operand
 
 class Link(ClipProcess):
@@ -4980,7 +4980,7 @@ class Link(ClipProcess):
     def __init__(self):
         super().__init__()
 
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.link()
 
 class Stack(ClipProcess):
@@ -4994,7 +4994,7 @@ class Stack(ClipProcess):
     def __init__(self):
         super().__init__()
 
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.stack()
 
 class Close(ClipProcess):
@@ -5008,7 +5008,7 @@ class Close(ClipProcess):
     def __init__(self):
         super().__init__()
 
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.close()
 
 class Quantize(ClipProcess):
@@ -5023,7 +5023,7 @@ class Quantize(ClipProcess):
     def __init__(self, amount: float = 1.0, quantize_duration: bool = False):
         super().__init__((amount, quantize_duration))
 
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.quantize(*self._parameters)
 
 
@@ -5036,7 +5036,7 @@ class Decompose(ClipProcess):
     Args:
         None
     """
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.decompose()
 
 
@@ -5048,7 +5048,7 @@ class Arpeggiate(ClipProcess):
     Args:
         parameters: Parameters that will be passed to the `Arpeggio` operand.
     """
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.arpeggiate(self._parameters)
 
 
@@ -5060,7 +5060,7 @@ class Purge(ClipProcess):
     Args:
         None.
     """
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.purge()
 
 
@@ -5079,7 +5079,7 @@ class Stepper(ClipProcess):
             'pattern': 0, 'element': 1
         }
 
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.stepper(*self._parameters)
 
 class Automate(ClipProcess):
@@ -5101,7 +5101,7 @@ class Automate(ClipProcess):
             'values': 0, 'pattern': 1, 'automation': 2, 'interpolate': 3
         }
 
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.automate(*self._parameters)
 
 class Interpolate(ClipProcess):
@@ -5112,7 +5112,7 @@ class Interpolate(ClipProcess):
     Args:
         None.
     """
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.interpolate()
 
 class Oscillate(ClipProcess):
@@ -5135,7 +5135,7 @@ class Oscillate(ClipProcess):
             'amplitude': 0, 'wavelength': 1, 'offset': 2, 'phase': 3, 'parameter': 4
         }
 
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.oscillate(*self._parameters)
 
 
@@ -5147,7 +5147,7 @@ class Merge(ClipProcess):
     Args:
         None.
     """
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.merge()
 
 class Tie(ClipProcess):
@@ -5158,7 +5158,7 @@ class Tie(ClipProcess):
     Args:
         None.
     """
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.tie()
 
 class Join(ClipProcess):
@@ -5175,7 +5175,7 @@ class Join(ClipProcess):
             'decompose': 0
         }
 
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.join(*self._parameters)
 
 
@@ -5190,7 +5190,7 @@ class Slur(ClipProcess):
     def __init__(self, gate: float = 1.05):
         super().__init__(gate)
 
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.slur(self._parameters)
 
 class Smooth(ClipProcess):
@@ -5213,7 +5213,7 @@ class Smooth(ClipProcess):
     def __init__(self, algorithm_type: int = 5):
         super().__init__(algorithm_type)
 
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.smooth(self._parameters)
 
 
@@ -5241,7 +5241,7 @@ class Shift(ClipProcess):
             'right': 0
         }
 
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.shift(*self._parameters)
 
 
@@ -5253,7 +5253,7 @@ class Flip(ClipProcess):
     Args:
         None
     """
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.flip()
 
 class Mirror(ClipProcess):
@@ -5269,7 +5269,7 @@ class Mirror(ClipProcess):
     def __init__(self, by_degree: bool = True):
         super().__init__(by_degree)
 
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.mirror(self._parameters)
 
 class Invert(ClipProcess):
@@ -5284,7 +5284,7 @@ class Invert(ClipProcess):
     def __init__(self, by_degree: bool = True):
         super().__init__(by_degree)
 
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.invert(self._parameters)
 
 
@@ -5300,7 +5300,7 @@ class Snap(ClipProcess):
     def __init__(self, up: bool = False):
         super().__init__(up)
 
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.snap(self._parameters)
 
 class Extend(ClipProcess):
@@ -5314,7 +5314,7 @@ class Extend(ClipProcess):
     def __init__(self, length: 'Length' = None):
         super().__init__( length )
 
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.extend(self._parameters)
 
 class Trim(ClipProcess):
@@ -5328,7 +5328,7 @@ class Trim(ClipProcess):
     def __init__(self, length: 'Length' = None):
         super().__init__( length )
 
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.trim(self._parameters)
 
 class Cut(ClipProcess):
@@ -5348,7 +5348,7 @@ class Cut(ClipProcess):
             'start': 0, 'finish': 1
         }
 
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.cut(*self._parameters)
 
 
@@ -5360,7 +5360,7 @@ class Monofy(ClipProcess):
     Args:
         None
     """
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.monofy()
 
 class Fill(ClipProcess):
@@ -5371,7 +5371,7 @@ class Fill(ClipProcess):
     Args:
         None
     """
-    def _process(self, operand: 'Clip') -> 'Clip':
+    def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.fill()
 
 
@@ -5383,12 +5383,12 @@ class BlockProcess(CompositionProcess):
     def _direct_process(self, operand: o.T) -> o.T:
         from . import operand_container as oc
         if isinstance(operand, oc.Block):
-            return self._process(operand)
+            return self._direct_process(operand)
         else:
             print(f"Warning: Operand is NOT a `Block`!")
         return super().__rrshift__(operand)
 
-    def _process(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         return operand
 
 class PartProcess(CompositionProcess):
@@ -5400,12 +5400,12 @@ class PartProcess(CompositionProcess):
     def _direct_process(self, operand: o.T) -> o.T:
         from . import operand_container as oc
         if isinstance(operand, oc.Part):
-            return self._process(operand.copy())
+            return self._direct_process(operand.copy())
         else:
             print(f"Warning: Operand is NOT a `Part`!")
         return super().__rrshift__(operand)
 
-    def _process(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         return operand
     
 
