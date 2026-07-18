@@ -550,12 +550,8 @@ class Container(o.Operand):
     # Pass trough method that always results in a Container (Self)
     def __rshift__(self, operand) -> Self:
         match operand:
-            case Container():
-                return self + operand   # Implicit copy of self
             case og.ReadOnly():
                 return operand.__rrshift__(self)
-            case od.Inline():   # Only situation where it's a wrap by a different class than Self
-                return od.Inline(self)
             case _:
                 return self.copy().__irshift__(operand)
 

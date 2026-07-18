@@ -1356,8 +1356,12 @@ def test_clip_proxy():
     notes_proxy = four_notes >> Proxy()
     assert notes_proxy is not four_notes
 
-    inline_notes = notes_proxy >> Inline()
-    assert inline_notes % Pipe() is notes_proxy
+    inline_notes = Inline(four_notes)
+    assert inline_notes % Pipe() is four_notes
+    assert four_notes.len() == 4
+    inline_notes * 2
+    assert four_notes.len() == 8
+
 
     inline_mask = inline_notes >> Mask(Nth(1, 2))
     assert inline_mask % Pipe() is inline_notes % Pipe()

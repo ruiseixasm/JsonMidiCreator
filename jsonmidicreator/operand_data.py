@@ -593,11 +593,21 @@ class Line(Data):
 class Inline(Data):
     """`Data -> Inline`
 
-    `Inline` disables the `Operand` implicit copy on basic operations like `+` and `>>`.
+    `Inline` disables the `Operand` implicit copy on basic operations like `+`, `*` or even `>>`.
     
     Parameters
     ----------
     Operand() : Any `Operand` to temporary disable operator implicit copies.
+
+    Examples
+    --------
+    >>> four_notes = Note() / 4
+    >>> inline_notes = Inline(four_notes)
+    >>> four_notes.len() >> Print()
+    4
+    >>> inline_notes * 2
+    >>> four_notes.len() >> Print()
+    8
     """
     def __init__(self, operand: any = None):
         super().__init__()
