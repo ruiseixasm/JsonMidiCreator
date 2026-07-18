@@ -2423,6 +2423,15 @@ class Note(ChannelElement):
                 return ou.DrumKit(self._pitch._get_chromatic_pitch(), ou.Channel(self._channel_0 + 1))
             case _:                 return super().__mod__(operand)
 
+
+    def getVectordict(self) -> dict[str, int]:
+        vectordict: dict[str, int] = super().getVectordict()
+        vectordict["pitch"] = self.pitch_centroid()
+        vectordict["velocity"] = self._velocity
+        vectordict["channel"] = self._channel_0
+        return vectordict
+
+
     # CREATION VS REPRESENTATION
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
@@ -3875,6 +3884,11 @@ class ControlChange(Automatable):
                 return self % other > other
     
 
+    def getVectordict(self) -> dict[str, int]:
+        vectordict: dict[str, int] = super().getVectordict()
+        vectordict["value"] = self._value
+        return vectordict
+
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
             channels: dict[str, set[int]] = None, derived_element: 'Element' = None) -> list[dict]:
@@ -4921,6 +4935,11 @@ class PitchBend(Automatable):
             case _:
                 return super().__mod__(operand)
 
+
+    def getVectordict(self) -> dict[str, int]:
+        vectordict: dict[str, int] = super().getVectordict()
+        vectordict["value"] = self._msb
+        return vectordict
 
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
