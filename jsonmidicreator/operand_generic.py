@@ -3000,7 +3000,7 @@ class LeftShift(SideEffect):
     Any(None) : Typically an `Operand` intended to be affected with `<<` by the chained data sequence.
     """
     # CHAINABLE OPERATIONS
-    def __rrshift__(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         if isinstance(self._parameters, o.Operand):
             if self._process_it:
                 self._parameters.__lshift__(operand)
@@ -3017,7 +3017,7 @@ class RightShift(SideEffect):
     Any(None) : Typically an `Operand` intended to be affected with `>>` by the chained data sequence.
     """
     # CHAINABLE OPERATIONS
-    def __rrshift__(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         if isinstance(self._parameters, o.Operand):
             if self._process_it:
                 self._parameters.__rshift__(operand)
@@ -3034,7 +3034,7 @@ class IAdd(SideEffect):    # i stands for "inplace"
     Any(None) : Typically an `Operand` intended to be affected with `+=` by the chained data sequence.
     """
     # CHAINABLE OPERATIONS
-    def __rrshift__(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         if isinstance(self._parameters, o.Operand):
             if self._process_it:
                 self._parameters.__iadd__(operand)
@@ -3051,7 +3051,7 @@ class ISub(SideEffect):
     Any(None) : Typically an `Operand` intended to be affected with `-=` by the chained data sequence.
     """
     # CHAINABLE OPERATIONS
-    def __rrshift__(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         if isinstance(self._parameters, o.Operand):
             if self._process_it:
                 self._parameters.__isub__(operand)
@@ -3068,7 +3068,7 @@ class IMul(SideEffect):
     Any(None) : Typically an `Operand` intended to be affected with `*=` by the chained data sequence.
     """
     # CHAINABLE OPERATIONS
-    def __rrshift__(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         if isinstance(self._parameters, o.Operand):
             if self._process_it:
                 self._parameters.__imul__(operand)
@@ -3085,7 +3085,7 @@ class IDiv(SideEffect):
     Any(None) : Typically an `Operand` intended to be affected with `/=` by the chained data sequence.
     """
     # CHAINABLE OPERATIONS
-    def __rrshift__(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         if isinstance(self._parameters, o.Operand):
             if self._process_it:
                 self._parameters.__itruediv__(operand)
