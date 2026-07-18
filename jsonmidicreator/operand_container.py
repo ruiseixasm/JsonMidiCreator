@@ -558,9 +558,6 @@ class Container(o.Operand):
     # Pass trough method that always results in a Container (Self)
     def __irshift__(self, operand) -> Self:
         match operand:
-            case Container():
-                self += operand
-                return self
             case og.Process():
                 return operand._direct_process(self)
             case of.Frame():

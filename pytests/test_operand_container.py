@@ -273,9 +273,6 @@ def test_rshift_container():
     assert note_clip[1] % Key() == "E"
     assert note_clip[1] % Position() == Measures(1)
 
-    new_clip = Clip() >> note_clip >> note_clip
-    assert new_clip.len() == 4
-
 
     # Part testing ###################################################
     # Beat sets Position while Beats set Duration
