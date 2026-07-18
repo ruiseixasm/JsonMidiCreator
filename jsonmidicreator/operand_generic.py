@@ -4968,9 +4968,6 @@ class Stack(ClipProcess):
     Args:
         None.
     """
-    def __init__(self):
-        super().__init__()
-
     def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.stack()
 
@@ -4982,9 +4979,6 @@ class Close(ClipProcess):
     Args:
         None.
     """
-    def __init__(self):
-        super().__init__()
-
     def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.close()
 
@@ -5360,31 +5354,24 @@ class BlockProcess(CompositionProcess):
     def _direct_process(self, operand: o.T) -> o.T:
         from . import operand_container as oc
         if isinstance(operand, oc.Block):
-            return self._direct_process(operand)
+            return operand
         else:
             print(f"Warning: Operand is NOT a `Block`!")
         return super().__rrshift__(operand)
-
-    def _direct_process(self, operand: o.T) -> o.T:
-        return operand
+    
 
 class PartProcess(CompositionProcess):
     """`Generic -> Process -> ContainerProcess -> CompositionProcess -> PartProcess`
 
     Processes applicable exclusively to `Part` operands.
     """
-
     def _direct_process(self, operand: o.T) -> o.T:
         from . import operand_container as oc
         if isinstance(operand, oc.Part):
-            return self._direct_process(operand.copy())
+            return operand
         else:
             print(f"Warning: Operand is NOT a `Part`!")
-        return super().__rrshift__(operand)
-
-    def _direct_process(self, operand: o.T) -> o.T:
-        return operand
-    
+        return super().__rrshift__(operand)    
 
 
 class Settings(Generic):
