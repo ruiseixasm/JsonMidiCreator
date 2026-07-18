@@ -3110,7 +3110,7 @@ class Save(ReadOnly):
     def __init__(self, filename: str | None = None):
         super().__init__(filename)
 
-    def __rrshift__(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         from . import operand_container as oc
         if isinstance(operand, o.Operand):
             file_path: str = self._parameters
@@ -3138,7 +3138,7 @@ class Export(ReadOnly):
     def __init__(self, filename: str | None = None):
         super().__init__(filename)
 
-    def __rrshift__(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         from . import operand_container as oc
         match operand:
             case o.Operand():
@@ -3169,7 +3169,7 @@ class Render(ReadOnly):
     def __init__(self, filename: str | None = None):
         super().__init__(filename)
 
-    def __rrshift__(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         from . import operand_element as oe
         from . import operand_container as oc
         # filepath and filename
