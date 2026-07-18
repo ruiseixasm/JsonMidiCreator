@@ -2059,16 +2059,6 @@ class Clip(Composition):  # Just a container of Elements
         return self._sort_items()
 
 
-    # Works as a Clip transformer
-    def __irshift__(self, operand) -> Self:
-        match operand:
-            case og.ClipProcess():
-                return super().__irshift__(operand)
-            case _:
-                super().__irshift__(operand)
-        return self._sort_items()
-
-
     # Avoids the costly copy of Track self doing +=
     def __iadd__(self, operand: any) -> Self:
         match operand:
