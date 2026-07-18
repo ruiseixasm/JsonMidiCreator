@@ -2883,6 +2883,9 @@ class Process(Generic):
         else:
             self._parameters[self._indexes[name]] = value
         return self
+    
+    def _direct_process(self, operand: o.T) -> o.T:
+        return operand
 
 
     @staticmethod
