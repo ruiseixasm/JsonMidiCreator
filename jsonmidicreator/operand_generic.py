@@ -2934,6 +2934,129 @@ class Process(Generic):
         return playlist
 
 
+class SideEffect(Process):
+    """`Generic -> Process -> SideEffect`
+
+    This `Operand` can be inserted in a sequence of `>>` in order to apply as a side effect the chained
+    data in the respective self data without changing the respective chained data sequence.
+
+    Parameters
+    ----------
+    Any(None) : Typically an `Operand` intended to be affected inside the chained `>>` sequence.
+    """
+    def __init__(self, operand: o.Operand = None, process_it: bool = True):
+        super().__init__()
+        self._parameters = operand    # needs to keep the original reference (no copy)
+        self._process_it: bool = process_it
+    
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        return self._direct_process(operand)
+
+class LeftShift(SideEffect):
+    """`Generic -> Process -> SideEffect -> LeftShift`
+
+    Applies the `<<` operation to self data without changing the original chained data or the chain itself.
+
+    Parameters
+    ----------
+    Any(None) : Typically an `Operand` intended to be affected with `<<` by the chained data sequence.
+    """
+    # CHAINABLE OPERATIONS
+    def _direct_process(self, operand: o.T) -> o.T:
+        if isinstance(self._parameters, o.Operand):
+            if self._process_it:
+                self._parameters.__lshift__(operand)
+            return operand
+        return super().__rrshift__(operand)
+
+class RightShift(SideEffect):
+    """`Generic -> Process -> SideEffect -> RightShift`
+
+    Applies the `>>` operation to self data without changing the original chained data or the chain itself.
+
+    Parameters
+    ----------
+    Any(None) : Typically an `Operand` intended to be affected with `>>` by the chained data sequence.
+    """
+    # CHAINABLE OPERATIONS
+    def _direct_process(self, operand: o.T) -> o.T:
+        if isinstance(self._parameters, o.Operand):
+            if self._process_it:
+                self._parameters.__rshift__(operand)
+            return operand
+        return super().__rrshift__(operand)
+
+class IAdd(SideEffect):    # i stands for "inplace"
+    """`Generic -> Process -> SideEffect -> IAdd`
+
+    Applies the `+=` operation to self data without changing the original chained data or the chain itself.
+
+    Parameters
+    ----------
+    Any(None) : Typically an `Operand` intended to be affected with `+=` by the chained data sequence.
+    """
+    # CHAINABLE OPERATIONS
+    def _direct_process(self, operand: o.T) -> o.T:
+        if isinstance(self._parameters, o.Operand):
+            if self._process_it:
+                self._parameters.__iadd__(operand)
+            return operand
+        return super().__rrshift__(operand)
+
+class ISub(SideEffect):
+    """`Generic -> Process -> SideEffect -> ISub`
+
+    Applies the `-=` operation to self data without changing the original chained data or the chain itself.
+
+    Parameters
+    ----------
+    Any(None) : Typically an `Operand` intended to be affected with `-=` by the chained data sequence.
+    """
+    # CHAINABLE OPERATIONS
+    def _direct_process(self, operand: o.T) -> o.T:
+        if isinstance(self._parameters, o.Operand):
+            if self._process_it:
+                self._parameters.__isub__(operand)
+            return operand
+        return super().__rrshift__(operand)
+
+class IMul(SideEffect):
+    """`Generic -> Process -> SideEffect -> IMul`
+
+    Applies the `*=` operation to self data without changing the original chained data or the chain itself.
+
+    Parameters
+    ----------
+    Any(None) : Typically an `Operand` intended to be affected with `*=` by the chained data sequence.
+    """
+    # CHAINABLE OPERATIONS
+    def _direct_process(self, operand: o.T) -> o.T:
+        if isinstance(self._parameters, o.Operand):
+            if self._process_it:
+                self._parameters.__imul__(operand)
+            return operand
+        return super().__rrshift__(operand)
+
+class IDiv(SideEffect):
+    """`Generic -> Process -> SideEffect -> IDiv`
+
+    Applies the `/=` operation to self data without changing the original chained data or the chain itself.
+
+    Parameters
+    ----------
+    Any(None) : Typically an `Operand` intended to be affected with `/=` by the chained data sequence.
+    """
+    # CHAINABLE OPERATIONS
+    def _direct_process(self, operand: o.T) -> o.T:
+        if isinstance(self._parameters, o.Operand):
+            if self._process_it:
+                self._parameters.__itruediv__(operand)
+            return operand
+        return super().__rrshift__(operand)
+
+
 class ReadOnly(Process):
     """`Generic -> Process -> ReadOnly`
 
@@ -2973,124 +3096,6 @@ class RightShift(ReadOnly):
                 return self._parameters.__rshift__(operand)
             return operand
         return super().__rshift__(operand)
-
-    
-class SideEffect(ReadOnly):
-    """`Generic -> Process -> ReadOnly -> SideEffect`
-
-    This `Operand` can be inserted in a sequence of `>>` in order to apply as a side effect the chained
-    data in the respective self data without changing the respective chained data sequence.
-
-    Parameters
-    ----------
-    Any(None) : Typically an `Operand` intended to be affected inside the chained `>>` sequence.
-    """
-    def __init__(self, operand: o.Operand = None, process_it: bool = True):
-        super().__init__()
-        self._parameters = operand    # needs to keep the original reference (no copy)
-        self._process_it: bool = process_it
-
-class LeftShift(SideEffect):
-    """`Generic -> Process -> ReadOnly -> SideEffect -> LeftShift`
-
-    Applies the `<<` operation to self data without changing the original chained data or the chain itself.
-
-    Parameters
-    ----------
-    Any(None) : Typically an `Operand` intended to be affected with `<<` by the chained data sequence.
-    """
-    # CHAINABLE OPERATIONS
-    def _direct_process(self, operand: o.T) -> o.T:
-        if isinstance(self._parameters, o.Operand):
-            if self._process_it:
-                self._parameters.__lshift__(operand)
-            return operand
-        return super().__rrshift__(operand)
-
-class RightShift(SideEffect):
-    """`Generic -> Process -> ReadOnly -> SideEffect -> RightShift`
-
-    Applies the `>>` operation to self data without changing the original chained data or the chain itself.
-
-    Parameters
-    ----------
-    Any(None) : Typically an `Operand` intended to be affected with `>>` by the chained data sequence.
-    """
-    # CHAINABLE OPERATIONS
-    def _direct_process(self, operand: o.T) -> o.T:
-        if isinstance(self._parameters, o.Operand):
-            if self._process_it:
-                self._parameters.__rshift__(operand)
-            return operand
-        return super().__rrshift__(operand)
-
-class IAdd(SideEffect):    # i stands for "inplace"
-    """`Generic -> Process -> ReadOnly -> SideEffect -> IAdd`
-
-    Applies the `+=` operation to self data without changing the original chained data or the chain itself.
-
-    Parameters
-    ----------
-    Any(None) : Typically an `Operand` intended to be affected with `+=` by the chained data sequence.
-    """
-    # CHAINABLE OPERATIONS
-    def _direct_process(self, operand: o.T) -> o.T:
-        if isinstance(self._parameters, o.Operand):
-            if self._process_it:
-                self._parameters.__iadd__(operand)
-            return operand
-        return super().__rrshift__(operand)
-
-class ISub(SideEffect):
-    """`Generic -> Process -> ReadOnly -> SideEffect -> ISub`
-
-    Applies the `-=` operation to self data without changing the original chained data or the chain itself.
-
-    Parameters
-    ----------
-    Any(None) : Typically an `Operand` intended to be affected with `-=` by the chained data sequence.
-    """
-    # CHAINABLE OPERATIONS
-    def _direct_process(self, operand: o.T) -> o.T:
-        if isinstance(self._parameters, o.Operand):
-            if self._process_it:
-                self._parameters.__isub__(operand)
-            return operand
-        return super().__rrshift__(operand)
-
-class IMul(SideEffect):
-    """`Generic -> Process -> ReadOnly -> SideEffect -> IMul`
-
-    Applies the `*=` operation to self data without changing the original chained data or the chain itself.
-
-    Parameters
-    ----------
-    Any(None) : Typically an `Operand` intended to be affected with `*=` by the chained data sequence.
-    """
-    # CHAINABLE OPERATIONS
-    def _direct_process(self, operand: o.T) -> o.T:
-        if isinstance(self._parameters, o.Operand):
-            if self._process_it:
-                self._parameters.__imul__(operand)
-            return operand
-        return super().__rrshift__(operand)
-
-class IDiv(SideEffect):
-    """`Generic -> Process -> ReadOnly -> SideEffect -> IDiv`
-
-    Applies the `/=` operation to self data without changing the original chained data or the chain itself.
-
-    Parameters
-    ----------
-    Any(None) : Typically an `Operand` intended to be affected with `/=` by the chained data sequence.
-    """
-    # CHAINABLE OPERATIONS
-    def _direct_process(self, operand: o.T) -> o.T:
-        if isinstance(self._parameters, o.Operand):
-            if self._process_it:
-                self._parameters.__itruediv__(operand)
-            return operand
-        return super().__rrshift__(operand)
 
 
 class Save(ReadOnly):
