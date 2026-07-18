@@ -864,7 +864,9 @@ class Operand:
         return self.reset() << self.__class__() << parameters
     
     # self is the pusher
-    def __rshift__(self, operand: any) -> Self:
+    def __rshift__(self, operand: any) -> Any:
+        if isinstance(operand, Operand):
+            return operand.__rrshift__(self)
         return self.copy().__irshift__(operand)
 
     def right(self, operand: any) -> Self:
