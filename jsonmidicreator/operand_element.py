@@ -269,6 +269,7 @@ class Element(o.Operand):
         ['loopMIDI', 'Microsoft']
         """
         from . import operand_container as oc
+        from . import operand_metrics as om
         match operand:
             case od.Pipe():
                 match operand._data:
@@ -310,6 +311,7 @@ class Element(o.Operand):
             case ou.Disable():      return ou.Disable(not self._enabled)
             case oc.Clip():         return oc.Clip().__iadd__(self)
             case Element():         return operand.copy(self)
+            case om.Vector():       return om.Vector(self.getVectordict())
             case _:                 return super().__mod__(operand)
 
 

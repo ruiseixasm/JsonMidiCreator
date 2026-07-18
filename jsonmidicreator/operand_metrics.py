@@ -50,6 +50,63 @@ class Metrics(o.Operand):
 
 
 class Vector(Metrics):
-    pass
+    """`Metrics -> Vector`
+
+    A `Vector` is a multidimensional representation of a given `Element`.
+    
+    Parameters
+    ----------
+    dict({}) : The vector with the multiple dimensions concerning the `Element`.
+    """
+    def __init__(self, *parameters):
+        self._vectordict: dict[str, int] = {}
+        super().__init__(*parameters)
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case dict():
+                        return self._vectordict
+                    case _:
+                        return super().__mod__(operand)
+            case dict():
+                return self._vectordict.copy()
+            case _:
+                return super().__mod__(operand)
+            
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["vectordict"] = self.serialize( self._vectordict )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "vectordict" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._vectordict = self.deserialize( serialization["parameters"]["vectordict"] )
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Vector():  # Particular case Data restrict self copy to self, no wrapping possible!
+                super().__lshift__(operand)
+                self._vectordict = operand._vectordict.copy()
+            case od.Pipe():
+                match operand._data:
+                    case dict():
+                        self._vectordict = operand._data
+                    case _:
+                        super().__lshift__(operand)
+            case dict():
+                self._vectordict = operand.copy()
+            case _:
+                super().__lshift__(operand)
+        return self
+
 
 
