@@ -3261,7 +3261,7 @@ class Plot(ReadOnly):
         self._iterations: int = iterations
         self._n_function: Callable[[int], 'Clip'] = None
 
-    def __rrshift__(self, operand: o.T) -> 'Composition':
+    def _direct_process(self, operand: o.T) -> 'Composition':
         from . import operand_unit as ou
         from . import operand_element as oe
         from . import operand_container as oc
@@ -4423,7 +4423,7 @@ class Call(ReadOnly):
             'iterations': 0, 'n_button': 1
         }
 
-    def __rrshift__(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         from . import operand_element as oe
         from . import operand_container as oc
         if isinstance(operand, (oc.Composition, oe.Element)):
@@ -4447,7 +4447,7 @@ class Play(ReadOnly):
             'verbose': 0, 'plot': 1, 'block': 2, 'talkie_delay_ms': 3
         }
 
-    def __rrshift__(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         import threading
         from . import operand_element as oe
         from . import operand_container as oc
@@ -4509,7 +4509,7 @@ class Print(ReadOnly):
     def __init__(self, serialization: bool = False):
         super().__init__( False if serialization is None else serialization )
 
-    def __rrshift__(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         import json
         match operand:
             case o.Operand():
@@ -4544,7 +4544,7 @@ class Copy(ReadOnly):
     def __init__(self, *parameters):
         super().__init__(parameters)
 
-    def __rrshift__(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
             return operand.copy(*self._parameters)
         return super().__rrshift__(operand)
@@ -4564,7 +4564,7 @@ class Proxy(ReadOnly):
     def __init__(self, *parameters):
         super().__init__(parameters)
 
-    def __rrshift__(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         from . import operand_container as oc
         if isinstance(operand, oc.Container):
             return operand.shallow_copy(*self._parameters)
@@ -4585,7 +4585,7 @@ class Reset(Process):
     def __init__(self, *parameters):
         super().__init__(parameters)
 
-    def __rrshift__(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
             return operand.reset(*self._parameters)
         return super().__rrshift__(operand)
@@ -4606,7 +4606,7 @@ class Clear(Process):
     def __init__(self, *parameters):
         super().__init__(parameters)
 
-    def __rrshift__(self, operand: o.T) -> o.T:
+    def _direct_process(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
             return operand.clear(*self._parameters)
         return super().__rrshift__(operand)
@@ -4619,24 +4619,14 @@ class Read(Process):
     Args:
         None
     """
-    def __rrshift__(self, operand: o.T) -> o.T:
-        from . import operand_element as oe
-        if isinstance(operand, (oe.Element, ra.Tempo)):
-            return self._direct_process(operand.copy())
-        else:
-            print(f"Warning: Operand is NOT an `Element` os a `Tempo`!")
-        return operand
 
     def _direct_process(self, operand: o.T) -> o.T:
         from . import operand_element as oe
         if isinstance(operand, (oe.Element, ra.Tempo)):
-            return self._direct_process(operand)
+            return operand.read()
         else:
             print(f"Warning: Operand is NOT an `Element` os a `Tempo`!")
         return super().__rrshift__(operand)
-
-    def _direct_process(self, operand: Union['Element', 'ra.Tempo']) -> Union['Clip', 'ra.Tempo']:
-        return operand.read()
 
 
 class ScaleProcess(Process):
