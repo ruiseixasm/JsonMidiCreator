@@ -313,6 +313,12 @@ class Element(o.Operand):
             case _:                 return super().__mod__(operand)
 
 
+    def getVectordict(self) -> dict[str, int]:
+        return {
+            "position": self % ra.Step() % int(),
+            "duration": self % ra.Steps() % int()
+        }
+
     def getPlotlist(self,
             midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
             channels: dict[str, set[int]] = None, derived_element: 'Element' = None) -> list[dict]:
