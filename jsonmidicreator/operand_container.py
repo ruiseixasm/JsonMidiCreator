@@ -2084,11 +2084,6 @@ class Clip(Composition):  # Just a container of Elements
     # Works as a Clip transformer
     def __irshift__(self, operand) -> Self:
         match operand:
-            case list():
-                kept_elements: list[oe.Element] = [
-                    self[index] for index in operand    # No need to copy
-                ]
-                return self._delete(self.unmasked_items(), True)._extend(kept_elements)._sort_items()
             
             case str():
                 elements_place: list[int] = o.string_to_list(operand)
