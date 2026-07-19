@@ -103,9 +103,9 @@ class Vector(Metrics):
             case int():
                 return self.distance()
             case ou.Distance():
-                return ou.Distance(self.distance())
+                return operand << self.distance(operand._key)
             case ou.Variations():
-                return ou.Variations(self.variations())
+                return operand << self.variations(operand._key)
             case set():
                 return self.get_keys()
             case _:
@@ -210,9 +210,9 @@ class Vectors(Metrics):
             case int():
                 return self.distance()
             case ou.Distance():
-                return ou.Distance(self.distance())
+                return operand << self.distance(operand._key)
             case ou.Variations():
-                return ou.Variations(self.variations())
+                return operand << self.variations(operand._key)
             case set():
                 return self.get_keys()
             case _:
