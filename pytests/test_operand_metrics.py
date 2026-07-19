@@ -34,7 +34,9 @@ def test_vectors_distance():
     single_pitch = Note() / 4
     different_pitch = ~single_pitch << Iterate(1)**Degree()
     clips_distance = Vectors(different_pitch) - Vectors(single_pitch)
+    print(f"Distance: {clips_distance % str()}")
     assert clips_distance > 0
+    assert clips_distance == 11
 
 # test_vectors_distance()
 
