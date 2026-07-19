@@ -297,7 +297,51 @@ class Metric(Unit):
 
     A `Metric` is a specific value returned by Metrics concerning an `Element` or a `Clip`.
     """
-    pass
+    def __init__(self, *parameters):
+        from . import operand_generic as og
+        self._key: str = ""
+        super().__init__(1, *parameters)
+
+    def __mod__(self, operand: o.T) -> o.T:
+        from . import operand_container as oc
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case str():                 return self._key
+                    case _:                     return super().__mod__(operand)
+            case str():                 return self._key
+            case _:                     return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["key"] = self._key    # It's a string already
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "key" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._key = serialization["parameters"]["key"]    # It's a string already
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        from . import operand_container as oc
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Metric():
+                super().__lshift__(operand)
+                self._key = operand._key
+            case od.Pipe():
+                match operand._data:
+                    case str():                 self._key = operand._data
+                    case _:                     super().__lshift__(operand)
+            case str():                 self._key = operand
+            case _:                     super().__lshift__(operand)
+        return self
+
 
 class Distance(Metric):
     """`Unit -> Metric -> Distance`
@@ -1664,6 +1708,20 @@ class MidiTrack(Midi):
             self._devices = og.settings._devices.copy()
         return self
 
+    def __eq__(self, other: o.Operand) -> bool:
+        match other:
+            case self.__class__():
+                return super().__eq__(other) \
+                    and self._name == other._name and self._devices == other._devices
+            case TrackNumber():
+                return self._unit == other._unit
+            case od.TrackName():
+                return self._unit == other._data
+            case str():
+                return self._name == other
+            case _:
+                return super().__eq__(other)    # Compares the _unit integer value
+    
     def __mod__(self, operand: o.T) -> o.T:
         from . import operand_container as oc
         match operand:
@@ -1680,20 +1738,6 @@ class MidiTrack(Midi):
             case oc.Devices():          return oc.Devices(self._devices)
             case _:                     return super().__mod__(operand)
 
-    def __eq__(self, other: o.Operand) -> bool:
-        match other:
-            case self.__class__():
-                return super().__eq__(other) \
-                    and self._name == other._name and self._devices == other._devices
-            case TrackNumber():
-                return self._unit == other._unit
-            case od.TrackName():
-                return self._unit == other._data
-            case str():
-                return self._name == other
-            case _:
-                return super().__eq__(other)    # Compares the _unit integer value
-    
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["name"]     = self._name    # It's a string already
