@@ -112,6 +112,8 @@ class Vector(Metrics):
                         super().__lshift__(operand)
             case dict():
                 self._vectordict = operand.copy()
+            case oe.Element():
+                self._vectordict = operand.getVectordict()
             case _:
                 super().__lshift__(operand)
         return self
@@ -129,6 +131,95 @@ class Vector(Metrics):
     def __sub__(self, other: 'Vector') -> Self:
         vector1 = self._vectordict
         vector2 = other._vectordict
+        vector3 = {}
+        for (key1, value1), (key2, value2) in zip(vector1.items(), vector2.items()):
+            if key1 == key2:
+                vector3[key1] = value1 - value2
+        return Vector(vector3)
+
+
+class Vectors(Metrics):
+    """`Metrics -> Vectors`
+
+    `Vectors` concern exclusively a `Clip`, while `Vector` concern elements.
+    
+    Parameters
+    ----------
+    list([]) : A list of `Vector` operands.
+    """
+    def __init__(self, *parameters):
+        self._vectors: list[Vector] = []
+        super().__init__(*parameters)
+
+    def norm(self) -> int:
+        norm_int = 0
+        for value in self._vectors.values():
+            norm_int += abs(value)
+        return norm_int
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case list():
+                        return self._vectors
+                    case _:
+                        return super().__mod__(operand)
+            case list():
+                return o.Operand.deep_copy(self._vectors)
+            case int():
+                return self.norm()
+            case _:
+                return super().__mod__(operand)
+            
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["vectors"] = self.serialize( self._vectors )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "vectors" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._vectors = self.deserialize( serialization["parameters"]["vectors"] )
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Vectors():  # Particular case Data restrict self copy to self, no wrapping possible!
+                super().__lshift__(operand)
+                self._vectors = o.Operand.deep_copy(operand._vectors)
+            case od.Pipe():
+                match operand._data:
+                    case list():
+                        self._vectors = operand._data
+                    case _:
+                        super().__lshift__(operand)
+            case list():
+                self._vectors = o.Operand.deep_copy(operand)
+            case oe.Clip():
+                self._vectors = operand.getVectors()
+            case _:
+                super().__lshift__(operand)
+        return self
+
+
+    def __add__(self, other: 'Vector') -> Self:
+        vector1 = self._vectors
+        vector2 = other._vectors
+        vector3 = {}
+        for (key1, value1), (key2, value2) in zip(vector1.items(), vector2.items()):
+            if key1 == key2:
+                vector3[key1] = value1 + value2
+        return Vector(vector3)
+
+    def __sub__(self, other: 'Vector') -> Self:
+        vector1 = self._vectors
+        vector2 = other._vectors
         vector3 = {}
         for (key1, value1), (key2, value2) in zip(vector1.items(), vector2.items()):
             if key1 == key2:
