@@ -297,14 +297,14 @@ class I_DurationsChooser(Iterations):
         positive_durations: list[Fraction] = []
         for element, duration in zip(clip._items, durations):
             if duration > 0:
-                positive_durations.append(ra.Duration(duration)._rational)
+                positive_durations.append(ra.Duration(clip, duration)._rational)
             else:
                 positive_durations.append(element._duration_beats)
         transmitted_duration: Fraction = Fraction(0)
         for element, duration in zip(clip._items, positive_durations):
-            
+            element._position_beats += transmitted_duration
             transmitted_duration += element._duration_beats - duration
-
+            element._duration_beats = duration
         return clip
     
 
