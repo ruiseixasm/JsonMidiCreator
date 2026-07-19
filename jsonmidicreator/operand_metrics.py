@@ -226,7 +226,7 @@ class Vectors(Metrics):
                         super().__lshift__(operand)
             case list():
                 self._vectors = o.Operand.deep_copy(operand)
-            case oe.Clip():
+            case oc.Clip():
                 self._vectors = operand.getVectorslist()
             case _:
                 super().__lshift__(operand)
