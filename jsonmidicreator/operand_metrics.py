@@ -69,6 +69,12 @@ class Vector(Metrics):
         self._vectordict: dict[str, int] = {}
         super().__init__(*parameters)
 
+    def get_keys(self) -> set:
+        keys: set[str] = set()
+        for v_key in self._vectordict.keys():
+            keys.add(v_key)
+        return keys
+
     def distance(self, key: str = "") -> int:
         distance_int = 0
         for v_key, v_value in self._vectordict.items():
@@ -171,16 +177,22 @@ class Vectors(Metrics):
         self._vectors: list[Vector] = []
         super().__init__(*parameters)
 
+    def get_keys(self) -> set:
+        keys: set[str] = set()
+        for vector in self._vectors:
+            keys.update(vector.get_keys())
+        return keys
+
     def distance(self, key: str = "") -> int:
         distance_int = 0
         for vector in self._vectors:
-            distance_int += vector.distance()
+            distance_int += vector.distance(key)
         return distance_int
 
     def variations(self, key: str = "") -> int:
         variation_int = 0
         for vector in self._vectors:
-            variation_int += vector.variations()
+            variation_int += vector.variations(key)
         return variation_int
 
     def __mod__(self, operand: o.T) -> o.T:
