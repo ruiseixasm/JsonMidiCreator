@@ -87,6 +87,8 @@ class Vector(Metrics):
                 return self._vectordict.copy()
             case int():
                 return self.distance()
+            case str():
+                return str(self.distance())
             case ou.Distance():
                 return ou.Distance(self.distance())
             case ou.Variation():
@@ -186,6 +188,8 @@ class Vectors(Metrics):
                 return o.Operand.deep_copy(self._vectors)
             case int():
                 return self.distance()
+            case str():
+                return str(self.distance())
             case ou.Distance():
                 return ou.Distance(self.distance())
             case ou.Variation():
