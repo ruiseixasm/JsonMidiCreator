@@ -37,7 +37,8 @@ def test_vectors_distance():
     print(f"Distance: {clips_distance % str()}")
     assert clips_distance > 0
     assert clips_distance == 11
-    clips_variation = clips_distance % Variations()
+    clips_variations = clips_distance % Variations()
+    assert clips_variations == 3    # Only the last 3 notes have the degree changed
 
 # test_vectors_distance()
 
