@@ -17,8 +17,8 @@ from jsonmidicreator import *
 
 four_notes = Note(1/1) * 4
 
-def pre_filter(clip) -> bool:
-    if clip[Equal(Duration(Steps(1)))].len() > 0:
+def pre_filter(candidate: Clip, seed: Clip) -> bool:
+    if candidate[Equal(Duration(Steps(1)))].len() > 0:
         return False
     return True
 

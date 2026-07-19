@@ -227,7 +227,7 @@ class Iterations(o.Operand):
 class I_Function(Iterations):
     def __init__(self, function: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  chaos: ch.Chaos = ch.SinX(340),
-                 pre_filter: Optional[Callable[['oc.Clip'], bool]] = None,
+                 pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
         super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
@@ -244,7 +244,7 @@ class I_Function(Iterations):
 class I_DurationsSplitter(Iterations):
     def __init__(self, durations: int = 8,
                  chaos: ch.Chaos = ch.SinX(340),
-                 pre_filter: Optional[Callable[['oc.Clip'], bool]] = None,
+                 pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
         super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
@@ -285,7 +285,7 @@ class I_DurationsSplitter(Iterations):
 class I_ParametersChooser(Iterations):
     def __init__(self, parameters: list[Any] = ["1", "3", "5"],
                  chaos: ch.Chaos = ch.SinX(340),
-                 pre_filter: Optional[Callable[['oc.Clip'], bool]] = None,
+                 pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
         super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
@@ -306,7 +306,7 @@ class I_ParametersChooser(Iterations):
 class I_ParameterShuffler(Iterations):
     def __init__(self, parameter: Any = ou.Degree(),
                  chaos: ch.Chaos = ch.SinX(340, ot.Increase(1)**ot.Modulo(7)),
-                 pre_filter: Optional[Callable[['oc.Clip'], bool]] = None,
+                 pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
         super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
@@ -332,7 +332,7 @@ class I_ParameterSetter(Iterations):
     def __init__(self, parameter: o.Operand = ou.Degree(),
                  chaos: ch.Chaos = ch.SinX(340, ot.Increase(1)**ot.Modulo(7)),
                  global_setting: bool = False,
-                 pre_filter: Optional[Callable[['oc.Clip'], bool]] = None,
+                 pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
         super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)

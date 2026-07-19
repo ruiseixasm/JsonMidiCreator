@@ -17,10 +17,10 @@ from jsonmidicreator import *
 
 measure_note = Note(1/1) * 1
 
-def pre_filter(clip) -> bool:
+def pre_filter(candidate: Clip, seed: Clip) -> bool:
     """Makes sure each Note matches a specific duration pattern"""
     # Last 4 notes must have the same duration
-    last_four = clip[Last(4)]
+    last_four = candidate[Last(4)]
     return last_four == AllMatch(Duration())
 
 def post_process(clip) -> Clip:

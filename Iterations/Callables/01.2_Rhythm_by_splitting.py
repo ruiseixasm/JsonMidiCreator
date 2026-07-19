@@ -17,9 +17,9 @@ from jsonmidicreator import *
 
 four_notes = Note(1/1) * 4
 
-def pre_filter(clip) -> bool:
+def pre_filter(candidate: Clip, seed: Clip) -> bool:
     """Uses a `Frame` selector `Equal`, resulting in a new list of same type of content, `Element`, in this case"""
-    if clip[Equal(Duration(Steps(2)))].len() > 0:
+    if candidate[Equal(Duration(Steps(2)))].len() > 0:
         return False
     return True
 
