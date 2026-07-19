@@ -63,10 +63,17 @@ class Vector(Metrics):
         super().__init__(*parameters)
 
     def distance(self) -> int:
-        norm_int = 0
+        distance_int = 0
         for value in self._vectordict.values():
-            norm_int += abs(value)
-        return norm_int
+            distance_int += abs(value)
+        return distance_int
+    
+    def variation(self) -> int:
+        variation_int = 0
+        for value in self._vectordict.values():
+            if value != 0: variation_int += 1
+        return variation_int
+
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -80,6 +87,10 @@ class Vector(Metrics):
                 return self._vectordict.copy()
             case int():
                 return self.distance()
+            case ou.Distance():
+                return ou.Distance(self.distance())
+            case ou.Variation():
+                return ou.Variation(self.variation())
             case _:
                 return super().__mod__(operand)
             
@@ -152,10 +163,16 @@ class Vectors(Metrics):
         super().__init__(*parameters)
 
     def distance(self) -> int:
-        norm_int = 0
+        distance_int = 0
         for vector in self._vectors:
-            norm_int += vector.distance()
-        return norm_int
+            distance_int += vector.distance()
+        return distance_int
+
+    def variation(self) -> int:
+        variation_int = 0
+        for vector in self._vectors:
+            variation_int += vector.variation()
+        return variation_int
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -169,6 +186,10 @@ class Vectors(Metrics):
                 return o.Operand.deep_copy(self._vectors)
             case int():
                 return self.distance()
+            case ou.Distance():
+                return ou.Distance(self.distance())
+            case ou.Variation():
+                return ou.Variation(self.variation())
             case _:
                 return super().__mod__(operand)
             
