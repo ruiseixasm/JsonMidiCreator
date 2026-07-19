@@ -292,6 +292,16 @@ class Flats(Accidentals):   # Flats (bbb)
         return self
 
 
+class Metric(Unit):
+    pass
+
+class Distance(Metric):
+    pass
+
+class Variation(Metric):
+    pass
+
+
 class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
     """`Unit -> PitchParameter -> KeySignature`
 
