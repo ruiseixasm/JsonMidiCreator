@@ -151,20 +151,18 @@ class Vector(Metrics):
         vector1 = self._vectordict
         vector2 = other._vectordict
         vector3 = {}
-        # Python 3.7+, dictionaries preserve insertion order
-        for (key1, value1), (key2, value2) in zip(vector1.items(), vector2.items()):
-            if key1 == key2:
-                vector3[key1] = value1 + value2
+        for v_key, v_value1 in vector1.items():
+            if v_key in vector2:
+                vector3[v_key] = v_value1 + vector2[v_key]
         return Vector() << od.Pipe(vector3)
 
     def __sub__(self, other: 'Vector') -> Self:
         vector1 = self._vectordict
         vector2 = other._vectordict
         vector3 = {}
-        # Python 3.7+, dictionaries preserve insertion order
-        for (key1, value1), (key2, value2) in zip(vector1.items(), vector2.items()):
-            if key1 == key2:
-                vector3[key1] = value1 - value2
+        for v_key, v_value1 in vector1.items():
+            if v_key in vector2:
+                vector3[v_key] = v_value1 - vector2[v_key]
         return Vector() << od.Pipe(vector3)
 
 
