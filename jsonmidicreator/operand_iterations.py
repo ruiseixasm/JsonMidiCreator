@@ -39,14 +39,14 @@ from . import operand_tamer as ot
 
 class Iterations(o.Operand):
     def __init__(self, chaos: ch.Chaos = ch.SinX(340),
-                 pre_filter: Optional[Callable[['oc.Clip'], bool]] = None,
+                 pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 4, no_repetitions: bool = False, freeze_at: int = -1):
         self._seed: oc.Clip = oc.Clip() # Read-Only
         self._iterations: list[oc.Clip] = []
         self._chaos: ch.Chaos = chaos
-        self._pre_filter: Callable | None = pre_filter
-        self._post_processing: Callable | None = post_process
+        self._pre_filter: Callable[['oc.Clip', 'oc.Clip'], bool] | None = pre_filter
+        self._post_process: Callable[['oc.Clip'], 'oc.Clip'] | None = post_process
         self._max_tries: int = max_tries
         self._no_repetitions: bool = no_repetitions
         self._freeze_at: int = freeze_at
@@ -83,13 +83,17 @@ class Iterations(o.Operand):
                 self._next_operand._seed = candidate
                 candidate = self._next_operand._single_iteration()
             if candidate.len() > 0: # Only non empty candidates can be considered as solutions
-                if not callable(self._pre_filter) or self._pre_filter(candidate):
-                    iteration: oc.Clip = self._post_process(candidate)
+                if not callable(self._pre_filter) or self._pre_filter(candidate, self._seed):
+                    iteration: oc.Clip = candidate
+                    if callable(self._post_process):
+                        iteration = self._post_process(iteration)
                     if not self._no_repetitions or not iteration in self._iterations:
                         iteration._index = self._index
                         self._iterations.append(iteration)
                         return self
-        empty_iteration: oc.Clip = self._post_process(self._seed.empty_copy())
+        empty_iteration: oc.Clip = self._seed.empty_copy()
+        if callable(self._post_process):
+            empty_iteration = self._post_process(empty_iteration)
         empty_iteration._index = self._index
         self._iterations.append(empty_iteration)
         return self
@@ -108,16 +112,6 @@ class Iterations(o.Operand):
     def _single_iteration(self) -> 'oc.Clip':
         return self._seed.copy()
 
-    def _pre_exclude(self, clip: oc.Clip) -> bool:
-        # The external user defined method is called if and only if the clip is internally validated
-        return (not self._no_repetitions or not clip in self._iterations) \
-            and (not callable(self._pre_filter) or self._pre_filter(clip))
-
-    def _post_process(self, clip: oc.Clip) -> oc.Clip:
-        if callable(self._post_processing):
-            return self._post_processing(clip)
-        return clip
-    
     
     def len(self) -> int:
         return len(self._iterations)
@@ -158,7 +152,7 @@ class Iterations(o.Operand):
         serialization["parameters"]["iterations"]       = self.serialize( self._iterations )
         serialization["parameters"]["chaos"]            = self.serialize( self._chaos )
         serialization["parameters"]["pre_filter"]       = self.serialize( self._pre_filter )
-        serialization["parameters"]["post_process"]     = self.serialize( self._post_processing )
+        serialization["parameters"]["post_process"]     = self.serialize( self._post_process )
         serialization["parameters"]["max_tries"]        = self.serialize( self._max_tries )
         serialization["parameters"]["no_repetitions"]   = self.serialize( self._no_repetitions )
         serialization["parameters"]["freeze_at"]        = self.serialize( self._freeze_at )
@@ -177,7 +171,7 @@ class Iterations(o.Operand):
             self._iterations        = self.deserialize( serialization["parameters"]["iterations"] )
             self._chaos             = self.deserialize( serialization["parameters"]["chaos"] )
             self._pre_filter        = self.deserialize( serialization["parameters"]["pre_filter"] )
-            self._post_processing   = self.deserialize( serialization["parameters"]["post_process"] )
+            self._post_process   = self.deserialize( serialization["parameters"]["post_process"] )
             self._max_tries         = self.deserialize( serialization["parameters"]["max_tries"] )
             self._no_repetitions    = self.deserialize( serialization["parameters"]["no_repetitions"] )
             self._freeze_at         = self.deserialize( serialization["parameters"]["freeze_at"] )
@@ -191,7 +185,7 @@ class Iterations(o.Operand):
                 self._iterations        = operand._iterations.copy()
                 self._chaos             = operand._chaos.copy()
                 self._pre_filter        = operand._pre_filter
-                self._post_processing   = operand._post_processing
+                self._post_process   = operand._post_process
                 self._max_tries         = operand._max_tries
                 self._no_repetitions    = operand._no_repetitions
                 self._freeze_at         = operand._freeze_at
