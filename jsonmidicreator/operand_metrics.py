@@ -62,6 +62,12 @@ class Vector(Metrics):
         self._vectordict: dict[str, int] = {}
         super().__init__(*parameters)
 
+    def norm(self) -> int:
+        norm_int = 0
+        for value in self._vectordict.values():
+            norm_int += abs(value)
+        return norm_int
+
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.Pipe():
@@ -72,6 +78,8 @@ class Vector(Metrics):
                         return super().__mod__(operand)
             case dict():
                 return self._vectordict.copy()
+            case int():
+                return self.norm()
             case _:
                 return super().__mod__(operand)
             
