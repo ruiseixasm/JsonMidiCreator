@@ -1420,7 +1420,7 @@ class Composition(Container):
             case ra.Length():
                 return self.gross_length()
             case ra.Duration():
-                return self.gross_duration()
+                return self.net_duration(True)
             case od.CompositionConvertible():
                 convertible: ra.Convertible = operand._data
                 if isinstance(operand, od.Net):
