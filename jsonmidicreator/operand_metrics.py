@@ -151,6 +151,7 @@ class Vector(Metrics):
         vector1 = self._vectordict
         vector2 = other._vectordict
         vector3 = {}
+        # Python 3.7+, dictionaries preserve insertion order
         for (key1, value1), (key2, value2) in zip(vector1.items(), vector2.items()):
             if key1 == key2:
                 vector3[key1] = value1 + value2
@@ -160,6 +161,7 @@ class Vector(Metrics):
         vector1 = self._vectordict
         vector2 = other._vectordict
         vector3 = {}
+        # Python 3.7+, dictionaries preserve insertion order
         for (key1, value1), (key2, value2) in zip(vector1.items(), vector2.items()):
             if key1 == key2:
                 vector3[key1] = value1 - value2
