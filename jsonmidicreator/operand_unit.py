@@ -293,12 +293,24 @@ class Flats(Accidentals):   # Flats (bbb)
 
 
 class Metric(Unit):
+    """`Unit -> Metric`
+
+    A `Metric` is a specific value returned by Metrics concerning an `Element` or a `Clip`.
+    """
     pass
 
 class Distance(Metric):
+    """`Unit -> Metric -> Distance`
+
+    A `Distance` is the sum of all single `Vector` or `Vectors` values.
+    """
     pass
 
-class Variation(Metric):
+class Variations(Metric):
+    """`Unit -> Metric -> Variations`
+
+    `Variations` is the total of non-zero `Vector` or `Vectors` values.
+    """
     pass
 
 
