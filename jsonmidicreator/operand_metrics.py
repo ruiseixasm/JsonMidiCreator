@@ -46,31 +46,12 @@ class Metrics(o.Operand):
 
     `Metrics` represent quantized information of multiple or single `Element` and `Composition` operands.
     """
-    def __eq__(self, other: 'Metrics') -> bool:
-        match other:
-            case Metrics():
-                return self % int() == other % int()
-            case _:
-                return super().__eq__(other)
-
-    def __lt__(self, other: 'Metrics') -> bool:
-        match other:
-            case Metrics():
-                return self % int() < other % int()
-            case _:
-                return super().__lt__(other)
-    
-    def __gt__(self, other: 'Metrics') -> bool:
-        match other:
-            case Metrics():
-                return self % int() > other % int()
-            case _:
-                return super().__gt__(other)
-    
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case int():
                 return 0
+            case str():
+                return str(self % int())
             case _:
                 return super().__mod__(operand)
             
@@ -113,8 +94,6 @@ class Vector(Metrics):
                 return self._vectordict.copy()
             case int():
                 return self.distance()
-            case str():
-                return str(self.distance())
             case ou.Distance():
                 return ou.Distance(self.distance())
             case ou.Variation():
@@ -214,8 +193,6 @@ class Vectors(Metrics):
                 return o.Operand.deep_copy(self._vectors)
             case int():
                 return self.distance()
-            case str():
-                return str(self.distance())
             case ou.Distance():
                 return ou.Distance(self.distance())
             case ou.Variation():
