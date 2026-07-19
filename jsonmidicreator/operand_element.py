@@ -2101,27 +2101,6 @@ class ChannelElement(DeviceElement):
                     self << ou.Channel(channel)
         return self
     
-
-    def __mod__(self, operand: o.T) -> o.T:
-        """
-        The % symbol is used to extract a Parameter, in the case of an Element,
-        those Parameters can be Position, Duration, midi Channel and midi Device
-
-        Examples
-        --------
-        >>> element = Element()
-        >>> element % Devices() % list() >> Print()
-        ['loopMIDI', 'Microsoft']
-        """
-        from . import operand_container as oc
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case ou.Channel():      return ou.Channel() << od.Pipe( self._channel_0 )
-                    case _:                 return super().__mod__(operand)
-            case ou.Channel():      return ou.Channel() << od.Pipe( self._channel_0 + 1 )
-            case _:                 return super().__mod__(operand)
-
     def __eq__(self, other: o.Operand) -> bool:
         match other:
             case ChannelElement():
@@ -2156,6 +2135,33 @@ class ChannelElement(DeviceElement):
             case _:
                 return super().__gt__(other)
     
+
+    def __mod__(self, operand: o.T) -> o.T:
+        """
+        The % symbol is used to extract a Parameter, in the case of an Element,
+        those Parameters can be Position, Duration, midi Channel and midi Device
+
+        Examples
+        --------
+        >>> element = Element()
+        >>> element % Devices() % list() >> Print()
+        ['loopMIDI', 'Microsoft']
+        """
+        from . import operand_container as oc
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case ou.Channel():      return ou.Channel() << od.Pipe( self._channel_0 )
+                    case _:                 return super().__mod__(operand)
+            case ou.Channel():      return ou.Channel() << od.Pipe( self._channel_0 + 1 )
+            case _:                 return super().__mod__(operand)
+
+
+    def getVectordict(self) -> dict[str, int]:
+        vectordict: dict[str, int] = super().getVectordict()
+        vectordict["channel"] = self._channel_0
+        return vectordict
+
 
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction | None = None,
                     derived_element: 'Element' = None) -> list[dict]:
@@ -2430,7 +2436,6 @@ class Note(ChannelElement):
         vectordict: dict[str, int] = super().getVectordict()
         vectordict["pitch"] = self.pitch_centroid()
         vectordict["velocity"] = self._velocity
-        vectordict["channel"] = self._channel_0
         return vectordict
 
 
