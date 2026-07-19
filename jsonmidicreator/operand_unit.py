@@ -296,6 +296,11 @@ class Metric(Unit):
     """`Unit -> Metric`
 
     A `Metric` is a specific value returned by Metrics concerning an `Element` or a `Clip`.
+
+    Parameters
+    ----------
+    int(0) : The metric value.
+    str("") : The metric key, all keys by default.
     """
     def __init__(self, *parameters):
         from . import operand_generic as og
@@ -347,6 +352,11 @@ class Distance(Metric):
     """`Unit -> Metric -> Distance`
 
     A `Distance` is the sum of all single `Vector` or `Vectors` values.
+
+    Parameters
+    ----------
+    int(0) : The metric value.
+    str("") : The metric key, all keys by default.
     """
     pass
 
@@ -354,6 +364,11 @@ class Variations(Metric):
     """`Unit -> Metric -> Variations`
 
     `Variations` is the total of non-zero `Vector` or `Vectors` values.
+
+    Parameters
+    ----------
+    int(0) : The metric value.
+    str("") : The metric key, all keys by default.
     """
     pass
 
