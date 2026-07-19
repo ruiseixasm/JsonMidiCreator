@@ -282,6 +282,21 @@ class I_DurationsSplitter(Iterations):
         return self._seed.empty_copy()   # Tags as invalid
 
 
+class I_DurationsChooser(Iterations):
+    def __init__(self, durations: list[Any] = [1/4, 1/8, 1/16],
+                 chaos: ch.Chaos = ch.SinX(340),
+                 pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
+                 post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
+                 max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
+        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+        self._durations: list[Any] = durations
+
+
+    def _single_iteration(self) -> 'oc.Clip':
+        # TO BE IMPLEMENTED WITH THE HELP OF REMINDER DURATION CARRYING
+        return self._seed.empty_copy()   # Tags as invalid
+
+
 class I_ParametersChooser(Iterations):
     def __init__(self, parameters: list[Any] = ["1", "3", "5"],
                  chaos: ch.Chaos = ch.SinX(340),
