@@ -1845,6 +1845,16 @@ class Clip(Composition):  # Just a container of Elements
                 component_elements.append(copied_note)
         return sorted(component_elements)
 
+    if TYPE_CHECKING:
+        from operand_metrics import Vector
+
+    def getVectorslist(self) -> list['Vector']:
+        from . import operand_metrics as om
+        vectors_list: list[om.Vector] = []
+        for single_element in self._items:
+            vectors_list.append(single_element % om.Vector())
+        return vectors_list
+
 
     def getPlotlist(self, position_beats: Fraction = None) -> list[dict]:
         """

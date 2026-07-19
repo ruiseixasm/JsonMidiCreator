@@ -126,7 +126,7 @@ class Vector(Metrics):
         for (key1, value1), (key2, value2) in zip(vector1.items(), vector2.items()):
             if key1 == key2:
                 vector3[key1] = value1 + value2
-        return Vector(vector3)
+        return Vector() << od.Pipe(vector3)
 
     def __sub__(self, other: 'Vector') -> Self:
         vector1 = self._vectordict
@@ -135,7 +135,7 @@ class Vector(Metrics):
         for (key1, value1), (key2, value2) in zip(vector1.items(), vector2.items()):
             if key1 == key2:
                 vector3[key1] = value1 - value2
-        return Vector(vector3)
+        return Vector() << od.Pipe(vector3)
 
 
 class Vectors(Metrics):
@@ -153,8 +153,8 @@ class Vectors(Metrics):
 
     def norm(self) -> int:
         norm_int = 0
-        for value in self._vectors.values():
-            norm_int += abs(value)
+        for vector in self._vectors:
+            norm_int += vector.norm()
         return norm_int
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -202,28 +202,26 @@ class Vectors(Metrics):
             case list():
                 self._vectors = o.Operand.deep_copy(operand)
             case oe.Clip():
-                self._vectors = operand.getVectors()
+                self._vectors = operand.getVectorslist()
             case _:
                 super().__lshift__(operand)
         return self
 
 
-    def __add__(self, other: 'Vector') -> Self:
-        vector1 = self._vectors
-        vector2 = other._vectors
-        vector3 = {}
-        for (key1, value1), (key2, value2) in zip(vector1.items(), vector2.items()):
-            if key1 == key2:
-                vector3[key1] = value1 + value2
-        return Vector(vector3)
+    def __add__(self, other: 'Vectors') -> Self:
+        vectors1 = self._vectors
+        vectors2 = other._vectors
+        vectors3: list[Vector] = []
+        for vector1, vector2 in zip(vectors1, vectors2):
+            vectors3.append(vector1 + vector2)
+        return Vectors() << od.Pipe(vectors3)
 
-    def __sub__(self, other: 'Vector') -> Self:
-        vector1 = self._vectors
-        vector2 = other._vectors
-        vector3 = {}
-        for (key1, value1), (key2, value2) in zip(vector1.items(), vector2.items()):
-            if key1 == key2:
-                vector3[key1] = value1 - value2
-        return Vector(vector3)
+    def __sub__(self, other: 'Vectors') -> Self:
+        vectors1 = self._vectors
+        vectors2 = other._vectors
+        vectors3: list[Vector] = []
+        for vector1, vector2 in zip(vectors1, vectors2):
+            vectors3.append(vector1 - vector2)
+        return Vectors() << od.Pipe(vectors3)
 
 
