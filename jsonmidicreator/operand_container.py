@@ -1411,8 +1411,6 @@ class Composition(Container):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case ra.Length():
-                        return None
                     case og.TimeSignature():
                         return self._time_signature
                     case _:                 return super().__mod__(operand)
