@@ -292,6 +292,22 @@ class I_DurationsChooser(Iterations):
         self._durations: list[Any] = durations
 
 
+    @staticmethod
+    def _set_durations(clip: 'oc.Clip', durations: list[Any]) -> 'oc.Clip':
+        positive_durations: list[Fraction] = []
+        for element, duration in zip(clip._items, durations):
+            if duration > 0:
+                positive_durations.append(ra.Duration(duration)._rational)
+            else:
+                positive_durations.append(element._duration_beats)
+        transmitted_duration: Fraction = Fraction(0)
+        for element, duration in zip(clip._items, positive_durations):
+            
+            transmitted_duration += element._duration_beats - duration
+
+        return clip
+    
+
     def _single_iteration(self) -> 'oc.Clip':
         # TO BE IMPLEMENTED WITH THE HELP OF REMINDER DURATION CARRYING
         return self._seed.empty_copy()   # Tags as invalid
