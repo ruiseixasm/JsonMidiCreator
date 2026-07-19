@@ -109,4 +109,22 @@ class Vector(Metrics):
         return self
 
 
+    def __add__(self, other: 'Vector') -> Self:
+        vector1 = self._vectordict
+        vector2 = other._vectordict
+        vector3 = {}
+        for (key1, value1), (key2, value2) in zip(vector1.items(), vector2.items()):
+            if key1 == key2:
+                vector3[key1] = value1 + value2
+        return Vector(vector3)
+
+    def __sub__(self, other: 'Vector') -> Self:
+        vector1 = self._vectordict
+        vector2 = other._vectordict
+        vector3 = {}
+        for (key1, value1), (key2, value2) in zip(vector1.items(), vector2.items()):
+            if key1 == key2:
+                vector3[key1] = value1 - value2
+        return Vector(vector3)
+
 
