@@ -71,14 +71,16 @@ class Vector(Metrics):
 
     def distance(self, key: str = "") -> int:
         distance_int = 0
-        for value in self._vectordict.values():
-            distance_int += abs(value)
+        for v_key, v_value in self._vectordict.items():
+            if key == "" or v_key == key:
+                distance_int += abs(v_value)
         return distance_int
     
-    def variation(self, key: str = "") -> int:
+    def variations(self, key: str = "") -> int:
         variation_int = 0
-        for value in self._vectordict.values():
-            if value != 0: variation_int += 1
+        for v_key, v_value in self._vectordict.items():
+            if key == "" or v_key == key:
+                if v_value != 0: variation_int += 1
         return variation_int
 
 
@@ -97,7 +99,7 @@ class Vector(Metrics):
             case ou.Distance():
                 return ou.Distance(self.distance())
             case ou.Variations():
-                return ou.Variations(self.variation())
+                return ou.Variations(self.variations())
             case _:
                 return super().__mod__(operand)
             
@@ -175,10 +177,10 @@ class Vectors(Metrics):
             distance_int += vector.distance()
         return distance_int
 
-    def variation(self, key: str = "") -> int:
+    def variations(self, key: str = "") -> int:
         variation_int = 0
         for vector in self._vectors:
-            variation_int += vector.variation()
+            variation_int += vector.variations()
         return variation_int
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -196,7 +198,7 @@ class Vectors(Metrics):
             case ou.Distance():
                 return ou.Distance(self.distance())
             case ou.Variations():
-                return ou.Variations(self.variation())
+                return ou.Variations(self.variations())
             case _:
                 return super().__mod__(operand)
             
