@@ -69,13 +69,13 @@ class Vector(Metrics):
         self._vectordict: dict[str, int] = {}
         super().__init__(*parameters)
 
-    def distance(self) -> int:
+    def distance(self, key: str = "") -> int:
         distance_int = 0
         for value in self._vectordict.values():
             distance_int += abs(value)
         return distance_int
     
-    def variation(self) -> int:
+    def variation(self, key: str = "") -> int:
         variation_int = 0
         for value in self._vectordict.values():
             if value != 0: variation_int += 1
@@ -169,13 +169,13 @@ class Vectors(Metrics):
         self._vectors: list[Vector] = []
         super().__init__(*parameters)
 
-    def distance(self) -> int:
+    def distance(self, key: str = "") -> int:
         distance_int = 0
         for vector in self._vectors:
             distance_int += vector.distance()
         return distance_int
 
-    def variation(self) -> int:
+    def variation(self, key: str = "") -> int:
         variation_int = 0
         for vector in self._vectors:
             variation_int += vector.variation()
