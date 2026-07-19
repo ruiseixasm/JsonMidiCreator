@@ -106,6 +106,8 @@ class Vector(Metrics):
                 return ou.Distance(self.distance())
             case ou.Variations():
                 return ou.Variations(self.variations())
+            case set():
+                return self.get_keys()
             case _:
                 return super().__mod__(operand)
             
@@ -211,6 +213,8 @@ class Vectors(Metrics):
                 return ou.Distance(self.distance())
             case ou.Variations():
                 return ou.Variations(self.variations())
+            case set():
+                return self.get_keys()
             case _:
                 return super().__mod__(operand)
             

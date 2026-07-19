@@ -42,3 +42,14 @@ def test_vectors_distance():
 
 # test_vectors_distance()
 
+
+def test_vectors_keys():
+    single_pitch = Note() / 4
+    single_vectors = Vectors(single_pitch)
+    all_keys = single_vectors % set()
+    print(f"Keys: {all_keys}")
+    assert all_keys == {'channel', 'duration', 'pitch', 'position', 'velocity'}
+    
+# test_vectors_keys()
+
+
