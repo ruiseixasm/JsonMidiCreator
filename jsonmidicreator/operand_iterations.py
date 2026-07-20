@@ -319,7 +319,20 @@ class I_DurationsChooser(Iterations):
     
 
     def _single_iteration(self) -> 'oc.Clip':
-        # TO BE IMPLEMENTED WITH THE HELP OF REMINDER DURATION CARRYING
+        if self._durations:
+            max_tries: int = 1000
+            while max_tries > 0:
+                chosen_durations: list[Any] = []
+                for single_element in self._seed._items:
+                    if single_element._masked:
+                        chosen_durations.append(0)
+                    else:
+                        duration_index: int = self._chaos % int() % len(self._durations)
+                        chosen_durations.append(self._durations[duration_index])
+                position_offset = self._get_position_offset(self._seed, chosen_durations)
+                if position_offset == 0:
+                    return self._set_durations(self._seed, chosen_durations)
+                max_tries -= 1  # Avoids endless loop
         return self._seed.empty_copy()   # Tags as invalid
 
 
