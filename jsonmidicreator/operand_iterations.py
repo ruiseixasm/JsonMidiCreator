@@ -312,7 +312,9 @@ class I_DurationsChooser(Iterations):
     
 
     def _get_durations_beats(self, total_elements: int, duration_beats_sum: Fraction, choosable_durations_beats: list[Fraction]) -> list[Fraction]:
-            durations_beats: list[Fraction] = []
+        max_tries: int = 100
+        durations_beats: list[Fraction] = []
+        while max_tries > 0:
             for duration_index in range(total_elements):
                 remaining_duration_beats: Fraction = duration_beats_sum - sum(durations_beats)
                 # All `choosable_durations_beats` durations are positive
@@ -320,10 +322,14 @@ class I_DurationsChooser(Iterations):
                     duration_beats for duration_beats in choosable_durations_beats
                     if duration_index < total_elements - 1 and duration_beats <= remaining_duration_beats or duration_beats == remaining_duration_beats
                 ]
-                if not available_durations_beats: return [] # Couldn't generate a durations list
+                if not available_durations_beats:
+                    durations_beats = []    # Couldn't generate a durations list
+                    break
                 chosen_duration_index: int = self._chaos % int() % len(available_durations_beats)
                 durations_beats.append( available_durations_beats[chosen_duration_index] )
-            return durations_beats
+            if durations_beats: return durations_beats
+            max_tries -= 1  # Avoids endless loop
+        return []   # No valid list found
 
 
     def _single_iteration(self) -> 'oc.Clip':
@@ -335,17 +341,14 @@ class I_DurationsChooser(Iterations):
             duration_beats_sum: Fraction = Fraction(0)
             for single_element in unmasked_elements:
                 duration_beats_sum += single_element._duration_beats
-            max_tries: int = 100
-            while max_tries > 0:
-                durations_beats: list[Fraction] = self._get_durations_beats(total_elements, duration_beats_sum, choosable_durations_beats)
-                if durations_beats:
-                    position_offset: Fraction = Fraction(0)
-                    for single_element, duration_beats in zip(unmasked_elements, durations_beats):
-                        single_element._position_beats += position_offset
-                        position_offset += duration_beats - single_element._duration_beats
-                        single_element._duration_beats = duration_beats
-                    return new_clip
-                max_tries -= 1  # Avoids endless loop
+            durations_beats: list[Fraction] = self._get_durations_beats(total_elements, duration_beats_sum, choosable_durations_beats)
+            if durations_beats:
+                position_offset: Fraction = Fraction(0)
+                for single_element, duration_beats in zip(unmasked_elements, durations_beats):
+                    single_element._position_beats += position_offset
+                    position_offset += duration_beats - single_element._duration_beats
+                    single_element._duration_beats = duration_beats
+                return new_clip
         return self._seed.empty_copy()   # Tags as invalid
 
 
