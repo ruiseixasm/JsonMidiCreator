@@ -292,16 +292,6 @@ class I_DurationsChooser(Iterations):
         self._durations: list[Any] = durations
 
 
-    @staticmethod
-    def _set_durations(clip: 'oc.Clip', durations: list[Fraction]) -> 'oc.Clip':
-        position_offset: Fraction = Fraction(0)
-        for element, duration in zip(clip._items, durations):
-            element._position_beats += position_offset
-            position_offset += duration - element._duration_beats
-            element._duration_beats = duration
-        return clip
-    
-
     def _get_available_durations_beats(self) -> list[Fraction]:
         choosable_durations_beats: list[Fraction] = []
         for duration in self._durations:
