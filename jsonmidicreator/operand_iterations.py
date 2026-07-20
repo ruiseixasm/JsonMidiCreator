@@ -292,26 +292,10 @@ class I_DurationsChooser(Iterations):
         self._durations: list[Any] = durations
 
 
-
-    @staticmethod
-    def _get_position_offset(clip: 'oc.Clip', durations: list[Any]) -> Fraction:
-        position_offset: Fraction = Fraction(0)
-        for element, duration in zip(clip._items, durations):
-            if duration > Fraction(0):
-                position_offset += ra.Duration(clip, duration)._rational - element._duration_beats
-        return position_offset
-
-
     @staticmethod
     def _set_durations(clip: 'oc.Clip', durations: list[Fraction]) -> 'oc.Clip':
-        positive_durations: list[Fraction] = []
-        for element, duration in zip(clip._items, durations):
-            if duration > Fraction(0):
-                positive_durations.append(ra.Duration(clip, duration)._rational)
-            else:
-                positive_durations.append(element._duration_beats)
         position_offset: Fraction = Fraction(0)
-        for element, duration in zip(clip._items, positive_durations):
+        for element, duration in zip(clip._items, durations):
             element._position_beats += position_offset
             position_offset += duration - element._duration_beats
             element._duration_beats = duration
@@ -322,14 +306,19 @@ class I_DurationsChooser(Iterations):
         if self._durations:
             max_tries: int = 1000
             while max_tries > 0:
-                chosen_durations: list[Any] = []
+                chosen_durations: list[Fraction] = []
+                position_offset: Fraction = Fraction(0)
                 for single_element in self._seed._items:
                     if single_element._masked:
-                        chosen_durations.append(0)
+                        chosen_durations.append(Fraction(0))
                     else:
                         duration_index: int = self._chaos % int() % len(self._durations)
-                        chosen_durations.append(self._durations[duration_index])
-                position_offset = self._get_position_offset(self._seed, chosen_durations)
+                        duration: Fraction = ra.Duration(self._seed, self._durations[duration_index])._rational
+                        if duration > 0:
+                            chosen_durations.append(duration)
+                            position_offset += duration
+                        else:
+                            chosen_durations.append(Fraction(0))
                 if position_offset == 0:
                     return self._set_durations(self._seed, chosen_durations)
                 max_tries -= 1  # Avoids endless loop
