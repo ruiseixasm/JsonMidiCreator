@@ -320,7 +320,7 @@ class I_DurationsChooser(Iterations):
                         else:
                             chosen_durations.append(Fraction(0))
                 if position_offset == 0:
-                    return self._set_durations(self._seed, chosen_durations)
+                    return self._set_durations(self._seed.copy(), chosen_durations)
                 max_tries -= 1  # Avoids endless loop
         return self._seed.empty_copy()   # Tags as invalid
 
