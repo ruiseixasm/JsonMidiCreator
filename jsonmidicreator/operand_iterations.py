@@ -302,7 +302,7 @@ class I_DurationsChooser(Iterations):
         return clip
     
 
-    def _get_choosable_durations_beats(self) -> list[Fraction]:
+    def _get_available_durations_beats(self) -> list[Fraction]:
         choosable_durations_beats: list[Fraction] = []
         for duration in self._durations:
             duration_beats: Fraction = ra.Duration(self._seed, duration)._rational
@@ -315,7 +315,7 @@ class I_DurationsChooser(Iterations):
         if self._durations:
             unmasked_elements: list[oe.Element] = self._seed.unmasked_items()
             total_elements = len(unmasked_elements)
-            choosable_durations_beats: list[Fraction] = self._get_choosable_durations_beats()
+            choosable_durations_beats: list[Fraction] = self._get_available_durations_beats()
             duration_beats_sum: Fraction = Fraction(0)
             for single_element in unmasked_elements:
                 duration_beats_sum += single_element._duration_beats
@@ -354,6 +354,26 @@ class I_DurationsChooser(Iterations):
                     durations_index += 1
             return new_clip
         return self._seed.empty_copy()   # Tags as invalid
+
+
+class I_DurationsShuffler(I_DurationsChooser):
+
+    def _get_available_durations_beats(self) -> list[Fraction]:
+        choosable_durations_beats: list[Fraction] = []
+        for single_element in self._seed.unmasked_items():
+            choosable_durations_beats.append(single_element._duration_beats)
+        return choosable_durations_beats
+    
+    def _get_durations_beats(self) -> list[Fraction]:
+        if self._durations:
+            durations_beats: list[Fraction] = []
+            pickable_durations_beats: list[Fraction] = self._get_available_durations_beats()
+            while pickable_durations_beats:
+                pick_index: int = self._chaos % int() % len(pickable_durations_beats)
+                durations_beats.append(
+                    pickable_durations_beats.pop(pick_index)
+                )
+        return durations_beats
 
 
 class I_ParametersChooser(Iterations):
