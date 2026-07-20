@@ -340,14 +340,18 @@ class I_DurationsChooser(Iterations):
 
 
     def _single_iteration(self) -> 'oc.Clip':
-        durations_beats: list[Fraction] = self._get_durations_beats()
-        if durations_beats:
+        new_durations_beats: list[Fraction] = self._get_durations_beats()
+        if new_durations_beats:
             new_clip = self._seed.copy()
             position_offset: Fraction = Fraction(0)
-            for single_element, duration_beats in zip(new_clip.unmasked_items(), durations_beats):
+            durations_index: int = 0
+            for single_element in new_clip._items:
                 single_element._position_beats += position_offset
-                position_offset += duration_beats - single_element._duration_beats
-                single_element._duration_beats = duration_beats
+                if not single_element._masked:
+                    duration_beats: Fraction = new_durations_beats[durations_index]
+                    position_offset += duration_beats - single_element._duration_beats
+                    single_element._duration_beats = duration_beats
+                    durations_index += 1
             return new_clip
         return self._seed.empty_copy()   # Tags as invalid
 
