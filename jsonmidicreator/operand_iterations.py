@@ -315,7 +315,7 @@ class I_DurationsChooser(Iterations):
             durations_beats: list[Fraction] = []
             for duration_index in range(total_elements):
                 remaining_duration_beats: Fraction = duration_beats_sum - sum(durations_beats)
-                if remaining_duration_beats <= 0: return [] # Couldn't generate a durations list
+                # All `choosable_durations_beats` durations are positive
                 available_durations_beats: list[Fraction] = [
                     duration_beats for duration_beats in choosable_durations_beats
                     if duration_index < total_elements - 1 and duration_beats <= remaining_duration_beats or duration_beats == remaining_duration_beats
