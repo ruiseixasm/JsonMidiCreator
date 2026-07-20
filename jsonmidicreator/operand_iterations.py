@@ -312,8 +312,8 @@ class I_DurationsChooser(Iterations):
             max_tries: int = 100
             durations_beats: list[Fraction] = []
             while max_tries > 0:
+                remaining_duration_beats: Fraction = duration_beats_sum
                 for duration_index in range(total_elements):
-                    remaining_duration_beats: Fraction = duration_beats_sum - sum(durations_beats)
                     # All `choosable_durations_beats` durations are positive
                     available_durations_beats: list[Fraction] = [
                         duration_beats for duration_beats in choosable_durations_beats
@@ -323,7 +323,9 @@ class I_DurationsChooser(Iterations):
                         durations_beats = []    # Couldn't generate a durations list
                         break
                     chosen_duration_index: int = self._chaos % int() % len(available_durations_beats)
-                    durations_beats.append( available_durations_beats[chosen_duration_index] )
+                    chosen_duration_beats: Fraction = available_durations_beats[chosen_duration_index]
+                    durations_beats.append(chosen_duration_beats)
+                    remaining_duration_beats -= chosen_duration_beats
                 if durations_beats: return durations_beats
                 max_tries -= 1  # Avoids endless loop
         return []   # No valid list found
