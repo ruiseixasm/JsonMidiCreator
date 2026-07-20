@@ -302,6 +302,7 @@ class I_DurationsChooser(Iterations):
     
 
     def _get_durations_beats(self) -> list[Fraction]:
+        durations_beats: list[Fraction] = []
         if self._durations:
             unmasked_elements: list[oe.Element] = self._seed.unmasked_items()
             total_elements = len(unmasked_elements)
@@ -310,8 +311,7 @@ class I_DurationsChooser(Iterations):
             for single_element in unmasked_elements:
                 duration_beats_sum += single_element._duration_beats
             max_tries: int = 100
-            durations_beats: list[Fraction] = []
-            while max_tries > 0:
+            while not durations_beats and max_tries > 0:
                 remaining_duration_beats: Fraction = duration_beats_sum
                 for duration_index in range(total_elements):
                     # All `choosable_durations_beats` durations are positive
@@ -326,9 +326,8 @@ class I_DurationsChooser(Iterations):
                     chosen_duration_beats: Fraction = available_durations_beats[chosen_duration_index]
                     durations_beats.append(chosen_duration_beats)
                     remaining_duration_beats -= chosen_duration_beats
-                if durations_beats: return durations_beats
                 max_tries -= 1  # Avoids endless loop
-        return []   # No valid list found
+        return durations_beats
 
 
     def _single_iteration(self) -> 'oc.Clip':
