@@ -293,19 +293,28 @@ class I_DurationsChooser(Iterations):
 
 
     @staticmethod
-    def _set_durations(clip: 'oc.Clip', durations: list[Any]) -> Fraction:
+    def _get_positive_durations_position_offset(clip: 'oc.Clip', durations: list[Any]) -> tuple[list[Fraction], Fraction]:
         positive_durations: list[Fraction] = []
+        actual_duration: Fraction = Fraction(0)
+        new_duration: Fraction = Fraction(0)
         for element, duration in zip(clip._items, durations):
-            if duration > 0:
+            actual_duration += element._duration_beats
+            if duration > Fraction(0):
                 positive_durations.append(ra.Duration(clip, duration)._rational)
             else:
                 positive_durations.append(element._duration_beats)
+            new_duration += positive_durations[-1]
+        return positive_durations, new_duration - actual_duration
+
+
+    @staticmethod
+    def _set_positive_durations(clip: 'oc.Clip', positive_durations: list[Fraction]) -> 'oc.Clip':
         position_offset: Fraction = Fraction(0)
         for element, duration in zip(clip._items, positive_durations):
             element._position_beats += position_offset
             position_offset += duration - element._duration_beats
             element._duration_beats = duration
-        return position_offset
+        return clip
     
 
     def _single_iteration(self) -> 'oc.Clip':
