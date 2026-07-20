@@ -21,6 +21,11 @@ durations_chooser = I_DurationsChooser(no_repetitions=True)
 riffle >> durations_chooser >> Plot(block=False)
 
 durations_shuffler = I_DurationsShuffler(no_repetitions=True)
-riffle >> durations_shuffler >> Plot()
+riffle >> durations_shuffler >> Plot(block=False)
 
+def post_process(clip):
+    return clip << Steps(1)
+
+durations_post_processed = I_DurationsShuffler(post_process=post_process, no_repetitions=True)
+riffle >> durations_post_processed >> Plot(title="Post PRocessed")
 
