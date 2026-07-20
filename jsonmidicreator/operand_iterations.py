@@ -303,18 +303,13 @@ class I_DurationsChooser(Iterations):
 
 
     @staticmethod
-    def _get_positive_durations(clip: 'oc.Clip', durations: list[Any]) -> list[Fraction]:
+    def _set_durations(clip: 'oc.Clip', durations: list[Fraction]) -> 'oc.Clip':
         positive_durations: list[Fraction] = []
         for element, duration in zip(clip._items, durations):
             if duration > Fraction(0):
                 positive_durations.append(ra.Duration(clip, duration)._rational)
             else:
                 positive_durations.append(element._duration_beats)
-        return positive_durations
-
-
-    @staticmethod
-    def _set_positive_durations(clip: 'oc.Clip', positive_durations: list[Fraction]) -> 'oc.Clip':
         position_offset: Fraction = Fraction(0)
         for element, duration in zip(clip._items, positive_durations):
             element._position_beats += position_offset
