@@ -56,6 +56,31 @@ class Chaos(o.Operand):
             self << single_parameter
 
 
+    def monte_carlo_uniformity_test(self, total_points: int = 10_000, total_squares: int = 16) -> float:
+        """
+        Evaluates the spatial uniformity of the chaotic system using a Chi-Square test.
+        
+        This method tracks how evenly the generated chaotic sequence populates the 
+        segmented state space (bins/squares) compared to a perfectly uniform distribution.
+        
+        Evaluation Metric:
+        - THE SMALLER THE RETURNED VALUE, THE BETTER.
+        - A score close to 0.0 indicates a highly optimal, uniform distribution.
+        - Large scores imply structural clustering, periodic orbits, or narrow attractors.
+        
+        Optimization Goal: Maximize uniformity by finding parameters that minimize this output.
+        """
+        row_bin: list[int] = [0] * total_squares
+        for _ in range(total_points):
+            bin_index: int = int(self % Fraction() % total_squares) # For positive numbers, `int` is equivalent to `floor`
+            row_bin[bin_index] += 1
+        average_pints_E: float = total_points / total_squares
+        chi_square: float = 0.0
+        for bin_frequency in row_bin:
+            chi_square += (bin_frequency - average_pints_E)**2 / average_pints_E
+        return chi_square
+
+
     def _get_tailed_operand(self) -> o.Operand | None:
         if isinstance(self._next_operand, Chaos):
             return self._next_operand._get_tailed_operand()
