@@ -74,10 +74,10 @@ class Chaos(o.Operand):
         for _ in range(total_points):
             bin_index: int = self % int() % total_bins
             row_bin[bin_index] += 1
-        average_pints_E: float = total_points / total_bins
+        average_points_E: float = total_points / total_bins
         chi_square: float = 0.0
         for bin_frequency in row_bin:
-            chi_square += (bin_frequency - average_pints_E)**2 / average_pints_E
+            chi_square += (bin_frequency - average_points_E)**2 / average_points_E
         return chi_square
 
 
