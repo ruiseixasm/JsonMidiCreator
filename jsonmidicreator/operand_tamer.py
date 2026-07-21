@@ -938,7 +938,7 @@ class Manipulator(Tamer):
             case od.Parameter():
                 self._parameter = o.Operand.deep_copy(operand._data)
             case Fraction() | float() | int():
-                self._parameter = operand
+                self._parameter = ra.Numeral(operand)._rational
             case _:
                 super().__lshift__(operand)
         return self
