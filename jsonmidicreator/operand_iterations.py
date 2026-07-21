@@ -282,7 +282,43 @@ class I_DurationsSplitter(Iterations):
         return self._seed.empty_copy()   # Tags as invalid
 
 
-class I_DurationsChooser(Iterations):
+
+class I_DurationsShuffler(Iterations):
+
+    def _get_available_durations_beats(self) -> list[Fraction]:
+        choosable_durations_beats: list[Fraction] = []
+        for single_element in self._seed.unmasked_items():
+            choosable_durations_beats.append(single_element._duration_beats)
+        return choosable_durations_beats
+    
+    def _get_durations_beats(self) -> list[Fraction]:
+        durations_beats: list[Fraction] = []
+        pickable_durations_beats: list[Fraction] = self._get_available_durations_beats()
+        while pickable_durations_beats:
+            pick_index: int = self._chaos % int() % len(pickable_durations_beats)
+            durations_beats.append(
+                pickable_durations_beats.pop(pick_index)
+            )
+        return durations_beats
+
+    def _single_iteration(self) -> 'oc.Clip':
+        new_durations_beats: list[Fraction] = self._get_durations_beats()
+        if new_durations_beats:
+            new_clip = self._seed.copy()
+            position_offset: Fraction = Fraction(0)
+            durations_index: int = 0
+            for single_element in new_clip._items:
+                single_element._position_beats += position_offset
+                if not single_element._masked:
+                    duration_beats: Fraction = new_durations_beats[durations_index]
+                    position_offset += duration_beats - single_element._duration_beats
+                    single_element._duration_beats = duration_beats
+                    durations_index += 1
+            return new_clip
+        return self._seed.empty_copy()   # Tags as invalid
+
+
+class I_DurationsChooser(I_DurationsShuffler):
     def __init__(self, durations: list[Any] = [1/4, 1/8, 1/16],
                  chaos: ch.Chaos = ch.SinX(340),
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
@@ -329,42 +365,6 @@ class I_DurationsChooser(Iterations):
                 max_tries -= 1  # Avoids endless loop
         return durations_beats
 
-
-    def _single_iteration(self) -> 'oc.Clip':
-        new_durations_beats: list[Fraction] = self._get_durations_beats()
-        if new_durations_beats:
-            new_clip = self._seed.copy()
-            position_offset: Fraction = Fraction(0)
-            durations_index: int = 0
-            for single_element in new_clip._items:
-                single_element._position_beats += position_offset
-                if not single_element._masked:
-                    duration_beats: Fraction = new_durations_beats[durations_index]
-                    position_offset += duration_beats - single_element._duration_beats
-                    single_element._duration_beats = duration_beats
-                    durations_index += 1
-            return new_clip
-        return self._seed.empty_copy()   # Tags as invalid
-
-
-class I_DurationsShuffler(I_DurationsChooser):
-
-    def _get_available_durations_beats(self) -> list[Fraction]:
-        choosable_durations_beats: list[Fraction] = []
-        for single_element in self._seed.unmasked_items():
-            choosable_durations_beats.append(single_element._duration_beats)
-        return choosable_durations_beats
-    
-    def _get_durations_beats(self) -> list[Fraction]:
-        if self._durations:
-            durations_beats: list[Fraction] = []
-            pickable_durations_beats: list[Fraction] = self._get_available_durations_beats()
-            while pickable_durations_beats:
-                pick_index: int = self._chaos % int() % len(pickable_durations_beats)
-                durations_beats.append(
-                    pickable_durations_beats.pop(pick_index)
-                )
-        return durations_beats
 
 
 class I_ParametersChooser(Iterations):
