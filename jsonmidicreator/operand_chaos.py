@@ -72,7 +72,7 @@ class Chaos(o.Operand):
         """
         row_bin: list[int] = [0] * total_bins
         for _ in range(total_points):
-            bin_index: int = int(self % Fraction() % total_bins) # For positive numbers, `int` is equivalent to `floor`
+            bin_index: int = self % int() % total_bins
             row_bin[bin_index] += 1
         average_pints_E: float = total_points / total_bins
         chi_square: float = 0.0
