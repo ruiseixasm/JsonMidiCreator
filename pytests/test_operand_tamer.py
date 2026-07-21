@@ -40,3 +40,19 @@ def test_range_int():
 
 # test_range_int()
 
+
+def test_probability():
+    free_chaos = SinX()
+    tamed_chaos = SinX(Probability(1/2))
+    free_values: list[Fraction] = []
+    tamed_values: list[Fraction] = []
+    for _ in range(10):
+        free_number: Fraction = free_chaos % Fraction() % Fraction(1)
+        free_integer: int = 1 if free_number < Fraction(1, 2) else 0
+        free_values.append(free_integer)
+        tamed_number: int = tamed_chaos % int()
+        tamed_values.append(tamed_number)
+    assert free_values == tamed_values
+
+# test_probability()
+
