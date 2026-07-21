@@ -15,6 +15,8 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 from jsonmidicreator import *
 
+ch.SinX(340).monte_carlo_uniformity_test() >> Print()
+
 riffle = Clip() << Line("n:1/8, :1/4, :1/16, :1/16, :1/2") >> Plot(block=False)
 
 durations_chooser = I_DurationsChooser(no_repetitions=True)

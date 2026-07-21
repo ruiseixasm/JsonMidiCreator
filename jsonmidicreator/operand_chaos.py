@@ -67,6 +67,12 @@ class Chaos(o.Operand):
         - THE SMALLER THE RETURNED VALUE, THE BETTER.
         - A score close to 0.0 indicates a highly optimal, uniform distribution.
         - Large scores imply structural clustering, periodic orbits, or narrow attractors.
+
+        General Interpretation Rule:
+        - GOOD / UNIFORM: chi_square < total_bins
+          (The cumulative deviation is lower than the number of boxes, indicating an even spread)
+        - BAD / CLUSTERED: chi_square >= total_bins
+          (The system is biased and points are clustering into specific areas)
         
         Optimization Goal: Maximize uniformity by finding parameters that minimize this output.
         """
