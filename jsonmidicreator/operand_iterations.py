@@ -53,18 +53,17 @@ class Iterations(o.Operand):
         super().__init__()
         
 
+    def set_seed(self, seed: 'oc.Clip') -> Self:
+        if isinstance(seed, oc.Clip):
+            self._seed = seed.copy()
+        return self
+    
     def __rrshift__(self, clip: 'oc.Clip') -> Self:
         return self.set_seed(clip)
-
 
     def reset(self) -> Self:
         self._iterations = []
         super().reset()
-        return self
-    
-    def set_seed(self, seed: 'oc.Clip') -> Self:
-        if isinstance(seed, oc.Clip):
-            self._seed = seed.copy()
         return self
     
     def n_function(self, iteration: int) -> 'oc.Clip':
@@ -84,12 +83,11 @@ class Iterations(o.Operand):
                 candidate = self._next_operand._single_iteration()
             if candidate.len() > 0: # Only non empty candidates can be considered as solutions
                 if not callable(self._pre_filter) or self._pre_filter(candidate, self._seed):
-                    iteration: oc.Clip = candidate
                     if callable(self._post_process):
-                        iteration = self._post_process(iteration)
-                    if not self._no_repetitions or not iteration in self._iterations:
-                        iteration._index = self._index
-                        self._iterations.append(iteration)
+                        candidate = self._post_process(candidate)
+                    if not self._no_repetitions or not candidate in self._iterations:
+                        candidate._index = self._index
+                        self._iterations.append(candidate)
                         return self
         empty_iteration: oc.Clip = self._seed.empty_copy()
         if callable(self._post_process):
@@ -327,7 +325,6 @@ class I_DurationsChooser(I_DurationsShuffler):
         super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
         self._durations: list[Any] = durations
 
-
     def _get_available_durations_beats(self) -> list[Fraction]:
         choosable_durations_beats: list[Fraction] = []
         for duration in self._durations:
@@ -336,7 +333,6 @@ class I_DurationsChooser(I_DurationsShuffler):
                 choosable_durations_beats.append(duration_beats)
         return choosable_durations_beats
     
-
     def _get_durations_beats(self) -> list[Fraction]:
         durations_beats: list[Fraction] = []
         if self._durations:
@@ -364,7 +360,6 @@ class I_DurationsChooser(I_DurationsShuffler):
                     remaining_duration_beats -= chosen_duration_beats
                 max_tries -= 1  # Avoids endless loop
         return durations_beats
-
 
 
 class I_ParametersChooser(Iterations):
