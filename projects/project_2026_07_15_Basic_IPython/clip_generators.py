@@ -25,7 +25,7 @@ def snares() -> Clip:
 # snares() >> Plot()
 
 
-def pattern_beats(beats_iterations: list[int] = [0, 0, 0, 0], probability: float = 0.9) -> Clip:
+def pattern_beats(beats_iterations: list[int] = [0, 0, 0, 0], probability: float = 0.5) -> Clip:
 
     pattern = Clip()
     for beat, iterations in enumerate(beats_iterations):
