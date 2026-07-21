@@ -1130,7 +1130,7 @@ class Probability(Manipulator):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._numeral: o.TypeNumeral = Fraction(1, 10)
+        self._parameter = Fraction(1, 10)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -1138,7 +1138,7 @@ class Probability(Manipulator):
         numeral, validated = super().tame(numeral, iterate)
         ratio_1: Fraction = ra.Result(numeral)._rational % 1    # in the interval [0, 1[
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
-        numeral = Fraction(1) if ratio_1 < self._numeral % 1 else Fraction(0)
+        numeral = Fraction(1) if ratio_1 < self._parameter % 1 else Fraction(0)
         return numeral, validated
 
 
