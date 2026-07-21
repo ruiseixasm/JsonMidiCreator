@@ -48,8 +48,8 @@ def test_probability():
     tamed_values: list[Fraction] = []
     for _ in range(10):
         free_number: Fraction = free_chaos % Fraction()
-        free_number %= 1
-        free_integer: int = 1 if free_number < Fraction(1, 2) else 0
+        free_number %= 100
+        free_integer: int = 1 if free_number < Fraction(1, 2) * 100 else 0
         free_values.append(free_integer)
         tamed_number: int = tamed_chaos % int()
         tamed_values.append(tamed_number)
