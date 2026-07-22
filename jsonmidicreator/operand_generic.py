@@ -3465,7 +3465,7 @@ class Plot(ReadOnly):
 
                     # Plot notes
                     for channel_0 in note_channels:
-                        channel_color = Composition._channel_colors[channel_0]
+                        channel_color = Plot._channel_colors[channel_0]
                         channel_plotlist = [
                             channel_note for channel_note in note_plotlist
                             if channel_note["channel"] == channel_0
@@ -3846,7 +3846,7 @@ class Plot(ReadOnly):
 
                 # Plot automations
                 for channel_0 in automation_channels:
-                    channel_color = Composition._channel_colors[channel_0]
+                    channel_color = Plot._channel_colors[channel_0]
                     channel_plotlist = [
                         channel_automation for channel_automation in automation_plotlist
                         if channel_automation["channel"] == channel_0
