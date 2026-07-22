@@ -349,7 +349,8 @@ class I_DurationsChooser(I_DurationsShuffler):
                     # All `choosable_durations_beats` durations are positive
                     available_durations_beats: list[Fraction] = [
                         duration_beats for duration_beats in choosable_durations_beats
-                        if duration_index < total_elements - 1 and duration_beats <= remaining_duration_beats or duration_beats == remaining_duration_beats
+                        if duration_index < total_elements - 1 and duration_beats < remaining_duration_beats
+                        or duration_index == total_elements - 1 and duration_beats == remaining_duration_beats
                     ]
                     if not available_durations_beats:
                         durations_beats = []    # Couldn't generate a durations list
