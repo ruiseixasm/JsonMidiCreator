@@ -1043,12 +1043,35 @@ class Duration(Measurement):
 
     Duration() represents the Note Value duration of a `Note`, a `Duration` typically comes as 1/4, 1/8 and 1/16.
 
-    Internally, `Duration` values are normalized to `Beats`. However, multiplication and division expect a scalar (float),
-    such as 0.5 or 2.0. The scalar modifies the duration proportionally as `NoteValue` instead of the internal `Beats`.
+    It is possible to use 'triplet' note value adding a T to the string version of it, like so:
+
+        +---------+------------+
+        | str()   | Note Value |
+        +---------+------------+
+        | "1"     | 1/1        |
+        | "1/2"   | 1/2        |
+        | "1/2T"  | 1/3        |
+        | "1/4"   | 1/4        |
+        | "1/4T"  | 1/6        |
+        | "1/8"   | 1/8        |
+        | "1/8T"  | 1/12       |
+        | "1/16"  | 1/16       |
+        | "1/16T" | 1/24       |
+        | "1/32"  | 1/32       |
+        | "1/32T" | 1/48       |
+        | "1/64"  | 1/64       |
+        | "1/64T" | 1/96       |
+        +---------+------------+
 
     Parameters
     ----------
     Fraction(0) : Duration as 1, 1/2, 1/4, 1/8, 1/16, 1/32.
+
+    Notes
+    ----------
+    Internally, `Duration` values are normalized to `Beats`. However, multiplication and division expect a scalar (float),
+    such as 0.5 or 2.0. The scalar modifies the duration proportionally as `NoteValue` instead of the internal `Beats`.
+
     """
     
     def _convert_to_beats(self, self_time: Fraction, other_time_signature: 'TimeSignature' = None) -> Fraction:
@@ -1077,24 +1100,8 @@ class Duration(Measurement):
         match operand:
             case int():
                 self << Steps(operand)
-            case float():
+            case float() | str():
                 self << NoteValue(operand)
-            case str():
-                time_division: str = operand.strip().upper()
-                match time_division:
-                    case "1/1" | "1":       super().__lshift__(1)
-                    case "1/2":             super().__lshift__(1/2)
-                    case "1/4":             super().__lshift__(1/4)
-                    case "1/6" | "1/4T":    super().__lshift__(1/6)
-                    case "1/8":             super().__lshift__(1/8)
-                    case "1/12" | "1/8T":   super().__lshift__(1/12)
-                    case "1/16":            super().__lshift__(1/16)
-                    case "1/24" | "1/16T":  super().__lshift__(1/24)
-                    case "1/32":            super().__lshift__(1/32)
-                    case "1/48" | "1/32T":  super().__lshift__(1/48)
-                    case "1/64":            super().__lshift__(1/64)
-                    case "1/96" | "1/64T":  super().__lshift__(1/96)
-                    case _:                 super().__lshift__(operand)
             case _:
                 super().__lshift__(operand)
         return self
@@ -1156,6 +1163,26 @@ class Quantization(Duration):
     """`Rational -> Convertible -> Measurement -> Duration -> Quantization`
 
     Quantization() represents the Step duration in NoteValue. The default is 1/16.
+
+    It is possible to use 'triplet' note value adding a T to the string version of it, like so:
+
+        +---------+------------+
+        | str()   | Note Value |
+        +---------+------------+
+        | "1"     | 1/1        |
+        | "1/2"   | 1/2        |
+        | "1/2T"  | 1/3        |
+        | "1/4"   | 1/4        |
+        | "1/4T"  | 1/6        |
+        | "1/8"   | 1/8        |
+        | "1/8T"  | 1/12       |
+        | "1/16"  | 1/16       |
+        | "1/16T" | 1/24       |
+        | "1/32"  | 1/32       |
+        | "1/32T" | 1/48       |
+        | "1/64"  | 1/64       |
+        | "1/64T" | 1/96       |
+        +---------+------------+
 
     Parameters
     ----------
@@ -1376,9 +1403,29 @@ class NoteValue(TimeValue):
 
     NoteValue() represents the Note Value duration of a `Note`, a `NoteValue` typically comes as 1/4, 1/8 and 1/16.
     
+    It is possible to use 'triplet' note value adding a T to the string version of it, like so:
+
+        +---------+------------+
+        | str()   | Note Value |
+        +---------+------------+
+        | "1"     | 1/1        |
+        | "1/2"   | 1/2        |
+        | "1/2T"  | 1/3        |
+        | "1/4"   | 1/4        |
+        | "1/4T"  | 1/6        |
+        | "1/8"   | 1/8        |
+        | "1/8T"  | 1/12       |
+        | "1/16"  | 1/16       |
+        | "1/16T" | 1/24       |
+        | "1/32"  | 1/32       |
+        | "1/32T" | 1/48       |
+        | "1/64"  | 1/64       |
+        | "1/64T" | 1/96       |
+        +---------+------------+
+
     Parameters
     ----------
-    float(1/4) : NoteValue as 1, 1/2, 1/4, 1/8, 1/16, 1/32.
+    float(1/4), str() : NoteValue as 1, 1/2, 1/4, 1/8, 1/16, 1/32.
     """
     def __init__(self, *parameters):
         super().__init__(1/4, *parameters)
@@ -1414,6 +1461,7 @@ class NoteValue(TimeValue):
                 match time_division:
                     case "1/1" | "1":       super().__lshift__(1)
                     case "1/2":             super().__lshift__(1/2)
+                    case "1/3" | "1/2T":    super().__lshift__(1/3)
                     case "1/4":             super().__lshift__(1/4)
                     case "1/6" | "1/4T":    super().__lshift__(1/6)
                     case "1/8":             super().__lshift__(1/8)
