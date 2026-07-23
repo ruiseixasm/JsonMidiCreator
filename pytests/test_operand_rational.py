@@ -145,9 +145,11 @@ def test_position_specific():
     position: Position = Position(1.5)  # 1.5 Measures
     # Same as a 3/8 time signature
     beats_per_measure: int = 3
-    steps_per_beat: int = 8
+    steps_per_beat: int = 32 / 8    # 4 Steps per Beat
     # Quantization of 1/32 (note value)
     steps_per_measure: int = steps_per_beat * beats_per_measure
+
+    print(f"steps_per_measure: {steps_per_measure}")    # 12 Steps per Measure
 
     print(position % Beats() % Pipe( Fraction() ))
     assert position % Beats() == 1.5 * beats_per_measure
