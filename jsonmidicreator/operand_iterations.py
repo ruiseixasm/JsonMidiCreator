@@ -280,6 +280,23 @@ class I_DurationsSplitter(Iterations):
         return self._seed.empty_copy()   # Tags as invalid
 
 
+class I_PositionsShuffler(Iterations):
+
+    def _single_iteration(self) -> 'oc.Clip':
+        original_loci: list[og.Locus] = [
+            locus for locus in self._seed.unmasked_items()
+        ]
+        shuffled_loci: list[og.Locus] = []
+        while original_loci:
+            pick_index: int = self._chaos % int() % len(original_loci)
+            shuffled_loci.append(
+                original_loci.pop(pick_index)
+            )
+        new_clip = self._seed.copy()
+        for single_element, locus in zip(new_clip.unmasked_items(), shuffled_loci):
+            single_element << locus
+        return new_clip
+
 
 class I_DurationsShuffler(Iterations):
 
