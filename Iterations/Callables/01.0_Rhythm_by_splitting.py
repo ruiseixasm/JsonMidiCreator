@@ -17,5 +17,5 @@ from jsonmidicreator import *
 
 four_notes = Note(1/1) * 4
 
-four_notes >> I_DurationsSplitter(4*6) >> Plot()
+four_notes >> I_SplitDuration(4*6) >> Plot()
 

@@ -23,5 +23,5 @@ real_motif = Clip(
 # real_motif >> Plot()
 
 
-key_signature_setter = I_ParameterSetter(KeySignature(), Counter(-7)**int(), global_setting=True)
+key_signature_setter = I_SetParameter(KeySignature(), Counter(-7)**int(), global_setting=True)
 key_motif = real_motif >> key_signature_setter >> Plot()

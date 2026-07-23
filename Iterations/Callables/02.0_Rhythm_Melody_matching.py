@@ -32,8 +32,8 @@ def post_process(clip) -> Composition:
 
 SinX(340).first_collision_index() >> Print()    # If -1 it means no collision (cycling results)
 
-octave_setter = I_ParameterSetter(Octave(), SinX(340, Interval([6, 8])))    # 8 is excluded
-semitone_setter = I_ParameterSetter(Semitone(), SinX(340, Interval([0, 12]))**SinX(), post_process=post_process, no_repetitions=True, max_tries=1000)
+octave_setter = I_SetParameter(Octave(), SinX(340, Interval([6, 8])))    # 8 is excluded
+semitone_setter = I_SetParameter(Semitone(), SinX(340, Interval([0, 12]))**SinX(), post_process=post_process, no_repetitions=True, max_tries=1000)
 motif_generator = octave_setter**semitone_setter
 indochine_motif >> motif_generator >> Plot()
 

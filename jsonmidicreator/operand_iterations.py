@@ -222,7 +222,7 @@ class Iterations(o.Operand):
         return None
     
 
-class I_Function(Iterations):
+class I_ApplyFunction(Iterations):
     def __init__(self, function: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  chaos: ch.Chaos = ch.SinX(340),
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
@@ -239,7 +239,7 @@ class I_Function(Iterations):
         return self._seed.empty_copy()  # No valid Composition made
 
 
-class I_DurationsSplitter(Iterations):
+class I_SplitDuration(Iterations):
     def __init__(self, durations: int = 8,
                  chaos: ch.Chaos = ch.SinX(340),
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
@@ -280,7 +280,7 @@ class I_DurationsSplitter(Iterations):
         return self._seed.empty_copy()   # Tags as invalid
 
 
-class I_LociShuffler(Iterations):
+class I_ShuffleLocus(Iterations):
 
     def _single_iteration(self) -> 'oc.Clip':
         original_loci: list[og.Locus] = [
@@ -298,7 +298,7 @@ class I_LociShuffler(Iterations):
         return new_clip.sort()
 
 
-class I_DurationsShuffler(Iterations):
+class I_ShuffleDuration(Iterations):
 
     def _get_available_durations_beats(self) -> list[Fraction]:
         choosable_durations_beats: list[Fraction] = []
@@ -333,7 +333,7 @@ class I_DurationsShuffler(Iterations):
         return self._seed.empty_copy()   # Tags as invalid
 
 
-class I_DurationsChooser(I_DurationsShuffler):
+class I_ChooseDuration(I_ShuffleDuration):
     def __init__(self, durations: list[Any] = [1/4, 1/8, 1/16],
                  chaos: ch.Chaos = ch.SinX(340),
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
@@ -380,7 +380,7 @@ class I_DurationsChooser(I_DurationsShuffler):
         return durations_beats
 
 
-class I_ParametersChooser(Iterations):
+class I_ChooseParameter(Iterations):
     def __init__(self, parameters: list[Any] = ["1", "3", "5"],
                  chaos: ch.Chaos = ch.SinX(340),
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
@@ -401,7 +401,7 @@ class I_ParametersChooser(Iterations):
         return seed_copy._sort_items()
 
 
-class I_ParameterShuffler(Iterations):
+class I_ShuffleParameter(Iterations):
     def __init__(self, parameter: Any = ou.Degree(),
                  chaos: ch.Chaos = ch.SinX(340, ot.Increase(1)**ot.Modulo(7)),
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
@@ -426,7 +426,7 @@ class I_ParameterShuffler(Iterations):
         return seed_copy._sort_items()   # The Clip is already decoupled
 
 
-class I_ParameterSetter(Iterations):
+class I_SetParameter(Iterations):
     def __init__(self, parameter: o.Operand = ou.Degree(),
                  chaos: ch.Chaos = ch.SinX(340, ot.Increase(1)**ot.Modulo(7)),
                  global_setting: bool = False,
@@ -452,7 +452,7 @@ class I_ParameterSetter(Iterations):
         return seed_copy._sort_items()   # The Clip is already decoupled
 
 
-class I_DurationSwapper(Iterations):
+class I_SwapDuration(Iterations):
     def _single_iteration(self) -> 'oc.Clip':
         seed_copy: oc.Clip = self._seed.copy()
         clip_elements: list[oe.Element] = seed_copy.unmasked_items()

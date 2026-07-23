@@ -44,7 +44,7 @@ four_notes = Clip(
     Line(":2:C#7, :6:E7, :2:F#6, :6:F6")
 ) << Select(Nth(3)) << Name("Four Notes")
 
-notes_setting = I_ParameterSetter(Semitone(), Cycle())
+notes_setting = I_SetParameter(Semitone(), Cycle())
 # last_measure = four_notes \
 #     >> Plot(n_button=notes_setting.new_iteration, iterations=2) << Select(Nth(4)) >> Plot(n_button=notes_setting.new_iteration, iterations=5) \
 #     << Unmask()

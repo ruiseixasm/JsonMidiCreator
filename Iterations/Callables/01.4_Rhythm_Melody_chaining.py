@@ -29,8 +29,8 @@ def post_process(clip) -> Clip:
     return clip
 
 
-notes_splitter = I_DurationsSplitter(6, chaos=SinX(540), pre_filter=pre_filter, max_tries=1000)
-degrees_chooser = I_ParametersChooser(["1", "2", "3", "4", "5", "6", "7"], post_process=post_process, no_repetitions=True)
+notes_splitter = I_SplitDuration(6, chaos=SinX(540), pre_filter=pre_filter, max_tries=1000)
+degrees_chooser = I_ChooseParameter(["1", "2", "3", "4", "5", "6", "7"], post_process=post_process, no_repetitions=True)
 degrees_splitter = notes_splitter**degrees_chooser
 
 rhythm_motif = measure_note >> degrees_splitter >> Plot(title="Rhythm Melody")

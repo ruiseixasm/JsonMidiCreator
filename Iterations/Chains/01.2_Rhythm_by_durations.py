@@ -19,18 +19,18 @@ ch.SinX(340).monte_carlo_uniformity_test() >> Print()
 
 riffle = Clip() << Line("n:1/8, :1/4, :1/16, :1/16, :1/2") >> Plot(block=False)
 
-durations_chooser = I_DurationsChooser(no_repetitions=True)
+durations_chooser = I_ChooseDuration(no_repetitions=True)
 riffle >> durations_chooser >> Plot(block=False)
 
-masked_chooser = I_DurationsChooser(no_repetitions=True)
+masked_chooser = I_ChooseDuration(no_repetitions=True)
 riffle << Select(Nth(2, 4)) >> masked_chooser >> Plot(block=False, title="Masked riffle")
 
-durations_shuffler = I_DurationsShuffler(no_repetitions=True)
+durations_shuffler = I_ShuffleDuration(no_repetitions=True)
 riffle << Unmask() >> durations_shuffler >> Plot(block=False)
 
 def post_process(clip):
     return clip << Steps(1)
 
-durations_post_processed = I_DurationsShuffler(post_process=post_process, no_repetitions=True)
+durations_post_processed = I_ShuffleDuration(post_process=post_process, no_repetitions=True)
 riffle >> durations_post_processed >> Plot(title="Post Processed")
 

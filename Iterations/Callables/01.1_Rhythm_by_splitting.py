@@ -22,6 +22,6 @@ def pre_filter(candidate: Clip, seed: Clip) -> bool:
         return False
     return True
 
-notes_splitter = I_DurationsSplitter(2*6, pre_filter=pre_filter)
+notes_splitter = I_SplitDuration(2*6, pre_filter=pre_filter)
 four_notes >> notes_splitter >> Plot()
 

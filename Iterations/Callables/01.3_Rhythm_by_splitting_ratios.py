@@ -30,7 +30,7 @@ def post_process(clip) -> Clip:
     return clip
     
 
-notes_splitter = I_DurationsSplitter(6, chaos=SinX(540), pre_filter=pre_filter, post_process=post_process, max_tries=1000, no_repetitions=True)
+notes_splitter = I_SplitDuration(6, chaos=SinX(540), pre_filter=pre_filter, post_process=post_process, max_tries=1000, no_repetitions=True)
 rhythm_motif = measure_note >> notes_splitter >> Plot(title="Rhythm")
 rhythm_motif *= [0] # Just the first Measure
 
