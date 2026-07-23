@@ -75,17 +75,17 @@ class Vector(Metrics):
             keys.add(v_key)
         return keys
 
-    def distance(self, key: str = "") -> int:
+    def distance(self, keys: set = set()) -> int:
         distance_int = 0
         for v_key, v_value in self._vectordict.items():
-            if key == "" or v_key == key:
+            if len(keys) == 0 or v_key in keys:
                 distance_int += abs(v_value)
         return distance_int
     
-    def variations(self, key: str = "") -> int:
+    def variations(self, keys: set = set()) -> int:
         variation_int = 0
         for v_key, v_value in self._vectordict.items():
-            if key == "" or v_key == key:
+            if len(keys) == 0 or v_key in keys:
                 if v_value != 0: variation_int += 1
         return variation_int
 
@@ -103,9 +103,9 @@ class Vector(Metrics):
             case int():
                 return self.distance()
             case ou.Distance():
-                return operand << self.distance(operand._key)
+                return operand << self.distance(operand._keys)
             case ou.Variations():
-                return operand << self.variations(operand._key)
+                return operand << self.variations(operand._keys)
             case set():
                 return self.get_keys()
             case _:
@@ -185,16 +185,16 @@ class Vectors(Metrics):
             keys.update(vector.get_keys())
         return keys
 
-    def distance(self, key: str = "") -> int:
+    def distance(self, keys: set = set()) -> int:
         distance_int = 0
         for vector in self._vectors:
-            distance_int += vector.distance(key)
+            distance_int += vector.distance(keys)
         return distance_int
 
-    def variations(self, key: str = "") -> int:
+    def variations(self, keys: set = set()) -> int:
         variation_int = 0
         for vector in self._vectors:
-            variation_int += vector.variations(key)
+            variation_int += vector.variations(keys)
         return variation_int
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -210,9 +210,9 @@ class Vectors(Metrics):
             case int():
                 return self.distance()
             case ou.Distance():
-                return operand << self.distance(operand._key)
+                return operand << self.distance(operand._keys)
             case ou.Variations():
-                return operand << self.variations(operand._key)
+                return operand << self.variations(operand._keys)
             case set():
                 return self.get_keys()
             case _:
