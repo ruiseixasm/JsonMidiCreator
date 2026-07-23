@@ -1152,6 +1152,25 @@ class Duration(Measurement):
                 super().__itruediv__(operand)
         return self
 
+class Quantization(Duration):
+    """`Rational -> Convertible -> Measurement -> Duration -> Quantization`
+
+    Quantization() represents the Step duration in NoteValue. The default is 1/16.
+
+    Parameters
+    ----------
+    float(1/16) : The `Beat` ratio of each `Step`.
+    
+    Examples
+    --------
+    Gets the TimeSignature Steps per Measure:
+    >>> settings << Quantization(1/8)
+    >>> settings % Quantization() % Fraction() >> Print()
+    1/8
+    """
+    def __init__(self, *parameters):
+        super().__init__(1/16, *parameters)
+
 
 class TimeValue(Convertible):  # Works as Absolute Beats
     """`Rational -> Convertible -> TimeValue`
@@ -1285,32 +1304,6 @@ class Beats(TimeValue):
             case _:
                 super().__itruediv__(operand)
         return self
-
-class Quantization(Beats):
-    """`Rational -> Convertible -> Beats -> Quantization`
-
-    Quantization() represents the Step duration in Beats. The default is 1/4 Beat.
-
-    Parameters
-    ----------
-    float(1/4) : The `Beat` ratio of each `Step`.
-    
-    Examples
-    --------
-    Gets the TimeSignature Steps per Measure:
-    >>> settings << Quantization(1/8)
-    >>> settings % Quantization() % Fraction() >> Print()
-    1/8
-    """
-    def __init__(self, *parameters):
-        super().__init__(1/4, *parameters)
-
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case str():
-                return str(self._rational)
-            case _:
-                return super().__mod__(operand)
 
 
 class Steps(TimeValue):

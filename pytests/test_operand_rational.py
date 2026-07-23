@@ -574,3 +574,32 @@ def test_position_setting():
     assert position == Position(Beats(4))
     assert position == Position(Measures(1))
 
+
+def test_steps_beats():
+    steps_8 = Steps(8)
+    steps_beats = Beats(steps_8)
+    print(f"steps_beats: {steps_beats % float()}")
+    assert steps_beats % float() == 2 # 8 Steps are 2 Beats
+
+# test_steps_beats()
+
+
+def test_duration_beats():
+    duration_eight = Duration(1/8)
+    assert duration_eight % Fraction() == 1/2 # 1/8 are 1/2 Beats instead of 1/4 Beats
+    duration_beats = Beats(duration_eight)
+    print(f"steps_beats: {duration_beats % float()}")
+    assert duration_beats % float() == 1/2 # 1/8 are 1/2 Beats instead of 1/4 Beats
+
+# test_duration_beats()
+
+
+def test_quantization_beats():
+    quantization_eight = Quantization(1/8)
+    assert quantization_eight % Fraction() == 1/2 # 1/8 are 1/2 Beats instead of 1/4 Beats
+    quantization_beats = Beats(quantization_eight)
+    print(f"steps_beats: {quantization_beats % float()}")
+    assert quantization_beats % float() == 1/2 # 1/8 are 1/2 Beats instead of 1/4 Beats
+
+# test_quantization_beats()
+
