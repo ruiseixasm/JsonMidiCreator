@@ -1817,6 +1817,8 @@ class Step(TimeUnit):
         time_signature: TimeSignature = self._get_time_signature()
         beats_per_measure: int = time_signature._top
         steps_per_measure: int = int(beats_per_measure / beats_per_step)
+        if steps_per_measure == 0:
+            print("steps_per_measure is 0, Quantization must be wrong!")
         return self << self._rational % steps_per_measure
 
     # CHAINABLE OPERATIONS
