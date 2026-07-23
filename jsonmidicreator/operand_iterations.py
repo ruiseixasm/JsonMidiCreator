@@ -295,7 +295,7 @@ class I_PositionsShuffler(Iterations):
         new_clip = self._seed.copy()
         for single_element, locus in zip(new_clip.unmasked_items(), shuffled_loci):
             single_element << locus
-        return new_clip
+        return new_clip.sort()
 
 
 class I_DurationsShuffler(Iterations):
@@ -329,7 +329,7 @@ class I_DurationsShuffler(Iterations):
                     position_offset += duration_beats - single_element._duration_beats
                     single_element._duration_beats = duration_beats
                     durations_index += 1
-            return new_clip
+            return new_clip.sort()
         return self._seed.empty_copy()   # Tags as invalid
 
 
