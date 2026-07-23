@@ -280,7 +280,7 @@ class I_DurationsSplitter(Iterations):
         return self._seed.empty_copy()   # Tags as invalid
 
 
-class I_PositionsShuffler(Iterations):
+class I_LociShuffler(Iterations):
 
     def _single_iteration(self) -> 'oc.Clip':
         original_loci: list[og.Locus] = [
