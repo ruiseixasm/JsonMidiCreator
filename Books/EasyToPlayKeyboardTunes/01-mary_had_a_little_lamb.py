@@ -36,7 +36,7 @@ eight_measures >>= Match(Measure(1), Step(1))**Merge()
 eight_measures >>= Match(Measure(2), Step(1))**Merge()
 eight_measures >>= Match(Measure(3), Step(1))**Merge()
 eight_measures >>= Match(Measure(7))**Merge()
-settings << Quantization(1/4)   # 1/16 note again
+settings << Quantization(1/16)   # 1/16 note again
 
 eight_measures << Foreach(
         3, 2, 1, 2,   3, 3, 3,

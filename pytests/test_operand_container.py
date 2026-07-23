@@ -571,7 +571,7 @@ def test_mul_clip():
     assert two_notes * Step(3) % Net(Duration()) == Measures(2) + Beats(2)
     print(f"Duration_/: {two_notes / Step(3) % Net(Duration()) % Beats() % float()}")
     assert two_notes / Step(3) % Net(Duration()) == Beats(6)
-    settings << Quantization(1/4)   # 1/4 Beats again
+    settings << Quantization(1/16)   # 1/4 Beats again
 
     assert (two_notes * two_notes).len() == 4
     assert two_notes * two_notes % Net(Duration()) == Measures(1.5) # Measures
@@ -650,7 +650,7 @@ def test_mul_clip():
 
 def test_clip_composition():
 
-    settings << Quantization(1/4)   # 1/4 Beats again
+    settings << Quantization(1/16)   # 1/4 Beats again
 
     measure_bell: Clip = Note(DrumKit(34)) / 1 * 4
     print(f"Duration: {measure_bell % Net(Duration()) % float()}")
@@ -706,7 +706,7 @@ def test_clip_composition():
 
 def test_element_stacking():
 
-    settings << Quantization(1/4)   # 1/4 Beats again
+    settings << Quantization(1/16)   # 1/4 Beats again
 
     two_notes: Clip = Note() / 2
     assert two_notes[-1] == Beat(1)

@@ -27,7 +27,7 @@ settings << Folder("Books/EasyToPlayKeyboardTunes/")
 
 ProgramChange("Electric piano 2", Channel(1)) + ProgramChange("Contrabass", Channel(2)) >> Play()
 
-settings << Tempo(140) << TimeSignature(4, 4) << KeySignature('b') << Quantization(1/4)
+settings << Tempo(140) << TimeSignature(4, 4) << KeySignature('b') << Quantization(1/16)
 
 
 

@@ -585,7 +585,7 @@ def test_staff_output():
     assert steps_per_measure == 12.0
 
     # Quantization is in Beats ratio
-    settings << Quantization(1/4)  # Resets settings quantization
+    settings << Quantization(1/16)  # Resets settings quantization
 
     # Resets the defaults
     settings << None

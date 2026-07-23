@@ -33,6 +33,8 @@ import sys
 
 def test_rational_mod():
 
+    settings << None    # Reset settings
+
     # Perform the operation
     rational_1 = Rational(12)
     rational_2 = Rational(10)
@@ -138,7 +140,7 @@ def test_position_default():
 
 def test_position_specific():
 
-    settings << TimeSignature(3, 8) << Quantization(1/8)   # Quantization is in Beats ratio
+    settings << TimeSignature(3, 8) << Quantization(1/32)   # Quantization is in Beats ratio
 
     position: Position = Position(1.5)  # 1.5 Measures
     # Same as a 3/8 time signature
@@ -157,14 +159,14 @@ def test_position_specific():
     print(int(1.5 * steps_per_measure) % steps_per_measure)
     assert position % Step() == int(1.5 * steps_per_measure) % steps_per_measure
 
-    settings << TimeSignature(4, 4) << Quantization(1/4)   # Quantization is in Beats ratio
+    settings << None    # Reset settings
 
 # test_position_specific()
 
 
 def test_position_unit():
 
-    settings << TimeSignature(4, 4) << Quantization(1/4)   # Quantization is in Beats ratio
+    settings << None    # Reset settings
 
     position: Position = Position()
     assert position % Measure() == 0
@@ -444,7 +446,7 @@ def test_basic_conversions():
     print(f"NoteValue: {position % Duration() % Fraction()} vs. {(10 * (1/1) + 2 * (1/4)) * 4}")
     assert position % Duration() % Fraction() == (10 * (1/1) + 2 * (1/4)) * 4 # Because one note value is 4 beats !
 
-    quantization: Quantization = Quantization(1/4)  # Quantization is in Beats ratio
+    quantization: Quantization = Quantization(1/16) # Quantization is in Beats ratio
     assert quantization % Fraction() == 1/4         # Quantization is in Beats ratio
     duration: Duration = Duration()
     assert duration % Fraction() == 0
@@ -576,10 +578,13 @@ def test_position_setting():
 
 
 def test_steps_beats():
-    steps_8 = Steps(8)
-    steps_beats = Beats(steps_8)
+
+    settings << None    # Reset settings
+
+    steps_2 = Steps(2)
+    steps_beats = Beats(steps_2)
     print(f"steps_beats: {steps_beats % float()}")
-    assert steps_beats % float() == 2 # 8 Steps are 2 Beats
+    assert steps_beats % float() == 1/2 # 2 Steps are 1/2 Beats
 
 # test_steps_beats()
 

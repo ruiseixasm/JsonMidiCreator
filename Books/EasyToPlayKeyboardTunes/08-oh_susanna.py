@@ -28,7 +28,7 @@ settings << Folder("Books/EasyToPlayKeyboardTunes/")
 
 ProgramChange("Harmonica", Channel(1)) + ProgramChange("Accordion", Channel(2)) >> Play()
 
-settings << Tempo(140) << TimeSignature(4, 4) << KeySignature('#') << Quantization(1/4) 
+settings << Tempo(140) << TimeSignature(4, 4) << KeySignature('#') << Quantization(1/16) 
 
 
 
