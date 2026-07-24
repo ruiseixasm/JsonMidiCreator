@@ -69,6 +69,9 @@ class Vector(Metrics):
         self._vectordict: dict[str, int] = {}
         super().__init__(*parameters)
 
+    def len(self) -> int:
+        return len(self._vectordict)
+
     def get_keys(self) -> set:
         keys: set[str] = set()
         for v_key in self._vectordict.keys():
@@ -165,6 +168,10 @@ class Vector(Metrics):
                 vector3[v_key] = v_value1 - vector2[v_key]
         return Vector() << od.Pipe(vector3)
 
+    def reset(self, *parameters) -> Self:
+        self._vectordict = {}
+        return super().reset(*parameters)
+
 
 class Vectors(Metrics):
     """`Metrics -> Vectors`
@@ -178,6 +185,9 @@ class Vectors(Metrics):
     def __init__(self, *parameters):
         self._vectors: list[Vector] = []
         super().__init__(*parameters)
+
+    def len(self) -> int:
+        return len(self._vectors)
 
     def get_keys(self) -> set:
         keys: set[str] = set()
@@ -260,6 +270,16 @@ class Vectors(Metrics):
         vectors3: list[Vector] = []
         for vector1, vector2 in zip(vectors1, vectors2):
             vectors3.append(vector1 + vector2)
+        if self.len() > other.len():
+            for index in range(other.len(), self.len()):
+                exceeding_vector: Vector = self._vectors[index].copy()
+                exceeding_vector << {"mismatch": -1}
+                vectors3.append(exceeding_vector)
+        elif self.len() < other.len():
+            for index in range(self.len(), other.len()):
+                missing_vector: Vector = other._vectors[index].copy()
+                missing_vector << {"mismatch": +1}
+                vectors3.append(missing_vector)
         return Vectors() << od.Pipe(vectors3)
 
     def __sub__(self, other: 'Vectors') -> Self:
@@ -268,6 +288,20 @@ class Vectors(Metrics):
         vectors3: list[Vector] = []
         for vector1, vector2 in zip(vectors1, vectors2):
             vectors3.append(vector1 - vector2)
+        if self.len() > other.len():
+            for index in range(other.len(), self.len()):
+                exceeding_vector: Vector = self._vectors[index].copy()
+                exceeding_vector << {"mismatch": +1}
+                vectors3.append(exceeding_vector)
+        elif self.len() < other.len():
+            for index in range(self.len(), other.len()):
+                missing_vector: Vector = other._vectors[index].copy()
+                missing_vector << {"mismatch": -1}
+                vectors3.append(missing_vector)
         return Vectors() << od.Pipe(vectors3)
+
+    def reset(self, *parameters) -> Self:
+        self._vectors = []
+        return super().reset(*parameters)
 
 
