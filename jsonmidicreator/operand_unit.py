@@ -346,10 +346,22 @@ class Metric(Unit):
         return self
 
 
+class Total(Metric):
+    """`Unit -> Metric -> Total`
+
+    A `Total` is the sum of all single `Vector` or `Vectors` values.
+
+    Parameters
+    ----------
+    int(0) : The metric value.
+    set() : Any metric keys, no keys given means all keys by default.
+    """
+    pass
+
 class Distance(Metric):
     """`Unit -> Metric -> Distance`
 
-    A `Distance` is the sum of all single `Vector` or `Vectors` values.
+    A `Distance` is the sum of all single `Vector` or `Vectors` absolute values (abs).
 
     Parameters
     ----------
