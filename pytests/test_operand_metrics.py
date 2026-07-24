@@ -65,8 +65,10 @@ def test_new_key():
     added_vectors_3 = Vectors(four_notes) - Vectors(two_notes)
     assert added_vectors_3 % Distance({"new"}) == +2
     added_vectors_4 = Vectors(two_notes) - Vectors(four_notes)
-    print(f"added_vectors_4: {added_vectors_4 % Distance({"new"}) % int()}")
+    print(f"added_vectors_4 distance: {added_vectors_4 % Distance({"new"}) % int()}")
     assert added_vectors_4 % Distance({"new"}) == +2    # Distance is always positive
+    print(f"added_vectors_4 total: {added_vectors_4 % Total({"new"}) % int()}")
+    assert added_vectors_4 % Total({"new"}) == -2
 
-test_new_key()
+# test_new_key()
 

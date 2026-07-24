@@ -78,6 +78,13 @@ class Vector(Metrics):
             keys.add(v_key)
         return keys
 
+    def total(self, keys: set = set()) -> int:
+        total_int = 0
+        for v_key, v_value in self._vectordict.items():
+            if len(keys) == 0 or v_key in keys:
+                total_int += v_value
+        return total_int
+    
     def distance(self, keys: set = set()) -> int:
         distance_int = 0
         for v_key, v_value in self._vectordict.items():
@@ -105,6 +112,8 @@ class Vector(Metrics):
                 return self._vectordict.copy()
             case int():
                 return self.distance()
+            case ou.Total():
+                return operand << self.total(operand._keys)
             case ou.Distance():
                 return operand << self.distance(operand._keys)
             case ou.Variations():
@@ -195,6 +204,12 @@ class Vectors(Metrics):
             keys.update(vector.get_keys())
         return keys
 
+    def total(self, keys: set = set()) -> int:
+        distance_int = 0
+        for vector in self._vectors:
+            distance_int += vector.total(keys)
+        return distance_int
+
     def distance(self, keys: set = set()) -> int:
         distance_int = 0
         for vector in self._vectors:
@@ -219,6 +234,8 @@ class Vectors(Metrics):
                 return o.Operand.deep_copy(self._vectors)
             case int():
                 return self.distance()
+            case ou.Total():
+                return operand << self.total(operand._keys)
             case ou.Distance():
                 return operand << self.distance(operand._keys)
             case ou.Variations():
