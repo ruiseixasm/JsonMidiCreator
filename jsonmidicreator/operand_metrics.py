@@ -273,12 +273,12 @@ class Vectors(Metrics):
         if self.len() > other.len():
             for index in range(other.len(), self.len()):
                 exceeding_vector: Vector = self._vectors[index].copy()
-                exceeding_vector << {"len": -1}
+                exceeding_vector << {"extra": -1}
                 vectors3.append(exceeding_vector)
         elif self.len() < other.len():
             for index in range(self.len(), other.len()):
                 missing_vector: Vector = other._vectors[index].copy()
-                missing_vector << {"len": +1}
+                missing_vector << {"extra": +1}
                 vectors3.append(missing_vector)
         return Vectors() << od.Pipe(vectors3)
 
@@ -291,12 +291,12 @@ class Vectors(Metrics):
         if self.len() > other.len():
             for index in range(other.len(), self.len()):
                 exceeding_vector: Vector = self._vectors[index].copy()
-                exceeding_vector << {"len": +1}
+                exceeding_vector << {"extra": +1}
                 vectors3.append(exceeding_vector)
         elif self.len() < other.len():
             for index in range(self.len(), other.len()):
                 missing_vector: Vector = other._vectors[index].copy()
-                missing_vector << {"len": -1}
+                missing_vector << {"extra": -1}
                 vectors3.append(missing_vector)
         return Vectors() << od.Pipe(vectors3)
 
