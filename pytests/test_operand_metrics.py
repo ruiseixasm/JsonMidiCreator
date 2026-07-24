@@ -53,3 +53,20 @@ def test_vectors_keys():
 # test_vectors_keys()
 
 
+def test_new_key():
+    four_notes = Note() / 4
+    two_notes = Note() / 2
+    # Adding
+    added_vectors_1 = Vectors(four_notes) + Vectors(two_notes)
+    assert added_vectors_1 % Distance({"new"}) == 2
+    added_vectors_2 = Vectors(two_notes) + Vectors(four_notes)
+    assert added_vectors_2 % Distance({"new"}) == 2
+    # Subtracting
+    added_vectors_3 = Vectors(four_notes) - Vectors(two_notes)
+    assert added_vectors_3 % Distance({"new"}) == +2
+    added_vectors_4 = Vectors(two_notes) - Vectors(four_notes)
+    print(f"added_vectors_4: {added_vectors_4 % Distance({"new"}) % int()}")
+    assert added_vectors_4 % Distance({"new"}) == -2
+
+# test_new_key()
+
