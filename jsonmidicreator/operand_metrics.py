@@ -273,7 +273,7 @@ class Vectors(Metrics):
         if self.len() > other.len():
             for index in range(other.len(), self.len()):
                 exceeding_vector: Vector = self._vectors[index].copy()
-                exceeding_vector << {"new": -1}
+                exceeding_vector << {"new": +1}
                 vectors3.append(exceeding_vector)
         elif self.len() < other.len():
             for index in range(self.len(), other.len()):
