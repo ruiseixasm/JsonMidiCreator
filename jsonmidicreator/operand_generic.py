@@ -4511,7 +4511,10 @@ class Print(ReadOnly):
 
     def _direct_process(self, operand: o.T) -> o.T:
         import json
+        from . import operand_container as oc
         match operand:
+            case oc.Container():
+                self._direct_process(operand._items)
             case o.Operand():
                 if self._parameters:
                     serialized_json_str = json.dumps(operand.getSerialization())
@@ -4521,10 +4524,14 @@ class Print(ReadOnly):
                 else:
                     print(operand % str())
             case list():
-                for index, value in enumerate(operand):
-                    if isinstance(value, o.Operand):
-                        operand[index] %= str()
-                print(operand)
+                print_list = list()
+                for value in operand:
+                    match value:
+                        case o.Operand():
+                            print_list.append(value % str())
+                        case _:
+                            print_list.append(value)
+                print(print_list)
             case _:
                 print(operand)
         return operand
