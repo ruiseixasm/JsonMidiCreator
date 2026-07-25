@@ -48,7 +48,7 @@ if INSTRUMENT:
     ghost_notes << Channel(2) << Pitch()
 
 backbeats = hi_hat + snare + drum + ghost_notes
-backbeats * 8 >> Play()
+backbeats * 1 >> Play(verbose=True)
 
 print("Delay for 0.5 seconds")
 time.sleep(0.5)
@@ -60,7 +60,7 @@ if INSTRUMENT:
     anticipation << Channel(2) << Pitch()
 
 backbeats = hi_hat + snare + drum + ghost_notes + anticipation
-backbeats * 8 >> Play()
+backbeats * 1 >> Play(verbose=True)
 
 print("Delay for 0.5 seconds")
 time.sleep(0.5)
