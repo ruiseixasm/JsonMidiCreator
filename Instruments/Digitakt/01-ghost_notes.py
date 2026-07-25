@@ -28,7 +28,6 @@ INSTRUMENT = ["Digitakt", "Elektron"]
 if INSTRUMENT:
     settings << Device(INSTRUMENT)   # Elektron Digitakt
 
-rest_play = ( Rest(), Play())
 settings << Tempo(105)
 
 
