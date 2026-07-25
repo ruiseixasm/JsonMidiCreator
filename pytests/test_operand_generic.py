@@ -1543,6 +1543,11 @@ def test_effect_repeat():
 
 # test_effect_repeat()
 
+def test_settings_devices():
+    assert isinstance(settings % Devices(), Devices)
+
+# test_settings_track()
+
 
 def test_pitch_multi():
 

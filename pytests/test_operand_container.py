@@ -1482,6 +1482,14 @@ def test_note_effect():
 # test_note_effect()
 
 
+def test_clip_track():
+    new_track_clip = Clip()
+    assert isinstance(new_track_clip % Devices(), Devices)
+    assert new_track_clip % Devices() == settings % Devices()
+
+# test_clip_track()
+
+
 def test_clip_multi():
     pitch_bends = PitchBend() / 17
     assert pitch_bends.len() == 17
