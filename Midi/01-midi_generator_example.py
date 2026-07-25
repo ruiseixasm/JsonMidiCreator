@@ -23,7 +23,7 @@ def parse(file):
     print(str(c))
     for idx, track in enumerate(c):
         track.parse()
-        print(f'MidiTrack {idx}:')
+        print(f'Track {idx}:')
         print(str(track))
 
 

@@ -334,7 +334,7 @@ def test_operand_serialization():
 
 def test_dictionary_getter():
 
-    midi_track: MidiTrack = MidiTrack(3, "Drums")
+    midi_track: Track = Track(3, "Drums")
     serialization: dict = midi_track.getSerialization()
 
     parameters: dict = get_dict_key_data("parameters", serialization)

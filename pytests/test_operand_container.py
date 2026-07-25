@@ -531,7 +531,7 @@ def test_mul_clip():
     assert two_notes * 2 >> Stack() == four_notes
     assert two_notes != four_notes
 
-    two_notes << MidiTrack("Two Notes")
+    two_notes << Track("Two Notes")
     eight_notes: Clip = two_notes * 4
     print(f"Len: {eight_notes.len()}")
     assert eight_notes.len() == 8

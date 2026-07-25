@@ -26,13 +26,13 @@ from jsonmidicreator import *
 settings << Tempo(110)
 
 # Set the default single Clock for the entire Staff Duration
-single_clock = Clock(Length(6)) / 1 << MidiTrack(0, "Clock Track") >> Save("json/_Save_1.1_jsonMidiCreator.json")
-# single_clock = Clock(MidiTrack("Clock Track")) >> Save("json/_Save_1.1_jsonMidiCreator.json") >> Print()
+single_clock = Clock(Length(6)) / 1 << Track(0, "Clock Track") >> Save("json/_Save_1.1_jsonMidiCreator.json")
+# single_clock = Clock(Track("Clock Track")) >> Save("json/_Save_1.1_jsonMidiCreator.json") >> Print()
 
 # Multiple individual Notes creation and sequentially played, only in a Clip is an Element positioned
 first_note = Clip(Note()) << (Position() << Steps(3*4 + 2)) >> Save("json/_Save_1.1_first_note.json")
 multi_notes = Rest(NoteValue(1/16 * (3*4 + 2))) / ((first_note + Rest()) * 3 >> Stack()) \
-    << MidiTrack(1, "Piano") \
+    << Track(1, "Piano") \
     >> Play(0) \
     >> Save("json/_Save_1.2_sequence.json") \
     >> Export("json/_Export_1.1_sequence.json")
@@ -46,7 +46,7 @@ Triplet() << (NoteValue() << Duration(1/16)) >> Play() >> Save("json/_Save_1.3_n
 base_note = Note() << (NoteValue() << Dotted(1/64))
 # base_note >> Play()
 # Creation and configuration of a Track of notes
-first_sequence = (base_note / 8 << Duration(1/16) >> Stack() << MidiTrack(2, "Drums") << Channel(10)) >> Save("json/_Save_1.4__first_sequence.json")
+first_sequence = (base_note / 8 << Duration(1/16) >> Stack() << Track(2, "Drums") << Channel(10)) >> Save("json/_Save_1.4__first_sequence.json")
 # first_sequence >> Play()
 
 # Creation and configuration of second Sequencer

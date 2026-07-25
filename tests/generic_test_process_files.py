@@ -37,7 +37,7 @@ results_list        = []
 settings << Tempo(110)
 
 # Set the default single Clock for the entire Staff Duration
-single_clock = Clock(Length(6)) / 1 << MidiTrack(0, "Clock Track") >> Save("json/testing/_Save_1.1_jsonMidiCreator.json")
+single_clock = Clock(Length(6)) / 1 << Track(0, "Clock Track") >> Save("json/testing/_Save_1.1_jsonMidiCreator.json")
 
 # Multiple individual Notes creation and sequentially played
 original_save       = Load("json/testing/_Save_Play_p.1_first_note.json")
@@ -45,7 +45,7 @@ original_export     = Import("json/testing/_Export_Play_p.1_sequence.json")
 start_time = time.time()
 # Only a Clip takes into consideration the Element position, and thus, the '* 1'!
 first_note = Note(Step(3*4 + 2)) * 1 >> Save("json/testing/_Save_1.1_first_note.json")
-multi_notes = Rest(NoteValue(1/16 * (3*4 + 2))) / ((first_note + Rest()) * 3 >> Stack()) << MidiTrack(1, "Piano") >> og.LeftShift(result_save) >> og.LeftShift(result_export) \
+multi_notes = Rest(NoteValue(1/16 * (3*4 + 2))) / ((first_note + Rest()) * 3 >> Stack()) << Track(1, "Piano") >> og.LeftShift(result_save) >> og.LeftShift(result_export) \
     >> Save("json/testing/_Save_1.2_sequence.json") >> Export("json/testing/_Export_1.1_sequence.json") \
     >> Save("json/testing/_Save_Play_p.1_first_note_compare.json") >> Export("json/testing/_Export_Play_p.1_sequence_compare.json")
 results_list.append({
@@ -82,7 +82,7 @@ original_save       = Load("json/testing/_Save_Play_p.3.1_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.3.1_sequence.json")
 start_time = time.time()
 # Only a Clip takes into consideration the Element position, and thus, the '* 1'!
-Triplet(1/8) * 1 << MidiTrack(1, "Piano") >> og.LeftShift(result_save) >> og.LeftShift(result_export) >> Save("json/testing/_Save_1.3_note_triad.json") \
+Triplet(1/8) * 1 << Track(1, "Piano") >> og.LeftShift(result_save) >> og.LeftShift(result_export) >> Save("json/testing/_Save_1.3_note_triad.json") \
     >> Save("json/testing/_Save_Play_p.3.1_first_note_compare.json") >> Export("json/testing/_Export_Play_p.3.1_sequence_compare.json")
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
@@ -98,7 +98,7 @@ start_time = time.time()
 # Only a Clip takes into consideration the Element position, and thus, the '* 1'!
 base_note = Note(Dotted(1/64)) * 1
 # Creation and configuration of a Track of notes
-first_sequence = (base_note / 8 << Duration(1/16) >> Stack() << MidiTrack(2, "Drums") << Channel(10)) >> Save("json/testing/_Save_1.4__first_sequence.json")
+first_sequence = (base_note / 8 << Duration(1/16) >> Stack() << Track(2, "Drums") << Channel(10)) >> Save("json/testing/_Save_1.4__first_sequence.json")
 
 # Creation and configuration of second Sequencer
 second_sequence = first_sequence >> Copy()
@@ -184,7 +184,7 @@ results_list.append({
 
 # Global Staff setting up
 settings << Tempo(120)
-single_clock: Clip = Clock(Length(1)) / 1 << MidiTrack(0, "Clock Track")
+single_clock: Clip = Clock(Length(1)) / 1 << Track(0, "Clock Track")
 composition: Block = Block(single_clock)
 
 original_save       = Load("json/testing/_Save_Play_p.7.2_first_note.json")

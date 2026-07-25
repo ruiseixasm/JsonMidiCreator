@@ -1591,13 +1591,13 @@ class Clip(Composition):  # Just a container of Elements
     list([]) : A list of `Element` type items.
     int : Returns the len of the list.
     TimeSignature(settings) : A Time Signature on which `TimeValue` units are based and `Element` items placed.
-    MidiTrack("Track 1") : Where the track name and respective Devices are set.
+    Track("Track 1") : Where the track name and respective Devices are set.
     Auto(False) : Sets the Auto Stacking on or off.
     None, Length : Returns the length of all combined elements.
     """
     def __init__(self, *operands):
         super().__init__()
-        self._midi_track: ou.MidiTrack  = ou.MidiTrack()
+        self._midi_track: ou.Track  = ou.Track()
         self._auto: bool                = False
         self._items: list[oe.Element]   = []
         for single_operand in operands:
@@ -1765,13 +1765,13 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case ou.MidiTrack():
+                    case ou.Track():
                         return self._midi_track
                     case ou.Auto():
                         return operand._data << self._auto
                     case _:
                         return super().__mod__(operand)
-            case ou.MidiTrack():
+            case ou.Track():
                 return self._midi_track.copy()
             case ou.TrackNumber() | od.TrackName() | Devices() | str():
                 return self._midi_track % operand
@@ -1991,7 +1991,7 @@ class Clip(Composition):  # Just a container of Elements
 
             case od.Pipe():
                 match operand._data:
-                    case ou.MidiTrack():
+                    case ou.Track():
                         self._midi_track = operand._data
                     case ou.Auto():
                         self._auto = bool(operand._data._unit)
@@ -2024,7 +2024,7 @@ class Clip(Composition):  # Just a container of Elements
                 self._items = line_elements
                 self._set_owner_clip()._sort_items()
 
-            case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | Devices() | od.Device():
+            case ou.Track() | ou.TrackNumber() | od.TrackName() | Devices() | od.Device():
                 self._midi_track << operand
             case ou.Auto():
                 self._auto = bool(operand._unit)

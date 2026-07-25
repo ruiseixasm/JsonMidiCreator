@@ -1709,10 +1709,10 @@ class PPQN(Midi):
         super().__init__(24, *parameters)
 
 
-class MidiTrack(Midi):
-    """`Unit -> Midi -> MidiTrack`
+class Track(Midi):
+    """`Unit -> Midi -> Track`
 
-    A MidiTrack() is how arrangements are split in multiple compositions in Midi files.
+    A Track() is how arrangements are split in multiple compositions in Midi files.
     
     Parameters
     ----------
@@ -1784,7 +1784,7 @@ class MidiTrack(Midi):
         from . import operand_container as oc
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case MidiTrack():
+            case Track():
                 super().__lshift__(operand)
                 self._name      = operand._name
                 self._devices   = operand._devices.copy()
