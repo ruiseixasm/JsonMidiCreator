@@ -70,5 +70,5 @@ anticipation += Steps(1/2)
 anticipation << Duration(0.40 * 1/32)
 
 backbeats = hi_hat + snare + drum + ghost_notes + anticipation
-backbeats * 8 >> Play()
+backbeats * 1 >> Play(verbose=True)
 
