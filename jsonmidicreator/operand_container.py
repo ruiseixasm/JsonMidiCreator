@@ -334,6 +334,8 @@ class Container(o.Operand):
         match other:
             case Container():
                 return self._items == other._items
+            case list():
+                return self._items == other
             case od.Conditional():
                 return other == self
             case of.Frame():

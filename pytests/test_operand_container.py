@@ -1486,6 +1486,13 @@ def test_clip_track():
     new_track_clip = Clip()
     assert isinstance(new_track_clip % Devices(), Devices)
     assert new_track_clip % Devices() == settings % Devices()
+    new_track_clip << Devices(["loop", "Digitakt"])
+    print(f"new_track_clip Devices: {new_track_clip % Devices() % list()}")
+    assert new_track_clip % Devices() != settings % Devices()
+    assert new_track_clip % Devices() == ["loop", "Digitakt"]
+    new_track_clip << Device("Digitakt")
+    assert new_track_clip % Devices() != settings % Devices()
+    assert new_track_clip % Devices() == ["loop", "Digitakt"]
 
 # test_clip_track()
 
