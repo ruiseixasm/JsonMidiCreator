@@ -1,5 +1,6 @@
 from jsonmidicreator import *
 
+# Actual firmware version Digitakt: 1.52
 settings << Devices(["loop", "Digitakt"]) << ClockedDevices(["loop", "Digitakt"])
 
 
