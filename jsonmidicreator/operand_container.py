@@ -1597,7 +1597,7 @@ class Clip(Composition):  # Just a container of Elements
     """
     def __init__(self, *operands):
         super().__init__()
-        self._midi_track: ou.Track  = ou.Track()
+        self._track: ou.Track           = ou.Track()
         self._auto: bool                = False
         self._items: list[oe.Element]   = []
         for single_operand in operands:
@@ -1766,15 +1766,15 @@ class Clip(Composition):  # Just a container of Elements
             case od.Pipe():
                 match operand._data:
                     case ou.Track():
-                        return self._midi_track
+                        return self._track
                     case ou.Auto():
                         return operand._data << self._auto
                     case _:
                         return super().__mod__(operand)
             case ou.Track():
-                return self._midi_track.copy()
+                return self._track.copy()
             case ou.TrackNumber() | od.TrackName() | Devices() | str():
-                return self._midi_track % operand
+                return self._track % operand
             case ou.Auto():
                 return ou.Auto(self._auto)
             case Block():
@@ -1877,7 +1877,7 @@ class Clip(Composition):  # Just a container of Elements
             single_playlist
                 for single_element in self._items
                     for single_playlist in single_element.getPlotlist(
-                        self._midi_track, position_beats, channels
+                        self._track, position_beats, channels
                     )
         )
         # sorted(set) returns the sorted list from set
@@ -1906,7 +1906,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         self_playlist: list[dict] = [
             {
-                "devices": self._midi_track._devices
+                "devices": self._track._devices
             }
         ]
         if not isinstance(position_beats, Fraction):
@@ -1915,7 +1915,7 @@ class Clip(Composition):  # Just a container of Elements
         component_elements = self.get_component_elements()
         for single_element in component_elements:
             self_playlist.extend(
-                single_element.getPlaylist(self._midi_track, position_beats, False)
+                single_element.getPlaylist(self._track, position_beats, False)
             )
         return self_playlist
 
@@ -1937,7 +1937,7 @@ class Clip(Composition):  # Just a container of Elements
         component_elements = self.get_component_elements()
         for single_element in component_elements:
             self_midilist.extend(
-                single_element.getMidilist(self._midi_track, position_beats)
+                single_element.getMidilist(self._track, position_beats)
             )
         return self_midilist
 
@@ -1954,7 +1954,7 @@ class Clip(Composition):  # Just a container of Elements
         serialization = super().getSerialization()
 
         serialization["parameters"]["time_signature"]   = self.serialize(self._time_signature)
-        serialization["parameters"]["midi_track"]       = self.serialize(self._midi_track)
+        serialization["parameters"]["track"]            = self.serialize(self._track)
         serialization["parameters"]["auto"]             = self._auto
         return serialization
 
@@ -1971,11 +1971,11 @@ class Clip(Composition):  # Just a container of Elements
             Clip: The self Clip object with the respective set parameters.
         """
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "time_signature" in serialization["parameters"] and "midi_track" in serialization["parameters"] and "auto" in serialization["parameters"]):
+            "time_signature" in serialization["parameters"] and "track" in serialization["parameters"] and "auto" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._time_signature    << self.deserialize(serialization["parameters"]["time_signature"])
-            self._midi_track        << self.deserialize(serialization["parameters"]["midi_track"])
+            self._track             << self.deserialize(serialization["parameters"]["track"])
             self._auto              = serialization["parameters"]["auto"]
             self._set_owner_clip()
         return self
@@ -1985,14 +1985,14 @@ class Clip(Composition):  # Just a container of Elements
             case Clip():
                 super().__lshift__(operand)
                 self._time_signature    << operand._time_signature
-                self._midi_track        << operand._midi_track
+                self._track             << operand._track
                 self._auto              = operand._auto
                 self._set_owner_clip()
 
             case od.Pipe():
                 match operand._data:
                     case ou.Track():
-                        self._midi_track = operand._data
+                        self._track = operand._data
                     case ou.Auto():
                         self._auto = bool(operand._data._unit)
 
@@ -2025,7 +2025,7 @@ class Clip(Composition):  # Just a container of Elements
                 self._set_owner_clip()._sort_items()
 
             case ou.Track() | ou.TrackNumber() | od.TrackName() | Devices() | od.Device():
-                self._midi_track << operand
+                self._track << operand
             case ou.Auto():
                 self._auto = bool(operand._unit)
                 
@@ -2399,7 +2399,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         new_clip: Clip              = super().empty_copy()
         new_clip._time_signature    << self._time_signature
-        new_clip._midi_track        << self._midi_track
+        new_clip._track        << self._track
         new_clip._auto              = self._auto
         return new_clip << parameters
 
@@ -2418,7 +2418,7 @@ class Clip(Composition):  # Just a container of Elements
         new_clip: Clip              = super().shallow_copy()
         # It's a shallow copy, so it shares the same TimeSignature and midi track
         new_clip._time_signature    << self._time_signature   
-        new_clip._midi_track        << self._midi_track
+        new_clip._track        << self._track
         new_clip._auto              = self._auto
         return new_clip << parameters
 
@@ -3754,7 +3754,7 @@ class Block(Composition):
                 all_names: list[str] = []
                 for single_item in self._items:
                     if isinstance(single_item, Clip):
-                        all_names.append(single_item._midi_track._name)
+                        all_names.append(single_item._track._name)
                     else:
                         all_names.append(single_item._track_name)
                 return od.Names(*tuple(all_names))
