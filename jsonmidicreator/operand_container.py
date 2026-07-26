@@ -3820,11 +3820,8 @@ class Block(Composition):
                 return self._name
             case od.Names():
                 all_names: list[str] = []
-                for single_item in self._items:
-                    if isinstance(single_item, Clip):
-                        all_names.append(single_item._track._name)
-                    else:
-                        all_names.append(single_item._track_name)
+                for single_clip in self._items:
+                    all_names.append(single_clip._name)
                 return od.Names(*tuple(all_names))
             case Part():
                 return Part(self)
