@@ -37,7 +37,7 @@ results_list        = []
 settings << Tempo(110)
 
 # Set the default single Clock for the entire Staff Duration
-single_clock = Clock(Length(6)) / 1 << Track(0, "Clock Track") >> Save("json/testing/_Save_1.1_jsonMidiCreator.json")
+single_clock = Clock(Length(6)) / 1 << Name("Clock Track") >> Save("json/testing/_Save_1.1_jsonMidiCreator.json")
 
 # Multiple individual Notes creation and sequentially played
 original_save       = Load("json/testing/_Save_Play_p.1_first_note.json")
@@ -184,7 +184,7 @@ results_list.append({
 
 # Global Staff setting up
 settings << Tempo(120)
-single_clock: Clip = Clock(Length(1)) / 1 << Track(0, "Clock Track")
+single_clock: Clip = Clock(Length(1)) / 1 << Name("Clock Track")
 composition: Block = Block(single_clock)
 
 original_save       = Load("json/testing/_Save_Play_p.7.2_first_note.json")

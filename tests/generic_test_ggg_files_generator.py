@@ -27,7 +27,7 @@ from jsonmidicreator import *
 settings << Tempo(110)
 
 # Set the default single Clock for the entire Staff Duration
-single_clock = Clock(Length(6)) / 1 << Track(0, "Clock Track") >> Save("json/testing/_Save_1.1_jsonMidiCreator.json")
+single_clock = Clock(Length(6)) / 1 << Name("Clock Track") >> Save("json/testing/_Save_1.1_jsonMidiCreator.json")
 
 # Multiple individual Notes creation and sequentially played
 # Only a Clip takes into consideration the Element position, and thus, the '* 1'!
@@ -88,7 +88,7 @@ load / 4 >> Save ("json/testing/_Save_2.2_sequence_notes.json") >> Save("json/te
 
 # Global Staff setting up
 settings << Tempo(120)
-single_clock = Clock(Length(1)) / 1 << Track(0, "Clock Track")
+single_clock = Clock(Length(1)) / 1 << Name("Clock Track")
 composition: Block = Block(single_clock)
 
 single_note = Note() << (NoteValue() << Measures(2)) >> Save("json/testing/_Save_Play_p.7.2_first_note.json") >> Export("json/testing/_Export_Play_p.7.2_sequence.json")
