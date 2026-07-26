@@ -476,18 +476,49 @@ class I_SetParameter(Iterations):
         return seed_copy._sort_items()   # The Clip is already decoupled
 
 
-class I_AddElement(Iterations):
+class I_AddElements(Iterations):
     
     def _single_iteration(self) -> 'oc.Clip':
         seed_copy: oc.Clip = self._seed.copy()
+        steps_length: int = seed_copy % ra.Length() % ra.Step() % int()
+        stepped_elements: list[oe.Element] = [None] * steps_length
+        free_steps: list[bool] = [True] * steps_length
+        for single_element in seed_copy._items:
+            element_step: int = single_element % ra.Step() % int()
+            stepped_elements[element_step] = single_element
+            free_steps[element_step] = False
+        previous_element: oe.Element | None = None
+        for step in range(steps_length):
+            if stepped_elements[step] is not None:
+                previous_element = stepped_elements[step]
+            elif previous_element is not None:
+                stepped_elements[step] = previous_element
+            else:
+                stepped_elements[step] = seed_copy._items[-1]
+                previous_element = seed_copy._items[-1]
+        for step, step_free in enumerate(free_steps):
+            if step_free:
+                chaotic_rational: Fraction = self._trigger_steps % Fraction() % 1
+                # `1 - chaotic_rational` in order to preserve result in chained Probabilities or alike, 1 remains 1 and 0 remains 0, no flipping
+                result = 1 if 1 - chaotic_rational < self._parameter else 0
+                if result == 1: # Add new element
+                    new_element: oe.Element = stepped_elements[step].copy(ra.Step(step))
+                    seed_copy += new_element
         return seed_copy._sort_items()   # The Clip is already decoupled
 
 
-class I_RemoveElement(Iterations):
+class I_RemoveElements(Iterations):
     
     def _single_iteration(self) -> 'oc.Clip':
-        seed_copy: oc.Clip = self._seed.copy()
-        
-        return seed_copy._sort_items()   # The Clip is already decoupled
+        seed_copy: oc.Clip = self._seed.empty_copy()
+        for single_element in self._seed._items:
+            if not single_element._masked:
+                chaotic_rational: Fraction = self._trigger_steps % Fraction() % 1
+                # `1 - chaotic_rational` in order to preserve result in chained Probabilities or alike, 1 remains 1 and 0 remains 0, no flipping
+                result = 1 if 1 - chaotic_rational < self._parameter else 0
+                if result == 1:
+                    continue    # Drops it, not added
+            seed_copy += single_element
+        return seed_copy    # If removed no change in sorting, thus, no need to sort
 
 

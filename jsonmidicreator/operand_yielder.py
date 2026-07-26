@@ -191,9 +191,9 @@ class Sequencer(Yielder):
                 case ch.Chaos():
                     finish_position_beats: Fraction = element._position_beats + self._length_beats
                     while element_copy._position_beats < finish_position_beats:
-                        chaotic_fraction: Fraction = self._trigger_steps % Fraction() % 1
-                        # `1 - chaotic_fraction` in order to preserve result in chained Probabilities or alike
-                        result = 1 if 1 - chaotic_fraction < self._parameter else 0
+                        chaotic_rational: Fraction = self._trigger_steps % Fraction() % 1
+                        # `1 - chaotic_rational` in order to preserve result in chained Probabilities or alike, 1 remains 1 and 0 remains 0, no flipping
+                        result = 1 if 1 - chaotic_rational < self._parameter else 0
                         if result == 1:
                             new_clip += element_copy
                         element_copy._position_beats += beats_per_step
