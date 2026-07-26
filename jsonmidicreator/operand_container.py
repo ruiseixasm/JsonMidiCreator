@@ -449,12 +449,6 @@ class Container(o.Operand):
             case _:
                 return super().__mod__(operand)
 
-    def getPlaylist(self, position_beats: Fraction | None = None) -> list[dict]:
-        return []
-
-    def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
-        return []
-
     def getSerialization(self) -> dict:
         """
         Returns the serialization in a form of a dictionary of `Container` parameters.
@@ -1470,6 +1464,12 @@ class Composition(Container):
         """
         return []
 
+    def getPlaylist(self, position_beats: Fraction | None = None) -> list[dict]:
+        return []
+
+    def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
+        return []
+
     def getSerialization(self) -> dict:
         """
         Returns the serialization in a form of a dictionary of `Clip` parameters.
@@ -1964,9 +1964,7 @@ class Clip(Composition):  # Just a container of Elements
         self_plotlist.extend(
             single_playlist
                 for single_element in self._items
-                    for single_playlist in single_element.getPlotlist(
-                        self._track_number, position_beats, channels
-                    )
+                    for single_playlist in single_element.getPlotlist(position_beats, channels)
         )
         # sorted(set) returns the sorted list from set
         # list_none = list(set).sort() doesn't return anything but None !
@@ -2003,7 +2001,7 @@ class Clip(Composition):  # Just a container of Elements
         component_elements = self.get_component_elements()
         for single_element in component_elements:
             self_playlist.extend(
-                single_element.getPlaylist(self._devices, position_beats, False)
+                single_element.getPlaylist(position_beats, False)
             )
         return self_playlist
 
@@ -2025,7 +2023,7 @@ class Clip(Composition):  # Just a container of Elements
         component_elements = self.get_component_elements()
         for single_element in component_elements:
             self_midilist.extend(
-                single_element.getMidilist(self._track_number, position_beats)
+                single_element.getMidilist(position_beats)
             )
         return self_midilist
 

@@ -85,7 +85,7 @@ class Element(o.Operand):
         self._duration_beats: Fraction      = Fraction(1)
         self._time_signature: og.TimeSignature  = og.settings._time_signature.copy()
 
-        self._owner_clip: oc.Clip           = None
+        self._owner_clip: oc.Clip | None    = None
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -321,8 +321,7 @@ class Element(o.Operand):
             "duration": self % ra.Steps() % int()
         }
 
-    def getPlotlist(self,
-            devices: list[str] | None = None, position_beats: Fraction | None = None,
+    def getPlotlist(self, position_beats: Fraction | None = None,
             channels: dict[str, set[int]] = None, derived_element: 'Element' = None) -> list[dict]:
         return []
 
@@ -1075,9 +1074,7 @@ class Subclip(Element):
         return self._subclip.get_component_elements()
 
 
-    def getPlotlist(self,
-            devices: list[str] | None = None, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None) -> list[dict]:
+    def getPlotlist(self, position_beats: Fraction | None = None, channels: dict[str, set[int]] = None) -> list[dict]:
         if not self._enabled: return []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -1267,9 +1264,7 @@ class Unison(Element):
             single_element << self_locus
         return self._elements
 
-    def getPlotlist(self,
-            devices: list[str] | None = None, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None) -> list[dict]:
+    def getPlotlist(self, position_beats: Fraction | None = None, channels: dict[str, set[int]] = None) -> list[dict]:
         self_playlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -2409,8 +2404,7 @@ class Note(ChannelElement):
 
 
     # CREATION VS REPRESENTATION
-    def getPlotlist(self,
-            devices: list[str] | None = None, position_beats: Fraction | None = None,
+    def getPlotlist(self, position_beats: Fraction | None = None,
             channels: dict[str, set[int]] = None, derived_note: 'Note' = None) -> list[dict]:
         
         self_plotlist: list[dict] = []
@@ -2482,14 +2476,12 @@ class Note(ChannelElement):
             if single_note.is_clipped(pitch_int):
                 continue    # Next note
 
-            if devices is None:
-                devices = og.settings._devices
-
             if devices_header:
+                devices: list[str] = og.defaults._devices
+                if self._owner_clip is not None:
+                    devices = self._owner_clip._devices
                 self_playlist.append(
-                    {
-                        "devices": devices
-                    }
+                    {"devices": devices}
                 )
 
             # Midi validation is done in the JsonMidiPlayer program
@@ -2662,9 +2654,7 @@ class Rhythm(Note):
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
-    def getPlotlist(self,
-            devices: list[str] | None = None, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None) -> list[dict]:
+    def getPlotlist(self, position_beats: Fraction | None = None, channels: dict[str, set[int]] = None) -> list[dict]:
         self_plotlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -3037,9 +3027,7 @@ class KeyScale(Note):
         return scale_notes
     
 
-    def getPlotlist(self,
-            devices: list[str] | None = None, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None) -> list[dict]:
+    def getPlotlist(self, position_beats: Fraction | None = None, channels: dict[str, set[int]] = None) -> list[dict]:
         self_plotlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -3609,9 +3597,7 @@ class Tuplet(Note):
             retrigger_notes = self._note_effect.apply(retrigger_notes)
         return retrigger_notes
 
-    def getPlotlist(self,
-            devices: list[str] | None = None, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None) -> list[dict]:
+    def getPlotlist(self, position_beats: Fraction | None = None, channels: dict[str, set[int]] = None) -> list[dict]:
         self_plotlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -3866,8 +3852,7 @@ class ControlChange(Automatable):
         vectordict["value"] = self._value
         return vectordict
 
-    def getPlotlist(self,
-            devices: list[str] | None = None, position_beats: Fraction | None = None,
+    def getPlotlist(self, position_beats: Fraction | None = None,
             channels: dict[str, set[int]] = None, derived_element: 'Element' = None) -> list[dict]:
         
         if self.is_clipped():
@@ -3912,18 +3897,16 @@ class ControlChange(Automatable):
         if self_position_min >= 0:
 
             time_ms: float = o.minutes_to_time_ms(self_position_min)
-            if devices is None:
-                devices = og.settings._devices
-
 
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist: list[dict] = []
             
             if devices_header:
+                devices: list[str] = og.defaults._devices
+                if self._owner_clip is not None:
+                    devices = self._owner_clip._devices
                 self_playlist.append(
-                    {
-                        "devices": devices
-                    }
+                    {"devices": devices}
                 )
 
             if self._controller._nrpn:
@@ -4533,8 +4516,7 @@ class Aftertouch(Automatable):
             case _:                 return super().__mod__(operand)
 
 
-    def getPlotlist(self,
-            devices: list[str] | None = None, position_beats: Fraction | None = None,
+    def getPlotlist(self, position_beats: Fraction | None = None,
             channels: dict[str, set[int]] = None, derived_element: 'Element' = None) -> list[dict]:
         
         if self.is_clipped():
@@ -4577,17 +4559,15 @@ class Aftertouch(Automatable):
 
         if self_position_min >= 0:
 
-            if devices is None:
-                devices = og.settings._devices
-
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist: list[dict] = []
             
             if devices_header:
+                devices: list[str] = og.defaults._devices
+                if self._owner_clip is not None:
+                    devices = self._owner_clip._devices
                 self_playlist.append(
-                    {
-                        "devices": devices
-                    }
+                    {"devices": devices}
                 )
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist.append(
@@ -4748,18 +4728,17 @@ class PolyAftertouch(Aftertouch):
 
         if self_position_min >= 0:
 
-            if devices is None:
-                devices = og.settings._devices
             pitch_int: int = self._pitch._get_chromatic_pitch()
 
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist: list[dict] = []
             
             if devices_header:
+                devices: list[str] = og.defaults._devices
+                if self._owner_clip is not None:
+                    devices = self._owner_clip._devices
                 self_playlist.append(
-                    {
-                        "devices": devices
-                    }
+                    {"devices": devices}
                 )
 
             # Midi validation is done in the JsonMidiPlayer program
@@ -4922,8 +4901,7 @@ class PitchBend(Automatable):
         vectordict["value"] = self._msb
         return vectordict
 
-    def getPlotlist(self,
-            devices: list[str] | None = None, position_beats: Fraction | None = None,
+    def getPlotlist(self, position_beats: Fraction | None = None,
             channels: dict[str, set[int]] = None, derived_element: 'Element' = None) -> list[dict]:
         
         if self.is_clipped():
@@ -4967,17 +4945,15 @@ class PitchBend(Automatable):
         
         if self_position_min >= 0:
 
-            if devices is None:
-                devices = og.settings._devices
-
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist: list[dict] = []
             
             if devices_header:
+                devices: list[str] = og.defaults._devices
+                if self._owner_clip is not None:
+                    devices = self._owner_clip._devices
                 self_playlist.append(
-                    {
-                        "devices": devices
-                    }
+                    {"devices": devices}
                 )
 
             self_playlist.append(
@@ -5293,9 +5269,7 @@ class Automation(Element):
             case _:                 return super().__mod__(operand)
 
 
-    def getPlotlist(self,
-            devices: list[str] | None = None, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None) -> list[dict]:
+    def getPlotlist(self, position_beats: Fraction | None = None, channels: dict[str, set[int]] = None) -> list[dict]:
         self_playlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -5489,17 +5463,15 @@ class ProgramChange(ChannelElement):
 
         if self_position_min >= 0:
 
-            if devices is None:
-                devices = og.settings._devices
-
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist: list[dict] = []
             
             if devices_header:
+                devices: list[str] = og.defaults._devices
+                if self._owner_clip is not None:
+                    devices = self._owner_clip._devices
                 self_playlist.append(
-                    {
-                        "devices": devices
-                    }
+                    {"devices": devices}
                 )
 
             if self._bank > 0:
@@ -5624,17 +5596,15 @@ class Panic(DeviceElement):
         elif position_beats < 0:
             return []
         
-        if devices is None:
-            devices = og.settings._devices
-
         # Midi validation is done in the JsonMidiPlayer program
         self_playlist: list[dict] = []
         
         if devices_header:
+            devices: list[str] = og.defaults._devices
+            if self._owner_clip is not None:
+                devices = self._owner_clip._devices
             self_playlist.append(
-                {
-                    "devices": devices
-                }
+                {"devices": devices}
             )
 
         # Cycles all channels, from 1 to 16
