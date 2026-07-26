@@ -1436,8 +1436,6 @@ class Composition(Container):
                     return self % convertible
             case od.Name():
                 return od.Name(self._name)
-            case str():
-                return self._name
             case og.TimeSignature():
                 return self._time_signature.copy()
             case int():
@@ -1554,8 +1552,6 @@ class Composition(Container):
 
             case od.Name():
                 self._name = operand._data
-            case str():
-                self._name = operand
             case og.TimeSignature():
                 self._set_time_signature(operand) # Includes time signature setting with `<<`
 
