@@ -1691,6 +1691,13 @@ class Inversion(Unit):
         super().__init__(1, *parameters)
 
 
+class TrackNumber(Unit):
+    """`Unit -> TrackNumber`
+    """
+    def __init__(self, *parameters):
+        super().__init__(1, *parameters)         # By default is Track number 1
+
+
 class Midi(Unit):
     """`Unit -> Midi`
     """
