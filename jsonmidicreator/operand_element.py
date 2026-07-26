@@ -2132,7 +2132,6 @@ class ChannelElement(DeviceElement):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        midi_track: ou.Track = ou.Track() if not isinstance(midi_track, ou.Track) else midi_track
         self_midilist: list = super().getMidilist(position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["channel"] = self._channel_0

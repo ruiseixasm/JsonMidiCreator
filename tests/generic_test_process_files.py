@@ -45,7 +45,7 @@ original_export     = Import("json/testing/_Export_Play_p.1_sequence.json")
 start_time = time.time()
 # Only a Clip takes into consideration the Element position, and thus, the '* 1'!
 first_note = Note(Step(3*4 + 2)) * 1 >> Save("json/testing/_Save_1.1_first_note.json")
-multi_notes = Rest(NoteValue(1/16 * (3*4 + 2))) / ((first_note + Rest()) * 3 >> Stack()) << Track(1, "Piano") >> og.LeftShift(result_save) >> og.LeftShift(result_export) \
+multi_notes = Rest(NoteValue(1/16 * (3*4 + 2))) / ((first_note + Rest()) * 3 >> Stack()) << Name("Piano") >> og.LeftShift(result_save) >> og.LeftShift(result_export) \
     >> Save("json/testing/_Save_1.2_sequence.json") >> Export("json/testing/_Export_1.1_sequence.json") \
     >> Save("json/testing/_Save_Play_p.1_first_note_compare.json") >> Export("json/testing/_Export_Play_p.1_sequence_compare.json")
 results_list.append({
@@ -82,7 +82,7 @@ original_save       = Load("json/testing/_Save_Play_p.3.1_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.3.1_sequence.json")
 start_time = time.time()
 # Only a Clip takes into consideration the Element position, and thus, the '* 1'!
-Triplet(1/8) * 1 << Track(1, "Piano") >> og.LeftShift(result_save) >> og.LeftShift(result_export) >> Save("json/testing/_Save_1.3_note_triad.json") \
+Triplet(1/8) * 1 << Name("Piano") >> og.LeftShift(result_save) >> og.LeftShift(result_export) >> Save("json/testing/_Save_1.3_note_triad.json") \
     >> Save("json/testing/_Save_Play_p.3.1_first_note_compare.json") >> Export("json/testing/_Export_Play_p.3.1_sequence_compare.json")
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
