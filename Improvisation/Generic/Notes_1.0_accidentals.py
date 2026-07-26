@@ -17,7 +17,7 @@ from jsonmidicreator import *
 
 
 
-many_notes = Note() / 16 << TrackName("Accidentals")
+many_notes = Note() / 16 << Name("Accidentals")
 
 sharped_degree = Degree(Sharp())
 sharped_degree % Sharp() >> Print()

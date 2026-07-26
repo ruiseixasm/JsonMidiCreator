@@ -35,10 +35,10 @@ closed_hat  = Channel(6)
 open_hat    = Channel(7)
 cymbal      = Channel(8)
 
-kick_clip = Note(kick) * 3 << TrackName("Kick")
+kick_clip = Note(kick) * 3 << Name("Kick")
 kick_clip /= Duration(2.0)
-snare_clip = Note(snare) * 1 << TrackName("Snare")
-closed_hat_clip = Note(closed_hat, 1/16) * 16 << TrackName("Closed Hat")
+snare_clip = Note(snare) * 1 << Name("Snare")
+closed_hat_clip = Note(closed_hat, 1/16) * 16 << Name("Closed Hat")
 
 # Extend pattern by 4 measures, each clip is 1 measure long
 complete_part = Block(kick_clip, snare_clip, closed_hat_clip) * 4
@@ -46,7 +46,7 @@ complete_part = Block(kick_clip, snare_clip, closed_hat_clip) * 4
 cymbal_ptn = Note(cymbal, 1/2) * 1
 cymbal_first = cymbal_ptn + Position(1.0)
 cymbal_second = cymbal_ptn + Position(3.0)
-cymbal_clip = cymbal_first + cymbal_second << TrackName("Cymbal")
+cymbal_clip = cymbal_first + cymbal_second << Name("Cymbal")
 
 complete_part << cymbal_clip
 

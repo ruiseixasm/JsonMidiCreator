@@ -23,15 +23,15 @@ from jsonmidicreator import *
 
 settings << KeySignature('bbb')
 
-theme_1 = Note(Key('Bb')) / [1/8, 0, 0, 0, 1/4, 0, 1/2, 0, 1/4, 0, 0, 0, 1/1] << TrackName("Call")
+theme_1 = Note(Key('Bb')) / [1/8, 0, 0, 0, 1/4, 0, 1/2, 0, 1/4, 0, 0, 0, 1/1] << Name("Call")
 theme_1[0] >>= Rest()
 theme_1[8] >>= Rest()
 theme_1 += InputType(Note)**Foreach(0, 1, 0, 1, 2, 3, 1, 3, 5, 4, 3)**Degree()
 theme_1 >> Plot(block=False)
 
-theme_2 = theme_1 - Octave(1) + Measure(1) << Channel(2) >> Invert() << TrackName("Response")
+theme_2 = theme_1 - Octave(1) + Measure(1) << Channel(2) >> Invert() << Name("Response")
 theme_2 >> Plot(block=False)
 
 
-(theme_1 + theme_2) * 2 << TrackName("Imitation Inversion") >> Plot(block=True)
+(theme_1 + theme_2) * 2 << Name("Imitation Inversion") >> Plot(block=True)
 

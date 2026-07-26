@@ -1740,7 +1740,7 @@ class Track(Midi):
                     and self._name == other._name and self._devices == other._devices
             case TrackNumber():
                 return self._unit == other._unit
-            case od.TrackName():
+            case od.Name():
                 return self._unit == other._data
             case str():
                 return self._name == other
@@ -1753,12 +1753,12 @@ class Track(Midi):
             case od.Pipe():
                 match operand._data:
                     case TrackNumber():         return operand._data << od.Pipe(self._unit)
-                    case od.TrackName():        return operand._data << od.Pipe(self._name)
+                    case od.Name():        return operand._data << od.Pipe(self._name)
                     case oc.Devices():          return oc.Devices(self._devices)
                     case str():                 return self._name
                     case _:                     return super().__mod__(operand)
             case TrackNumber():         return TrackNumber(self._unit)
-            case od.TrackName():        return od.TrackName(self._name)
+            case od.Name():        return od.Name(self._name)
             case str():                 return self._name
             case oc.Devices():          return oc.Devices(self._devices)
             case _:                     return super().__mod__(operand)
@@ -1791,12 +1791,12 @@ class Track(Midi):
             case od.Pipe():
                 match operand._data:
                     case TrackNumber():         self._unit = operand._data._unit
-                    case od.TrackName():        self._name = operand._data._data
+                    case od.Name():        self._name = operand._data._data
                     case str():                 self._name = operand._data
                     case oc.Devices():          self._devices = operand % od.Pipe( list() )
                     case _:                     super().__lshift__(operand)
             case TrackNumber():         self._unit = operand._unit
-            case od.TrackName():        self._name = operand._data
+            case od.Name():        self._name = operand._data
             case str():                 self._name = operand
             case oc.Devices():          self._devices = operand % list()
             case od.Device():

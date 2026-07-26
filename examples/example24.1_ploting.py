@@ -24,7 +24,7 @@ from jsonmidicreator import *
 settings << Tempo(140) << TimeSignature(3, 4)
 settings % TimeSignature() >> Print()
 
-west_side = Clip(TrackName("West Side"))
+west_side = Clip(Name("West Side"))
 west_side += Note(1/8) / 6
 west_side /= Note(1/4) / 3
 west_side << Nth(1, 2, 3)**Key("G")

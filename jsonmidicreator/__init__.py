@@ -36,7 +36,7 @@ from .resource_filters import *
 
 
 # Data aliases
-Title = Name = TrackName
+Title = Name
 # Unit aliases
 K = Key
 Root = RootKey

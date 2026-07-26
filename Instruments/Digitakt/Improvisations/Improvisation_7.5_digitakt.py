@@ -37,18 +37,18 @@ cymbal      = Channel(8)
 settings << Tempo(135)
 
 open_hats_clip = Clip() >> Stepper("..1..1..", open_hat)
-open_hats_clip << TrackName("Open Hat")
+open_hats_clip << Name("Open Hat")
 open_hats_clip += open_hats_clip + Beats(2)
 
-close_hat_4_4_clip = Note(closed_hat, 1/4) * 4 << TrackName("Closed Hat")
+close_hat_4_4_clip = Note(closed_hat, 1/4) * 4 << Name("Closed Hat")
 
-tom_clip = Note(tom, 1/16, Step(2)) * 1 << TrackName("Tom")
+tom_clip = Note(tom, 1/16, Step(2)) * 1 << Name("Tom")
 tom_clip += tom_clip + Beats(2)
 
-snare_clip = Note(snare, 1/16, Step(4)) * 1 << TrackName("Snare")
+snare_clip = Note(snare, 1/16, Step(4)) * 1 << Name("Snare")
 snare_clip += snare_clip + Beats(2)
 
-kick_clip = Note(kick, 1/4) * 4 << 1/16 << TrackName("Kick") << Velocity(80)
+kick_clip = Note(kick, 1/4) * 4 << 1/16 << Name("Kick") << Velocity(80)
 
 
 open_hats_clip * 16 >> Play()

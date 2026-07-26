@@ -1775,7 +1775,7 @@ class Clip(Composition):  # Just a container of Elements
                         return super().__mod__(operand)
             case ou.Track():
                 return self._track.copy()
-            case ou.TrackNumber() | od.TrackName() | Devices() | str():
+            case ou.TrackNumber() | od.Name() | Devices() | str():
                 return self._track % operand
             case ou.Auto():
                 return ou.Auto(self._auto)
@@ -2026,7 +2026,7 @@ class Clip(Composition):  # Just a container of Elements
                 self._items = line_elements
                 self._set_owner_clip()._sort_items()
 
-            case ou.Track() | ou.TrackNumber() | od.TrackName() | Devices() | od.Device():
+            case ou.Track() | ou.TrackNumber() | od.Name() | Devices() | od.Device():
                 self._track << operand
             case ou.Auto():
                 self._auto = bool(operand._unit)
@@ -2420,7 +2420,7 @@ class Clip(Composition):  # Just a container of Elements
         new_clip: Clip              = super().shallow_copy()
         # It's a shallow copy, so it shares the same TimeSignature and midi track
         new_clip._time_signature    << self._time_signature   
-        new_clip._track        << self._track
+        new_clip._track             << self._track
         new_clip._auto              = self._auto
         return new_clip << parameters
 
@@ -3748,7 +3748,7 @@ class Block(Composition):
                         return super().__mod__(operand)
             case ra.Position() | ra.TimeValue() | ra.TimeUnit():
                 return operand.copy( ra.Position(self._time_signature, self._position_beats) )
-            case od.TrackName():
+            case od.Name():
                 return operand << self._name
             case str():
                 return self._name
@@ -3913,7 +3913,7 @@ class Block(Composition):
                     for item in self.unmasked_items():
                         item << operand
 
-            case od.TrackName():
+            case od.Name():
                 self._name = operand % str()
             case str():
                 self._name = operand
@@ -4328,7 +4328,7 @@ class Part(Composition):
                 match operand._data:
                     case str():                     return self._name
                     case _:                         return super().__mod__(operand)
-            case od.TrackName():
+            case od.Name():
                 return operand << self._name
             case str():
                 return self._name
@@ -4471,7 +4471,7 @@ class Part(Composition):
                     for item in self.unmasked_items():
                         item << operand
 
-            case od.TrackName():
+            case od.Name():
                 self._name = operand % str()
             case str():
                 self._name = operand

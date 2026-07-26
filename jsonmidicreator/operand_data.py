@@ -806,8 +806,8 @@ class To(Data):
         super().__init__(to)
 
 
-class TrackName(Data):
-    """`Data -> TrackName`
+class Name(Data):
+    """`Data -> Name`
 
     `Clip` parameter that sets the name of the track for the Midilist exporting.
     Basically works like a tag on a `Clip`, where multiple clips can share the same track name.
@@ -1013,10 +1013,10 @@ class Playlist(Data):
         match operand:
             case Pipe():
                 match operand._data:
-                    case TrackName():       return operand._data << Pipe(self._track_name)
+                    case Name():       return operand._data << Pipe(self._track_name)
                     case list():            return self._data
                     case _:                 return super().__mod__(operand)
-            case TrackName():       return TrackName(self._track_name)
+            case Name():       return Name(self._track_name)
             case str():             return self._track_name
             case list():            return self.shallow_playlist_list_copy(self._data)
             case _:                 return super().__mod__(operand)
@@ -1092,7 +1092,7 @@ class Playlist(Data):
                 self._track_name    = operand._track_name
             case Pipe():
                 match operand._data:
-                    case TrackName():
+                    case Name():
                         self._track_name = operand._data._data
                     case list():
                         self._data = operand._data
@@ -1101,7 +1101,7 @@ class Playlist(Data):
                     #     super().__lshift__(operand)
             case oc.Container() | oe.Element() | Playlist():
                 self._data = operand.getPlaylist()
-            case TrackName():
+            case Name():
                 self._track_name = operand._data
             case str():
                 self._track_name = operand

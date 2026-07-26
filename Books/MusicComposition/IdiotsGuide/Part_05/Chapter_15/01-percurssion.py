@@ -28,7 +28,7 @@ settings << Tempo(114)
 cymbals = Note(1/8, Channel(8), Velocity(90)) / 8
 snare_drum = Note(1/4, Channel(2), Velocity(90)) / ".1.1"
 bass_drum = Note(1/8, Channel(1), Velocity(90)) / "1...11.." << Nth(1)**(1/4)
-drum_set = bass_drum + snare_drum + cymbals << TrackName("Drum set")
+drum_set = bass_drum + snare_drum + cymbals << Name("Drum set")
 
 drum_set * 4 >> Plot(by_channel=True)
 
