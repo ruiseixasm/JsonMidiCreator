@@ -32,7 +32,7 @@ single_clock = Clock(Length(6)) / 1 << Track(0, "Clock Track") >> Save("json/_Sa
 # Multiple individual Notes creation and sequentially played, only in a Clip is an Element positioned
 first_note = Clip(Note()) << (Position() << Steps(3*4 + 2)) >> Save("json/_Save_1.1_first_note.json")
 multi_notes = Rest(NoteValue(1/16 * (3*4 + 2))) / ((first_note + Rest()) * 3 >> Stack()) \
-    << Track(1, "Piano") \
+    << TrackNumber(1) << Name("Piano") \
     >> Play(0) \
     >> Save("json/_Save_1.2_sequence.json") \
     >> Export("json/_Export_1.1_sequence.json")
