@@ -2082,9 +2082,7 @@ class Clip(Composition):  # Just a container of Elements
             Clip: Returns the copy of self but with an empty list of items.
         """
         new_clip: Clip              = super().empty_copy()
-        new_clip._time_signature    << self._time_signature
         new_clip._track             << self._track
-        new_clip._name              = self._name
         new_clip._devices           = self._devices.copy()
         new_clip._auto              = self._auto
         return new_clip << parameters
@@ -2103,7 +2101,6 @@ class Clip(Composition):  # Just a container of Elements
         """
         new_clip: Clip              = super().shallow_copy()
         # It's a shallow copy, so it shares the same TimeSignature and midi track
-        new_clip._time_signature    << self._time_signature
         new_clip._track             << self._track
         new_clip._auto              = self._auto
         return new_clip << parameters
