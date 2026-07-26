@@ -1926,16 +1926,13 @@ class Clock(DeviceElement):
 
             if self_position_min >= 0 and self_duration_min > 0:
 
-                devices: list[str] = og.defaults._devices
-                if self._owner_clip is not None:
-                    devices = self._owner_clip._devices
-
                 # Starts by setting the Devices
-                if devices_header and isinstance(midi_track, ou.Track):
+                if devices_header:
+                    devices: list[str] = og.settings._devices
+                    if self._owner_clip is not None:
+                        devices = self._owner_clip._devices
                     self_playlist.append(
-                        {
-                            "devices": devices
-                        }
+                        {"devices": devices}
                     )
 
                 # First quarter note pulse (total 1 in 24 pulses per quarter note)
@@ -2477,7 +2474,7 @@ class Note(ChannelElement):
                 continue    # Next note
 
             if devices_header:
-                devices: list[str] = og.defaults._devices
+                devices: list[str] = og.settings._devices
                 if self._owner_clip is not None:
                     devices = self._owner_clip._devices
                 self_playlist.append(
@@ -3902,7 +3899,7 @@ class ControlChange(Automatable):
             self_playlist: list[dict] = []
             
             if devices_header:
-                devices: list[str] = og.defaults._devices
+                devices: list[str] = og.settings._devices
                 if self._owner_clip is not None:
                     devices = self._owner_clip._devices
                 self_playlist.append(
@@ -4563,7 +4560,7 @@ class Aftertouch(Automatable):
             self_playlist: list[dict] = []
             
             if devices_header:
-                devices: list[str] = og.defaults._devices
+                devices: list[str] = og.settings._devices
                 if self._owner_clip is not None:
                     devices = self._owner_clip._devices
                 self_playlist.append(
@@ -4734,7 +4731,7 @@ class PolyAftertouch(Aftertouch):
             self_playlist: list[dict] = []
             
             if devices_header:
-                devices: list[str] = og.defaults._devices
+                devices: list[str] = og.settings._devices
                 if self._owner_clip is not None:
                     devices = self._owner_clip._devices
                 self_playlist.append(
@@ -4949,7 +4946,7 @@ class PitchBend(Automatable):
             self_playlist: list[dict] = []
             
             if devices_header:
-                devices: list[str] = og.defaults._devices
+                devices: list[str] = og.settings._devices
                 if self._owner_clip is not None:
                     devices = self._owner_clip._devices
                 self_playlist.append(
@@ -5467,7 +5464,7 @@ class ProgramChange(ChannelElement):
             self_playlist: list[dict] = []
             
             if devices_header:
-                devices: list[str] = og.defaults._devices
+                devices: list[str] = og.settings._devices
                 if self._owner_clip is not None:
                     devices = self._owner_clip._devices
                 self_playlist.append(
@@ -5600,7 +5597,7 @@ class Panic(DeviceElement):
         self_playlist: list[dict] = []
         
         if devices_header:
-            devices: list[str] = og.defaults._devices
+            devices: list[str] = og.settings._devices
             if self._owner_clip is not None:
                 devices = self._owner_clip._devices
             self_playlist.append(

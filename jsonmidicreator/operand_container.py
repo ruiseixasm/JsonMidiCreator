@@ -1991,9 +1991,7 @@ class Clip(Composition):  # Just a container of Elements
             list[dict]: A list with multiple Play configuration dictionaries.
         """
         self_playlist: list[dict] = [
-            {
-                "devices": self._track_number._devices
-            }
+            {"devices": self._devices}
         ]
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0, 1)
