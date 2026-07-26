@@ -1497,6 +1497,12 @@ def test_clip_track():
 
 # test_clip_track()
 
+def test_clip_setting():
+    single_note = Clip([Note()])
+    assert single_note[0] % Pitch() == "C4"
+    single_note << "F"
+    assert single_note[0] % Pitch() == "F4"
+
 
 def test_clip_multi():
     pitch_bends = PitchBend() / 17
