@@ -1137,6 +1137,7 @@ class Probability(Manipulator):
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral, iterate)
         chaotic_fraction: Fraction = ra.Result(numeral)._rational % 1
+        # `1 - chaotic_fraction` in order to preserve result in chained Probabilities or alike
         numeral = Fraction(1) if 1 - chaotic_fraction < self._parameter else Fraction(0)
         return numeral, validated
 
