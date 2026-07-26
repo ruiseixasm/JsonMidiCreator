@@ -1510,6 +1510,8 @@ class Composition(Container):
         match operand:
             case Composition():
                 super().__lshift__(operand)
+                self._name              = operand._name
+                self._time_signature    << operand._time_signature
 
             case od.Pipe():
                 match operand._data:
@@ -2011,7 +2013,6 @@ class Clip(Composition):  # Just a container of Elements
         """
         serialization = super().getSerialization()
 
-        serialization["parameters"]["time_signature"]   = self.serialize(self._time_signature)
         serialization["parameters"]["track"]            = self.serialize(self._track)
         serialization["parameters"]["auto"]             = self._auto
         return serialization
@@ -2029,10 +2030,9 @@ class Clip(Composition):  # Just a container of Elements
             Clip: The self Clip object with the respective set parameters.
         """
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "time_signature" in serialization["parameters"] and "track" in serialization["parameters"] and "auto" in serialization["parameters"]):
+            "track" in serialization["parameters"] and "auto" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._time_signature    << self.deserialize(serialization["parameters"]["time_signature"])
             self._track             << self.deserialize(serialization["parameters"]["track"])
             self._auto              = serialization["parameters"]["auto"]
             self._set_owner_clip()
@@ -2042,7 +2042,6 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case Clip():
                 super().__lshift__(operand)
-                self._time_signature    << operand._time_signature
                 self._track             << operand._track
                 self._auto              = operand._auto
                 self._set_owner_clip()
