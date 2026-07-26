@@ -45,7 +45,7 @@ Triplet(1/8) * 1 << Track(1, "Piano") >> Save("json/testing/_Save_Play_p.3.1_fir
 # Only a Clip takes into consideration the Element position, and thus, the '* 1'!
 base_note = Note(Dotted(1/64)) * 1
 # Creation and configuration of a Track of notes
-first_sequence = (base_note / 8 << Duration(1/16) >> Stack() << Track(2, "Drums") << Channel(10)) >> Save("json/testing/_Save_1.4__first_sequence.json")
+first_sequence = (base_note / 8 << Duration(1/16) >> Stack() << Name("Drums") << Channel(10)) >> Save("json/testing/_Save_1.4__first_sequence.json")
 
 # Creation and configuration of second Sequencer
 second_sequence = first_sequence >> Copy()

@@ -334,20 +334,16 @@ def test_operand_serialization():
 
 def test_dictionary_getter():
 
-    midi_track: Track = Track(3, "Drums")
-    serialization: dict = midi_track.getSerialization()
+    clip_name: Name = Name("Drums")
+    serialization: dict = clip_name.getSerialization()
 
     parameters: dict = get_dict_key_data("parameters", serialization)
     print(parameters)
-    # {'unit': 3, 'name': 'Drums', 'devices': ['VMPK', 'FLUID']}    # 'devices' not the same in all OS
-    assert parameters['unit'] == 3
-    assert parameters['name'] == 'Drums'
+    assert parameters['data'] == 'Drums'
 
     parameters = serialization % Data("parameters")
     print(parameters)
-    # {'unit': 3, 'name': 'Drums', 'devices': ['VMPK', 'FLUID']}    # 'devices' not the same in all OS
-    assert parameters['unit'] == 3
-    assert parameters['name'] == 'Drums'
+    assert parameters['data'] == 'Drums'
 
 # test_dictionary_getter()
 

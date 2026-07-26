@@ -45,7 +45,7 @@ Triplet() << (NoteValue() << Duration(1/16)) >> Play() >> Save("json/_Save_1.3_n
 base_note = Note() << (NoteValue() << Dotted(1/64))
 # base_note >> Play()
 # Creation and configuration of a Track of notes
-first_sequence = (base_note / 8 << Duration(1/16) >> Stack() << Track(2, "Drums") << Channel(10)) >> Save("json/_Save_1.4__first_sequence.json")
+first_sequence = (base_note / 8 << Duration(1/16) >> Stack() << Name("Drums") << Channel(10)) >> Save("json/_Save_1.4__first_sequence.json")
 # first_sequence >> Play()
 
 # Creation and configuration of second Sequencer
