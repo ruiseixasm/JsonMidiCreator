@@ -1783,7 +1783,7 @@ class Clip(Composition):  # Just a container of Elements
                         return super().__mod__(operand)
             case ou.Track():
                 return self._track.copy()
-            case ou.TrackNumber() | od.Name() | Devices() | str():
+            case od.Name() | Devices() | str():
                 return self._track % operand
             case ou.Auto():
                 return ou.Auto(self._auto)
@@ -2034,7 +2034,7 @@ class Clip(Composition):  # Just a container of Elements
                 self._items = line_elements
                 self._set_owner_clip()._sort_items()
 
-            case ou.Track() | ou.TrackNumber() | od.Name() | Devices() | od.Device():
+            case ou.Track() | od.Name() | Devices() | od.Device():
                 self._track << operand
             case ou.Auto():
                 self._auto = bool(operand._unit)
@@ -2409,7 +2409,9 @@ class Clip(Composition):  # Just a container of Elements
         """
         new_clip: Clip              = super().empty_copy()
         new_clip._time_signature    << self._time_signature
-        new_clip._track        << self._track
+        new_clip._track             << self._track
+        new_clip._name              = self._name
+        new_clip._devices           = self._devices.copy()
         new_clip._auto              = self._auto
         return new_clip << parameters
 

@@ -1738,8 +1738,6 @@ class Track(Midi):
             case self.__class__():
                 return super().__eq__(other) \
                     and self._name == other._name and self._devices == other._devices
-            case TrackNumber():
-                return self._unit == other._unit
             case od.Name():
                 return self._unit == other._data
             case str():
@@ -1752,12 +1750,10 @@ class Track(Midi):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case TrackNumber():         return operand._data << od.Pipe(self._unit)
                     case od.Name():        return operand._data << od.Pipe(self._name)
                     case oc.Devices():          return oc.Devices(self._devices)
                     case str():                 return self._name
                     case _:                     return super().__mod__(operand)
-            case TrackNumber():         return TrackNumber(self._unit)
             case od.Name():        return od.Name(self._name)
             case str():                 return self._name
             case oc.Devices():          return oc.Devices(self._devices)
@@ -1790,12 +1786,10 @@ class Track(Midi):
                 self._devices   = operand._devices.copy()
             case od.Pipe():
                 match operand._data:
-                    case TrackNumber():         self._unit = operand._data._unit
                     case od.Name():        self._name = operand._data._data
                     case str():                 self._name = operand._data
                     case oc.Devices():          self._devices = operand % od.Pipe( list() )
                     case _:                     super().__lshift__(operand)
-            case TrackNumber():         self._unit = operand._unit
             case od.Name():        self._name = operand._data
             case str():                 self._name = operand
             case oc.Devices():          self._devices = operand % list()
@@ -1804,13 +1798,6 @@ class Track(Midi):
                     self._devices = [operand._data]
             case _:                     super().__lshift__(operand)
         return self
-
-
-class TrackNumber(Midi):
-    """`Unit -> Midi -> TrackNumber`
-    """
-    def __init__(self, *parameters):
-        super().__init__(1, *parameters)         # By default is Track number 1
 
 
 class Channel(Midi):
