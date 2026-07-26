@@ -326,11 +326,11 @@ class Element(o.Operand):
             channels: dict[str, set[int]] = None, derived_element: 'Element' = None) -> list[dict]:
         return []
 
-    def getPlaylist(self, devices: list[str] | None = None, position_beats: Fraction | None = None, devices_header = True,
+    def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True,
                     derived_element: 'Element' = None) -> list[dict]:
         return []
 
-    def getMidilist(self, devices: list[str] | None = None, position_beats: Fraction | None = None,
+    def getMidilist(self, position_beats: Fraction | None = None,
                     derived_element: 'Element' = None) -> list:
         return []
 
@@ -1089,7 +1089,7 @@ class Subclip(Element):
         return self_plotlist
     
 
-    def getPlaylist(self, devices: list[str] | None = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         if not self._enabled: return []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -1098,7 +1098,7 @@ class Subclip(Element):
         return self._subclip.getPlaylist(position_beats)
     
 
-    def getMidilist(self, devices: list[str] | None = None, position_beats: Fraction | None = None) -> list[dict]:
+    def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
         if not self._enabled: return []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -1276,27 +1276,27 @@ class Unison(Element):
         elif position_beats < 0:
             return []
         for single_element in self.get_component_elements():
-            self_playlist.extend(single_element.getPlotlist(devices, position_beats, channels))
+            self_playlist.extend(single_element.getPlotlist(position_beats, channels))
         return self_playlist
     
-    def getPlaylist(self, devices: list[str] | None = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         self_playlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
         for single_element in self.get_component_elements():
-            self_playlist.extend(single_element.getPlaylist(devices, position_beats, devices_header))
+            self_playlist.extend(single_element.getPlaylist(position_beats, devices_header))
         return self_playlist
     
-    def getMidilist(self, devices: list[str] | None = None, position_beats: Fraction | None = None) -> list[dict]:
+    def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
         self_midilist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
         for single_element in self.get_component_elements():
-            self_midilist.extend(single_element.getMidilist(devices, position_beats))    # extends the list with other list
+            self_midilist.extend(single_element.getMidilist(position_beats))    # extends the list with other list
         return self_midilist
     
     def getSerialization(self) -> dict:
@@ -1376,9 +1376,7 @@ class Rest(Element):
                 return super().__eq__(other)
     
 
-    def getPlotlist(self,
-            devices: list[str] | None = None, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None) -> list[dict]:
+    def getPlotlist(self, position_beats: Fraction | None = None, channels: dict[str, set[int]] = None) -> list[dict]:
         
         if self._duration_beats == 0:
             return []
@@ -1450,7 +1448,7 @@ class Talkie(Element):
             case _:                 return super().__mod__(operand)
 
 
-    def getPlaylist(self, devices: list[str] | None = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         if not self._enabled:
             return []
         
@@ -1594,13 +1592,13 @@ class TalkieRun(Talkie):
             case _:                 return super().__mod__(operand)
 
 
-    def getPlaylist(self, devices: list[str] | None = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        self_playlist: list[dict] = super().getPlaylist(devices, position_beats, devices_header)
+        self_playlist: list[dict] = super().getPlaylist(position_beats, devices_header)
     
         if self_playlist:
             self_playlist[0]["message"]["m"] = 2    # run
@@ -1663,13 +1661,13 @@ class TalkieGet(TalkieRun):
     def __init__(self, *parameters):
         super().__init__("duration", *parameters)
 
-    def getPlaylist(self, devices: list[str] | None = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        self_playlist: list[dict] = super().getPlaylist(devices, position_beats, devices_header)
+        self_playlist: list[dict] = super().getPlaylist(position_beats, devices_header)
     
         if self_playlist:
             self_playlist[0]["message"]["m"] = 4    # get
@@ -1708,13 +1706,13 @@ class TalkieSet(TalkieGet):
             case ou.Value():        return ou.Value(self._value)
             case _:                 return super().__mod__(operand)
 
-    def getPlaylist(self, devices: list[str] | None = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        self_playlist: list[dict] = super().getPlaylist(devices, position_beats, devices_header)
+        self_playlist: list[dict] = super().getPlaylist(position_beats, devices_header)
     
         if self_playlist:
             self_playlist[0]["message"]["m"] = 3    # set
@@ -1768,7 +1766,7 @@ class DeviceElement(Element):
     Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
-    def getPlaylist(self, devices: list[str] | None = None, position_beats: Fraction | None = None, devices_header = True,
+    def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True,
                     derived_element: 'Element' = None) -> list[dict]:
         if not self._enabled:
             return []
@@ -1787,15 +1785,13 @@ class DeviceElement(Element):
                 }
             ]
 
-    def getMidilist(self, devices: list[str] | None = None, position_beats: Fraction | None = None,
-                    derived_element: 'Element' = None) -> list:
+    def getMidilist(self, position_beats: Fraction | None = None, derived_element: 'Element' = None) -> list:
         if not self._enabled:
             return []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        midi_track: ou.Track = ou.Track() if not isinstance(midi_track, ou.Track) else midi_track
 
         self_numerator: int = self._get_time_signature()._top
         self_denominator: int = self._get_time_signature()._bottom
@@ -1803,12 +1799,18 @@ class DeviceElement(Element):
         self_duration: float = float(self._duration_beats)
         self_tempo: float = float(og.settings._tempo)
 
+        track_number: int = 1
+        track_name: str = "Track 1"
+        if self._owner_clip is not None:
+            track_number = self._owner_clip._track_number
+            track_name = self._owner_clip._name
+
         # Validation is done by midiutil Midi Range Validation
         return [
                 {
                     "event":        "Element",
-                    "track":        midi_track % int() - 1,  # out of range shouldn't be exported as a midi track
-                    "track_name":   midi_track % str(),
+                    "track":        track_number - 1,   # out of range shouldn't be exported as a midi track
+                    "track_name":   track_name,
                     "numerator":    self_numerator,
                     "denominator":  self_denominator,
                     "time":         self_position,      # beats
@@ -1825,9 +1827,6 @@ class Clock(DeviceElement):
 
     Parameters
     ----------
-    Devices([]) : The `Devices` to which the clock messages are sent.
-    ClockedDevices([]) : The `Devices` to which the clock messages are auto generated.
-    ControlledDevices([]) : The `Devices` to which the control messages are auto generated (for DAWs).
     PPQN(24) : Pulses Per Quarter Note.
     Position(0), TimeValue, TimeUnit, int : The position on the staff in `Measures`.
     Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
@@ -1836,11 +1835,7 @@ class Clock(DeviceElement):
     def __init__(self, *parameters):
         super().__init__()
         self._duration_beats        = ra.Measures(self, 1) % ra.Beats() % Fraction()
-        self._devices: list[str]    = []
-        self._clocked_devices: list[str]    = []
-        self._controlled_devices: list[str] = []
         self._clock_ppqn: int       = 24    # Pulses Per Quarter Note
-        self._mmc_mode: int  		= 0
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -1864,16 +1859,8 @@ class Clock(DeviceElement):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
-                    case oc.ControlledDevices():
-                                                return oc.ControlledDevices(self._controlled_devices)
-                    case oc.Devices():          return oc.Devices(self._devices)
                     case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
                     case _:                     return super().__mod__(operand)
-            case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
-            case oc.ControlledDevices():
-                                        return oc.ControlledDevices(self._controlled_devices)
-            case oc.Devices():          return oc.Devices(self._devices)
             case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
             case _:                     return super().__mod__(operand)
 
@@ -1881,18 +1868,14 @@ class Clock(DeviceElement):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._clocked_devices == other._clocked_devices \
-                    and self._controlled_devices == other._controlled_devices \
-                    and self._devices == other._devices \
-                    and self._clock_ppqn == other._clock_ppqn \
-                    and self._mmc_mode == other._mmc_mode
+                    and self._clock_ppqn == other._clock_ppqn
             case Element():
                 # A Clock isn't any other thing
                 return False
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, devices: list[str] | None = None, position_beats: Fraction | None = None, devices_header = True,
+    def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True,
                                                                     time_signature: og.TimeSignature = None) -> list[dict]:
         if not self._enabled or self._duration_beats < 1:
             return []
@@ -1926,8 +1909,8 @@ class Clock(DeviceElement):
                             "total_clock_pulses": total_clock_pulses,
                             "pulse_duration_min_numerator": single_pulse_duration_min.numerator,
                             "pulse_duration_min_denominator": single_pulse_duration_min.denominator,
-                            "clocked_devices": list(set(self._clocked_devices)),
-                            "controlled_devices": list(set(self._controlled_devices))
+                            "clocked_devices": list(set(og.settings._clocked_devices)),
+                            "controlled_devices": list(set(og.settings._clocked_devices))
                         },
                         "tempo": {
                             "f": "JsonMidiCreator",
@@ -1948,11 +1931,15 @@ class Clock(DeviceElement):
 
             if self_position_min >= 0 and self_duration_min > 0:
 
+                devices: list[str] = og.defaults._devices
+                if self._owner_clip is not None:
+                    devices = self._owner_clip._devices
+
                 # Starts by setting the Devices
                 if devices_header and isinstance(midi_track, ou.Track):
                     self_playlist.append(
                         {
-                            "devices": midi_track._devices if midi_track else og.defaults._devices
+                            "devices": devices
                         }
                     )
 
@@ -2006,9 +1993,6 @@ class Clock(DeviceElement):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["devices"]          = self.serialize( self._devices )
-        serialization["parameters"]["clocked_devices"]  = self.serialize( self._clocked_devices )
-        serialization["parameters"]["controlled_devices"]   = self.serialize( self._controlled_devices )
         serialization["parameters"]["clock_ppqn"]       = self.serialize( self._clock_ppqn )
         return serialization
 
@@ -2016,13 +2000,9 @@ class Clock(DeviceElement):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "devices" in serialization["parameters"] and "clocked_devices" in serialization["parameters"] and "controlled_devices" in serialization["parameters"] and
             "clock_ppqn" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._devices           = self.deserialize( serialization["parameters"]["devices"] )
-            self._clocked_devices   = self.deserialize( serialization["parameters"]["clocked_devices"] )
-            self._controlled_devices    = self.deserialize( serialization["parameters"]["controlled_devices"] )
             self._clock_ppqn        = self.deserialize( serialization["parameters"]["clock_ppqn"] )
         return self
 
@@ -2032,22 +2012,11 @@ class Clock(DeviceElement):
         match operand:
             case Clock():
                 super().__lshift__(operand)
-                self._devices       = operand._devices.copy()
-                self._clocked_devices       = operand._clocked_devices.copy()
-                self._controlled_devices    = operand._controlled_devices.copy()
                 self._clock_ppqn    = operand._clock_ppqn
             case od.Pipe():
                 match operand._data:
-                    case oc.ClockedDevices():   self._clocked_devices = operand._data % od.Pipe( list() )
-                    case oc.ControlledDevices():   self._controlled_devices = operand._data % od.Pipe( list() )
-                    case oc.Devices():          self._devices = operand._data % od.Pipe( list() )
                     case ou.PPQN():             self._clock_ppqn = operand._data._unit
                     case _:                     super().__lshift__(operand)
-            case oc.ClockedDevices():   self._clocked_devices = operand % list()
-            case oc.ControlledDevices():
-                                        self._controlled_devices = operand % list()
-            case oc.Devices():          self._devices = operand % list()
-            case od.Device():           self._devices = oc.Devices(self._devices, operand) % od.Pipe( list() )
             case ou.PPQN():             self._clock_ppqn = operand._unit
             case _:                     super().__lshift__(operand)
         return self
@@ -2163,7 +2132,7 @@ class ChannelElement(DeviceElement):
         return vectordict
 
 
-    def getMidilist(self, devices: list[str] | None = None, position_beats: Fraction | None = None,
+    def getMidilist(self, position_beats: Fraction | None = None,
                     derived_element: 'Element' = None) -> list[dict]:
         if not self._enabled:
             return []
@@ -2172,7 +2141,7 @@ class ChannelElement(DeviceElement):
         elif position_beats < 0:
             return []
         midi_track: ou.Track = ou.Track() if not isinstance(midi_track, ou.Track) else midi_track
-        self_midilist: list = super().getMidilist(devices, position_beats)
+        self_midilist: list = super().getMidilist(position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["channel"] = self._channel_0
         return self_midilist
@@ -2489,7 +2458,7 @@ class Note(ChannelElement):
         return self_plotlist
 
 
-    def getPlaylist(self, devices: list[str] | None = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
 
         self_playlist: list[dict] = []
         component_notes: list[Note] = self.get_component_elements()
@@ -2550,7 +2519,7 @@ class Note(ChannelElement):
         return self_playlist
 
 
-    def getMidilist(self, devices: list[str] | None = None, position_beats: Fraction | None = None) -> list[dict]:
+    def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
         
         self_midilist: list[dict] = []
         component_notes: list[Note] = self.get_component_elements()
@@ -2574,7 +2543,7 @@ class Note(ChannelElement):
                 continue    # Next note
 
             # Validation is done by midiutil Midi Range Validation
-            note_dict: dict = super().getMidilist(devices, position_beats)[0]
+            note_dict: dict = super().getMidilist(position_beats)[0]
             note_dict["event"]          = "Note"
             note_dict["duration"]       = self_duration
             note_dict["velocity"]       = single_note._velocity
@@ -2702,29 +2671,29 @@ class Rhythm(Note):
         elif position_beats < 0:
             return []
         for single_note in self.get_component_elements():
-            self_plotlist.extend(single_note.getPlotlist(devices, position_beats, channels, self))
+            self_plotlist.extend(single_note.getPlotlist(position_beats, channels, self))
         for plot_dict in self_plotlist:
             plot_dict["self"] = self # Makes sure it's identified as `Rhythm`
         return self_plotlist
     
-    def getPlaylist(self, devices: list[str] | None = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         self_playlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
         for single_note in self.get_component_elements():
-            self_playlist.extend(single_note.getPlaylist(devices, position_beats, devices_header))
+            self_playlist.extend(single_note.getPlaylist(position_beats, devices_header))
         return self_playlist
     
-    def getMidilist(self, devices: list[str] | None = None, position_beats: Fraction | None = None) -> list[dict]:
+    def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
         self_midilist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
         for single_note in self.get_component_elements():
-            self_midilist.extend(single_note.getMidilist(devices, position_beats))
+            self_midilist.extend(single_note.getMidilist(position_beats))
         return self_midilist
     
 
@@ -3077,30 +3046,30 @@ class KeyScale(Note):
         elif position_beats < 0:
             return []
         for single_note in self.get_component_elements():
-            self_plotlist.extend(single_note.getPlotlist(devices, position_beats, channels, self))
+            self_plotlist.extend(single_note.getPlotlist(position_beats, channels, self))
         # Makes sure the self middle pitch os passed once and only once to the last dict to be added on top of it
         if self_plotlist:
             self_plotlist[-1]["note"]["middle_pitch"] = self._pitch._get_chromatic_pitch()
         return self_plotlist
     
-    def getPlaylist(self, devices: list[str] | None = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         self_playlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
         for single_note in self.get_component_elements():
-            self_playlist.extend(single_note.getPlaylist(devices, position_beats, devices_header))
+            self_playlist.extend(single_note.getPlaylist(position_beats, devices_header))
         return self_playlist
     
-    def getMidilist(self, devices: list[str] | None = None, position_beats: Fraction | None = None) -> list[dict]:
+    def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
         self_midilist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
         for single_note in self.get_component_elements():
-            self_midilist.extend(single_note.getMidilist(devices, position_beats))
+            self_midilist.extend(single_note.getMidilist(position_beats))
         return self_midilist
 
     def getSerialization(self) -> dict:
@@ -3649,27 +3618,27 @@ class Tuplet(Note):
         elif position_beats < 0:
             return []
         for single_note in self.get_component_elements():
-            self_plotlist.extend(single_note.getPlotlist(devices, position_beats, channels, self))
+            self_plotlist.extend(single_note.getPlotlist(position_beats, channels, self))
         return self_plotlist
     
-    def getPlaylist(self, devices: list[str] | None = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         self_playlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
         for single_note in self.get_component_elements():
-            self_playlist.extend(single_note.getPlaylist(devices, position_beats, devices_header))
+            self_playlist.extend(single_note.getPlaylist(position_beats, devices_header))
         return self_playlist
     
-    def getMidilist(self, devices: list[str] | None = None, position_beats: Fraction | None = None) -> list[dict]:
+    def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
         self_midilist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
         for single_note in self.get_component_elements():
-            self_midilist.extend(single_note.getMidilist(devices, position_beats))    # extends the list with other list
+            self_midilist.extend(single_note.getMidilist(position_beats))    # extends the list with other list
         return self_midilist
     
     def getSerialization(self) -> dict:
@@ -3930,7 +3899,7 @@ class ControlChange(Automatable):
         return self_plotlist
 
 
-    def getPlaylist(self, devices: list[str] | None = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         if not self._enabled or self.is_clipped():
             return []
 
@@ -4021,14 +3990,14 @@ class ControlChange(Automatable):
                     )
         return self_playlist
     
-    def getMidilist(self, devices: list[str] | None = None, position_beats: Fraction | None = None) -> list[dict]:
+    def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
         if not self._enabled or self.is_clipped():
             return []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        self_midilist: list[dict] = super().getMidilist(devices, position_beats)
+        self_midilist: list[dict] = super().getMidilist(position_beats)
         self_midilist[0]["event"] = "ControllerEvent"
 
         # Validation is done by midiutil Midi Range Validation
@@ -4596,7 +4565,7 @@ class Aftertouch(Automatable):
         return self_plotlist
 
 
-    def getPlaylist(self, devices: list[str] | None = None, position_beats: Fraction | None = None, devices_header = True) -> list:
+    def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list:
         if not self._enabled or self.is_clipped():
             return []
         
@@ -4633,14 +4602,14 @@ class Aftertouch(Automatable):
         return self_playlist
     
 
-    def getMidilist(self, devices: list[str] | None = None, position_beats: Fraction | None = None) -> list:
+    def getMidilist(self, position_beats: Fraction | None = None) -> list:
         if not self._enabled or self.is_clipped():
             return []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        self_midilist: list = super().getMidilist(devices, position_beats)
+        self_midilist: list = super().getMidilist(position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "ChannelPressure"
         self_midilist[0]["pressure"]    = clamp_value_128(self._pressure)
@@ -4767,7 +4736,7 @@ class PolyAftertouch(Aftertouch):
                 return super().__eq__(other)
     
 
-    def getPlaylist(self, devices: list[str] | None = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         if not self._enabled:
             return []
 
@@ -4986,7 +4955,7 @@ class PitchBend(Automatable):
         return self_plotlist
 
 
-    def getPlaylist(self, devices: list[str] | None = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         if not self._enabled or self.is_clipped():
             return []
         
@@ -5023,14 +4992,14 @@ class PitchBend(Automatable):
             )
         return self_playlist
     
-    def getMidilist(self, devices: list[str] | None = None, position_beats: Fraction | None = None) -> list:
+    def getMidilist(self, position_beats: Fraction | None = None) -> list:
         if not self._enabled or self.is_clipped():
             return []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        self_midilist: list = super().getMidilist(devices, position_beats)
+        self_midilist: list = super().getMidilist(position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "PitchWheelEvent"
         self_midilist[0]["value"]       = self._get_bend(clamp_value_128(self._msb), clamp_value_128(self._lsb))
@@ -5333,27 +5302,27 @@ class Automation(Element):
         elif position_beats < 0:
             return []
         for single_element in self.get_component_elements():
-            self_playlist.extend(single_element.getPlotlist(devices, position_beats, channels))
+            self_playlist.extend(single_element.getPlotlist(position_beats, channels))
         return self_playlist
     
-    def getPlaylist(self, devices: list[str] | None = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         self_playlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
         for single_element in self.get_component_elements():
-            self_playlist.extend(single_element.getPlaylist(devices, position_beats, devices_header))
+            self_playlist.extend(single_element.getPlaylist(position_beats, devices_header))
         return self_playlist
     
-    def getMidilist(self, devices: list[str] | None = None, position_beats: Fraction | None = None) -> list[dict]:
+    def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
         self_midilist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
         for single_element in self.get_component_elements():
-            self_midilist.extend(single_element.getMidilist(devices, position_beats))    # extends the list with other list
+            self_midilist.extend(single_element.getMidilist(position_beats))    # extends the list with other list
         return self_midilist
     
 
@@ -5508,7 +5477,7 @@ class ProgramChange(ChannelElement):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, devices: list[str] | None = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         if not self._enabled:
             return []
         
@@ -5551,14 +5520,14 @@ class ProgramChange(ChannelElement):
             )
         return self_playlist
     
-    def getMidilist(self, devices: list[str] | None = None, position_beats: Fraction | None = None) -> list:
+    def getMidilist(self, position_beats: Fraction | None = None) -> list:
         if not self._enabled:
             return []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        self_midilist: list = super().getMidilist(devices, position_beats)
+        self_midilist: list = super().getMidilist(position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "ProgramChange"
         self_midilist[0]["program"]     = self._program_0
@@ -5646,7 +5615,7 @@ class Panic(DeviceElement):
     Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
-    def getPlaylist(self, devices: list[str] | None = None, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         if not self._enabled:
             return []
 
@@ -5674,29 +5643,29 @@ class Panic(DeviceElement):
             # self needs to be given to each of these elements in order to preserve self parameters like position
 
             self_playlist.extend(AllNotesOff(self, ou.Channel(channel))
-                .getPlaylist(devices, position_beats, False))
+                .getPlaylist(position_beats, False))
             self_playlist.extend(PitchBend(self, ou.Channel(channel), 0)
-                .getPlaylist(devices, position_beats, False))
+                .getPlaylist(position_beats, False))
 
             self_playlist.extend(ControlChange(self, ou.Channel(channel), ou.Number(10), ou.Value(64))
-                .getPlaylist(devices, position_beats, False))   # 10 - Pan
+                .getPlaylist(position_beats, False))   # 10 - Pan
             self_playlist.extend(ControlChange(self, ou.Channel(channel), ou.Number(64), ou.Value(0))
-                .getPlaylist(devices, position_beats, False))   # 64 - Pedal (sustain)
+                .getPlaylist(position_beats, False))   # 64 - Pedal (sustain)
             self_playlist.extend(ControlChange(self, ou.Channel(channel), ou.Number(1), ou.Value(0))
-                .getPlaylist(devices, position_beats, False))   # 1 - Modulation
+                .getPlaylist(position_beats, False))   # 1 - Modulation
             self_playlist.extend(ControlChange(self, ou.Channel(channel), ou.Number(7), ou.Value(100))
-                .getPlaylist(devices, position_beats, False))   # 7 - Volume
+                .getPlaylist(position_beats, False))   # 7 - Volume
             self_playlist.extend(ControlChange(self, ou.Channel(channel), ou.Number(11), ou.Value(127))
-                .getPlaylist(devices, position_beats, False))   # 11 - Expression
+                .getPlaylist(position_beats, False))   # 11 - Expression
 
             self_playlist.extend(ResetAllControllers(self, ou.Channel(channel))
-                .getPlaylist(devices, position_beats, False))
+                .getPlaylist(position_beats, False))
 
             # Starts by turning off All keys for all pitches, from 0 to 127
             for pitch in range(128):
                 self_playlist.extend(
                     Note(self, ou.Channel(channel), og.Pitch(float(pitch), ra.NoteValue(1/16)), ou.Velocity(0))
-                        .getPlaylist(devices, position_beats, False)
+                        .getPlaylist(position_beats, False)
                 )
 
         return self_playlist
