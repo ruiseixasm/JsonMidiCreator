@@ -380,6 +380,30 @@ class I_ChooseDuration(I_ShuffleDuration):
         return durations_beats
 
 
+class I_SwapDuration(Iterations):
+    def _single_iteration(self) -> 'oc.Clip':
+        seed_copy: oc.Clip = self._seed.copy()
+        clip_elements: list[oe.Element] = seed_copy.unmasked_items()
+        clip_len: int = len(clip_elements)
+        if clip_len > 1:
+            indexes: list[int] = [
+                i for i in range(clip_len - 1)  # Has to be paired, last index not considered
+            ]
+            picks: list[int] = []
+            for total_indexes in range(clip_len - 1, 0, -1):
+                index: int = self._chaos % int() % total_indexes
+                picks.append(indexes.pop(index))
+            for left_element_i in picks:
+                swap: int = self._chaos % int() % 2
+                if swap:
+                    left_duration = clip_elements[left_element_i] % ra.Duration()
+                    right_duration = clip_elements[left_element_i + 1] % ra.Duration()
+                    # Direct setting on `seed_copy` elements
+                    clip_elements[left_element_i] << right_duration
+                    clip_elements[left_element_i + 1] << od.Left(left_duration)
+        return seed_copy._sort_items()   # The Clip is already decoupled, elements manipulated directly thus sorting is needed
+
+
 class I_ChooseParameter(Iterations):
     def __init__(self, parameters: list[Any] = ["1", "3", "5"],
                  chaos: ch.Chaos = ch.SinX(340),
@@ -452,26 +476,18 @@ class I_SetParameter(Iterations):
         return seed_copy._sort_items()   # The Clip is already decoupled
 
 
-class I_SwapDuration(Iterations):
+class I_AddElement(Iterations):
+    
     def _single_iteration(self) -> 'oc.Clip':
         seed_copy: oc.Clip = self._seed.copy()
-        clip_elements: list[oe.Element] = seed_copy.unmasked_items()
-        clip_len: int = len(clip_elements)
-        if clip_len > 1:
-            indexes: list[int] = [
-                i for i in range(clip_len - 1)  # Has to be paired, last index not considered
-            ]
-            picks: list[int] = []
-            for total_indexes in range(clip_len - 1, 0, -1):
-                index: int = self._chaos % int() % total_indexes
-                picks.append(indexes.pop(index))
-            for left_element_i in picks:
-                swap: int = self._chaos % int() % 2
-                if swap:
-                    left_duration = clip_elements[left_element_i] % ra.Duration()
-                    right_duration = clip_elements[left_element_i + 1] % ra.Duration()
-                    # Direct setting on `seed_copy` elements
-                    clip_elements[left_element_i] << right_duration
-                    clip_elements[left_element_i + 1] << od.Left(left_duration)
-        return seed_copy._sort_items()   # The Clip is already decoupled, elements manipulated directly thus sorting is needed
+        return seed_copy._sort_items()   # The Clip is already decoupled
+
+
+class I_RemoveElement(Iterations):
+    
+    def _single_iteration(self) -> 'oc.Clip':
+        seed_copy: oc.Clip = self._seed.copy()
+        
+        return seed_copy._sort_items()   # The Clip is already decoupled
+
 

@@ -191,8 +191,9 @@ class Sequencer(Yielder):
                 case ch.Chaos():
                     finish_position_beats: Fraction = element._position_beats + self._length_beats
                     while element_copy._position_beats < finish_position_beats:
-                        chaotic_int: int = self._trigger_steps % int()
-                        if chaotic_int % 2:
+                        chaotic_fraction: Fraction = self._trigger_steps % Fraction() % 1
+                        result = 1 if 1 - chaotic_fraction < self._parameter else 0
+                        if result == 1:
                             new_clip += element_copy
                         element_copy._position_beats += beats_per_step
             # Apply the Swing

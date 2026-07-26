@@ -56,7 +56,7 @@ class Chaos(o.Operand):
             self << single_parameter
 
 
-    def monte_carlo_uniformity_test(self, total_points: int = 10_000, total_bins: int = 16) -> float:
+    def monte_carlo_uniformity_test(self, total_points: int = 10_000, total_bins: int = 16, precision: int = 1) -> float:
         """
         Evaluates the spatial uniformity of the chaotic system using a Chi-Square test.
         
@@ -78,7 +78,8 @@ class Chaos(o.Operand):
         """
         row_bin: list[int] = [0] * total_bins
         for _ in range(total_points):
-            bin_index: int = self % int() % total_bins
+            result_rational: Fraction = self % Fraction()
+            bin_index: int = int(result_rational * precision) % total_bins
             row_bin[bin_index] += 1
         average_points_E: float = total_points / total_bins
         chi_square: float = 0.0

@@ -1136,9 +1136,8 @@ class Probability(Manipulator):
 
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         numeral, validated = super().tame(numeral, iterate)
-        ratio_1: Fraction = ra.Result(numeral)._rational % 100  # in the interval [0, 100[
-        # A `Manipulator` shall always be triggered regardless of being previously validated or not
-        numeral = Fraction(1) if ratio_1 < self._parameter % 1 * 100 else Fraction(0)
+        chaotic_fraction: Fraction = ra.Result(numeral)._rational % 1
+        numeral = Fraction(1) if 1 - chaotic_fraction < self._parameter else Fraction(0)
         return numeral, validated
 
 
