@@ -1505,6 +1505,14 @@ def test_clip_setting():
     assert single_note[0] % Pitch() == "F4"
 
 
+def test_clip_plotlist():
+    single_note = Clip([Note()])
+    plotlist = single_note.getPlotlist()
+    assert len(plotlist) == 2
+
+# test_clip_plotlist()
+
+
 def test_clip_playlist():
     devices = settings % Devices()
     settings << ClockedDevices(devices)
