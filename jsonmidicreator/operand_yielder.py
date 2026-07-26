@@ -88,6 +88,8 @@ class Sequencer(Yielder):
                         return self._length_beats
                     case _:
                         return super().__mod__(operand)
+            case oc.Clip():
+                return self * oe.Note()
             case str():
                 if isinstance(self._trigger_steps, str):
                     return self._trigger_steps
@@ -193,7 +195,7 @@ class Sequencer(Yielder):
                     while element_copy._position_beats < finish_position_beats:
                         chaotic_rational: Fraction = self._trigger_steps % Fraction() % 1
                         # `1 - chaotic_rational` in order to preserve result in chained Probabilities or alike, 1 remains 1 and 0 remains 0, no flipping
-                        result = 1 if 1 - chaotic_rational < self._parameter else 0
+                        result = 1 if 1 - chaotic_rational < Fraction(1, 2) else 0
                         if result == 1:
                             new_clip += element_copy
                         element_copy._position_beats += beats_per_step
