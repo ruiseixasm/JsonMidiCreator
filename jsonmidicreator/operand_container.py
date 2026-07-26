@@ -1594,12 +1594,16 @@ class Clip(Composition):  # Just a container of Elements
     int : Returns the len of the list.
     TimeSignature(settings) : A Time Signature on which `TimeValue` units are based and `Element` items placed.
     Track("Track 1") : Where the track name and respective Devices are set.
+    Name("Clip") : Where the track name and respective Devices are set.
+    Devices(settings % Devices()) : Where the track name and respective Devices are set.
     Auto(False) : Sets the Auto Stacking on or off.
     None, Length : Returns the length of all combined elements.
     """
     def __init__(self, *operands):
         super().__init__()
         self._track: ou.Track           = ou.Track()
+        self._name: str                 = "Clip"
+        self._devices: list[str]        = og.settings._devices.copy()
         self._auto: bool                = False
         self._items: list[oe.Element]   = []
         for single_operand in operands:
@@ -1640,6 +1644,8 @@ class Clip(Composition):  # Just a container of Elements
         super()._sort_items()
         if self._auto:  # Does auto formatting
             self.fit()
+            if self._upper_container is not None:   # Recursive call
+                self._upper_container.fit() # upper container is a Clip too
         return self
 
 
@@ -1661,6 +1667,8 @@ class Clip(Composition):  # Just a container of Elements
             self._time_signature << owner_clip._time_signature    # Does a parameters copy
             for single_element in self._items:
                 single_element._set_owner_clip(owner_clip)
+        if self._upper_container is not None:   # Recursive call
+            self._upper_container._set_owner_clip(owner_clip) # upper container is a Clip too
         return self
 
 
@@ -2419,7 +2427,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         new_clip: Clip              = super().shallow_copy()
         # It's a shallow copy, so it shares the same TimeSignature and midi track
-        new_clip._time_signature    << self._time_signature   
+        new_clip._time_signature    << self._time_signature
         new_clip._track             << self._track
         new_clip._auto              = self._auto
         return new_clip << parameters
