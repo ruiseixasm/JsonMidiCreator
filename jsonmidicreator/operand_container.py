@@ -1506,6 +1506,39 @@ class Composition(Container):
             self._time_signature    << self.deserialize(serialization["parameters"]["time_signature"])
         return self
 
+    def empty_copy(self, *parameters) -> Self:
+        """
+        Returns a Composition with all the same parameters but the list that is empty.
+
+        Args:
+            *parameters: Any given parameter will be operated with `<<` in the sequence given.
+
+        Returns:
+            Composition: Returns the copy of self but with an empty list of items.
+        """
+        new_composition: Composition    = super().empty_copy()
+        new_composition._name           = self._name
+        new_composition._time_signature << self._time_signature
+        return new_composition << parameters
+
+
+    def shallow_copy(self, *parameters) -> Self:
+        """
+        Returns a Composition with all the same parameters copied, but the list that
+        is just a reference of the same list of the original Composition.
+
+        Args:
+            *parameters: Any given parameter will be operated with `<<` in the sequence given.
+
+        Returns:
+            Composition: Returns the copy of self but with a list of the same items of the original one.
+        """
+        new_composition: Composition    = super().shallow_copy()
+        # It's a shallow copy, so it shares the same TimeSignature and midi track
+        new_composition._name           = self._name
+        new_composition._time_signature << self._time_signature
+        return new_composition << parameters
+
     def __lshift__(self, operand: any) -> Self:
         match operand:
             case Composition():
@@ -2038,6 +2071,43 @@ class Clip(Composition):  # Just a container of Elements
             self._set_owner_clip()
         return self
 
+    def empty_copy(self, *parameters) -> Self:
+        """
+        Returns a Clip with all the same parameters but the list that is empty.
+
+        Args:
+            *parameters: Any given parameter will be operated with `<<` in the sequence given.
+
+        Returns:
+            Clip: Returns the copy of self but with an empty list of items.
+        """
+        new_clip: Clip              = super().empty_copy()
+        new_clip._time_signature    << self._time_signature
+        new_clip._track             << self._track
+        new_clip._name              = self._name
+        new_clip._devices           = self._devices.copy()
+        new_clip._auto              = self._auto
+        return new_clip << parameters
+
+
+    def shallow_copy(self, *parameters) -> Self:
+        """
+        Returns a Clip with all the same parameters copied, but the list that
+        is just a reference of the same list of the original Clip.
+
+        Args:
+            *parameters: Any given parameter will be operated with `<<` in the sequence given.
+
+        Returns:
+            Clip: Returns the copy of self but with a list of the same items of the original one.
+        """
+        new_clip: Clip              = super().shallow_copy()
+        # It's a shallow copy, so it shares the same TimeSignature and midi track
+        new_clip._time_signature    << self._time_signature
+        new_clip._track             << self._track
+        new_clip._auto              = self._auto
+        return new_clip << parameters
+
     def __lshift__(self, operand: any) -> Self:
         match operand:
             case Clip():
@@ -2451,44 +2521,6 @@ class Clip(Composition):  # Just a container of Elements
             case _:
                 super().__ifloordiv__(operand)
         return self._sort_items()  # Shall be sorted!
-
-
-    def empty_copy(self, *parameters) -> Self:
-        """
-        Returns a Clip with all the same parameters but the list that is empty.
-
-        Args:
-            *parameters: Any given parameter will be operated with `<<` in the sequence given.
-
-        Returns:
-            Clip: Returns the copy of self but with an empty list of items.
-        """
-        new_clip: Clip              = super().empty_copy()
-        new_clip._time_signature    << self._time_signature
-        new_clip._track             << self._track
-        new_clip._name              = self._name
-        new_clip._devices           = self._devices.copy()
-        new_clip._auto              = self._auto
-        return new_clip << parameters
-
-
-    def shallow_copy(self, *parameters) -> Self:
-        """
-        Returns a Clip with all the same parameters copied, but the list that
-        is just a reference of the same list of the original Clip.
-
-        Args:
-            *parameters: Any given parameter will be operated with `<<` in the sequence given.
-
-        Returns:
-            Clip: Returns the copy of self but with a list of the same items of the original one.
-        """
-        new_clip: Clip              = super().shallow_copy()
-        # It's a shallow copy, so it shares the same TimeSignature and midi track
-        new_clip._time_signature    << self._time_signature
-        new_clip._track             << self._track
-        new_clip._auto              = self._auto
-        return new_clip << parameters
 
 
     def swap(self, left_operand: o.Operand, right_operand: o.Operand, parameter_type: type = ra.Position) -> Self:
