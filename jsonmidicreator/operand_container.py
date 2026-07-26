@@ -1200,9 +1200,10 @@ class Composition(Container):
     int : Returns the len of the list.
     """
     def __init__(self, *operands):
-        super().__init__()
         # Part sets the TimeSignature, this is just a reference
+        self._name: str = "Composition"
         self._time_signature: og.TimeSignature  = og.settings._time_signature.copy()
+        super().__init__(*operands)
 
 
     def _get_time_signature(self) -> 'og.TimeSignature':
@@ -1602,7 +1603,7 @@ class Clip(Composition):  # Just a container of Elements
     def __init__(self, *operands):
         super().__init__()
         self._track: ou.Track           = ou.Track()
-        self._name: str                 = "Clip"
+        self._name                      = "Clip"
         self._devices: list[str]        = og.settings._devices.copy()
         self._auto: bool                = False
         self._items: list[oe.Element]   = []
@@ -2034,8 +2035,17 @@ class Clip(Composition):  # Just a container of Elements
                 self._items = line_elements
                 self._set_owner_clip()._sort_items()
 
-            case ou.Track() | od.Name() | Devices() | od.Device():
+            case ou.Track():
                 self._track << operand
+            case od.Name():
+                self._track << operand
+                self._name = operand._data
+            case Devices():
+                self._track << operand
+                self._devices = operand._items.copy()
+            case od.Device():
+                self._track << operand
+                self._devices = [operand._data]
             case ou.Auto():
                 self._auto = bool(operand._unit)
                 
@@ -3527,7 +3537,7 @@ class Block(Composition):
         self._position_beats: Fraction  = Fraction(0)   # in Beats
         super().__init__()
         self._items: list[Clip] = []
-        self._name: str         = "Block"
+        self._name              = "Block"
         # Part sets the TimeSignature, this is just a reference
         self._owner_part: Part  = None
         for single_operand in operands:
@@ -4133,8 +4143,8 @@ class Part(Composition):
     """
     def __init__(self, *operands):
         super().__init__()
-        self._items: list[Block] = []
-        self._name: str = "Part"
+        self._items: list[Block]    = []
+        self._name                  = "Part"
         for single_operand in operands:
             self << single_operand
 
