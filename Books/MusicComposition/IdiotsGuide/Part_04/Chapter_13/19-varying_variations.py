@@ -42,6 +42,6 @@ new_motif_modulated_b: Clip = new_motif.copy() << "B"
 
 varying_variations: Clip = \
     motif >> motif_mirror >> motif_reverse >> \
-    new_motif >> new_motif_modulated_a >> new_motif_reverse >> new_motif_modulated_b >> motif_modulated << Track("Melody")
+    new_motif >> new_motif_modulated_a >> new_motif_reverse >> new_motif_modulated_b >> motif_modulated << Name("Melody")
 
 varying_variations >> Play()

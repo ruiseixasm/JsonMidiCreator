@@ -35,11 +35,11 @@ first_half_1: Clip = Note() + 2 * Note(eight) >> Stack() << Foreach(3, 2, 3)
 first_half_2: Clip = first_half_1 * 1 << Nth(1)**2
 # first_half_2 >> Play()
 
-melody: Clip = first_half_1 >> four_eights >> first_half_2 >> Note(1/2, 2) * 1 >> first_half_2 - 1 >> four_eights - 1 >> Note(1/1) << Track("melody")
+melody: Clip = first_half_1 >> four_eights >> first_half_2 >> Note(1/2, 2) * 1 >> first_half_2 - 1 >> four_eights - 1 >> Note(1/1) << Name("melody")
 melody * 4 >> Export("./Books/MusicComposition/IdiotsGuide/Part_04/Chapter_14/exported_lead_sheet_melody_jmp.json") # Export as a JsonMidiPlayer file
 # melody * 4 >> Play()
 
-chords: Clip = Chord(1) + Chord(2) + Chord(6, 1/2) + Chord(3, 1/2) + Chord(6) >> Stack() << Track("chords") << Octave(3)
+chords: Clip = Chord(1) + Chord(2) + Chord(6, 1/2) + Chord(3, 1/2) + Chord(6) >> Stack() << Name("chords") << Octave(3)
 # chords * 4 >> Play()
 
 lead_sheet: Block = melody + chords

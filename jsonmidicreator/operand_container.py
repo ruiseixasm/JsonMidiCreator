@@ -1671,7 +1671,7 @@ class Clip(Composition):  # Just a container of Elements
     list([]) : A list of `Element` type items.
     int : Returns the len of the list.
     TimeSignature(settings) : A Time Signature on which `TimeValue` units are based and `Element` items placed.
-    Track("Track 1") : Where the track name and respective Devices are set.
+    Name("Track 1") : Where the track name and respective Devices are set.
     Name("Clip") : Where the track name and respective Devices are set.
     Devices(settings % Devices()) : Where the track name and respective Devices are set.
     Auto(False) : Sets the Auto Stacking on or off.

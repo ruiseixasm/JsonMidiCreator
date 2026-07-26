@@ -26,7 +26,7 @@ rest_play = ( Rest(), Play())
 # Original Motif to work on its pitches
 motif: Clip = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> Stack()
 motif << Foreach(1, 3, 4, 5, 4, 1)**Degree() << KeySignature(1, Minor())
-melody: Clip = motif * 2 << Track("Melody")
+melody: Clip = motif * 2 << Name("Melody")
 melody -= melody % Nth(9, 11)
 melody >> Link()
 melody >> Play()

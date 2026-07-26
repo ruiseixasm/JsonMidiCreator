@@ -40,7 +40,7 @@ clarinet = \
     motif + \
     (Note() * 3 << Nth(1)**half << Foreach(9, 11, 10)**Degree()) + \
     motif \
-    >> Stack() >> Tie() << Channel(1) << Track(1, "Clarinet") << Velocity(60)
+    >> Stack() >> Tie() << Channel(1) << TrackNumber(1) << Name("Clarinet") << Velocity(60)
 clarinet % Measures(0) % NoteValue() >> Print(0)
 # clarinet >> rest_play >> Render("Midi/clarinet.mid")
 trumpet = \
@@ -49,6 +49,6 @@ trumpet = \
     (Note() * 2 << half << Foreach(5, 7)**Degree()) + \
     motif + \
     (Note() * 2 << half << Foreach(7, 6)**Degree()) \
-    >> Stack() << Channel(2) << Track(2, "Trumpet") << Velocity(30)
+    >> Stack() << Channel(2) << TrackNumber(2) << Name("Trumpet") << Velocity(30)
 # trumpet >> rest_play
 clarinet + trumpet >> Link() >> Rest(1/1) >> Render("Midi/theme.mid") >> ProgramChange(0, Channel(0)) >> ProgramChange(0, Channel(1)) >> Play()

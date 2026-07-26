@@ -26,10 +26,10 @@ rest_play = ( Rest(), Play())
 # Original Motif to work on its pitches
 motif: Clip = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> Stack()
 motif << Foreach(1, 3, 4, 5, 4, 1)**Degree() << KeySignature(1, Minor())
-melody: Clip = motif * 2 << Track("Melody")
+melody: Clip = motif * 2 << Name("Melody")
 
 chords: Clip = Chord() * 6 << Foreach(half, half, whole, half, half, whole) >> Stack()
-chords << Foreach("Em", "Bm", "Em", "Am", "G", "Em") << Track("Harmony")
+chords << Foreach("Em", "Bm", "Em", "Am", "G", "Em") << Name("Harmony")
 chords - Octave()
 
 song: Block = melody + chords
