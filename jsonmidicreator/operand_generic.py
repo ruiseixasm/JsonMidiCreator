@@ -4114,7 +4114,7 @@ class Plot(ReadOnly):
         self._plot_lists        = [ composition.getPlotlist() ]
         self._plot_checksums    = [ o.checksum_to_string(composition.checksum()) ]
         if not isinstance(self._title, str):
-            self._title: str = composition % str()
+            self._title: str = composition._name
 
         # Enable interactive mode (doesn't block the execution)
         plt.ion()

@@ -89,7 +89,7 @@ class Sequencer(Yielder):
                     case _:
                         return super().__mod__(operand)
             case oc.Clip():
-                return self * oe.Note()
+                return self * oe.Note(ra.Steps(1))  # Single step note
             case str():
                 if isinstance(self._trigger_steps, str):
                     return self._trigger_steps
