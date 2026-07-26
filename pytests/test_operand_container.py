@@ -1497,11 +1497,35 @@ def test_clip_track():
 
 # test_clip_track()
 
+
 def test_clip_setting():
     single_note = Clip([Note()])
     assert single_note[0] % Pitch() == "C4"
     single_note << "F"
     assert single_note[0] % Pitch() == "F4"
+
+
+def test_clip_playlist():
+    devices = settings % Devices()
+    settings << ClockedDevices(devices)
+    single_note = Clip([Note()])
+    playlist = single_note.getPlaylist()
+    assert len(playlist) == 3
+
+    clocked_playlist = Process._clocked_playlist(single_note)
+    assert len(clocked_playlist) == 4
+
+    settings << None    # Reset Settings
+
+# test_clip_playlist()
+
+
+def test_clip_midilist():
+    single_note = Clip([Note()])
+    midilist = single_note.getMidilist()
+    assert len(midilist) == 1
+
+# test_clip_playlist()
 
 
 def test_clip_multi():
