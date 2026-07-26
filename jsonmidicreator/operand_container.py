@@ -1440,6 +1440,10 @@ class Composition(Container):
                             return ol.Null()
                 else:
                     return self % convertible
+            case od.Name():
+                return od.Name(self._name)
+            case str():
+                return self._name
             case og.TimeSignature():
                 return self._time_signature.copy()
             case int():
@@ -1479,6 +1483,10 @@ class Composition(Container):
                         self._time_signature = operand._data
                     case _:                 super().__lshift__(operand)
 
+            case od.Name():
+                self._name = operand._data
+            case str():
+                self._name = operand
             case og.TimeSignature():
                 self._set_time_signature(operand) # Includes time signature setting with `<<`
 
@@ -1784,7 +1792,12 @@ class Clip(Composition):  # Just a container of Elements
                         return super().__mod__(operand)
             case ou.Track():
                 return self._track.copy()
-            case od.Name() | Devices() | str():
+            case od.Name():
+                return self._track % operand
+            case Devices():
+                return self._track % operand
+                return Devices(self._devices)
+            case str():
                 return self._track % operand
             case ou.Auto():
                 return ou.Auto(self._auto)
