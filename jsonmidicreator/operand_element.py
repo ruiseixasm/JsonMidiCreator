@@ -1905,7 +1905,7 @@ class Clock(DeviceElement):
                             "pulse_duration_min_numerator": single_pulse_duration_min.numerator,
                             "pulse_duration_min_denominator": single_pulse_duration_min.denominator,
                             "clocked_devices": list(set(og.settings._clocked_devices)),
-                            "controlled_devices": list(set(og.settings._clocked_devices))
+                            "controlled_devices": list(set(og.settings._controlled_devices))
                         },
                         "tempo": {
                             "f": "JsonMidiCreator",
