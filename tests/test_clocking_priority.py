@@ -1,8 +1,9 @@
 from jsonmidicreator import *
 
-settings << ClockedDevices(["loop"])
+settings << ClockedDevices(["loop", "VMPK"])
 
 whole_note = Note(1/1) * 1
-whole_note >> Play(verbose=True)
+step_note = Note(Steps(1), "G")
+whole_note + step_note >> Play(verbose=True)
 
 
