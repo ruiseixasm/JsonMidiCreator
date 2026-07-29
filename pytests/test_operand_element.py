@@ -560,30 +560,30 @@ def test_note_pitch():
     
     note.clear()    # Becomes like a new note
 
-    print(note._pitch._get_chromatic_pitch())
-    assert note._pitch._get_chromatic_pitch() == 60  # White Key
-    note << Pitch()._set_chromatic_pitch(35)
-    print(note._pitch._get_chromatic_pitch())
-    assert note._pitch._get_chromatic_pitch() == 35  # White Key
-    note << Pitch()._set_chromatic_pitch(42)
-    print(note._pitch._get_chromatic_pitch())
-    assert note._pitch._get_chromatic_pitch() == 42  # Black Key
-    note << Pitch()._set_chromatic_pitch(39)
-    print(note._pitch._get_chromatic_pitch())
-    assert note._pitch._get_chromatic_pitch() == 39  # Black Key
+    print(note._pitch.get_absolute_pitch())
+    assert note._pitch.get_absolute_pitch() == 60  # White Key
+    note << Pitch().set_absolute_pitch(35)
+    print(note._pitch.get_absolute_pitch())
+    assert note._pitch.get_absolute_pitch() == 35  # White Key
+    note << Pitch().set_absolute_pitch(42)
+    print(note._pitch.get_absolute_pitch())
+    assert note._pitch.get_absolute_pitch() == 42  # Black Key
+    note << Pitch().set_absolute_pitch(39)
+    print(note._pitch.get_absolute_pitch())
+    assert note._pitch.get_absolute_pitch() == 39  # Black Key
 
     note << DrumKit("Drum")
-    print(note._pitch._get_chromatic_pitch())
-    assert note._pitch._get_chromatic_pitch() == 35  # White Key
+    print(note._pitch.get_absolute_pitch())
+    assert note._pitch.get_absolute_pitch() == 35  # White Key
     note << DrumKit("Hi-Hat")
-    print(note._pitch._get_chromatic_pitch())
-    assert note._pitch._get_chromatic_pitch() == 42  # Black Key
+    print(note._pitch.get_absolute_pitch())
+    assert note._pitch.get_absolute_pitch() == 42  # Black Key
     note << DrumKit("Clap")
-    print(note._pitch._get_chromatic_pitch())
-    assert note._pitch._get_chromatic_pitch() == 39  # Black Key
+    print(note._pitch.get_absolute_pitch())
+    assert note._pitch.get_absolute_pitch() == 39  # Black Key
 
     note << Pitch()
-    assert note._pitch._get_chromatic_pitch() == 60   # Middle C
+    assert note._pitch.get_absolute_pitch() == 60   # Middle C
 
     note.clear()
 

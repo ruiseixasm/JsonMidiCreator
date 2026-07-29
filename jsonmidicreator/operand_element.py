@@ -2231,7 +2231,7 @@ class Note(ChannelElement):
 
     def checksum(self) -> int:
         """16-bit checksum for a `Note`."""
-        master: int = self._velocity << 7 + 4 | self._pitch._get_chromatic_pitch() << 4 | self._channel_0
+        master: int = self._velocity << 7 + 4 | self._pitch.get_absolute_pitch() << 4 | self._channel_0
         master ^= self._position_beats.numerator << 8 | self._position_beats.denominator
         master ^= self._duration_beats.numerator << 8 | self._duration_beats.denominator
         return master & 0xFFFF  # 16-bit
@@ -2242,7 +2242,7 @@ class Note(ChannelElement):
             or pitch < 0 or pitch > 128
 
     def pitch_centroid(self) -> int:
-        return self._pitch._get_chromatic_pitch()
+        return self._pitch.get_absolute_pitch()
 
     def increase_pitch_centroid(self) -> Self:
         self._pitch += ou.Octave(1)
@@ -2277,8 +2277,8 @@ class Note(ChannelElement):
             case Note():
                 # Adds predictability in sorting and consistency in clipping
                 if self._position_beats == other._position_beats:
-                    self_pitch: int = self._pitch._get_chromatic_pitch()
-                    other_pitch: int = other._pitch._get_chromatic_pitch()
+                    self_pitch: int = self._pitch.get_absolute_pitch()
+                    other_pitch: int = other._pitch.get_absolute_pitch()
                     if self_pitch == other_pitch:
                         return super().__lt__(other)
                     return self_pitch < other_pitch
@@ -2291,8 +2291,8 @@ class Note(ChannelElement):
             case Note():
                 # Adds predictability in sorting and consistency in clipping
                 if self._position_beats == other._position_beats:
-                    self_pitch: int = self._pitch._get_chromatic_pitch()
-                    other_pitch: int = other._pitch._get_chromatic_pitch()
+                    self_pitch: int = self._pitch.get_absolute_pitch()
+                    other_pitch: int = other._pitch.get_absolute_pitch()
                     if self_pitch == other_pitch:
                         return super().__gt__(other)
                     return self_pitch > other_pitch
@@ -2388,7 +2388,7 @@ class Note(ChannelElement):
             case ou.PitchCentroid():
                 return ou.PitchCentroid(self.pitch_centroid())
             case ou.DrumKit():
-                return ou.DrumKit(self._pitch._get_chromatic_pitch(), ou.Channel(self._channel_0 + 1))
+                return ou.DrumKit(self._pitch.get_absolute_pitch(), ou.Channel(self._channel_0 + 1))
             case _:                 return super().__mod__(operand)
 
 
@@ -2411,7 +2411,7 @@ class Note(ChannelElement):
             if single_note._duration_beats == 0:
                 continue    # Next note
 
-            pitch_int: int = single_note._pitch._get_chromatic_pitch()
+            pitch_int: int = single_note._pitch.get_absolute_pitch()
             if single_note.is_clipped(pitch_int):
                 continue    # Next note
 
@@ -2468,7 +2468,7 @@ class Note(ChannelElement):
             if self_position_min < 0 or self_duration_min <= 0:
                 continue    # Next note
 
-            pitch_int: int = single_note._pitch._get_chromatic_pitch()
+            pitch_int: int = single_note._pitch.get_absolute_pitch()
             if single_note.is_clipped(pitch_int):
                 continue    # Next note
 
@@ -2526,7 +2526,7 @@ class Note(ChannelElement):
             if self_duration == 0:
                 continue    # Next note
 
-            pitch_int: int = single_note._pitch._get_chromatic_pitch()
+            pitch_int: int = single_note._pitch.get_absolute_pitch()
             if single_note.is_clipped(pitch_int):
                 continue    # Next note
 
@@ -2948,7 +2948,7 @@ class KeyScale(Note):
 
     def pitch_centroid(self) -> int:
         pitches: list[int] = [
-            single_note._pitch._get_chromatic_pitch() for single_note in self.get_component_elements()
+            single_note._pitch.get_absolute_pitch() for single_note in self.get_component_elements()
         ]
         if pitches:
             total = sum(pitches)
@@ -3033,7 +3033,7 @@ class KeyScale(Note):
             self_plotlist.extend(single_note.getPlotlist(position_beats, channels, self))
         # Makes sure the self middle pitch os passed once and only once to the last dict to be added on top of it
         if self_plotlist:
-            self_plotlist[-1]["note"]["middle_pitch"] = self._pitch._get_chromatic_pitch()
+            self_plotlist[-1]["note"]["middle_pitch"] = self._pitch.get_absolute_pitch()
         return self_plotlist
     
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
@@ -4724,7 +4724,7 @@ class PolyAftertouch(Aftertouch):
 
         if self_position_min >= 0:
 
-            pitch_int: int = self._pitch._get_chromatic_pitch()
+            pitch_int: int = self._pitch.get_absolute_pitch()
 
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist: list[dict] = []

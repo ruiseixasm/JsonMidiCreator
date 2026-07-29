@@ -128,7 +128,7 @@ def test_clip_mod():
     keys_float: list[int] = [60, 62, 64, 65, 67, 69, 71]
     for degree in range(7):
         chords_clip[degree] % Pitch() % int() >> Print()
-        assert chords_clip[degree]._pitch._get_chromatic_pitch() == keys_float[degree]
+        assert chords_clip[degree]._pitch.get_absolute_pitch() == keys_float[degree]
 
     single_note = Note()
     note_clip = Clip() + single_note
@@ -340,25 +340,25 @@ def test_rshift_container():
 
     all_chords = Chord(1/4) / 7 << Size("7th")
     assert not all_chords.is_masked()
-    assert all_chords[0].access(Pitch())._get_chromatic_pitch() == 60
+    assert all_chords[0].access(Pitch()).get_absolute_pitch() == 60
     first_chords = all_chords >> Filter(Beat(0))
     # assert not first_chords.is_masked()
     assert all_chords._test_owner_clip()
     assert first_chords._test_owner_clip()
     assert first_chords is not all_chords
-    assert first_chords[0].access(Pitch())._get_chromatic_pitch() == 60 # C4
+    assert first_chords[0].access(Pitch()).get_absolute_pitch() == 60 # C4
     first_chords << Degree(5)
     assert first_chords is not all_chords
     assert all_chords._test_owner_clip()
     assert first_chords._test_owner_clip()
     # assert first_chords[0] is not all_chords[0]
-    assert first_chords[0].access(Pitch())._get_chromatic_pitch() == 67 # G4
+    assert first_chords[0].access(Pitch()).get_absolute_pitch() == 67 # G4
     # assert all_chords[0].access(Pitch()).pitch_int() == 60
     first_chords << Degree(1) << Mode(5)    # Mode 5 is the G, Mixolydian
     assert first_chords is not all_chords
     assert all_chords._test_owner_clip()
     assert first_chords._test_owner_clip()
-    assert first_chords[0].access(Pitch())._get_chromatic_pitch() == 67 # G4
+    assert first_chords[0].access(Pitch()).get_absolute_pitch() == 67 # G4
 
 # test_rshift_container()
 
@@ -747,14 +747,14 @@ def test_lshift_clip():
     one_measure: Clip = two_measures << Select(Bellow(Measure(1)))
     assert one_measure.len() == 4
 
-    assert two_measures[0]._pitch._get_chromatic_pitch() == 60
+    assert two_measures[0]._pitch.get_absolute_pitch() == 60
     # two_measures << Pipe(Key(30))
     two_measures << Octave(30 // 12 - 1) << Key(30 % 12)
-    print(f"two_measures[0]._pitch._get_chromatic_pitch(): {two_measures[0]._pitch._get_chromatic_pitch()}")
-    assert two_measures[0]._pitch._get_chromatic_pitch() == 30
+    print(f"two_measures[0]._pitch.get_absolute_pitch(): {two_measures[0]._pitch.get_absolute_pitch()}")
+    assert two_measures[0]._pitch.get_absolute_pitch() == 30
     # two_measures << Pipe(Key(60))
     two_measures << Octave(60 // 12 - 1) << Key(60 % 12)
-    assert two_measures[0]._pitch._get_chromatic_pitch() == 60
+    assert two_measures[0]._pitch.get_absolute_pitch() == 60
 
 
     eight_notes = Note() / 8
@@ -1031,8 +1031,8 @@ def test_flip_operation():
 
     actual_pitch: int = 60
     for single_note in four_notes:
-        single_note._pitch._get_chromatic_pitch() >> Print()
-        assert single_note._pitch._get_chromatic_pitch() == actual_pitch
+        single_note._pitch.get_absolute_pitch() >> Print()
+        assert single_note._pitch.get_absolute_pitch() == actual_pitch
         actual_pitch += 2
     
     four_notes.mirror(False)
@@ -1040,8 +1040,8 @@ def test_flip_operation():
     print("------")
     for single_note in four_notes:
         actual_pitch -= 2
-        single_note._pitch._get_chromatic_pitch() >> Print()
-        assert single_note._pitch._get_chromatic_pitch() == actual_pitch
+        single_note._pitch.get_absolute_pitch() >> Print()
+        assert single_note._pitch.get_absolute_pitch() == actual_pitch
 
 # test_flip_operation()
 
@@ -1422,8 +1422,8 @@ def test_clip_line():
 
     cluster_line = Line("cl_-_2:3b:3m::1.:3.:4.")
     single_cluster = Clip(cluster_line)
-    print(f"Main pitch: {single_cluster[0]._pitch._get_chromatic_pitch()}")
-    assert single_cluster[0]._pitch._get_chromatic_pitch() == 57    # A3
+    print(f"Main pitch: {single_cluster[0]._pitch.get_absolute_pitch()}")
+    assert single_cluster[0]._pitch.get_absolute_pitch() == 57    # A3
     # single_cluster >> Plot()
     assert single_cluster.len() == 1
     assert isinstance(single_cluster[0], Cluster)
@@ -1433,16 +1433,16 @@ def test_clip_line():
         "cl_3:1m:M::-:3.:5."
     )
     # single_cluster >> Plot()
-    print(f"Main pitch: {single_cluster[0]._pitch._get_chromatic_pitch()}")
-    assert single_cluster[0]._pitch._get_chromatic_pitch() == 60    # C
+    print(f"Main pitch: {single_cluster[0]._pitch.get_absolute_pitch()}")
+    assert single_cluster[0]._pitch.get_absolute_pitch() == 60    # C
     components: list[Note] = single_cluster[0].get_component_elements()
     assert len(components) == 3
-    print(f"Pitch 1: {components[0]._pitch._get_chromatic_pitch()}")
-    print(f"Pitch 2: {components[1]._pitch._get_chromatic_pitch()}")
-    print(f"Pitch 3: {components[2]._pitch._get_chromatic_pitch()}")
-    assert components[0]._pitch._get_chromatic_pitch() == 60    # C
-    assert components[1]._pitch._get_chromatic_pitch() == 64    # E
-    assert components[2]._pitch._get_chromatic_pitch() == 67    # G
+    print(f"Pitch 1: {components[0]._pitch.get_absolute_pitch()}")
+    print(f"Pitch 2: {components[1]._pitch.get_absolute_pitch()}")
+    print(f"Pitch 3: {components[2]._pitch.get_absolute_pitch()}")
+    assert components[0]._pitch.get_absolute_pitch() == 60    # C
+    assert components[1]._pitch.get_absolute_pitch() == 64    # E
+    assert components[2]._pitch.get_absolute_pitch() == 67    # G
     assert single_cluster.len() == 1
 
 # test_clip_line()

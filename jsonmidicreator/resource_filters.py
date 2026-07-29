@@ -58,8 +58,8 @@ def filter_increasing_pitch(clip: 'oc.Clip') -> bool:
     unmasked_notes: list[oe.Note] = [note for note in unmasked_elements if isinstance(note, oe.Note)]
     for i in range(len(unmasked_notes)):
         if i > 0:
-            left_pitch = unmasked_notes[i - 1]._pitch._get_chromatic_pitch()
-            right_pitch = unmasked_notes[i]._pitch._get_chromatic_pitch()
+            left_pitch = unmasked_notes[i - 1]._pitch.get_absolute_pitch()
+            right_pitch = unmasked_notes[i]._pitch.get_absolute_pitch()
             if left_pitch >= right_pitch:
                 return False
     return True
@@ -70,8 +70,8 @@ def filter_same_pitch(clip: 'oc.Clip') -> bool:
     unmasked_notes: list[oe.Note] = [note for note in unmasked_elements if isinstance(note, oe.Note)]
     for i in range(len(unmasked_notes)):
         if i > 0:
-            left_pitch = unmasked_notes[i - 1]._pitch._get_chromatic_pitch()
-            right_pitch = unmasked_notes[i]._pitch._get_chromatic_pitch()
+            left_pitch = unmasked_notes[i - 1]._pitch.get_absolute_pitch()
+            right_pitch = unmasked_notes[i]._pitch.get_absolute_pitch()
             if left_pitch != right_pitch:
                 return False
     return True
@@ -82,8 +82,8 @@ def filter_decreasing_pitch(clip: 'oc.Clip') -> bool:
     unmasked_notes: list[oe.Note] = [note for note in unmasked_elements if isinstance(note, oe.Note)]
     for i in range(len(unmasked_notes)):
         if i > 0:
-            left_pitch = unmasked_notes[i - 1]._pitch._get_chromatic_pitch()
-            right_pitch = unmasked_notes[i]._pitch._get_chromatic_pitch()
+            left_pitch = unmasked_notes[i - 1]._pitch.get_absolute_pitch()
+            right_pitch = unmasked_notes[i]._pitch.get_absolute_pitch()
             if left_pitch <= right_pitch:
                 return False
     return True

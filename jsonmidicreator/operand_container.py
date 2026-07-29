@@ -1877,8 +1877,8 @@ class Clip(Composition):  # Just a container of Elements
                         right_components: list[oe.Element] = single_element.get_component_elements()
                         for left, right in zip(left_components, right_components):
                             if isinstance(left, oe.Note) and isinstance(right, oe.Note):
-                                left_pitch: int = left._pitch._get_chromatic_pitch()
-                                right_pitch: int = right._pitch._get_chromatic_pitch()
+                                left_pitch: int = left._pitch.get_absolute_pitch()
+                                right_pitch: int = right._pitch.get_absolute_pitch()
                                 delta_pitch: int = abs(right_pitch - left_pitch)
                                 pitch_transitions._sum += delta_pitch
                                 pitch_transitions._max = max(pitch_transitions._max, delta_pitch)
@@ -1890,12 +1890,12 @@ class Clip(Composition):  # Just a container of Elements
     @staticmethod
     def _get_left_note_index(notes: list['oe.Note'], extended_durations: list[Fraction], tied_note: 'oe.Note') -> int:
         right_start: Fraction = tied_note._position_beats
-        right_pitch: int = tied_note._pitch._get_chromatic_pitch()
+        right_pitch: int = tied_note._pitch.get_absolute_pitch()
         for index, single_note in enumerate(notes):
             if extended_durations[index] >= 0:
                 left_end: Fraction = single_note._position_beats + single_note._duration_beats + extended_durations[index]
                 if left_end == right_start:
-                    left_pitch: int = single_note._pitch._get_chromatic_pitch()
+                    left_pitch: int = single_note._pitch.get_absolute_pitch()
                     if left_pitch == right_pitch:
                         return index
         return -1
@@ -3003,15 +3003,15 @@ class Clip(Composition):  # Just a container of Elements
 
             if higher_pitch is not None:
 
-                top_pitch_int: int = higher_pitch._get_chromatic_pitch()
-                bottom_pitch_int: int = lower_pitch._get_chromatic_pitch()
+                top_pitch_int: int = higher_pitch.get_absolute_pitch()
+                bottom_pitch_int: int = lower_pitch.get_absolute_pitch()
 
                 for element in self.unmasked_items():
                     if isinstance(element, oe.Note):
                         note_pitch: og.Pitch = element._pitch
-                        note_pitch_int: int = note_pitch._get_chromatic_pitch()
+                        note_pitch_int: int = note_pitch.get_absolute_pitch()
                         new_pitch: int = top_pitch_int - (note_pitch_int - bottom_pitch_int)
-                        note_pitch._set_chromatic_pitch(new_pitch)
+                        note_pitch.set_absolute_pitch(new_pitch)
                 
         return self
 
@@ -3047,12 +3047,12 @@ class Clip(Composition):  # Just a container of Elements
             
             for note in self.unmasked_items():
                 if isinstance(note, oe.Note):
-                    pitch_centroid = note._pitch._get_chromatic_pitch()
+                    pitch_centroid = note._pitch.get_absolute_pitch()
                     break
 
             for note in self.unmasked_items():
                 if isinstance(note, oe.Note):
-                    note_pitch: int = note._pitch._get_chromatic_pitch()
+                    note_pitch: int = note._pitch.get_absolute_pitch()
                     if note_pitch != pitch_centroid:
                         note._pitch << 2 * pitch_centroid - note_pitch
                 
@@ -3444,7 +3444,7 @@ class Clip(Composition):  # Just a container of Elements
         removed_notes: list[oe.Note] = []
         extended_notes: dict[int, oe.Note] = {}
         for note in all_notes:
-            channel_pitch: int = note._channel_0 << 8 | note._pitch._get_chromatic_pitch()
+            channel_pitch: int = note._channel_0 << 8 | note._pitch.get_absolute_pitch()
             if channel_pitch in extended_notes:
                 extended_note: oe.Note = extended_notes[channel_pitch]
                 extended_note_position: Fraction = extended_note._position_beats
@@ -3501,7 +3501,7 @@ class Clip(Composition):  # Just a container of Elements
         for note in self.unmasked_items():
             if isinstance(note, oe.Note):    # Only Notes have Pitch
                 if algorithm_type < 4:
-                    note_pitch: int = note._pitch._get_chromatic_pitch()
+                    note_pitch: int = note._pitch.get_absolute_pitch()
                     if first_pitch is None:
                         previous_pitch = first_pitch = note_pitch
                     else:

@@ -852,7 +852,7 @@ class Pitch(Generic):
         return self
 
 
-    def _get_chromatic_pitch(self) -> int:
+    def get_absolute_pitch(self) -> int:
         """
         Returns the final chromatic pitch with a midi value from 0 to 127.
         """
@@ -860,7 +860,7 @@ class Pitch(Generic):
         target_key: int = self._get_target_key()
         return octave_key + target_key
 
-    def _set_chromatic_pitch(self, chromatic_pitch: int) -> Self:
+    def set_absolute_pitch(self, chromatic_pitch: int) -> Self:
         """
         Sets the final chromatic pitch with a midi value from 0 to 127.
         """
@@ -873,7 +873,7 @@ class Pitch(Generic):
     def __eq__(self, other: any) -> bool:
         match other:
             case Pitch():
-                return self._get_chromatic_pitch() == other._get_chromatic_pitch()
+                return self.get_absolute_pitch() == other.get_absolute_pitch()
             case str():
                 try:
                     string_degree = ou.Degree(int(other))
@@ -889,7 +889,7 @@ class Pitch(Generic):
     def __lt__(self, other: any) -> bool:
         match other:
             case Pitch():
-                return self._get_chromatic_pitch() < other._get_chromatic_pitch()
+                return self.get_absolute_pitch() < other.get_absolute_pitch()
             case int() | float() | ou.Degree() | ou.Octave():
                 return self % other < other
             case _:
@@ -899,7 +899,7 @@ class Pitch(Generic):
     def __gt__(self, other: any) -> bool:
         match other:
             case Pitch():
-                return self._get_chromatic_pitch() > other._get_chromatic_pitch()
+                return self.get_absolute_pitch() > other.get_absolute_pitch()
             case int() | float() | ou.Degree() | ou.Octave():
                 return self % other > other
             case _:
@@ -936,7 +936,7 @@ class Pitch(Generic):
                         return operand._data << self % operand
             
                     case ou.Semitone(): # Returns an absolute pitch_int Semitone
-                        return operand._data << self._get_chromatic_pitch()
+                        return operand._data << self.get_absolute_pitch()
                     case ou.Transposition():
                         return operand._data << od.Pipe(self._transposition)
                     case int():             return self._octave_0
@@ -958,7 +958,7 @@ class Pitch(Generic):
                 return Fraction(self._transposition)
             
             case ou.AbsolutePitch():
-                return ou.AbsolutePitch(self._get_chromatic_pitch())
+                return ou.AbsolutePitch(self.get_absolute_pitch())
             case ou.Semitone():
                 self_key = self % ou.Key()
                 return operand.copy(self_key._unit)
@@ -1058,7 +1058,7 @@ class Pitch(Generic):
                         self._tonic_key = operand._data._unit % 12
 
                     case ou.Semitone(): # Sets the absolute pitch_int Semitone
-                        self._set_chromatic_pitch(operand._data._unit)
+                        self.set_absolute_pitch(operand._data._unit)
                     case ou.Degree():   # Sets an absolute degree_0
                         self._degree_0 = operand._data._unit
                         self._accidental = operand._data._accidental
@@ -1098,7 +1098,7 @@ class Pitch(Generic):
                 self._tonic_key = self._key_signature.get_tonic_key()   # Setting a Key Signature adjusts the Tonic Key accordingly
 
             case ou.AbsolutePitch():
-                self._set_chromatic_pitch(operand._unit)
+                self.set_absolute_pitch(operand._unit)
             case ou.Semitone():
                 self << ou.Key(operand._unit)
 
@@ -1155,7 +1155,7 @@ class Pitch(Generic):
 
             case ou.DrumKit():
                 self << ou.Degree()     # Makes sure no Degree different of Tonic is in use
-                self._set_chromatic_pitch(ou.Key(operand)._unit) # Sets the key number regardless KeySignature or Scale!
+                self.set_absolute_pitch(ou.Key(operand)._unit) # Sets the key number regardless KeySignature or Scale!
 
             case ou.Accidental() | ou.Natural():
                 self._accidental = ou.Degree(operand)._accidental
@@ -1194,10 +1194,10 @@ class Pitch(Generic):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Pitch():
-                actual_semitone: int = self._get_chromatic_pitch()
+                actual_semitone: int = self.get_absolute_pitch()
                 added_pitch: int = operand._unit
                 new_pitch: int = actual_semitone + added_pitch
-                self._set_chromatic_pitch(new_pitch)
+                self.set_absolute_pitch(new_pitch)
             case ou.Semitone():
                 actual_semitone = self % ou.Semitone()
                 new_semitone = actual_semitone + operand
@@ -1248,10 +1248,10 @@ class Pitch(Generic):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Pitch():
-                actual_pitch: int = self._get_chromatic_pitch()
+                actual_pitch: int = self.get_absolute_pitch()
                 added_pitch: int = operand._unit
                 new_pitch: int = actual_pitch - added_pitch
-                self._set_chromatic_pitch(new_pitch)
+                self.set_absolute_pitch(new_pitch)
             case ou.Semitone():
                 actual_semitone = self % ou.Semitone()
                 new_semitone = actual_semitone - operand
@@ -1313,7 +1313,7 @@ class Pitch(Generic):
 
     def snap(self, up: bool = False) -> Self:
         scale_list: list[int] = self._key_signature % list()
-        self_pitch: int = self._get_chromatic_pitch()
+        self_pitch: int = self.get_absolute_pitch()
         pitch_offset: int = 0
         if up:
             pitch_step: int = 1
@@ -2411,7 +2411,7 @@ class Overhang(NoteEffect):
             note_finish: Fraction = single_note % ra.Finish() % Fraction()
             global_finish = max(global_finish, note_finish)
             channel_0: int = single_note._channel_0
-            pitch: int = single_note._pitch._get_chromatic_pitch()
+            pitch: int = single_note._pitch.get_absolute_pitch()
             channel_pitch: int = channel_0 << 7 | pitch # (4 bits, 7 bits)
             if channel_pitch in overhang_channel_pitch_notes:
                 channel_pitch_notes: list[Note] = overhang_channel_pitch_notes[channel_pitch]
@@ -4081,13 +4081,13 @@ class Plot(ReadOnly):
                         return self
                 else:
                     # Sort by Pitch instead
-                    at_position_notes.sort(key=lambda note:note._pitch._get_chromatic_pitch())
+                    at_position_notes.sort(key=lambda note:note._pitch.get_absolute_pitch())
                     minimum_position: Fraction = None
                     plotting_pitch: int = int(event.ydata + 0.5)
                     for single_note in at_position_notes:
                         if minimum_position is None:
                             minimum_position = single_note._position_beats
-                            root_pitch: int = single_note._pitch._get_chromatic_pitch()
+                            root_pitch: int = single_note._pitch.get_absolute_pitch()
                             single_note._pitch << plotting_pitch
                             plotting_pitch -= root_pitch
                         else:
