@@ -1549,6 +1549,12 @@ def test_settings_devices():
 # test_settings_track()
 
 
+def test_absolute_pitch():
+    default_pitch = Pitch()
+    assert default_pitch % Semitone() == 0
+    assert default_pitch % Pipe(Semitone()) == 60
+
+
 def test_pitch_multi():
 
     # Resets the defaults

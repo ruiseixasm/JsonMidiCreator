@@ -936,7 +936,7 @@ class Pitch(Generic):
                         return operand._data << self % operand
             
                     case ou.Semitone(): # Returns an absolute pitch_int Semitone
-                        return operand._data << self % int()
+                        return operand._data << self._get_chromatic_pitch()
                     case ou.Transposition():
                         return operand._data << od.Pipe(self._transposition)
                     case int():             return self._octave_0
@@ -1055,6 +1055,8 @@ class Pitch(Generic):
                         self._octave_0 = operand._data._unit // 12
                         self._tonic_key = operand._data._unit % 12
 
+                    case ou.Semitone(): # Sets the absolute pitch_int Semitone
+                        self._set_chromatic_pitch(operand._data._unit)
                     case ou.Degree():   # Sets an absolute degree_0
                         self._degree_0 = operand._data._unit
                         self._accidental = operand._data._accidental
@@ -1069,8 +1071,6 @@ class Pitch(Generic):
                         self._degree_0 = int(operand)
                     case Fraction():
                         self._transposition = int(operand._data)
-                    case ou.Semitone(): # Sets an absolute pitch
-                        self << od.Pipe(ou.Key(operand._data._unit))
                     case ou.Transposition():
                         self._transposition = operand._data._unit
                     case Scale():
