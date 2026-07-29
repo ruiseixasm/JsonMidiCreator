@@ -1038,16 +1038,16 @@ class Degree(PitchParameter):
         return self
 
 
-
 class Transposition(PitchParameter):
     """`Unit -> PitchParameter -> Transposition`
 
-    `Transposition` represents a modulation of a scale made by semitones along of a given Scale
-    depending on the Pitch having its own Scale or not respectively.
+    `Transposition` represents a modulation of a scale made by steps along of a given Scale
+    depending on the Pitch having its own Scale or not respectively. This applies only for the
+    scale defined for the Pitch and NOT for the one represented by the Key Signature (diatonic).
     
     Parameters
     ----------
-    int(0) : By default the `Root` note has no shifting, pitch unchanged.
+    int(0) : The amount of steps to transpose. By default the `Tonic` note has no transposition, pitch unchanged.
     """
     pass
 
