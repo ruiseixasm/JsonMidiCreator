@@ -838,6 +838,9 @@ def test_absolute_pitch():
     assert default_pitch % Semitone() == 0
     assert default_pitch % Pipe(Semitone()) == 0
 
+    assert default_pitch % AbsolutePitch() == 0
+    default_pitch << AbsolutePitch(60)
+    assert default_pitch % AbsolutePitch() == 60
 
 
 def test_element_multi():
