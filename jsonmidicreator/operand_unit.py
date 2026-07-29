@@ -1042,7 +1042,7 @@ class Degree(PitchParameter):
 class Transposition(PitchParameter):
     """`Unit -> PitchParameter -> Transposition`
 
-    `Transposition` represents a transposition made by tones along a given Scale
+    `Transposition` represents a modulation of a scale made by semitones along of a given Scale
     depending on the Pitch having its own Scale or not respectively.
     
     Parameters
