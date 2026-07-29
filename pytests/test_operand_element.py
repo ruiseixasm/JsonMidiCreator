@@ -827,7 +827,17 @@ def test_element_stretch():
     delayed_note % Beat() >> Print()
     delayed_note % Beats() >> Print()
 
-test_element_stretch()
+# test_element_stretch()
+
+
+def test_absolute_pitch():
+    default_pitch = Note()
+    assert default_pitch % Semitone() == 0
+    assert default_pitch % Pipe(Semitone()) == 60
+    default_pitch << Pipe(Semitone(0))
+    assert default_pitch % Semitone() == 0
+    assert default_pitch % Pipe(Semitone()) == 0
+
 
 
 def test_element_multi():
