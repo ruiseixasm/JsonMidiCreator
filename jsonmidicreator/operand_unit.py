@@ -240,6 +240,18 @@ class PitchParameter(Unit):
     """
     pass
 
+class AbsolutePitch(PitchParameter):
+    """`Unit -> PitchParameter -> AbsolutePitch`
+
+    Sharps() is intended to be used with KeySignature to set its amount of Sharps.
+    
+    Parameters
+    ----------
+    int(60) : Sets the absolute pitch from 0 to 127, with 60, middle C, as the default value.
+    """
+    def __init__(self, *parameters):
+        super().__init__(60, *parameters)
+
 class Accidentals(PitchParameter):
     """`Unit -> PitchParameter -> Accidentals`
     """

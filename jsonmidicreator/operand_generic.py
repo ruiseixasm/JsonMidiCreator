@@ -957,6 +957,8 @@ class Pitch(Generic):
             case Fraction():
                 return Fraction(self._transposition)
             
+            case ou.AbsolutePitch():
+                return ou.AbsolutePitch(self._get_chromatic_pitch())
             case ou.Semitone():
                 self_key = self % ou.Key()
                 return operand.copy(self_key._unit)
@@ -1095,6 +1097,8 @@ class Pitch(Generic):
                 self._key_signature << operand
                 self._tonic_key = self._key_signature.get_tonic_key()   # Setting a Key Signature adjusts the Tonic Key accordingly
 
+            case ou.AbsolutePitch():
+                self._set_chromatic_pitch(operand._unit)
             case ou.Semitone():
                 self << ou.Key(operand._unit)
 
