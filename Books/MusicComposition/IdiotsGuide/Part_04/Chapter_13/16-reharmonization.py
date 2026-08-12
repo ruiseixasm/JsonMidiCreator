@@ -32,5 +32,5 @@ chords: Clip = Chord() * 6 << Foreach(half, half, whole, half, half, whole) >> S
 chords << Foreach("Em", "Bm", "Em", "Am", "G", "Em") << Name("Harmony")
 chords - Octave()
 
-song: Block = melody + chords
+song: Section = melody + chords
 song >> Play()

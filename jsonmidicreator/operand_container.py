@@ -1861,8 +1861,8 @@ class Clip(Composition):  # Just a container of Elements
                 return Devices(self._devices)
             case ou.Auto():
                 return ou.Auto(self._auto)
-            case Block():
-                new_block = Block(self._time_signature)
+            case Section():
+                new_block = Section(self._time_signature)
                 new_block += self   # Implicit copy
                 return new_block
             case Part():
@@ -3571,30 +3571,30 @@ class Clip(Composition):  # Just a container of Elements
 
 
 #####################################################################################################
-#############################################  BLOCK  ###############################################
+############################################  SECTION  ##############################################
 #####################################################################################################
 
 
-class Block(Composition):
-    """`Container -> Composition -> Block`
+class Section(Composition):
+    """`Container -> Composition -> Section`
 
     This type of `Container` aggregates `Clip` items. This type of `Composition` has \
         a `Position` working similarly to `Element` operands.
-    A `Block` works similarly like an `Element`, meaning that adding two blocks will result \
+    A `Section` works similarly like an `Element`, meaning that adding two sections will result \
         in a `Part` as adding two elements result in a `Clip`.
 
     Parameters
     ----------
     list([]) : A list of `Clip` and `Playlist` type items.
     int : Returns the len of the list.
-    Position(0) : It is possible to place a Block on a staff `Position`.
+    Position(0) : It is possible to place a Section on a staff `Position`.
     None, Length : Returns the length of all combined elements.
     """
     def __init__(self, *operands):
         self._position_beats: Fraction  = Fraction(0)   # in Beats
         super().__init__()
         self._items: list[Clip] = []
-        self._name              = "Block"
+        self._name              = "Section"
         # Part sets the TimeSignature, this is just a reference
         self._owner_part: Part  = None
         for single_operand in operands:
@@ -3616,10 +3616,10 @@ class Block(Composition):
         return super().unmasked_items()
 
 
-    def __getitem__(self, index: Any) -> Union['Clip', 'Block']:
+    def __getitem__(self, index: Any) -> Union['Clip', 'Section']:
         return super().__getitem__(index)
     
-    def __setitem__(self, index: Any, value: Union['Clip', 'Block']) -> Self:
+    def __setitem__(self, index: Any, value: Union['Clip', 'Section']) -> Self:
         """
         Read and Write method
         """
@@ -3688,7 +3688,7 @@ class Block(Composition):
 
 
     def checksum(self) -> int:
-        """16-bit checksum for a `Block`, combining Clip checksums."""
+        """16-bit checksum for a `Section`, combining Clip checksums."""
         master: int = 0
         for single_clip in self._items:
             master += single_clip.checksum()
@@ -3697,7 +3697,7 @@ class Block(Composition):
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:
-            case Block():
+            case Section():
                 return super().__eq__(other) and self._position_beats == other._position_beats
             case of.Frame():
                 for single_clip in self._items:
@@ -3709,7 +3709,7 @@ class Block(Composition):
 
     def __lt__(self, other: 'o.Operand') -> bool:
         match other:
-            case Block():
+            case Section():
                 return self._position_beats < other._position_beats
             case of.Frame():
                 for single_clip in self._items:
@@ -3721,7 +3721,7 @@ class Block(Composition):
     
     def __gt__(self, other: 'o.Operand') -> bool:
         match other:
-            case Block():
+            case Section():
                 return self._position_beats > other._position_beats
             case of.Frame():
                 for single_clip in self._items:
@@ -3944,7 +3944,7 @@ class Block(Composition):
         # A `Block` is Homologous to an Element, and thus, it processes Frames too
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case Block():
+            case Section():
                 super().__lshift__(operand)
                 # No conversion is done, beat values are directly copied (Same for Element)
                 self._position_beats    = operand._position_beats
@@ -3997,12 +3997,12 @@ class Block(Composition):
         return self
 
 
-    def __iadd__(self, operand: any) -> Union['Part', 'Block']:
+    def __iadd__(self, operand: any) -> Union['Part', 'Section']:
         # A `Block` is Homologous to an Element, and thus, it processes Frames too
         # Do `Frame**(Frame,)` to do a Frame of a frame, by wrapping a frame in a tuple
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case Block():
+            case Section():
                 new_part = Part()
                 new_part += self
                 new_part += operand
@@ -4040,7 +4040,7 @@ class Block(Composition):
         # Do `Frame**(Frame,)` to do a Frame of a frame, by wrapping a frame in a tuple
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case Block():
+            case Section():
                 new_part = Part(self._time_signature)
                 self_length: ra.Length = self.gross_length()
                 new_part += self
@@ -4062,13 +4062,13 @@ class Block(Composition):
                 else:
                     self._append(Clip(operand._time_signature, operand))
             case int():
-                new_blocks: list[Block] = []
+                new_blocks: list[Section] = []
                 if operand > 0:
                     single_length: ra.Length = self.gross_length()
                     if single_length is not None:
                         next_position: ra.Position = self % ra.Position()
                         for _ in range(operand):
-                            self_copy: Block = self.copy(next_position)
+                            self_copy: Section = self.copy(next_position)
                             new_blocks.append(self_copy)
                             next_position += single_length
                 return Part(self._get_time_signature(), od.Pipe(new_blocks))._set_owner_part()._sort_items()
@@ -4082,7 +4082,7 @@ class Block(Composition):
         # Do `Frame**(Frame,)` to do a Frame of a frame, by wrapping a frame in a tuple
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case Block():
+            case Section():
                 new_part = Part(self._time_signature)
                 new_part += self
                 finish_position: ra.Position = self.net_finish()
@@ -4103,7 +4103,7 @@ class Block(Composition):
                 self._append(repositioned_clip) # No implicit copy
             case int():
                 if operand > 1:
-                    single_shallow_copy: Block = self.shallow_copy()
+                    single_shallow_copy: Section = self.shallow_copy()
                     for _ in range(operand - 1):
                         self.__itruediv__(single_shallow_copy)
                 elif operand == 0:
@@ -4115,7 +4115,7 @@ class Block(Composition):
 
     def __ifloordiv__(self, operand: any) -> Self:
         match operand:
-            case Block():
+            case Section():
                 new_part = Part(self._time_signature)
                 new_part += self
                 start_position: ra.Position = self.net_start()
@@ -4132,7 +4132,7 @@ class Block(Composition):
                 self._append(new_clip)
             case int():
                 if operand > 1:
-                    single_shallow_copy: Block = self.shallow_copy()
+                    single_shallow_copy: Section = self.shallow_copy()
                     for _ in range(operand - 1):
                         self += single_shallow_copy
                 elif operand == 0:
@@ -4197,32 +4197,32 @@ class Part(Composition):
     """
     def __init__(self, *operands):
         super().__init__()
-        self._items: list[Block]    = []
+        self._items: list[Section]    = []
         self._name                  = "Part"
         for single_operand in operands:
             self << single_operand
 
 
-    def unmasked_items(self) -> list['Block']:
+    def unmasked_items(self) -> list['Section']:
         return super().unmasked_items()
 
 
-    def __getitem__(self, index: Any) -> Union['Block', 'Part']:
+    def __getitem__(self, index: Any) -> Union['Section', 'Part']:
         return super().__getitem__(index)
     
-    def __setitem__(self, index: Any, value: Union['Block', 'Part']) -> Self:
+    def __setitem__(self, index: Any, value: Union['Section', 'Part']) -> Self:
         """
         Read and Write method
         """
-        if isinstance(value, Block):
-            target_block: Block = self[index]
-            if isinstance(target_block, Block) and value is not target_block:
+        if isinstance(value, Section):
+            target_block: Section = self[index]
+            if isinstance(target_block, Section) and value is not target_block:
                 self._replace(target_block, value)    # Makes sure it propagates
                 value._set_owner_part(self) # Makes sure `value` is owned by the Part
         return self._sort_items()
     
 
-    def __next__(self) -> 'Block':
+    def __next__(self) -> 'Section':
         return super().__next__()
     
     def _sort_items(self) -> Self:
@@ -4515,7 +4515,7 @@ class Part(Composition):
             case od.Pipe():
                 match operand._data:
                     case list():
-                        if all(isinstance(item, Block) for item in operand._data):
+                        if all(isinstance(item, Section) for item in operand._data):
                             self._items = [item for item in operand._data]
                             self._set_owner_part()
                         else:   # Not for me
@@ -4526,18 +4526,18 @@ class Part(Composition):
                     case _:
                         super().__lshift__(operand)
 
-            case Block() | Clip() | oe.Element():
+            case Section() | Clip() | oe.Element():
                 self += operand
 
             case list():
-                if all(isinstance(item, Block) for item in operand):
+                if all(isinstance(item, Section) for item in operand):
                     self._items = [item.copy() for item in operand]
                     self._set_owner_part()
                 else:   # Not for me
                     for item in self.unmasked_items():
                         item << operand
             case dict():
-                if all(isinstance(item, Block) for item in operand.values()):
+                if all(isinstance(item, Section) for item in operand.values()):
                     for index, item in operand.items():
                         if isinstance(index, int) and index >= 0 and index < len(self.unmasked_items()):
                             self.unmasked_items()[index] = item.copy()
@@ -4560,16 +4560,16 @@ class Part(Composition):
             case Part():
                 for block in operand:
                     self += block
-            case Block():
-                self._append(Block(operand)._set_owner_part(self))._sort_items()
+            case Section():
+                self._append(Section(operand)._set_owner_part(self))._sort_items()
             case Clip():
-                self += Block(operand)
+                self += Section(operand)
             case oe.Element():
                 self += Clip(operand._time_signature, operand)
 
             case list():
                 for item in operand:
-                    if isinstance(item, Block):
+                    if isinstance(item, Section):
                         self._append(item.copy()._set_owner_part(self))
             case _:
                 super().__iadd__(operand)
@@ -4580,10 +4580,10 @@ class Part(Composition):
         match operand:
             case Part():
                 return self._delete(operand._items)
-            case Block():
+            case Section():
                 return self._delete([ operand ])
             case Clip():
-                clip_block: Block = Block(operand)
+                clip_block: Section = Section(operand)
                 self -= clip_block
             case ra.Position() | ra.TimeValue():
                 self << self % ra.Position() - operand
@@ -4605,10 +4605,10 @@ class Part(Composition):
 
                 self._extend(right_part._items)
                 
-            case Block():
+            case Section():
                 self.__imul__(Part(operand))
             case Clip():
-                self.__imul__(Block(operand))
+                self.__imul__(Section(operand))
             case oe.Element():
                 self.__imul__(Clip(operand._time_signature, operand))
 
@@ -4621,11 +4621,11 @@ class Part(Composition):
                     self._delete()
                 
             case list():
-                base_blocks: list[Block] = []
+                base_blocks: list[Section] = []
                 
                 position_measure: ra.Position = ra.Position(0)
                 for block_index in operand:
-                    new_block: Block = self[block_index].copy(position_measure)
+                    new_block: Section = self[block_index].copy(position_measure)
                     base_blocks.append(new_block)
                     length_measures: ra.Measure = new_block.gross_length() % ra.Measure()
                     position_measure += length_measures
@@ -4652,16 +4652,16 @@ class Part(Composition):
                     block += position_offset
 
                 self._extend(right_part._items)  # Propagates upwards in the stack
-            case Block():
+            case Section():
                 self.__itruediv__(Part(operand))
             case Clip():
-                self.__itruediv__(Block(operand))
+                self.__itruediv__(Section(operand))
             case oe.Element():
                 self.__itruediv__(Clip(operand._time_signature, operand))
 
             case int():
                 if operand > 1:
-                    single_shallow_copy: Block = self.shallow_copy()
+                    single_shallow_copy: Section = self.shallow_copy()
                     for _ in range(operand - 1):
                         self.__itruediv__(single_shallow_copy)
                 elif operand == 0:
@@ -4675,10 +4675,10 @@ class Part(Composition):
         match operand:
             case Part():
                 self += operand
-            case Block():
+            case Section():
                 self.__ifloordiv__(Part(operand))
             case Clip():
-                self.__ifloordiv__(Block(operand))
+                self.__ifloordiv__(Section(operand))
             case oe.Element():
                 self.__ifloordiv__(Clip(operand._time_signature, operand))
 

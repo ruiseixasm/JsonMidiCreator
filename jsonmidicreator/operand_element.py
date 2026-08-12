@@ -61,7 +61,7 @@ def pitch_channel_0(pitch: int, channel_0: int) -> int:
 
 
 if TYPE_CHECKING:
-    from operand_container import Composition, Clip, Block, Part
+    from operand_container import Composition, Clip, Section, Part
 
 def clamp_value_128(value: int) -> int:
     return max(0, min(127, value))

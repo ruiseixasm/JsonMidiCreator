@@ -3376,7 +3376,7 @@ class Plot(ReadOnly):
         chart_title: str = f"{self._title + " - " if self._title != "" else ""}" \
                         + f"{self._compositions[self._iteration_index].__class__.__name__}"
         # Chart title (TITLE)
-        if isinstance(self, oc.Block):
+        if isinstance(self, oc.Section):
             measure_position: int = int(self._position_beats / beats_per_measure)
             chart_title += f"({measure_position}) - "
         else:
@@ -5364,7 +5364,7 @@ class BlockProcess(CompositionProcess):
     """
     def _direct_process(self, operand: o.T) -> o.T:
         from . import operand_container as oc
-        if isinstance(operand, oc.Block):
+        if isinstance(operand, oc.Section):
             return operand
         else:
             print(f"Warning: Operand is NOT a `Block`!")

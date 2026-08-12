@@ -104,7 +104,7 @@ def test_operand_copy():
         if isinstance(class_object, Clip):
             class_object << Note() << Rest()
         if isinstance(class_object, Part):
-            class_object << Block(Clip(Note(),Rest()), Clip(Note(),Rest()))
+            class_object << Section(Clip(Note(),Rest()), Clip(Note(),Rest()))
         if class_object and not isinstance(class_object, (int)):
             class_object << basic_parameters
             class_copy = class_object.copy()
@@ -131,7 +131,7 @@ def test_operand_copy():
         if isinstance(class_object, Clip):
             class_object << Note() << Rest()
         if isinstance(class_object, Part):
-            class_object << Block(Clip(Note(),Rest()), Clip(Note(),Rest()))
+            class_object << Section(Clip(Note(),Rest()), Clip(Note(),Rest()))
         if class_object and not isinstance(class_object, (int)):
             list_unit_classes: list[Type[Unit]] = list_all_operand_classes(Unit)
             for single_unit_class in list_unit_classes:
@@ -157,7 +157,7 @@ def test_operand_copy():
         if isinstance(class_object, Clip):
             class_object << Note() << Rest()
         if isinstance(class_object, Part):
-            class_object << Block(Clip(Note(),Rest()), Clip(Note(),Rest()))
+            class_object << Section(Clip(Note(),Rest()), Clip(Note(),Rest()))
         if class_object and not isinstance(class_object, (int)):
             list_unit_classes: list[Type[Rational]] = list_all_operand_classes(Rational)
             for single_rational_class in list_unit_classes:
@@ -181,7 +181,7 @@ def test_operand_copy():
         if isinstance(class_object, Clip):
             class_object << Note() << Rest()
         if isinstance(class_object, Part):
-            class_object << Block(Clip(Note(),Rest()), Clip(Note(),Rest()))
+            class_object << Section(Clip(Note(),Rest()), Clip(Note(),Rest()))
         if class_object and not isinstance(class_object, (int)):
             list_unit_classes: list[Type[Unit]] = list_all_operand_classes(Unit)
             for single_unit_class in list_unit_classes:
@@ -207,7 +207,7 @@ def test_operand_copy():
         if isinstance(class_object, Clip):
             class_object << Note() << Rest()
         if isinstance(class_object, Part):
-            class_object << Block(Clip(Note(),Rest()), Clip(Note(),Rest()))
+            class_object << Section(Clip(Note(),Rest()), Clip(Note(),Rest()))
         if class_object and not isinstance(class_object, (int)):
             list_unit_classes: list[Type[Rational]] = list_all_operand_classes(Rational)
             for single_rational_class in list_unit_classes:
@@ -246,7 +246,7 @@ def test_operand_serialization():
         if isinstance(class_object, Clip):
             class_object << Note() << Rest()
         if isinstance(class_object, Part):
-            class_object << Block(Clip(Note(),Rest()), Clip(Note(),Rest()))
+            class_object << Section(Clip(Note(),Rest()), Clip(Note(),Rest()))
         if class_object and not isinstance(class_object, (int)):
             class_object << basic_parameters
             serialization: dict = class_object.getSerialization()
@@ -273,7 +273,7 @@ def test_operand_serialization():
         if isinstance(class_object, Clip):
             class_object << Note() << Rest()
         if isinstance(class_object, Part):
-            class_object << Block(Clip(Note(),Rest()), Clip(Note(),Rest()))
+            class_object << Section(Clip(Note(),Rest()), Clip(Note(),Rest()))
         if class_object and not isinstance(class_object, (int)):
             list_unit_classes: list[Type[Unit]] = list_all_operand_classes(Unit)
             for single_unit_class in list_unit_classes:
@@ -305,7 +305,7 @@ def test_operand_serialization():
         if isinstance(class_object, Clip):
             class_object << Note() << Rest()
         if isinstance(class_object, Part):
-            class_object << Block(Clip(Note(),Rest()), Clip(Note(),Rest()))
+            class_object << Section(Clip(Note(),Rest()), Clip(Note(),Rest()))
         if class_object and not isinstance(class_object, (int)):
             list_unit_classes: list[Type[Rational]] = list_all_operand_classes(Rational)
             for single_rational_class in list_unit_classes:

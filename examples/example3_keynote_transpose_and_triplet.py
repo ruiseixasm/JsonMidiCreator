@@ -25,7 +25,7 @@ from jsonmidicreator import *
 # Global Staff setting up
 settings << Tempo(120)
 single_clock = Clock(Length(1)) / 1 << Name("Clock Track")
-composition: Block = Block(single_clock)
+composition: Section = Section(single_clock)
 
 single_note = Note() << (NoteValue() << Measures(2)) >> Play()
 note_transposed = single_note + Semitone(5) >> Play()
@@ -46,4 +46,4 @@ composition + triplets_one * triplets_two >> Play(False)
 debug_sequence = triplets_one * triplets_two
 # triplets_two % First() % Beats() % float() >> Print()
 triplets = triplets_one * triplets_two + Match(Beat(1))**Semitone(2)
-Block(triplets, single_clock) >> Play(False)
+Section(triplets, single_clock) >> Play(False)
