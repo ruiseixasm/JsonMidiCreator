@@ -1229,7 +1229,7 @@ class Composition(Container):
         """
         return super().first(include_masked)
 
-    def _first_unmasked(self) -> 'oe.Element':
+    def first_unmasked(self) -> 'oe.Element':
         """
         Gets the first Element accordingly to it's Position on the TimeSignature.
 
@@ -1253,7 +1253,7 @@ class Composition(Container):
         """
         return super().last(include_masked)
 
-    def _last_unmasked(self) -> 'oe.Element':
+    def last_unmasked(self) -> 'oe.Element':
         """
         Gets the last Element accordingly to it's Position on the TimeSignature.
 
@@ -1281,16 +1281,13 @@ class Composition(Container):
             return last_element % ra.Position()
         return None
 
-    def _last_position_unmasked(self) -> 'ra.Position':
+    def last_position_unmasked(self) -> 'ra.Position':
         """
         Gets the last Element position.
 
         Returns:
             Position: The Position of the last Element.
         """
-        last_element: oe.Element = self._last_unmasked()
-        if last_element is not None:
-            return last_element % ra.Position()
         return None
 
 
@@ -1935,6 +1932,18 @@ class Clip(Composition):  # Just a container of Elements
 
     def last_position(self, include_masked: bool = False) -> 'ra.Position':
         return self._last_element_position(include_masked)
+
+    def last_position_unmasked(self) -> 'ra.Position':
+        """
+        Gets the last Element position.
+
+        Returns:
+            Position: The Position of the last Element.
+        """
+        last_element: oe.Element = self.last_unmasked()
+        if last_element is not None:
+            return last_element % ra.Position()
+        return None
 
 
     def all_elements(self) -> list['oe.Element']:
