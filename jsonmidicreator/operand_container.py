@@ -4390,8 +4390,21 @@ class Part(Composition):
             self << single_operand
 
 
-    def unmasked_items(self) -> list['Section']:
-        return super().unmasked_items()
+    # UNMASKED METHODS
+
+    def elements(self) -> list['oe.Element']:
+        elements: list[oe.Element] = []
+        for single_section in self._items:
+            for single_clip in single_section:
+                elements.extend(single_clip.elements())
+        return elements
+
+    def elements_unmasked(self) -> list['oe.Element']:
+        elements_unmasked: list[oe.Element] = []
+        for single_section in self._items:
+            for single_clip in single_section:
+                elements_unmasked.extend(single_clip.elements_unmasked())
+        return elements_unmasked
 
 
     def __getitem__(self, index: Any) -> Union['Section', 'Part']:
