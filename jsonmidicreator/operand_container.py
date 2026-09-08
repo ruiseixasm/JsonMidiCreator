@@ -1208,8 +1208,69 @@ class Composition(Container):
         return self
 
 
+
+    # UNMASKED METHODS
+
     def unmasked_elements(self) -> list['oe.Element']:
         return []
+
+    def first_unmasked(self) -> 'oe.Element':
+        """
+        Gets the first Element accordingly to it's Position on the TimeSignature.
+
+        Returns:
+            Element: The first Element of all Elements.
+        """
+        unmasked_elements = self.unmasked_elements()
+        if unmasked_elements:
+            return unmasked_elements[0]
+        return None
+
+    def last_unmasked(self) -> 'oe.Element':
+        """
+        Gets the last Element accordingly to it's Position on the TimeSignature.
+
+        Returns:
+            Element: The last Element of all Elements.
+        """
+        unmasked_elements = self.unmasked_elements()
+        if unmasked_elements:
+            return unmasked_elements[-1]
+        return None
+
+    def net_start_unmasked(self) -> 'ra.Position':
+        """
+        Gets the starting position of all its Elements.
+        This is the same as the minimum Position of all `Element` positions.
+
+        Returns:
+            Position: The minimum Position of all Elements.
+        """
+        return None
+
+    def net_finish_unmasked(self) -> 'ra.Position':
+        """
+        Processes each element Position plus Length and returns the finish position
+        as the maximum of all of them.
+
+        Returns:
+            Position: The maximum of Position + Length of all Elements.
+        """
+        return None
+
+    def net_length_unmasked(self) -> 'ra.Length':
+        """
+        Returns the rounded `Length` to `Measures` that goes from start to position of the last `Element`.
+
+        Returns:
+            Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
+        """
+        unmasked_elements: list[oe.Element] = self.unmasked_items()
+        if unmasked_elements:
+            return ra.Length(self.net_finish_unmasked() - self.net_start_unmasked())
+        return ra.Length(self, 0)
+        
+
 
     def _has_elements(self, include_masked: bool = False) -> bool:
         return False
@@ -1229,18 +1290,6 @@ class Composition(Container):
         """
         return super().first(include_masked)
 
-    def first_unmasked(self) -> 'oe.Element':
-        """
-        Gets the first Element accordingly to it's Position on the TimeSignature.
-
-        Returns:
-            Element: The first Element of all Elements.
-        """
-        unmasked_elements = self.unmasked_elements()
-        if unmasked_elements:
-            return unmasked_elements[0]
-        return None
-
     def _last_element(self, include_masked: bool = False) -> 'oe.Element':
         """
         Gets the last Element accordingly to it's Position on the TimeSignature.
@@ -1252,18 +1301,6 @@ class Composition(Container):
             Element: The last Element of all Elements.
         """
         return super().last(include_masked)
-
-    def last_unmasked(self) -> 'oe.Element':
-        """
-        Gets the last Element accordingly to it's Position on the TimeSignature.
-
-        Returns:
-            Element: The last Element of all Elements.
-        """
-        unmasked_elements = self.unmasked_elements()
-        if unmasked_elements:
-            return unmasked_elements[-1]
-        return None
 
 
     def _last_element_position(self, include_masked: bool = False) -> 'ra.Position':
@@ -1340,16 +1377,6 @@ class Composition(Container):
         """
         return None
 
-    def net_start_unmasked(self) -> 'ra.Position':
-        """
-        Gets the starting position of all its Elements.
-        This is the same as the minimum Position of all `Element` positions.
-
-        Returns:
-            Position: The minimum Position of all Elements.
-        """
-        return None
-
     # Ignores the self Length
     def gross_finish(self) -> 'ra.Position':
         """
@@ -1378,21 +1405,14 @@ class Composition(Container):
         """
         return None
 
-    def net_finish_unmasked(self) -> 'ra.Position':
-        """
-        Processes each element Position plus Length and returns the finish position
-        as the maximum of all of them.
-
-        Returns:
-            Position: The maximum of Position + Length of all Elements.
-        """
-        return None
-
     def last_position(self, include_masked: bool = False) -> 'ra.Position':
-        return self._last_element_position()
+        return self._last_element_position(include_masked)
 
     def last_position_unmasked(self) -> 'ra.Position':
-        return self._last_element_position()
+        last_element: oe.Element = self.last_unmasked()
+        if last_element is not None:
+            return last_element % ra.Position()
+        return None
 
 
     def gross_length(self) -> 'ra.Length':
@@ -1428,18 +1448,6 @@ class Composition(Container):
             return ra.Length(self.net_finish(include_masked) - self.net_start(include_masked))
         return ra.Length(self, 0)
     
-    def net_length_unmasked(self) -> 'ra.Length':
-        """
-        Returns the rounded `Length` to `Measures` that goes from start to position of the last `Element`.
-
-        Returns:
-            Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
-        """
-        unmasked_elements: list[oe.Element] = self.unmasked_items()
-        if unmasked_elements:
-            return ra.Length(self.net_finish_unmasked() - self.net_start_unmasked())
-        return ra.Length(self, 0)
-        
     
     def gross_duration(self) -> 'ra.Duration':
         """
@@ -1765,11 +1773,50 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
+
+    # UNMASKED METHODS
+
     def unmasked_elements(self) -> list['oe.Element']:
         return [
             single_element for single_element in self._items
             if not single_element._masked
         ]
+
+    def len_unmasked(self) -> int:
+        """
+        Returns the total number of editable items
+
+        Returns:
+            int: Returns the equivalent to the len(self._unmasked_items()).
+        """
+        return len(self.unmasked_elements())
+
+    def first_unmasked(self) -> 'oe.Element':
+        """
+        Gets the first Item accordingly to it's Position on the TimeSignature.
+
+        Returns:
+            Item: The first Item of all Items.
+        """
+        unmasked_elements: list[oe.Element] = self.unmasked_elements()
+        if unmasked_elements:
+            return unmasked_elements[0]
+        return None
+
+    def last_unmasked(self) -> Any:
+        """
+        Gets the last Item accordingly to it's Position on the TimeSignature.
+
+        Returns:
+            Item: The last Item of all Items.
+        """
+        unmasked_elements: list[oe.Element] = self.unmasked_elements()
+        if unmasked_elements:
+            return unmasked_elements[-1]
+        return None
+
+
+
 
     def unmasked_items(self) -> list['oe.Element']:
         return super().unmasked_items()
@@ -1829,39 +1876,6 @@ class Clip(Composition):  # Just a container of Elements
                 return False
         return True
 
-
-    def len_unmasked(self) -> int:
-        """
-        Returns the total number of editable items
-
-        Returns:
-            int: Returns the equivalent to the len(self._unmasked_items()).
-        """
-        return len(self.unmasked_items())
-
-    def first_unmasked(self) -> 'oe.Element':
-        """
-        Gets the first Item accordingly to it's Position on the TimeSignature.
-
-        Returns:
-            Item: The first Item of all Items.
-        """
-        unmasked_items: list[oe.Element] = self.unmasked_items()
-        if unmasked_items:
-            return unmasked_items[0]
-        return None
-
-    def last_unmasked(self) -> Any:
-        """
-        Gets the last Item accordingly to it's Position on the TimeSignature.
-
-        Returns:
-            Item: The last Item of all Items.
-        """
-        unmasked_items: list[oe.Element] = self.unmasked_items()
-        if unmasked_items:
-            return unmasked_items[-1]
-        return None
 
 
     def _has_elements(self, include_masked: bool = False) -> bool:
