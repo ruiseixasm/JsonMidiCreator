@@ -1818,9 +1818,6 @@ class Clip(Composition):  # Just a container of Elements
 
 
 
-    def unmasked_items(self) -> list['oe.Element']:
-        return super().unmasked_items()
-
     def __getitem__(self, index: Any) -> Union['oe.Element', TypeClip]:
         return super().__getitem__(index)
     
@@ -1881,12 +1878,12 @@ class Clip(Composition):  # Just a container of Elements
     def _has_elements(self, include_masked: bool = False) -> bool:
         if include_masked:
             return len(self._items) > 0
-        return len(self.unmasked_items()) > 0
+        return len(self.unmasked_elements()) > 0
 
     def _total_elements(self, include_masked: bool = False) -> int:
         if include_masked:
             return len(self._items)
-        return len(self.unmasked_items())
+        return len(self.unmasked_elements())
 
 
     def checksum(self) -> int:
@@ -1933,7 +1930,7 @@ class Clip(Composition):  # Just a container of Elements
             finish_beats: Fraction = Fraction(0)
             items_list: list[oe.Element] = self._items
             if not include_masked:
-                items_list = self.unmasked_items()
+                items_list = self.unmasked_elements()
             for item in items_list:
                 if isinstance(item, oe.Element):
                     single_element: oe.Element = item
@@ -2247,7 +2244,7 @@ class Clip(Composition):  # Just a container of Elements
                     case list():
                         if all(isinstance(item, oe.Element) for item in operand._data):
                             # Remove previous Elements from the Container stack
-                            self._delete(self.unmasked_items(), True) # deletes by id, safer
+                            self._delete(self.unmasked_elements(), True) # deletes by id, safer
                             # Finally adds the decomposed elements to the Container stack
                             self._extend(operand._data)
                             self._set_owner_clip()
@@ -2255,7 +2252,7 @@ class Clip(Composition):  # Just a container of Elements
                             for single_element, locus in zip(self, operand._data):
                                 single_element << locus
                         else:   # Not for me
-                            for item in self.unmasked_items():
+                            for item in self.unmasked_elements():
                                 item <<= operand._data
 
                     case _:
@@ -2282,13 +2279,13 @@ class Clip(Composition):  # Just a container of Elements
                 self._auto = bool(operand._unit)
                 
             case oe.Element():  # Element wapping (wrap)
-                for single_element in self.unmasked_items():
+                for single_element in self.unmasked_elements():
                     self._replace(single_element, operand.copy()._set_owner_clip(self) << single_element)
 
             case list():
                 if all(isinstance(item, oe.Element) for item in operand):
                     # Remove previous Elements from the Container stack
-                    self._delete(self.unmasked_items(), True) # deletes by id, safer
+                    self._delete(self.unmasked_elements(), True) # deletes by id, safer
                     # Finally adds the decomposed elements to the Container stack
                     self._extend(self.deep_copy(operand))
                     self._set_owner_clip()
@@ -2296,15 +2293,15 @@ class Clip(Composition):  # Just a container of Elements
                     for single_element, locus in zip(self, operand):
                         single_element << locus
                 else:   # Not for me
-                    for item in self.unmasked_items():
+                    for item in self.unmasked_elements():
                         item << operand
             case dict():
                 if all(isinstance(item, oe.Element) for item in operand.values()):
                     for index, item in operand.items():
-                        if isinstance(index, int) and index >= 0 and index < len(self.unmasked_items()):
-                            self.unmasked_items()[index] = item.copy()
+                        if isinstance(index, int) and index >= 0 and index < len(self.unmasked_elements()):
+                            self.unmasked_elements()[index] = item.copy()
                 else:   # Not for me
-                    for item in self.unmasked_items():
+                    for item in self.unmasked_elements():
                         item << operand
 
             case tuple():
@@ -2350,7 +2347,7 @@ class Clip(Composition):  # Just a container of Elements
     def __isub__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                return self._delete(operand.unmasked_items())
+                return self._delete(operand.unmasked_elements())
             case oe.Element():
                 return self._delete([ operand ])
             case list():
@@ -2522,10 +2519,10 @@ class Clip(Composition):  # Just a container of Elements
                 
             case int():
                 if operand > 1:
-                    for single_element in self.unmasked_items():
+                    for single_element in self.unmasked_elements():
                         single_element //= operand
                 elif operand == 0:   # Merge all kinked elements, no splits
-                    remaining_elements: list[oe.Element] = self.unmasked_items()
+                    remaining_elements: list[oe.Element] = self.unmasked_elements()
                     while remaining_elements:
                         pitch_elements: list[oe.Element] = [ remaining_elements[0] ]
                         # Aggregate by Pitch
@@ -2554,7 +2551,7 @@ class Clip(Composition):  # Just a container of Elements
                 total_segments: int = operand % int()   # Extracts the original imputed integer
                 if total_segments > 1:
                     new_elements: list[oe.Element] = []
-                    for first_element in self.unmasked_items():
+                    for first_element in self.unmasked_elements():
                         first_element._duration_beats /= total_segments
                         first_element_duration: Fraction = first_element._duration_beats
                         for next_element_i in range(1, total_segments):
@@ -2565,7 +2562,7 @@ class Clip(Composition):  # Just a container of Elements
             # Divides the `Duration` by sections with the given `TimeValue` (ex.: note value)
             case ra.Duration() | ra.TimeValue() | float():
                 new_elements: list[oe.Element] = []
-                for first_element in self.unmasked_items():
+                for first_element in self.unmasked_elements():
                     group_length: Fraction = first_element._duration_beats
                     segment_duration_beats: Fraction = ra.Duration(self, operand)._rational
                     if segment_duration_beats < group_length:
@@ -2588,7 +2585,7 @@ class Clip(Composition):  # Just a container of Elements
             
             case ra.Position() | ra.TimeUnit(): # Single point split if Position
                 new_elements: list[oe.Element] = []
-                for existent_element in self.unmasked_items():
+                for existent_element in self.unmasked_elements():
                     existent_start: Fraction = existent_element._position_beats
                     operand_position = ra.Position(self._time_signature, existent_start)
                     # It has to be `<<=` because position must be set at the exactly given TimeUnit regardless its position in the Measure !!
@@ -2693,12 +2690,12 @@ class Clip(Composition):  # Just a container of Elements
             for single_measure in measures_list:
                 # removes all Elements at the Measure
                 elements_to_remove: list[oe.Element] = [
-                    measure_element for measure_element in self.unmasked_items()
+                    measure_element for measure_element in self.unmasked_elements()
                     if measure_element == ra.Measure(single_measure)
                 ]
                 self._delete(elements_to_remove, True)
                 # offsets the right side of it to occupy the dropped measure
-                for single_element in self.unmasked_items():
+                for single_element in self.unmasked_elements():
                     if single_element > ra.Measure(single_measure):
                         single_measure -= ra.Measure(1)
 
@@ -2770,10 +2767,10 @@ class Clip(Composition):  # Just a container of Elements
             Clip: The same self object with the items processed.
         """
         original_positions: list[Fraction] = [
-            element._position_beats for element in self.unmasked_items()
+            element._position_beats for element in self.unmasked_elements()
         ]
         super().sort(parameter, reverse)
-        for index, element in enumerate(self.unmasked_items()):
+        for index, element in enumerate(self.unmasked_elements()):
             element._position_beats = original_positions[index]
         return self
     
@@ -2969,7 +2966,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: A clip with each element having the wave value set on it.
         """
-        for single_element in self.unmasked_items():
+        for single_element in self.unmasked_elements():
             
             element_position: ra.Position = single_element % ra.Position()
             wavelength_duration: Fraction = ra.Duration(wavelength)._rational
@@ -3024,7 +3021,7 @@ class Clip(Composition):  # Just a container of Elements
                 # Shift all items first
                 self += right   # Right changes elements Position
                 # Modulate out of range elements
-                for single_element in self.unmasked_items():
+                for single_element in self.unmasked_elements():
                     element_measure: int = single_element % ra.Measure() % int()
                     element_measure -= first_measure
                     element_measure %= length_measures
@@ -3051,7 +3048,7 @@ class Clip(Composition):  # Just a container of Elements
         if self_finish is None:
             self_finish = ra.Position(self)
         clip_length_beats: Fraction = ra.Length( self_finish ).roundMeasures()._rational # Rounded up Duration to next Measure
-        for single_element in self.unmasked_items():
+        for single_element in self.unmasked_elements():
             element_position_beats: Fraction = single_element._position_beats
             element_length_beats: Fraction = single_element % ra.Length() % od.Pipe( Fraction() )
             # Only changes Positions
@@ -3069,7 +3066,7 @@ class Clip(Composition):  # Just a container of Elements
             Clip: The same self object with the items processed.
         """
         position_duration_beats: list[dict[str, Fraction]] = []
-        for index, single_element in enumerate(self.unmasked_items()):
+        for index, single_element in enumerate(self.unmasked_elements()):
             position_duration_dict: dict[str, Fraction] = {
                 "duration": single_element._duration_beats
             }
@@ -3080,7 +3077,7 @@ class Clip(Composition):  # Just a container of Elements
                     position_duration_beats[0]["position"] + position_duration_beats[0]["duration"]
             position_duration_beats.insert(0, position_duration_dict)   # last one at position 0
 
-        for index, single_element in enumerate(self.unmasked_items()):
+        for index, single_element in enumerate(self.unmasked_elements()):
             single_element._position_beats = position_duration_beats[index]["position"]
             single_element._duration_beats = position_duration_beats[index]["duration"]
             
@@ -3103,7 +3100,7 @@ class Clip(Composition):  # Just a container of Elements
             top_absolute_degree: ou.Degree | None = None
             base_absolute_degree: ou.Degree | None = None
             
-            for element in self.unmasked_items():
+            for element in self.unmasked_elements():
                 if isinstance(element, oe.Note):
                     note_absolute_degree: ou.Degree = element % od.Pipe(ou.Degree())
                     if top_absolute_degree is None:
@@ -3116,7 +3113,7 @@ class Clip(Composition):  # Just a container of Elements
 
             if top_absolute_degree is not None:
 
-                for element in self.unmasked_items():
+                for element in self.unmasked_elements():
                     if isinstance(element, oe.Note):
                         note_absolute_degree: ou.Degree = element % od.Pipe(ou.Degree())
                         degree_from_top: ou.Degree = top_absolute_degree - note_absolute_degree
@@ -3127,7 +3124,7 @@ class Clip(Composition):  # Just a container of Elements
             higher_pitch: og.Pitch | None = None
             lower_pitch: og.Pitch | None = None
             
-            for element in self.unmasked_items():
+            for element in self.unmasked_elements():
                 if isinstance(element, oe.Note):
                     note_pitch: og.Pitch = element._pitch
                     if higher_pitch is None:
@@ -3143,7 +3140,7 @@ class Clip(Composition):  # Just a container of Elements
                 top_pitch_int: int = higher_pitch.get_absolute_pitch()
                 bottom_pitch_int: int = lower_pitch.get_absolute_pitch()
 
-                for element in self.unmasked_items():
+                for element in self.unmasked_elements():
                     if isinstance(element, oe.Note):
                         note_pitch: og.Pitch = element._pitch
                         note_pitch_int: int = note_pitch.get_absolute_pitch()
@@ -3166,12 +3163,12 @@ class Clip(Composition):  # Just a container of Elements
         if by_degree:
             center_degree_0: ou.Degree = None
             
-            for note in self.unmasked_items():
+            for note in self.unmasked_elements():
                 if isinstance(note, oe.Note):
                     center_degree_0 = note._pitch._absolute_degree_0()
                     break
 
-            for note in self.unmasked_items():
+            for note in self.unmasked_elements():
                 if isinstance(note, oe.Note):
                     note_degree_0: ou.Degree = note._pitch._absolute_degree_0()
                     degree_distance: ou.Degree = note_degree_0 - center_degree_0
@@ -3182,12 +3179,12 @@ class Clip(Composition):  # Just a container of Elements
         else:
             pitch_centroid: int = None
             
-            for note in self.unmasked_items():
+            for note in self.unmasked_elements():
                 if isinstance(note, oe.Note):
                     pitch_centroid = note._pitch.get_absolute_pitch()
                     break
 
-            for note in self.unmasked_items():
+            for note in self.unmasked_elements():
                 if isinstance(note, oe.Note):
                     note_pitch: int = note._pitch.get_absolute_pitch()
                     if note_pitch != pitch_centroid:
@@ -3459,7 +3456,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
         amount_rational: Fraction = ra.Amount(amount) % Fraction()
-        for single_element in self.unmasked_items():
+        for single_element in self.unmasked_elements():
             # Position On
             element_position_on: Fraction = single_element._position_beats
             unquantized_amount: Fraction = element_position_on % quantization_beats
@@ -3490,12 +3487,12 @@ class Clip(Composition):  # Just a container of Elements
             Clip: Equally sounding Clip but with its elements reduced to their components.
         """
         decomposed_elements: list[oe.Element] = []
-        for single_element in self.unmasked_items():
+        for single_element in self.unmasked_elements():
             component_elements: list[oe.Element] = single_element.get_component_elements()
             for single_component in component_elements:
                 decomposed_elements.append(single_component)
         # Remove previous Elements from the Container stack
-        self._delete(self.unmasked_items(), True) # deletes by id, safer
+        self._delete(self.unmasked_elements(), True) # deletes by id, safer
         # Finally adds the decomposed elements to the Container stack
         self._extend(decomposed_elements)
         return self._sort_items()
@@ -3511,7 +3508,7 @@ class Clip(Composition):  # Just a container of Elements
             Clip: Clip with its elements distributed in an arpeggiated manner.
         """
         arpeggio = og.Arpeggio(parameters)
-        arpeggio.arpeggiate_source(self.unmasked_items(), self.net_start(), ra.Length( self.net_duration() ))
+        arpeggio.arpeggiate_source(self.unmasked_elements(), self.net_start(), ra.Length( self.net_duration() ))
         return self
 
 
@@ -3528,7 +3525,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         previous_element: oe.Element | None = None
         elements_to_remove: list[oe.Element] = []
-        for unmasked_element in self.unmasked_items():
+        for unmasked_element in self.unmasked_elements():
             if previous_element is not None and unmasked_element.net_start() == previous_element.net_finish():
                 elements_to_remove.append(unmasked_element)
                 previous_element._duration_beats += unmasked_element._duration_beats
@@ -3551,7 +3548,7 @@ class Clip(Composition):  # Just a container of Elements
         # Only notes can be tied
         tied_notes: list[oe.Note] = [
             single_note << ou.Tied(True)
-            for single_note in self.unmasked_items() if isinstance(single_note, oe.Note)
+            for single_note in self.unmasked_elements() if isinstance(single_note, oe.Note)
         ]
         notes_position_off: dict[Fraction, og.Pitch] = {
             single_note._position_beats + single_note._duration_beats: single_note._pitch   # Has to be a pitch reference
@@ -3576,7 +3573,7 @@ class Clip(Composition):  # Just a container of Elements
         if decompose:
             self.decompose()
         all_notes: list[oe.Note] = [
-            single_note for single_note in self.unmasked_items() if type(single_note) is oe.Note
+            single_note for single_note in self.unmasked_elements() if type(single_note) is oe.Note
         ]
         removed_notes: list[oe.Note] = []
         extended_notes: dict[int, oe.Note] = {}
@@ -3607,7 +3604,7 @@ class Clip(Composition):  # Just a container of Elements
             Clip: The same self object with the items processed.
         """
         last_element = None
-        for item in self.unmasked_items():
+        for item in self.unmasked_elements():
             if isinstance(item, oe.Note):
                 if last_element is not None:
                     last_element << ra.Gate(gate)
@@ -3635,7 +3632,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         first_pitch: int | None = None
         previous_pitch: int | None = None
-        for note in self.unmasked_items():
+        for note in self.unmasked_elements():
             if isinstance(note, oe.Note):    # Only Notes have Pitch
                 if algorithm_type < 4:
                     note_pitch: int = note._pitch.get_absolute_pitch()
