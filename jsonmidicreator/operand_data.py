@@ -1035,7 +1035,7 @@ class Playlist(Data):
                 return self._data == other.getPlaylist()
         return super().__eq__(other)
 
-    def net_start(self) -> float:
+    def start(self) -> float:
         if len(self._data) > 0:
             start_position_ms: float = self._data[0]["time_ms"]
             for self_dict in self._data:

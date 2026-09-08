@@ -166,7 +166,7 @@ class Locus(Generic):
             case _:
                 return self % other > other
     
-    def net_start(self) -> ra.Position:
+    def start(self) -> ra.Position:
         return ra.Position(self, self._position_beats)
 
     def net_finish(self) -> ra.Position:

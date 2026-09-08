@@ -699,7 +699,7 @@ class Operand:
     def __ge__(self, other: any) -> bool:
         return self.__eq__(other) or self.__gt__(other)
     
-    def net_start(self):
+    def start(self):
         from . import operand_label as ol
         return ol.Null()
 

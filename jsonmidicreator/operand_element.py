@@ -122,7 +122,7 @@ class Element(o.Operand):
 
     def last_measure(self) -> ra.Measure:
         # Starts by checking if it's a starting measure Element
-        start_measure: int = self.net_start() % ra.Measure() % int()
+        start_measure: int = self.start() % ra.Measure() % int()
         finish_measure: int = self.net_finish() % ra.Measure() % int()
         if finish_measure > start_measure + 1:
             return ra.Measure(finish_measure - 1)
@@ -138,7 +138,7 @@ class Element(o.Operand):
         if last_position is None:   # An empty Composition doesn't count
             return False
         # Starts by checking if it's a starting measure Element
-        start_position: ra.Position = self.net_start()
+        start_position: ra.Position = self.start()
         start_measure: int = start_position % ra.Measure() % int()
         if start_position % ra.Measures() == ra.Measures(start_measure) and start_measure > 0:
             return True
@@ -209,7 +209,7 @@ class Element(o.Operand):
                                     self << ra.Position(position)
         return self
 
-    def net_start(self) -> ra.Position:
+    def start(self) -> ra.Position:
         return ra.Position(self, self._position_beats)
 
     def net_finish(self) -> ra.Position:
@@ -437,7 +437,7 @@ class Element(o.Operand):
                     if self._owner_clip is not None:
                         if not self._owner_clip._set:
                             if operand:
-                                position_offset: ra.Position = self.net_start() - operand[0].start()
+                                position_offset: ra.Position = self.start() - operand[0].start()
                                 elements_list: list[Element] = [
                                     element.copy()._set_owner_clip(self._owner_clip) for element in operand
                                 ]
@@ -448,7 +448,7 @@ class Element(o.Operand):
                 if self._owner_clip is not None:
                     if not self._owner_clip._set:
                         if operand.len() > 0:
-                            position_offset: ra.Position = self.net_start() - operand.net_start()
+                            position_offset: ra.Position = self.start() - operand.start()
                             elements_list: list[Element] = [
                                 (element + position_offset)._set_owner_clip(self._owner_clip) for element in operand.unmasked_items()
                             ]
@@ -516,7 +516,7 @@ class Element(o.Operand):
             case og.Merge():
                 if self._owner_clip is not None:
                     if operand._previous_item is not None \
-                        and operand._previous_item is not None and self.net_start() == operand._previous_item.net_finish():
+                        and operand._previous_item is not None and self.start() == operand._previous_item.net_finish():
 
                         operand._previous_item._duration_beats += self._duration_beats
                         self._owner_clip._remove(self, True)
@@ -772,7 +772,7 @@ class Element(o.Operand):
                     return oc.Clip().__iadd__(self)._set_owner_clip().__itruediv__(operand)
             case list():
                 new_elements: list[Element] = []
-                next_position: ra.Position = self.net_start()
+                next_position: ra.Position = self.start()
                 for element_parameter in operand:
                     match element_parameter:
                         case int():

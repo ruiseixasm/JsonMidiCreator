@@ -1451,7 +1451,7 @@ class Composition(Container):
             Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
         """
         if self._has_elements():
-            return ra.Length(self.net_finish(include_masked) - self.net_start(include_masked))
+            return ra.Length(self.net_finish(include_masked) - self.start(include_masked))
         return ra.Length(self, 0)
     
     
@@ -1511,7 +1511,7 @@ class Composition(Container):
                         case ra.Finish():
                             return self.net_finish()
                         case ra.Position():
-                            return self.net_start()
+                            return self.start()
                         case ra.Length():
                             return self.net_length()
                         case ra.Duration():
@@ -2540,7 +2540,7 @@ class Clip(Composition):  # Just a container of Elements
                     self += of.DownTo(split_position)**position_offset
                     self += operand # Finally adds the Clip elements
             case oe.Element():
-                split_position: ra.Position = operand.net_start()
+                split_position: ra.Position = operand.start()
                 position_offset: ra.Position = operand.net_finish() - split_position
                 self //= split_position
                 self += of.DownTo(split_position)**position_offset
@@ -2564,7 +2564,7 @@ class Clip(Composition):  # Just a container of Elements
                             root_element_i: int = 0
                             for i, single_element in enumerate(pitch_elements):
                                 if i > 0:
-                                    if single_element.net_start() == pitch_elements[root_element_i].net_finish():
+                                    if single_element.start() == pitch_elements[root_element_i].net_finish():
                                         pitch_elements[root_element_i]._duration_beats += single_element._duration_beats
                                         self._remove(single_element, True)
                                     else:
@@ -3042,7 +3042,7 @@ class Clip(Composition):  # Just a container of Elements
                     right = ra.Step(right)
                 case Fraction():
                     right = ra.Beat(right)
-            self_start: ra.Position = self.net_start()
+            self_start: ra.Position = self.start()
             if self_start is not None:
                 self_net_length: ra.Length = self.net_length()
                 first_measure: int = self_start % ra.Measure() % int()
@@ -3356,8 +3356,8 @@ class Clip(Composition):  # Just a container of Elements
             for index in range(shallow_copy.len()):
                 current_element: oe.Element = shallow_copy._items[index]
                 next_element: oe.Element = shallow_copy._items[index + 1]
-                if current_element.net_finish() > next_element.net_start():
-                    new_length: ra.Length = ra.Length( next_element.net_start() - current_element.net_start() )
+                if current_element.net_finish() > next_element.start():
+                    new_length: ra.Length = ra.Length( next_element.start() - current_element.start() )
                     current_element << new_length
         return self
 
@@ -3376,8 +3376,8 @@ class Clip(Composition):  # Just a container of Elements
         for index in range(shallow_copy_len):
             current_element: oe.Element = shallow_copy._items[index]
             next_element: oe.Element = shallow_copy._items[index + 1]
-            if current_element.net_finish() < next_element.net_start():
-                rest_length: ra.Length = ra.Length( next_element.net_start() - current_element.net_finish() )
+            if current_element.net_finish() < next_element.start():
+                rest_length: ra.Length = ra.Length( next_element.start() - current_element.net_finish() )
                 rest_element: oe.Rest = \
                     oe.Rest()._set_owner_clip(self) \
                     << rest_length
@@ -3537,7 +3537,7 @@ class Clip(Composition):  # Just a container of Elements
             Clip: Clip with its elements distributed in an arpeggiated manner.
         """
         arpeggio = og.Arpeggio(parameters)
-        arpeggio.arpeggiate_source(self.elements_unmasked(), self.net_start(), ra.Length( self.net_duration() ))
+        arpeggio.arpeggiate_source(self.elements_unmasked(), self.start(), ra.Length( self.net_duration() ))
         return self
 
 
@@ -3555,7 +3555,7 @@ class Clip(Composition):  # Just a container of Elements
         previous_element: oe.Element | None = None
         elements_to_remove: list[oe.Element] = []
         for unmasked_element in self.elements_unmasked():
-            if previous_element is not None and unmasked_element.net_start() == previous_element.net_finish():
+            if previous_element is not None and unmasked_element.start() == previous_element.net_finish():
                 elements_to_remove.append(unmasked_element)
                 previous_element._duration_beats += unmasked_element._duration_beats
                 continue
@@ -3925,7 +3925,7 @@ class Section(Composition):
 
         start_position: ra.Position = None
         for clip in clips_list:
-            clip_start: ra.Position = clip.net_start()
+            clip_start: ra.Position = clip.start()
             if clip_start is not None:
                 if start_position is not None:
                     if clip_start < start_position:
@@ -4293,7 +4293,7 @@ class Section(Composition):
             case Section():
                 new_part = Part(self._time_signature)
                 new_part += self
-                start_position: ra.Position = self.net_start()
+                start_position: ra.Position = self.start()
                 if start_position is not None:
                     new_part += operand.copy(start_position)
                 else:
