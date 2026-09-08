@@ -3082,7 +3082,7 @@ class Clip(Composition):  # Just a container of Elements
             Clip: The same self object with the items processed.
         """
         if ignore_empty_measures:
-            first_measure_position_beats: Fraction = self.net_start().roundMeasures()._rational
+            first_measure_position_beats: Fraction = self.net_start_unmasked().roundMeasures()._rational
         else:
             first_measure_position_beats: Fraction = Fraction(0)
         self_finish: ra.Position = self.net_finish_unmasked()
