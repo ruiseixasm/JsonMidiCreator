@@ -1696,7 +1696,6 @@ class Clip(Composition):  # Just a container of Elements
     def unmasked_items(self) -> list['oe.Element']:
         return super().unmasked_items()
 
-
     def __getitem__(self, index: Any) -> Union['oe.Element', TypeClip]:
         return super().__getitem__(index)
     
@@ -1751,6 +1750,40 @@ class Clip(Composition):  # Just a container of Elements
             if single_element._owner_clip is not self:
                 return False
         return True
+
+
+    def len_unmasked(self) -> int:
+        """
+        Returns the total number of editable items
+
+        Returns:
+            int: Returns the equivalent to the len(self._unmasked_items()).
+        """
+        return len(self.unmasked_items())
+
+    def first_unmasked(self) -> 'oe.Element':
+        """
+        Gets the first Item accordingly to it's Position on the TimeSignature.
+
+        Returns:
+            Item: The first Item of all Items.
+        """
+        unmasked_items: list[oe.Element] = self.unmasked_items()
+        if unmasked_items:
+            return unmasked_items[0]
+        return None
+
+    def last_unmasked(self) -> Any:
+        """
+        Gets the last Item accordingly to it's Position on the TimeSignature.
+
+        Returns:
+            Item: The last Item of all Items.
+        """
+        unmasked_items: list[oe.Element] = self.unmasked_items()
+        if unmasked_items:
+            return unmasked_items[-1]
+        return None
 
 
     def _has_elements(self, include_masked: bool = False) -> bool:
