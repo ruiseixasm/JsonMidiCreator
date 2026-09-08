@@ -3924,8 +3924,8 @@ class Section(Composition):
         ]
 
         start_position: ra.Position = None
-        for clip in clips_list:
-            clip_start: ra.Position = clip.start()
+        for single_clip in clips_list:
+            clip_start: ra.Position = single_clip.net_start()
             if clip_start is not None:
                 if start_position is not None:
                     if clip_start < start_position:
@@ -3950,8 +3950,8 @@ class Section(Composition):
         ]
 
         finish_position: ra.Position = None
-        for clip in clips_list:
-            clip_finish: ra.Position = clip.net_finish()
+        for single_clip in clips_list:
+            clip_finish: ra.Position = single_clip.net_finish()
             if clip_finish is not None:
                 if finish_position is not None:
                     if clip_finish > finish_position:
