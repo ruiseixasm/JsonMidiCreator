@@ -123,7 +123,7 @@ class Element(o.Operand):
     def last_measure(self) -> ra.Measure:
         # Starts by checking if it's a starting measure Element
         start_measure: int = self.start() % ra.Measure() % int()
-        finish_measure: int = self.net_finish() % ra.Measure() % int()
+        finish_measure: int = self.finish() % ra.Measure() % int()
         if finish_measure > start_measure + 1:
             return ra.Measure(finish_measure - 1)
         return ra.Measure(start_measure)
@@ -143,7 +143,7 @@ class Element(o.Operand):
         if start_position % ra.Measures() == ra.Measures(start_measure) and start_measure > 0:
             return True
         # Finally checks if it finishes at or beyond the end of the Measure
-        finish_position: ra.Position = self.net_finish()
+        finish_position: ra.Position = self.finish()
         finish_measure: int = finish_position % ra.Measure() % int()
         last_measure: int = last_position % ra.Measure() % int()
         return finish_measure < last_measure + 1 and finish_measure > start_measure
@@ -212,7 +212,7 @@ class Element(o.Operand):
     def start(self) -> ra.Position:
         return ra.Position(self, self._position_beats)
 
-    def net_finish(self) -> ra.Position:
+    def finish(self) -> ra.Position:
         return ra.Position(self, self._position_beats + self._duration_beats)
 
     def overlaps(self, other: 'Element') -> bool:
@@ -516,7 +516,7 @@ class Element(o.Operand):
             case og.Merge():
                 if self._owner_clip is not None:
                     if operand._previous_item is not None \
-                        and operand._previous_item is not None and self.start() == operand._previous_item.net_finish():
+                        and operand._previous_item is not None and self.start() == operand._previous_item.finish():
 
                         operand._previous_item._duration_beats += self._duration_beats
                         self._owner_clip._remove(self, True)

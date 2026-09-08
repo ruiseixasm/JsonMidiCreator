@@ -1383,6 +1383,12 @@ class Composition(Container):
         """
         return None
 
+    def start(self) -> 'ra.Position':
+        net_start = self.net_start()
+        if net_start is not None:
+            return net_start.roundMeasures()
+        return None
+
     # Ignores the self Length
     def gross_finish(self) -> 'ra.Position':
         """
@@ -1409,6 +1415,12 @@ class Composition(Container):
         Returns:
             Position: The maximum of Position + Length of all Elements.
         """
+        return None
+
+    def finish(self) -> 'ra.Position':
+        net_finish = self.net_finish()
+        if net_finish is not None:
+            return ra.Length( net_finish ).roundMeasures() % ra.Position()
         return None
 
     def last_position(self, include_masked: bool = False) -> 'ra.Position':
@@ -2541,7 +2553,7 @@ class Clip(Composition):  # Just a container of Elements
                     self += operand # Finally adds the Clip elements
             case oe.Element():
                 split_position: ra.Position = operand.start()
-                position_offset: ra.Position = operand.net_finish() - split_position
+                position_offset: ra.Position = operand.finish() - split_position
                 self //= split_position
                 self += of.DownTo(split_position)**position_offset
                 self += operand # Finally adds the Element
@@ -2564,7 +2576,7 @@ class Clip(Composition):  # Just a container of Elements
                             root_element_i: int = 0
                             for i, single_element in enumerate(pitch_elements):
                                 if i > 0:
-                                    if single_element.start() == pitch_elements[root_element_i].net_finish():
+                                    if single_element.start() == pitch_elements[root_element_i].finish():
                                         pitch_elements[root_element_i]._duration_beats += single_element._duration_beats
                                         self._remove(single_element, True)
                                     else:
@@ -3356,7 +3368,7 @@ class Clip(Composition):  # Just a container of Elements
             for index in range(shallow_copy.len()):
                 current_element: oe.Element = shallow_copy._items[index]
                 next_element: oe.Element = shallow_copy._items[index + 1]
-                if current_element.net_finish() > next_element.start():
+                if current_element.finish() > next_element.start():
                     new_length: ra.Length = ra.Length( next_element.start() - current_element.start() )
                     current_element << new_length
         return self
@@ -3376,17 +3388,17 @@ class Clip(Composition):  # Just a container of Elements
         for index in range(shallow_copy_len):
             current_element: oe.Element = shallow_copy._items[index]
             next_element: oe.Element = shallow_copy._items[index + 1]
-            if current_element.net_finish() < next_element.start():
-                rest_length: ra.Length = ra.Length( next_element.start() - current_element.net_finish() )
+            if current_element.finish() < next_element.start():
+                rest_length: ra.Length = ra.Length( next_element.start() - current_element.finish() )
                 rest_element: oe.Rest = \
                     oe.Rest()._set_owner_clip(self) \
                     << rest_length
                 self += rest_element
         
         last_element: oe.Element = shallow_copy[shallow_copy_len - 1]
-        staff_end: ra.Position = (last_element.net_finish() % ra.Length()).roundMeasures() % ra.Position()
-        if last_element.net_finish() < staff_end:
-            rest_length: ra.Length = ra.Length( staff_end - last_element.net_finish() )
+        staff_end: ra.Position = (last_element.finish() % ra.Length()).roundMeasures() % ra.Position()
+        if last_element.finish() < staff_end:
+            rest_length: ra.Length = ra.Length( staff_end - last_element.finish() )
             rest_element: oe.Rest = \
                 oe.Rest()._set_owner_clip(self) \
                 << rest_length
@@ -3555,7 +3567,7 @@ class Clip(Composition):  # Just a container of Elements
         previous_element: oe.Element | None = None
         elements_to_remove: list[oe.Element] = []
         for unmasked_element in self.elements_unmasked():
-            if previous_element is not None and unmasked_element.start() == previous_element.net_finish():
+            if previous_element is not None and unmasked_element.start() == previous_element.finish():
                 elements_to_remove.append(unmasked_element)
                 previous_element._duration_beats += unmasked_element._duration_beats
                 continue
@@ -3611,7 +3623,7 @@ class Clip(Composition):  # Just a container of Elements
             if channel_pitch in extended_notes:
                 extended_note: oe.Note = extended_notes[channel_pitch]
                 extended_note_position: Fraction = extended_note._position_beats
-                finish_note_position: Fraction = note.net_finish()._rational
+                finish_note_position: Fraction = note.finish()._rational
                 if finish_note_position > extended_note_position:
                     extended_note_length: Fraction = finish_note_position - extended_note_position
                     extended_note << ra.Length(self, extended_note_length)  # Fraction represents Beats (direct)

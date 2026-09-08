@@ -2907,7 +2907,7 @@ class Process(Generic):
                 if isinstance(operand, oc.Composition) and not operand._has_elements():
                     return playlist # exists with nothing right away
                 # Generates the Clock data regardless, needed for correct JsonMidiPlayer processing
-                clock_length: ra.Length = (operand.net_finish() % ra.Length()).roundMeasures()
+                clock_length: ra.Length = (operand.finish() % ra.Length()).roundMeasures()
                 default_clock: oe.Clock = settings % oe.Clock()
                 default_clock._duration_beats = ra.Duration(clock_length)._rational # The same staff will be given next
                 playlist.extend( default_clock.getPlaylist( time_signature = operand._get_time_signature() ) )  # Clock Playlist
