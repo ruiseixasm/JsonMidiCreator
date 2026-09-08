@@ -1446,7 +1446,7 @@ class Composition(Container):
         if self._items:
             last_position: ra.Position = self._last_element_position(True)
             position_length: ra.Length = ra.Length( last_position.roundMeasures() ) + ra.Measure(1)
-            finish_length: ra.Length = ra.Length( self.net_finish(True).roundMeasures() )
+            finish_length: ra.Length = ra.Length( self.net_finish().roundMeasures() )
             if finish_length > position_length:
                 return finish_length
             return position_length
@@ -1477,22 +1477,19 @@ class Composition(Container):
         Returns:
             Duration: Equal to `Clip.finish()` converted to `Duration`.
         """
-        if self._has_elements():
+        if self._items:
             return ra.Duration(self.gross_finish())
         return ra.Duration(self, 0)
     
-    def net_duration(self, include_masked: bool = False) -> 'ra.Duration':
+    def net_duration(self) -> 'ra.Duration':
         """
         Returns the `Duration` that goes from `start` to the `finish` of all elements.
-
-        Args:
-            None
 
         Returns:
             Duration: Equal to `Clip.finish() - Clip.start()` converted to `Duration`.
         """
-        if self._has_elements():
-            return ra.Duration(self.net_finish(include_masked) - self.net_start(include_masked))
+        if self._items:
+            return ra.Duration(self.net_finish() - self.net_start())
         return ra.Duration(self, 0)
     
     def all_elements(self) -> list['oe.Element']:
@@ -1515,7 +1512,7 @@ class Composition(Container):
             case ra.Length():
                 return self.gross_length()
             case ra.Duration():
-                return self.net_duration(True)
+                return self.net_duration()
             case od.CompositionConvertible():
                 convertible: ra.Convertible = operand._data
                 if isinstance(operand, od.Net):
@@ -3946,7 +3943,7 @@ class Section(Composition):
                     start_position = clip_start
         return start_position
 
-    def net_finish(self, include_masked: bool = False) -> ra.Position:
+    def net_finish(self) -> ra.Position:
         """
         Processes each clip `Position` plus Length and returns the finish position
         as the maximum of all of them. This position is `Block` reference_time_signature based `Position`.
@@ -3972,7 +3969,7 @@ class Section(Composition):
                     finish_position = clip_finish
         return finish_position
 
-    def last_position(self, include_masked: bool = False) -> 'ra.Position':
+    def last_position(self) -> 'ra.Position':
         position: ra.Position = None
         for clip in self._items:
             clip_position: ra.Position = clip.last_position()
@@ -4565,7 +4562,7 @@ class Part(Composition):
         return master & 0xFFFF  # 16-bit
 
 
-    def net_start(self, include_masked: bool = False) -> ra.Position:
+    def net_start(self) -> ra.Position:
         """
         Gets the starting position of all its Blocks.
         This is the same as the minimum `Position` of all `Block` positions, which ones,
@@ -4579,11 +4576,11 @@ class Part(Composition):
         """
         start_position: ra.Position = None
 
-        for block in self._items:
+        for single_section in self._items:
             # Already includes the Part TimeSignature conversion
-            block_start: ra.Position = block.net_start(include_masked)
-            if block_start is not None:
-                absolute_start: ra.Position = block % ra.Position() + block_start
+            section_start: ra.Position = single_section.net_start()
+            if section_start is not None:
+                absolute_start: ra.Position = single_section % ra.Position() + section_start
                 if start_position is not None:
                     if absolute_start < start_position:
                         start_position = absolute_start
@@ -4591,7 +4588,7 @@ class Part(Composition):
                     start_position = absolute_start
         return start_position
 
-    def net_finish(self, include_masked: bool = False) -> ra.Position:
+    def net_finish(self) -> ra.Position:
         """
         Gets the finishing position of all its Blocks.
         This is the same as the maximum `Position` of all `Block` positions, which ones,
@@ -4605,11 +4602,11 @@ class Part(Composition):
         """
         finish_position: ra.Position = None
 
-        for block in self._items:
+        for single_section in self._items:
             # Already includes the Part TimeSignature conversion
-            block_finish: ra.Position = block.net_finish(include_masked)
-            if block_finish is not None:
-                absolute_finish: ra.Position = block % ra.Position() + block_finish
+            section_finish: ra.Position = single_section.net_finish()
+            if section_finish is not None:
+                absolute_finish: ra.Position = single_section % ra.Position() + section_finish
                 if finish_position is not None:
                     if absolute_finish > finish_position:
                         finish_position = absolute_finish
@@ -4617,15 +4614,15 @@ class Part(Composition):
                     finish_position = absolute_finish
         return finish_position
 
-    def last_position(self, include_masked: bool = False) -> 'ra.Position':
+    def last_position(self) -> 'ra.Position':
         position: ra.Position = None
-        for block in self._items:
-            block_position: ra.Position = block.last_position(include_masked)
-            if block_position is not None:
+        for single_section in self._items:
+            section_position: ra.Position = single_section.last_position()
+            if section_position is not None:
                 if position is None:
-                    position = block_position
-                elif block_position > position:
-                    position = block_position
+                    position = section_position
+                elif section_position > position:
+                    position = section_position
         return position
 
 
