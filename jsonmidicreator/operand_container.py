@@ -1521,7 +1521,7 @@ class Composition(Container):
                 if isinstance(operand, od.Net):
                     match convertible:
                         case ra.Finish():
-                            return self.net_finish()
+                            return self.net_finish_unmasked()
                         case ra.Position():
                             return self.start()
                         case ra.Length():
@@ -2709,7 +2709,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items removed if any.
         """
-        finish_position: ra.Position = self.net_finish()
+        finish_position: ra.Position = self.net_finish_unmasked()
         if finish_position is not None:
 
             measures_list: list[int] = []
@@ -2753,7 +2753,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items removed if any.
         """
-        finish_position: ra.Position = self.net_finish()
+        finish_position: ra.Position = self.net_finish_unmasked()
         if finish_position is not None:
 
             measures_list: list[int] = []
@@ -3085,7 +3085,7 @@ class Clip(Composition):  # Just a container of Elements
             first_measure_position_beats: Fraction = self.net_start().roundMeasures()._rational
         else:
             first_measure_position_beats: Fraction = Fraction(0)
-        self_finish: ra.Position = self.net_finish()
+        self_finish: ra.Position = self.net_finish_unmasked()
         if self_finish is None:
             self_finish = ra.Position(self)
         clip_length_beats: Fraction = ra.Length( self_finish ).roundMeasures()._rational # Rounded up Duration to next Measure
@@ -3963,7 +3963,7 @@ class Section(Composition):
 
         finish_position: ra.Position = None
         for single_clip in clips_list:
-            clip_finish: ra.Position = single_clip.net_finish()
+            clip_finish: ra.Position = single_clip.net_finish_unmasked()
             if clip_finish is not None:
                 if finish_position is not None:
                     if clip_finish > finish_position:
