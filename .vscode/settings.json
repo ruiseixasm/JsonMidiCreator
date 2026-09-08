@@ -161,5 +161,6 @@
 	"editor.inlineSuggest.enabled": false,
 	"github.copilot.enable": {
 		"*": false
-	}
+	},
+	"github.copilot.renameSuggestions.triggerAutomatically": false
 }
