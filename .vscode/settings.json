@@ -156,5 +156,10 @@
 		"editor.insertSpaces": true,
 		"editor.tabSize": 4,
 		"editor.detectIndentation": false
+	},
+	"github.copilot.inlineSuggest.enable": false,
+	"editor.inlineSuggest.enabled": false,
+	"github.copilot.enable": {
+		"*": false
 	}
 }
