@@ -1211,6 +1211,9 @@ class Composition(Container):
 
     # UNMASKED METHODS
 
+    def elements(self) -> list['oe.Element']:
+        return []
+
     def elements_unmasked(self) -> list['oe.Element']:
         return []
 
@@ -1775,6 +1778,9 @@ class Clip(Composition):  # Just a container of Elements
 
 
     # UNMASKED METHODS
+
+    def elements(self) -> list['oe.Element']:
+        return self._items
 
     def elements_unmasked(self) -> list['oe.Element']:
         return [
@@ -3747,6 +3753,12 @@ class Section(Composition):
 
 
     # UNMASKED METHODS
+
+    def elements(self) -> list['oe.Element']:
+        elements: list[oe.Element] = []
+        for single_clip in self._items:
+            elements.extend(single_clip.elements())
+        return elements
 
     def elements_unmasked(self) -> list['oe.Element']:
         elements_unmasked: list[oe.Element] = []
