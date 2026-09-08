@@ -4406,6 +4406,52 @@ class Part(Composition):
                 elements_unmasked.extend(single_clip.elements_unmasked())
         return elements_unmasked
 
+    def _last_position_and_element_unmasked(self) -> tuple:
+        last_elements_list: list[tuple[ra.Position, Clip]] = []
+        for single_section in self._items:
+            block_last_element: oe.Element = single_section.last_unmasked()
+            if block_last_element is not None:
+                # NEEDS TO TAKE INTO CONSIDERATION THE PART POSITION TOO
+                last_elements_list.append(
+                    ( single_section % ra.Position() + block_last_element % ra.Position(), block_last_element )
+                )
+        # In this case a dictionary works like a list of pairs where [0] is the key
+        last_elements_list.sort(key=lambda pair: pair[0])
+        if len(last_elements_list) > 0:
+            return last_elements_list[-1]
+        return None
+
+    def _last_unmasked(self) -> 'oe.Element':
+        """
+        Returns the `Element` with the last `Position` in the given `Block`.
+
+        Args:
+            None
+
+        Returns:
+            Element: The last `Element` of all elements in each `Clip`.
+        """
+        last_position_element: tuple = self._last_position_and_element_unmasked()
+        if last_position_element is not None:
+            return last_position_element[1]
+        return None
+
+    def _last_position_unmasked(self) -> ra.Position:
+        """
+        Returns the `Position` of tha last `Element`.
+
+        Args:
+            None
+
+        Returns:
+            Position: The `Position` of the last `Element` of all elements in each `Block`.
+        """
+        last_position_element: tuple = self._last_position_and_element_unmasked()
+        if last_position_element is not None:
+            # NEEDS TO TAKE INTO CONSIDERATION THE PART POSITION TOO, SO DON'T REMOVE THIS METHOD
+            return last_position_element[0]
+        return None
+
 
     def __getitem__(self, index: Any) -> Union['Section', 'Part']:
         return super().__getitem__(index)
