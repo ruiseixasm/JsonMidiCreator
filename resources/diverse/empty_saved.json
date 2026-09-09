@@ -1,1 +1,1 @@
-{"filetype": "Json Midi Creator", "url": "https://github.com/ruiseixasm/JsonMidiCreator", "content": {"class": "Clip", "parameters": {"items": [], "name": "Clip", "time_signature": {"class": "TimeSignature", "parameters": {"top": 4, "bottom": 4}}, "track_number": 1, "enabled": true}}}
+{"filetype": "Json Midi Creator", "url": "https://github.com/ruiseixasm/JsonMidiCreator", "content": {"class": "Clip", "parameters": {"name": "Clip", "time_signature": {"class": "TimeSignature", "parameters": {"top": 4, "bottom": 4}}, "track_number": 1, "enabled": true, "elements": []}}}

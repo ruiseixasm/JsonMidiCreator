@@ -4064,6 +4064,8 @@ class Section(Composition):
 
         serialization["parameters"]["position"] = self.serialize(self._position_beats)
         serialization["parameters"]["name"]     = self.serialize(self._name)
+        # Useful for json interpretation and bottom placement
+        serialization["parameters"]["clips"] = serialization["parameters"].pop("items")
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -4078,12 +4080,14 @@ class Section(Composition):
         Returns:
             Block: The self Block object with the respective set parameters.
         """
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "position" in serialization["parameters"] and "name" in serialization["parameters"]):
+        if "clips" in serialization["parameters"]:
+            serialization['items'] = serialization.pop('clips')
+            if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+                "position" in serialization["parameters"] and "name" in serialization["parameters"]):
 
-            super().loadSerialization(serialization)
-            self._position_beats    = self.deserialize(serialization["parameters"]["position"])
-            self._name              = self.deserialize(serialization["parameters"]["name"])
+                super().loadSerialization(serialization)
+                self._position_beats    = self.deserialize(serialization["parameters"]["position"])
+                self._name              = self.deserialize(serialization["parameters"]["name"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -4662,6 +4666,8 @@ class Part(Composition):
 
         serialization["parameters"]["time_signature"] = self.serialize(self._time_signature)
         serialization["parameters"]["name"] = self.serialize(self._name)
+        # Useful for json interpretation and bottom placement
+        serialization["parameters"]["sections"] = serialization["parameters"].pop("items")
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -4676,13 +4682,15 @@ class Part(Composition):
         Returns:
             Part: The self Part object with the respective set parameters.
         """
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "time_signature" in serialization["parameters"] and "name" in serialization["parameters"]):
+        if "sections" in serialization["parameters"]:
+            serialization['items'] = serialization.pop('sections')
+            if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+                "time_signature" in serialization["parameters"] and "name" in serialization["parameters"]):
 
-            super().loadSerialization(serialization)
-            self._time_signature << self.deserialize(serialization["parameters"]["time_signature"])
-            self._name = self.deserialize(serialization["parameters"]["name"])
-            self._set_owner_part()
+                super().loadSerialization(serialization)
+                self._time_signature << self.deserialize(serialization["parameters"]["time_signature"])
+                self._name = self.deserialize(serialization["parameters"]["name"])
+                self._set_owner_part()
         return self
 
     def __lshift__(self, operand: any) -> Self:
