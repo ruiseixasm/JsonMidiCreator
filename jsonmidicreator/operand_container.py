@@ -1055,7 +1055,7 @@ class Composition(Container):
         return ra.Length(self, 0)
         
 
-    def _first_element(self, include_masked: bool = False) -> 'oe.Element':
+    def _first_element(self) -> 'oe.Element':
         """
         Gets the first Element accordingly to it's Position on the TimeSignature.
 
@@ -1559,14 +1559,14 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
-    def _first_element(self, include_masked: bool = False) -> 'oe.Element':
+    def _first_element(self) -> 'oe.Element':
         """
         Gets the first Element accordingly to it's Position on the TimeSignature.
 
         Returns:
             Element: The first Element of all Elements.
         """
-        return super().first(include_masked)
+        return super().first()
 
     def _last_element(self) -> 'oe.Element':
         """
@@ -1800,7 +1800,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         if self.len(include_masked):
             start_beats: Fraction = Fraction(0)
-            first_element: oe.Element = self._first_element(include_masked)
+            first_element: oe.Element = self._first_element()
             if first_element is not None:
                 start_beats = first_element._position_beats
             return ra.Position(self, start_beats)
