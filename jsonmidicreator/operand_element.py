@@ -80,7 +80,6 @@ class Element(o.Operand):
     def __init__(self, *parameters):
         from . import operand_container as oc
         super().__init__()
-        self._enabled: bool                 = True
         self._masked: bool                  = False
         self._position_beats: Fraction      = Fraction(0)   # in Beats
         self._duration_beats: Fraction      = Fraction(1)
@@ -281,7 +280,6 @@ class Element(o.Operand):
                     case ra.Length():
                         return operand._data << ra.Length(self, self._duration_beats)
                     case Fraction():        return self._duration_beats
-                    case ou.Enable():       return ou.Enable(self._enabled)
                     case _:                 return super().__mod__(operand)
             case og.Locus():
                 locus_copy: og.Locus = operand.copy(self)
@@ -308,8 +306,6 @@ class Element(o.Operand):
             case Fraction():        return self._duration_beats
             case og.TimeSignature():
                                     return self._time_signature.copy()
-            case ou.Enable():       return ou.Enable(self._enabled)
-            case ou.Disable():      return ou.Disable(not self._enabled)
             case ou.Masked():       return ou.Masked(self._masked)
             case oc.Clip():         return oc.Clip().__iadd__(self)
             case Element():         return operand.copy(self)
@@ -337,7 +333,6 @@ class Element(o.Operand):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["enabled"]          = self.serialize(self._enabled)
         serialization["parameters"]["masked"]           = self.serialize(self._masked)
         serialization["parameters"]["position"]         = self.serialize(self._position_beats)
         serialization["parameters"]["duration"]         = self.serialize(self._duration_beats)
@@ -348,11 +343,10 @@ class Element(o.Operand):
 
     def loadSerialization(self, serialization: dict) -> 'Element':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "enabled" in serialization["parameters"] and "masked" in serialization["parameters"] and "position" in serialization["parameters"] and "duration" in serialization["parameters"] and
+            "masked" in serialization["parameters"] and "position" in serialization["parameters"] and "duration" in serialization["parameters"] and
             "time_signature" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._enabled           = self.deserialize(serialization["parameters"]["enabled"])
             self._masked            = self.deserialize(serialization["parameters"]["masked"])
             self._position_beats    = self.deserialize(serialization["parameters"]["position"])
             self._duration_beats    = self.deserialize(serialization["parameters"]["duration"])
@@ -365,7 +359,6 @@ class Element(o.Operand):
         match operand:
             case Element():
                 super().__lshift__(operand)
-                self._enabled               = operand._enabled
                 self._masked                = operand._masked
                 # No conversion is done, beat and note_value values are directly copied (Same for Block)
                 self._position_beats        = operand._position_beats
@@ -383,10 +376,6 @@ class Element(o.Operand):
                     case Fraction():        self._duration_beats = operand._data
                     case og.TimeSignature():
                                             self._time_signature = operand._data
-                    case ou.Enable():
-                        self._enabled               = operand._data._unit != 0
-                    case ou.Disable():
-                        self._enabled               = operand._data._unit == 0
                     case _:
                         super().__lshift__(operand)
 
@@ -464,10 +453,6 @@ class Element(o.Operand):
 
             case og.TimeSignature():
                 self._time_signature << operand
-            case ou.Enable():
-                self._enabled               = operand._unit != 0
-            case ou.Disable():
-                self._enabled               = operand._unit == 0
                 
             case ou.Masked():
                 self._masked                = operand._unit != 0
@@ -1086,7 +1071,6 @@ class Subclip(Element):
 
 
     def getPlotlist(self, position_beats: Fraction | None = None, channels: dict[str, set[int]] = None) -> list[dict]:
-        if not self._enabled: return []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
@@ -1098,7 +1082,6 @@ class Subclip(Element):
     
 
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
-        if not self._enabled: return []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
@@ -1107,7 +1090,6 @@ class Subclip(Element):
     
 
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
-        if not self._enabled: return []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
@@ -1430,7 +1412,6 @@ class Talkie(Element):
     Channel(-1) : The broadcast channel to be used instead of the direct name if 0 or greater.
     """
     def __init__(self, *parameters):
-        self._enabled: bool         = True
         self._port: int             = 5005  # The default port of the protocol
         self._to: str               = "Device"
         self._channel_0: int        = -1    # Sender not a Receiver
@@ -1441,13 +1422,10 @@ class Talkie(Element):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case ou.Enable():       return ou.Enable(self._enabled)
                     case ou.Port():         return ou.Port(self._port)
                     case ou.Channel():      return ou.Channel(self._channel_0)
                     case od.To():           return od.To(self._to)
                     case _:                 return super().__mod__(operand)
-            case ou.Enable():       return ou.Enable(self._enabled)
-            case ou.Disable():      return ou.Disable(not self._enabled)
             case ou.Port():         return ou.Port(self._port)
             case ou.Channel():      return ou.Channel(self._channel_0)
             case od.To():           return od.To(self._to)
@@ -1508,7 +1486,6 @@ class Talkie(Element):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["enabled"]      = self.serialize(self._enabled)
         serialization["parameters"]["port"]         = self.serialize(self._port)
         serialization["parameters"]["to"]           = self.serialize(self._to)
         serialization["parameters"]["channel"]      = self.serialize(self._channel_0)
@@ -1518,10 +1495,9 @@ class Talkie(Element):
 
     def loadSerialization(self, serialization: dict) -> 'Element':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "enabled" in serialization["parameters"] and "port" in serialization["parameters"] and "to" in serialization["parameters"] and "channel" in serialization["parameters"]):
+            "port" in serialization["parameters"] and "to" in serialization["parameters"] and "channel" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._enabled   = self.deserialize(serialization["parameters"]["enabled"])
             self._port      = self.deserialize(serialization["parameters"]["port"])
             self._to        = self.deserialize(serialization["parameters"]["to"])
             self._channel_0 = self.deserialize(serialization["parameters"]["channel"])
@@ -1532,16 +1508,11 @@ class Talkie(Element):
         match operand:
             case Talkie():
                 super().__lshift__(operand)
-                self._enabled       = operand._enabled
                 self._port          = operand._port
                 self._to            = operand._to
                 self._channel_0     = operand._channel_0
             case od.Pipe():
                 match operand._data:
-                    case ou.Enable():
-                        self._enabled               = operand._data._unit != 0
-                    case ou.Disable():
-                        self._enabled               = operand._data._unit == 0
                     case ou.Port():
                         self._port                  = operand._data._unit
                     case ou.Channel():
@@ -1550,10 +1521,6 @@ class Talkie(Element):
                         self._to                  = operand._data._data
                     case _:
                         super().__lshift__(operand)
-            case ou.Enable():
-                self._enabled               = operand._unit != 0
-            case ou.Disable():
-                self._enabled               = operand._unit == 0
             case ou.Port():
                 self._port                  = operand._unit
             case ou.Channel():

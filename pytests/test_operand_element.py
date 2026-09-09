@@ -39,26 +39,6 @@ def test_element_equal():
     assert Note(1/1) != Rest(1/1)
     assert Rest(1/1) != Note(1/1)
 
-def test_element_mod():
-
-    element = Note()
-
-    # Redirect stdout to capture the print output
-    captured_output = StringIO()
-    sys.stdout = captured_output
-
-    # Restore stdout
-    sys.stdout = sys.__stdout__
-
-    assert element % Enable()
-    assert not element % Disable()
-    element << Disable()
-    assert not element % Enable()
-    assert element % Disable()
-    element << Enable()
-    assert element % Enable()
-    assert not element % Disable()
-
 
 def test_clock_mod():
     # Redirect stdout to capture the print output
