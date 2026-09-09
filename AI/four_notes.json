@@ -1,1 +1,144 @@
-{"filetype": "Json Midi Creator", "url": "https://github.com/ruiseixasm/JsonMidiCreator", "ontology": {"tied_to_previous": "Notes can only be tied to the previous `Note`, so, they work as duration extension of the previous one", "accidental": "The accidentals are chromatic offsets on the Key Signature and NOT on the Major Scale necessarily", "sharps": "Negative values mean Flats", "diatonic_mode_0": "This is the mode of the Diatonic scale, where `0` means Major and `5` means minor"}, "content": {"class": "Clip", "parameters": {"name": "Clip", "time_signature": {"class": "TimeSignature", "parameters": {"top": 4, "bottom": 4}}, "track_number": 1, "enabled": true, "elements": [{"class": "Note", "parameters": {"position_beats": "0/1", "duration_beats": "1/1", "channel_0": 0, "velocity": 100, "gate": "1/1", "tied_to_previous": false, "pitch": {"class": "Pitch", "parameters": {"key_signature": {"class": "KeySignature", "parameters": {"sharps": 0, "diatonic_mode_0": 0}}, "tonic_key_0": 0, "octave_0": 5, "degree_0": 0, "accidental": 0}}, "note_effect": null}}, {"class": "Note", "parameters": {"position_beats": "1/1", "duration_beats": "1/1", "channel_0": 0, "velocity": 100, "gate": "1/1", "tied_to_previous": false, "pitch": {"class": "Pitch", "parameters": {"key_signature": {"class": "KeySignature", "parameters": {"sharps": 0, "diatonic_mode_0": 0}}, "tonic_key_0": 0, "octave_0": 5, "degree_0": 0, "accidental": 0}}, "note_effect": null}}, {"class": "Note", "parameters": {"position_beats": "2/1", "duration_beats": "1/1", "channel_0": 0, "velocity": 100, "gate": "1/1", "tied_to_previous": false, "pitch": {"class": "Pitch", "parameters": {"key_signature": {"class": "KeySignature", "parameters": {"sharps": 0, "diatonic_mode_0": 0}}, "tonic_key_0": 0, "octave_0": 5, "degree_0": 0, "accidental": 0}}, "note_effect": null}}, {"class": "Note", "parameters": {"position_beats": "3/1", "duration_beats": "1/1", "channel_0": 0, "velocity": 100, "gate": "1/1", "tied_to_previous": false, "pitch": {"class": "Pitch", "parameters": {"key_signature": {"class": "KeySignature", "parameters": {"sharps": 0, "diatonic_mode_0": 0}}, "tonic_key_0": 0, "octave_0": 5, "degree_0": 0, "accidental": 0}}, "note_effect": null}}]}}}
+{
+	"filetype": "Json Midi Creator",
+	"url": "https://github.com/ruiseixasm/JsonMidiCreator",
+	"ontology": {
+		"encapsulation": "`Part -> Section -> Clip -> Element`",
+		"position_beats": {
+			"in_element": "Is the position in the `Clip`",
+			"in_section": "Is the position in the `Section` to be added to the respective `Element` ones encapsulated by it"
+		},
+		"tied_to_previous": "Notes can only be tied to the previous `Note`, so, they work as duration extension of the previous one",
+		"accidental": "The accidentals are chromatic offsets on the Key Signature and NOT on the Major Scale necessarily",
+		"sharps": "Negative values mean Flats",
+		"diatonic_mode_0": "This is the mode of the Diatonic scale, where `0` means Major and `5` means minor"
+	},
+	"content": {
+		"class": "Clip",
+		"parameters": {
+			"name": "Four Notes",
+			"time_signature": {
+				"class": "TimeSignature",
+				"parameters": {
+					"top": 4,
+					"bottom": 4
+				}
+			},
+			"track_number": 1,
+			"enabled": true,
+			"elements": [
+				{
+					"class": "Note",
+					"parameters": {
+						"position_beats": "0/1",
+						"duration_beats": "1/1",
+						"channel_0": 0,
+						"velocity": 100,
+						"gate": "1/1",
+						"tied_to_previous": false,
+						"pitch": {
+							"class": "Pitch",
+							"parameters": {
+								"key_signature": {
+									"class": "KeySignature",
+									"parameters": {
+										"sharps": 0,
+										"diatonic_mode_0": 0
+									}
+								},
+								"tonic_key_0": 0,
+								"octave_0": 5,
+								"degree_0": 0,
+								"accidental": 0
+							}
+						},
+						"note_effect": null
+					}
+				},
+				{
+					"class": "Note",
+					"parameters": {
+						"position_beats": "1/1",
+						"duration_beats": "1/1",
+						"channel_0": 0,
+						"velocity": 100,
+						"gate": "1/1",
+						"tied_to_previous": false,
+						"pitch": {
+							"class": "Pitch",
+							"parameters": {
+								"key_signature": {
+									"class": "KeySignature",
+									"parameters": {
+										"sharps": 0,
+										"diatonic_mode_0": 0
+									}
+								},
+								"tonic_key_0": 0,
+								"octave_0": 5,
+								"degree_0": 0,
+								"accidental": 0
+							}
+						},
+						"note_effect": null
+					}
+				},
+				{
+					"class": "Note",
+					"parameters": {
+						"position_beats": "2/1",
+						"duration_beats": "1/1",
+						"channel_0": 0,
+						"velocity": 100,
+						"gate": "1/1",
+						"tied_to_previous": false,
+						"pitch": {
+							"class": "Pitch",
+							"parameters": {
+								"key_signature": {
+									"class": "KeySignature",
+									"parameters": {
+										"sharps": 0,
+										"diatonic_mode_0": 0
+									}
+								},
+								"tonic_key_0": 0,
+								"octave_0": 5,
+								"degree_0": 0,
+								"accidental": 0
+							}
+						},
+						"note_effect": null
+					}
+				},
+				{
+					"class": "Note",
+					"parameters": {
+						"position_beats": "3/1",
+						"duration_beats": "1/1",
+						"channel_0": 0,
+						"velocity": 100,
+						"gate": "1/1",
+						"tied_to_previous": false,
+						"pitch": {
+							"class": "Pitch",
+							"parameters": {
+								"key_signature": {
+									"class": "KeySignature",
+									"parameters": {
+										"sharps": 0,
+										"diatonic_mode_0": 0
+									}
+								},
+								"tonic_key_0": 0,
+								"octave_0": 5,
+								"degree_0": 0,
+								"accidental": 0
+							}
+						},
+						"note_effect": null
+					}
+				}
+			]
+		}
+	}
+}
