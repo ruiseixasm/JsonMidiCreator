@@ -433,7 +433,7 @@ class Container(o.Operand):
                     self.deep_copy(item) for item in self.unmasked_items()
                 ]
             case int():
-                return self.len()
+                return self.len(include_masked=False)
             case bool():
                 return self._is_masked()
             case Container():
@@ -679,7 +679,7 @@ class Container(o.Operand):
             case int(): # split n times the self content if any
                 if operand > 0:
                     many_operands = self.__class__()    # with an empty list
-                    cut_len: int = self.len() % od.Pipe( operand )
+                    cut_len: int = self.len(include_masked=False) % od.Pipe( operand )
                     nth_item: int = cut_len
                     while nth_item > 0:
                         many_operands._items.append(
@@ -887,7 +887,7 @@ class Container(o.Operand):
         Returns:
             Container: The same self object with the items processed.
         """
-        self_len: int = self.len()
+        self_len: int = self.len(include_masked=False)
         for operand_i in range(self_len // 2):
             self._swap(self.unmasked_items()[operand_i], self.unmasked_items()[self_len - 1 - operand_i])
         return self._sort_items()
@@ -904,7 +904,7 @@ class Container(o.Operand):
         Returns:
             Container: The same self object with the items processed.
         """
-        for item_i in range(1, self.len()):
+        for item_i in range(1, self.len(include_masked=False)):
             self._items[item_i] << recursion(self._items[item_i - 1] % parameter())
         return self._sort_items()
 
@@ -2933,7 +2933,7 @@ class Clip(Composition):  # Just a container of Elements
 
             channel_automation: Clip = automation_clip.select(ou.Channel(channel_0 + 1))
 
-            if channel_automation.len() > 1:
+            if channel_automation.len(include_masked=False) > 1:
 
                 element_template: oe.Element = channel_automation[0].copy()
                 
@@ -3359,10 +3359,10 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items processed.
         """
-        if self.len() > 1:
+        if self.len(include_masked=False) > 1:
             # Starts by sorting by Position
             shallow_copy: Clip = self.shallow_copy()._sort_items()
-            for index in range(shallow_copy.len()):
+            for index in range(shallow_copy.len(include_masked=False)):
                 current_element: oe.Element = shallow_copy._items[index]
                 next_element: oe.Element = shallow_copy._items[index + 1]
                 if current_element.finish() > next_element.start():
@@ -3381,7 +3381,7 @@ class Clip(Composition):  # Just a container of Elements
             Clip: The same self object with the items processed.
         """
         shallow_copy: Clip = self.shallow_copy()._sort_items()
-        shallow_copy_len: int = shallow_copy.len()
+        shallow_copy_len: int = shallow_copy.len(include_masked=False)
         for index in range(shallow_copy_len):
             current_element: oe.Element = shallow_copy._items[index]
             next_element: oe.Element = shallow_copy._items[index + 1]
