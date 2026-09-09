@@ -1462,7 +1462,7 @@ class Composition(Container):
         Returns:
             Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
         """
-        if self._has_elements():
+        if self.len(include_masked):
             return ra.Length(self.net_finish(include_masked) - self.start(include_masked))
         return ra.Length(self, 0)
     
@@ -1944,7 +1944,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Position: The minimum Position of all Elements.
         """
-        if self._has_elements(include_masked):
+        if self.len(include_masked):
             start_beats: Fraction = Fraction(0)
             first_element: oe.Element = self._first_element(include_masked)
             if first_element is not None:
@@ -1964,7 +1964,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Position: The maximum of Position + Length of all Elements.
         """
-        if self._has_elements(include_masked):
+        if self.len(include_masked):
             finish_beats: Fraction = Fraction(0)
             items_list: list[oe.Element] = self._items
             if not include_masked:
@@ -3822,15 +3822,6 @@ class Section(Composition):
         return self
 
 
-    def _has_elements(self, include_masked: bool = False) -> bool:
-        items_list: list[Clip] = self._items
-        if not include_masked:
-            items_list = self.unmasked_items()
-        for single_clip in items_list:
-            if single_clip._has_elements(include_masked):
-                return True
-        return False
-
     def _total_elements(self, include_masked: bool = False) -> int:
         total_elements: int = 0
         items_list: list[Clip] = self._items
@@ -4494,12 +4485,6 @@ class Part(Composition):
                 return False
         return True
 
-
-    def _has_elements(self, include_masked: bool = False) -> bool:
-        for block in self._items:
-            if block._has_elements(include_masked):
-                return True
-        return False
 
     def _total_elements(self, include_masked: bool = False) -> int:
         total_elements: int = 0
