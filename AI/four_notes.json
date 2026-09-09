@@ -18,13 +18,12 @@
 				{
 					"class": "Note",
 					"parameters": {
-						"masked": false,
 						"position_beats": "0/1",
 						"duration_beats": "1/1",
 						"channel_0": 0,
 						"velocity": 100,
 						"gate": "1/1",
-						"tied": false,
+						"tied_to_previous": false,
 						"pitch": {
 							"class": "Pitch",
 							"parameters": {
@@ -35,7 +34,7 @@
 										"diatonic_mode_0": 0
 									}
 								},
-								"tonic_key": 0,
+								"tonic_key_0": 0,
 								"octave_0": 5,
 								"degree_0": 0,
 								"accidental": 0
@@ -47,13 +46,12 @@
 				{
 					"class": "Note",
 					"parameters": {
-						"masked": false,
 						"position_beats": "1/1",
 						"duration_beats": "1/1",
 						"channel_0": 0,
 						"velocity": 100,
 						"gate": "1/1",
-						"tied": false,
+						"tied_to_previous": false,
 						"pitch": {
 							"class": "Pitch",
 							"parameters": {
@@ -64,7 +62,7 @@
 										"diatonic_mode_0": 0
 									}
 								},
-								"tonic_key": 0,
+								"tonic_key_0": 0,
 								"octave_0": 5,
 								"degree_0": 0,
 								"accidental": 0
@@ -76,13 +74,12 @@
 				{
 					"class": "Note",
 					"parameters": {
-						"masked": false,
 						"position_beats": "2/1",
 						"duration_beats": "1/1",
 						"channel_0": 0,
 						"velocity": 100,
 						"gate": "1/1",
-						"tied": false,
+						"tied_to_previous": false,
 						"pitch": {
 							"class": "Pitch",
 							"parameters": {
@@ -93,7 +90,7 @@
 										"diatonic_mode_0": 0
 									}
 								},
-								"tonic_key": 0,
+								"tonic_key_0": 0,
 								"octave_0": 5,
 								"degree_0": 0,
 								"accidental": 0
@@ -105,13 +102,12 @@
 				{
 					"class": "Note",
 					"parameters": {
-						"masked": false,
 						"position_beats": "3/1",
 						"duration_beats": "1/1",
 						"channel_0": 0,
 						"velocity": 100,
 						"gate": "1/1",
-						"tied": false,
+						"tied_to_previous": false,
 						"pitch": {
 							"class": "Pitch",
 							"parameters": {
@@ -122,7 +118,7 @@
 										"diatonic_mode_0": 0
 									}
 								},
-								"tonic_key": 0,
+								"tonic_key_0": 0,
 								"octave_0": 5,
 								"degree_0": 0,
 								"accidental": 0

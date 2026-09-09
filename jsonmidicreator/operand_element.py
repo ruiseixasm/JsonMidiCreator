@@ -331,7 +331,8 @@ class Element(o.Operand):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["masked"]           = self.serialize(self._masked)
+        if self._masked:    # Cleans up the saved json from non musical tags
+            serialization["parameters"]["masked"]           = self.serialize(self._masked)
         serialization["parameters"]["position_beats"]   = self.serialize(self._position_beats)
         serialization["parameters"]["duration_beats"]   = self.serialize(self._duration_beats)
         return serialization
@@ -340,10 +341,11 @@ class Element(o.Operand):
 
     def loadSerialization(self, serialization: dict) -> 'Element':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "masked" in serialization["parameters"] and "position_beats" in serialization["parameters"] and "duration_beats" in serialization["parameters"]):
+            "position_beats" in serialization["parameters"] and "duration_beats" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._masked            = self.deserialize(serialization["parameters"]["masked"])
+            if "masked" in serialization["parameters"]:
+                self._masked            = self.deserialize(serialization["parameters"]["masked"])
             self._position_beats    = self.deserialize(serialization["parameters"]["position_beats"])
             self._duration_beats    = self.deserialize(serialization["parameters"]["duration_beats"])
         return self
@@ -2498,7 +2500,7 @@ class Note(ChannelElement):
         serialization = super().getSerialization()
         serialization["parameters"]["velocity"] = self.serialize( self._velocity )
         serialization["parameters"]["gate"]     = self.serialize( self._gate )
-        serialization["parameters"]["tied"]     = self.serialize( self._tied )
+        serialization["parameters"]["tied_to_previous"]     = self.serialize( self._tied )
         serialization["parameters"]["pitch"]    = self.serialize( self._pitch )
         serialization["parameters"]["note_effect"] = self.serialize( self._note_effect )
         return serialization
@@ -2507,13 +2509,13 @@ class Note(ChannelElement):
 
     def loadSerialization(self, serialization: dict) -> 'Note':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "velocity" in serialization["parameters"] and "gate" in serialization["parameters"] and "tied" in serialization["parameters"] and
+            "velocity" in serialization["parameters"] and "gate" in serialization["parameters"] and "tied_to_previous" in serialization["parameters"] and
             "pitch" in serialization["parameters"] and "note_effect" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._velocity  = self.deserialize( serialization["parameters"]["velocity"] )
             self._gate      = self.deserialize( serialization["parameters"]["gate"] )
-            self._tied      = self.deserialize( serialization["parameters"]["tied"] )
+            self._tied      = self.deserialize( serialization["parameters"]["tied_to_previous"] )
             self._pitch     = self.deserialize( serialization["parameters"]["pitch"] )
             self._note_effect = self.deserialize( serialization["parameters"]["note_effect"] )
         return self
