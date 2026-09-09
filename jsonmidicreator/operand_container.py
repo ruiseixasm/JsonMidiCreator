@@ -712,7 +712,6 @@ class Container(o.Operand):
         new_container._set = False   # by default a new copy of data unsets the Operand
         # COPY THE SELF OPERANDS RECURSIVELY
         new_container._next_operand = new_container.deep_copy(self._next_operand)
-        new_container._masked = self._masked
         return new_container << parameters
 
 
@@ -1666,8 +1665,8 @@ class Clip(Composition):  # Just a container of Elements
         return None
     
     def is_masked(self) -> bool:
-        for single_item in self._items:
-            if isinstance(single_item, o.Operand) and single_item._masked:
+        for single_element in self._items:
+            if single_element._masked:
                 return True
         return False
     
@@ -2601,46 +2600,45 @@ class Clip(Composition):  # Just a container of Elements
             for single_condition in conditions:
                 match single_condition:
                     case Container():
-                        for single_item in self._items:
-                            if isinstance(single_item, o.Operand):
-                                new_mask.append(any(single_item == cond_item for cond_item in single_condition))
+                        for single_element in self._items:
+                            if isinstance(single_element, o.Operand):
+                                new_mask.append(any(single_element == cond_item for cond_item in single_condition))
                     case of.Frame():
                         single_condition._set_inside_container(self)
-                        for single_item in self._items:
-                            if isinstance(single_item, o.Operand):
-                                framed_result = single_condition.frame(single_item)
-                                new_mask.append(single_item == framed_result)
+                        for single_element in self._items:
+                            if isinstance(single_element, o.Operand):
+                                framed_result = single_condition.frame(single_element)
+                                new_mask.append(single_element == framed_result)
                     case ch.Chaos():
-                        for single_item in self._items:
-                            if isinstance(single_item, o.Operand):
+                        for single_element in self._items:
+                            if isinstance(single_element, o.Operand):
                                 chaotic_result = single_condition.chaoticize()
-                                new_mask.append(single_item == chaotic_result)
+                                new_mask.append(single_element == chaotic_result)
                     case od.Pipe():
                         if isinstance(single_condition._data, of.Frame):
                             single_condition._set_inside_container(self)
                             pipped_frame = single_condition._data
-                            for single_item in self._items:
-                                if isinstance(single_item, o.Operand):
-                                    framed_result = pipped_frame.frame(single_item)
-                                    new_mask.append(single_item == framed_result)
+                            for single_element in self._items:
+                                if isinstance(single_element, o.Operand):
+                                    framed_result = pipped_frame.frame(single_element)
+                                    new_mask.append(single_element == framed_result)
                         elif isinstance(single_condition._data, ch.Chaos):
                             pipped_frame = single_condition._data
-                            for single_item in self._items:
-                                if isinstance(single_item, o.Operand):
+                            for single_element in self._items:
+                                if isinstance(single_element, o.Operand):
                                     chaotic_result = pipped_frame.chaoticize()
-                                    new_mask.append(single_item == chaotic_result)
+                                    new_mask.append(single_element == chaotic_result)
                         else:
-                            for single_item in self._items:
-                                if isinstance(single_item, o.Operand):
-                                    new_mask.append(single_item == single_condition)
+                            for single_element in self._items:
+                                if isinstance(single_element, o.Operand):
+                                    new_mask.append(single_element == single_condition)
                     case _:
-                        for single_item in self._items:
-                            if isinstance(single_item, o.Operand):
-                                new_mask.append(single_item == single_condition)
+                        for single_element in self._items:
+                            if isinstance(single_element, o.Operand):
+                                new_mask.append(single_element == single_condition)
             # Finally apply the mask
-            for single_item in self._items:
-                if isinstance(single_item, o.Operand):
-                    single_item._masked = new_mask.pop(0)   # Pops the first bool each time
+            for single_element in self._items:
+                single_element._masked = new_mask.pop(0)   # Pops the first bool each time
         return self
 
 
@@ -2657,16 +2655,14 @@ class Clip(Composition):  # Just a container of Elements
             `Container` items now selected as a `Mask`.
         """
         self.mask(*conditions)
-        for single_item in self._items:
-            if isinstance(single_item, o.Operand):
-                single_item._masked = not single_item._masked
+        for single_element in self._items:
+            single_element._masked = not single_element._masked
         return self
 
 
     def unmask(self) -> Self:
-        for single_item in self._items:
-            if isinstance(single_item, o.Operand):
-                single_item._masked = False
+        for single_element in self._items:
+            single_element._masked = False
         return self
     
 
