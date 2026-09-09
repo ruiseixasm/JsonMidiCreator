@@ -616,7 +616,7 @@ class Operand:
     None : It has no parameters.
     """
     def __init__(self, *parameters):
-        self._next_operand: Operand | None  = None
+        self._chained_operand: Operand | None  = None
         self._initiated: bool               = False
         self._set: bool                     = False # Intended to be used by Frame subclasses to flag set Operands
         self._index: int                    = -1    # negative means no iteration so far
@@ -625,7 +625,7 @@ class Operand:
 
     # It has to skip self, contrary to the Frame __next__ that includes the self!!
     def __iter__(self):
-        self._current_node: Operand = self._next_operand    # Reset to the start node on new iteration
+        self._current_node: Operand = self._chained_operand    # Reset to the start node on new iteration
         return self
     
     # It has to skip self, contrary to the Frame __next__ that includes the self!!
@@ -633,7 +633,7 @@ class Operand:
         if self._current_node is None: raise StopIteration
         previous_node = self._current_node
         match self._current_node:
-            case Operand(): self._current_node = self._current_node._next_operand
+            case Operand(): self._current_node = self._current_node._chained_operand
             case _:         self._current_node = None
         return previous_node
 
@@ -752,20 +752,20 @@ class Operand:
         return []
 
     def getSerialization(self) -> dict:
-        next_operand = self._next_operand
-        if isinstance(self._next_operand, Operand):
-            next_operand = self._next_operand.getSerialization()
+        chained_operand = self._chained_operand
+        if isinstance(self._chained_operand, Operand):
+            chained_operand = self._chained_operand.getSerialization()
         return { 
             "class": type(self).__name__,
             "parameters": {},
-            "next_operand": next_operand
+            "chained_operand": chained_operand
         }
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
-        if "next_operand" in serialization:
-            self._next_operand = self.deserialize(serialization["next_operand"])
+        if "chained_operand" in serialization:
+            self._chained_operand = self.deserialize(serialization["chained_operand"])
         return self
        
     def set(self, operand: any) -> Self:
@@ -791,7 +791,7 @@ class Operand:
                     self._index = operand._index
                     self._set = False   # by default a new copy of data unsets the Operand
                     # COPY THE SELF OPERANDS RECURSIVELY
-                    self._next_operand = self.deep_copy(operand._next_operand)
+                    self._chained_operand = self.deep_copy(operand._chained_operand)
             case tuple():
                 for single_parameter in operand:
                     self.__lshift__(single_parameter)
@@ -828,15 +828,15 @@ class Operand:
     
     def reset(self, *parameters) -> Self:
         # RESET THE SELF OPERANDS RECURSIVELY
-        if self._next_operand is not None:
-            self << self._next_operand.reset()
+        if self._chained_operand is not None:
+            self << self._chained_operand.reset()
         self._initiated     = False
         self._set           = False
         self._index         = -1    # negative means no iteration so far
         return self << parameters
     
     def clear(self, *parameters) -> Self:
-        self._next_operand = None
+        self._chained_operand = None
         return self.reset() << self.__class__() << parameters
     
     # self is the pusher
@@ -996,7 +996,7 @@ class Operand:
         if operand is not None:
             self << operand
         # Makes sure the next_operand is set and remains set
-        self._next_operand = Operand.deep_copy(operand)
+        self._chained_operand = Operand.deep_copy(operand)
         return self
     
 
@@ -1008,11 +1008,11 @@ class Operand:
         This excludes the classes `Frame`, `Chaos` and `Tamer` that have their own means of \
             processing tailed parameters.
         """
-        if isinstance(self._next_operand, Operand):
+        if isinstance(self._chained_operand, Operand):
             # Recursively get result from the tail chain
-            next_result = self._next_operand._tail_wrap(source)
+            next_result = self._chained_operand._tail_wrap(source)
             # Apply << operation between current next_operand and the result
-            return self._next_operand << next_result 
+            return self._chained_operand << next_result 
         return source  # Return source if there is no next operand in the chain
 
 

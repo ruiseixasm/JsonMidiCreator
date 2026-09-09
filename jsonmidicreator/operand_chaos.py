@@ -89,9 +89,9 @@ class Chaos(o.Operand):
 
 
     def _get_tailed_operand(self) -> o.Operand | None:
-        if isinstance(self._next_operand, Chaos):
-            return self._next_operand._get_tailed_operand()
-        return self._next_operand
+        if isinstance(self._chained_operand, Chaos):
+            return self._chained_operand._get_tailed_operand()
+        return self._chained_operand
 
     def chaoticize(self, iterate: bool = True) -> Any:
         if iterate:
@@ -228,24 +228,24 @@ class Chaos(o.Operand):
         '''The tail is just an attachment, it represents outputted value and not input one
         '''
         # Makes sure the next_operand is set and remains set
-        self._next_operand = o.Operand.deep_copy(operand)
+        self._chained_operand = o.Operand.deep_copy(operand)
         return self
     
 
     def _set_tail_previous_result(self, previous_result: Fraction) -> Self:
-        if isinstance(self._next_operand, Chaos):
-            self._next_operand._set_tail_previous_result(previous_result)
+        if isinstance(self._chained_operand, Chaos):
+            self._chained_operand._set_tail_previous_result(previous_result)
         else:
             self << od.Pipe(previous_result)
         return self
 
     def iterate(self, root: bool = True) -> Self:
         previous_result: Fraction = self % od.Pipe(Fraction())
-        if isinstance(self._next_operand, Chaos):   # iterations are done from tail left
+        if isinstance(self._chained_operand, Chaos):   # iterations are done from tail left
             if root:
-                self._next_operand._set_tail_previous_result(previous_result)
-            self._next_operand.iterate(False)
-            next_result: Fraction = self._next_operand % od.Pipe(Fraction())
+                self._chained_operand._set_tail_previous_result(previous_result)
+            self._chained_operand.iterate(False)
+            next_result: Fraction = self._chained_operand % od.Pipe(Fraction())
             self << od.Pipe(next_result)
         self.result(previous_result)
         return self
@@ -279,15 +279,15 @@ class Chaos(o.Operand):
         self._set           = False
         self._index         = -1    # -1 allows the return of the X0
         # RESET THE SELF OPERANDS RECURSIVELY
-        if isinstance(self._next_operand, o.Operand):
-            self._next_operand.reset()
+        if isinstance(self._chained_operand, o.Operand):
+            self._chained_operand.reset()
         self.reset_tamers()
         return self << parameters
 
     def reset_tamers(self) -> Self:
         # Reset Tamers recursively
-        if isinstance(self._next_operand, Chaos):
-            self._next_operand.reset_tamers()
+        if isinstance(self._chained_operand, Chaos):
+            self._chained_operand.reset_tamers()
         self._tamer.reset()
         return self
 

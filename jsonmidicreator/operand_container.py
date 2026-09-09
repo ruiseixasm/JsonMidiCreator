@@ -711,7 +711,7 @@ class Container(o.Operand):
         new_container._index = self._index
         new_container._set = False   # by default a new copy of data unsets the Operand
         # COPY THE SELF OPERANDS RECURSIVELY
-        new_container._next_operand = new_container.deep_copy(self._next_operand)
+        new_container._chained_operand = new_container.deep_copy(self._chained_operand)
         return new_container << parameters
 
 

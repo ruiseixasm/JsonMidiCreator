@@ -43,13 +43,13 @@ class Tamer(o.Operand):
     None
     """
     def from_tail(self) -> int:
-        if self._next_operand is None:
+        if self._chained_operand is None:
             return 1
-        return self._next_operand.from_tail() + 1
+        return self._chained_operand.from_tail() + 1
 
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        if self._next_operand is not None:
-            numeral, validated = self._next_operand.tame(numeral)
+        if self._chained_operand is not None:
+            numeral, validated = self._chained_operand.tame(numeral)
             if not validated:
                 return numeral, False    # Breaks the chain
             if validated and iterate:
@@ -72,14 +72,14 @@ class Tamer(o.Operand):
 
     def next(self, numeral: o.TypeNumeral) -> Self:
         """Only called by the first link of the chain if all links are validated"""
-        if isinstance(self._next_operand, Tamer):
-            self._next_operand.next(numeral)
+        if isinstance(self._chained_operand, Tamer):
+            self._chained_operand.next(numeral)
         self._index += 1
         return self
         
     def __pow__(self, operand: 'o.Operand') -> Self:
         match operand:
-            case Tamer():       self._next_operand = operand
+            case Tamer():       self._chained_operand = operand
             case _:             super().__pow__(operand)
         return self
 
@@ -88,8 +88,8 @@ class Tamer(o.Operand):
         self._set           = False
         self._index         = 0
         # RESET THE SELF OPERANDS RECURSIVELY
-        if isinstance(self._next_operand, o.Operand):
-            self._next_operand.reset()
+        if isinstance(self._chained_operand, o.Operand):
+            self._chained_operand.reset()
         return self << parameters
 
 

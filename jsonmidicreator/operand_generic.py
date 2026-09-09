@@ -2045,8 +2045,8 @@ class NoteEffect(Generic):
     def apply(self, notes: list['Note']) -> list['Note']:
         # Makes sure the next effect takes a sorted list of notes
         notes.sort()
-        if isinstance(self._next_operand, NoteEffect):
-            return self._next_operand.apply(notes)
+        if isinstance(self._chained_operand, NoteEffect):
+            return self._chained_operand.apply(notes)
         # Finally removes all notes are cleaned from any possible existing `NoteEffect`
         for single_note in notes:
             single_note._note_effect = None

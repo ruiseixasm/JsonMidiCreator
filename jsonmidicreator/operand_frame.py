@@ -48,7 +48,7 @@ class Frame(o.Operand):
         from . import operand_container as oc
         super().__init__()
         # These parameters replace the homologous Operand's ones
-        self._next_operand: any         = ol.Full()
+        self._chained_operand: any         = ol.Full()
         self._parameters: tuple         = parameters
         self._named_parameters: dict    = {}
         self._inside_container: oc.Container = None
@@ -64,7 +64,7 @@ class Frame(o.Operand):
         if self._current_node is None: raise StopIteration
         previous_node = self._current_node
         match self._current_node:
-            case Frame():   self._current_node = self._current_node._next_operand
+            case Frame():   self._current_node = self._current_node._chained_operand
             case _:         self._current_node = None
         return previous_node
 
@@ -85,23 +85,23 @@ class Frame(o.Operand):
         container._set = False   # In order to contained items know it was set by them (Element items)
         # Needs to propagate the settings to the next Frames
         # ONLY the Frames are reset, the succeeding non Frame operands aren't reset!
-        if isinstance(self._next_operand, Frame):
-            self._next_operand._set_inside_container(container)
+        if isinstance(self._chained_operand, Frame):
+            self._chained_operand._set_inside_container(container)
         self._inside_container = container
         # Finally, does all remaining resets for each operand
         return self.reset()
 
     def get_operand(self) -> Any:
-        if isinstance(self._next_operand, Frame):
-            return self._next_operand.get_operand()
-        return self._next_operand
+        if isinstance(self._chained_operand, Frame):
+            return self._chained_operand.get_operand()
+        return self._chained_operand
 
     def __pow__(self, operand: any) -> 'Frame':
         if isinstance(operand, o.Operand):
             operand._set = False
             if isinstance(operand, Frame):
                 operand._root_frame = False
-        self._next_operand = operand
+        self._chained_operand = operand
         return self
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -161,7 +161,7 @@ class Frame(o.Operand):
         return self
 
     def frame(self, input: Any) -> Any:
-        return self._next_operand
+        return self._chained_operand
     
 
     def pop(self, frame: 'Frame') -> 'Frame':
@@ -169,12 +169,12 @@ class Frame(o.Operand):
         for single_frame in self:
             if isinstance(single_frame, Frame) and type(single_frame) == type(frame):
                 if single_frame is self:
-                    next_frame = single_frame._next_operand
+                    next_frame = single_frame._chained_operand
                     if isinstance(next_frame, Frame):
                         next_frame._root_frame = True
                     return next_frame
                 else:
-                    previous_frame._next_operand = single_frame._next_operand
+                    previous_frame._chained_operand = single_frame._chained_operand
                     break
             previous_frame = single_frame
         return self
@@ -184,12 +184,12 @@ class Frame(o.Operand):
         for single_frame in self:
             if isinstance(single_frame, Frame) and type(single_frame) == type(frame):
                 if single_frame is self:
-                    frame._next_operand = self._next_operand
+                    frame._chained_operand = self._chained_operand
                     frame._root_frame = True
                     return frame
                 else:
-                    frame._next_operand = previous_frame._next_operand
-                    previous_frame._next_operand = frame
+                    frame._chained_operand = previous_frame._chained_operand
+                    previous_frame._chained_operand = frame
                     frame._root_frame = False
                     break
             previous_frame = single_frame
@@ -210,7 +210,7 @@ class LeftToRight(Frame):  # LEFT TO RIGHT
         if isinstance(input, ol.Null):
             return input
 
-        self_operand = self._next_operand
+        self_operand = self._chained_operand
         if isinstance(self_operand, Frame):
             self_operand = self_operand.frame(input)
         if isinstance(self_operand, tuple):
@@ -701,9 +701,9 @@ class Either(Selector):
     def frame(self, input: o.T) -> o.T:
         for condition in self._parameters:
             if input == condition: # Where the comparison is made
-                if isinstance(self._next_operand, Frame):
-                    return self._next_operand.frame(input)
-                return self._next_operand
+                if isinstance(self._chained_operand, Frame):
+                    return self._chained_operand.frame(input)
+                return self._chained_operand
         return ol.Null()
     
 class Neither(Selector):
@@ -719,9 +719,9 @@ class Neither(Selector):
         for condition in self._parameters:
             if input == condition: # Where the comparison is made
                 return ol.Null()
-        if isinstance(self._next_operand, Frame):
-            return self._next_operand.frame(input)
-        return self._next_operand
+        if isinstance(self._chained_operand, Frame):
+            return self._chained_operand.frame(input)
+        return self._chained_operand
     
 
 class First(Selector):
@@ -741,9 +741,9 @@ class First(Selector):
         if isinstance(self._inside_container, oc.Container):
             item_index: int = self._inside_container._element_index(input)
             if item_index is not None and item_index < self._named_parameters['amount']:
-                if isinstance(self._next_operand, Frame):
-                    return self._next_operand.frame(input)
-                return self._next_operand
+                if isinstance(self._chained_operand, Frame):
+                    return self._chained_operand.frame(input)
+                return self._chained_operand
         return ol.Null()
 
 class Last(Selector):
@@ -766,9 +766,9 @@ class Last(Selector):
                 container_len: int = self._inside_container.len()
                 amount_index: int = -1 * self._named_parameters['amount'] % container_len
                 if item_index >= amount_index:
-                    if isinstance(self._next_operand, Frame):
-                        return self._next_operand.frame(input)
-                    return self._next_operand
+                    if isinstance(self._chained_operand, Frame):
+                        return self._chained_operand.frame(input)
+                    return self._chained_operand
         return ol.Null()
 
 
@@ -787,9 +787,9 @@ class Crossing(Selector):
         from . import operand_container as oc
         if isinstance(self._inside_container, oc.Container) \
             and isinstance(input, oe.Element) and input.crossing(self._inside_container):
-            if isinstance(self._next_operand, Frame):
-                return self._next_operand.frame(input)
-            return self._next_operand
+            if isinstance(self._chained_operand, Frame):
+                return self._chained_operand.frame(input)
+            return self._chained_operand
         return ol.Null()
 
 class InputType(Selector):
@@ -903,7 +903,7 @@ class PreviousComparison(Selector):
                     parameter = self._named_parameters['previous'] % condition
                     if not self._compare(input, parameter): # Where the comparison is made
                         return ol.Null()
-        self_operand = self._next_operand
+        self_operand = self._chained_operand
         if isinstance(self_operand, Frame):
             self_operand = self_operand.frame(input)
         self._named_parameters['previous'] = input
@@ -949,7 +949,7 @@ class BasicComparison(Selector):
         for condition in self._parameters:
             if not self._compare(input, condition): # Where the comparison is made
                 return ol.Null()
-        self_operand = self._next_operand
+        self_operand = self._chained_operand
         if isinstance(self_operand, Frame):
             self_operand = self_operand.frame(input)
         return self_operand
@@ -1078,9 +1078,9 @@ class Odd(Alternator):
         self._index += 1
         # INDEX -1 IN USAGE
         if self._index % 2 == 0:    # Odd is nth based
-            if isinstance(self._next_operand, Frame):
-                return self._next_operand.frame(input)
-            return self._next_operand
+            if isinstance(self._chained_operand, Frame):
+                return self._chained_operand.frame(input)
+            return self._chained_operand
         else:
             return ol.Null()
 
@@ -1097,9 +1097,9 @@ class Even(Alternator):
         self._index += 1
         # INDEX -1 IN USAGE
         if self._index % 2 == 1:    # It's Nth based
-            if isinstance(self._next_operand, Frame):
-                return self._next_operand.frame(input)
-            return self._next_operand
+            if isinstance(self._chained_operand, Frame):
+                return self._chained_operand.frame(input)
+            return self._chained_operand
         else:
             return ol.Null()
 
@@ -1134,9 +1134,9 @@ class Every(Alternator):
             self._measure_at += 1
             self._previous_measure = present_measure    # Keeps track of the previous Measure
             if self._measure_at % self._named_parameters['nths'] == 0:
-                if isinstance(self._next_operand, Frame):
-                    return self._next_operand.frame(input)
-                return self._next_operand
+                if isinstance(self._chained_operand, Frame):
+                    return self._chained_operand.frame(input)
+                return self._chained_operand
         return ol.Null()
 
 
@@ -1172,9 +1172,9 @@ class Nth(Alternator):
         self._index += 1
         # INDEX -1 IN USAGE
         if self._index + 1 in self._named_parameters['parameters']:
-            if isinstance(self._next_operand, Frame):
-                return self._next_operand.frame(input)
-            return self._next_operand
+            if isinstance(self._chained_operand, Frame):
+                return self._chained_operand.frame(input)
+            return self._chained_operand
         else:
             return ol.Null()
 
@@ -1196,9 +1196,9 @@ class At(Alternator):
         self._index += 1
         # INDEX -1 IN USAGE
         if self._index in self._named_parameters['parameters']:
-            if isinstance(self._next_operand, Frame):
-                return self._next_operand.frame(input)
-            return self._next_operand
+            if isinstance(self._chained_operand, Frame):
+                return self._chained_operand.frame(input)
+            return self._chained_operand
         else:
             return ol.Null()
 
@@ -1358,7 +1358,7 @@ class RightToLeft(Frame):  # RIGHT TO LEFT
     Any(None) : Data used in the framing process.
     """
     def frame(self, input: o.T) -> o.T:
-        right_input = self._next_operand
+        right_input = self._chained_operand
         if isinstance(right_input, Frame):
             # ByPasses a Right frame
             right_input = right_input.frame(input)
