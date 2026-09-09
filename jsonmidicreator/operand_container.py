@@ -240,7 +240,7 @@ class Container(o.Operand):
         return True
 
 
-    def len(self, include_masked: bool = False) -> int:
+    def len(self) -> int:
         """
         Returns the total number of editable items
 
@@ -250,9 +250,7 @@ class Container(o.Operand):
         Returns:
             int: Returns the equivalent to the len(self._unmasked_items()).
         """
-        if include_masked:
-            return len(self._items)
-        return len(self.items_unmasked())
+        return len(self._items)
 
     def first(self, include_masked: bool = False) -> Any:
         """

@@ -188,10 +188,10 @@ def test_or_clip():
     # A Clip with a Measure of only 2 Beats
     four_notes: Clip = Note(1/8) / 4 << Pipe(TimeSignature(2, 4))
 
-    assert four_notes.len() == 4
+    assert four_notes.len_unmasked() == 4
     four_notes << Select(Match(Or(Step(2), Step(4))))
-    print(four_notes.len())
-    assert four_notes.len() == 2
+    print(four_notes.len_unmasked())
+    assert four_notes.len_unmasked() == 2
 
 # test_or_clip()
 
@@ -510,11 +510,11 @@ def test_sub_clip():
     notes_to_remove: Clip = ~four_notes << Select(Nth(1, 3))
     remaining_notes: Clip = four_notes >> Filter(Nth(2, 4))
 
-    assert notes_to_remove.len() < four_notes.len()
-    assert notes_to_remove.len() == remaining_notes.len()
+    assert notes_to_remove.len_unmasked() < four_notes.len_unmasked()
+    assert notes_to_remove.len_unmasked() == remaining_notes.len_unmasked()
 
-    assert (four_notes - single_note).len() == four_notes.len() - 1
-    assert (four_notes - notes_to_remove).len() == four_notes.len() - 2
+    assert (four_notes - single_note).len_unmasked() == four_notes.len_unmasked() - 1
+    assert (four_notes - notes_to_remove).len_unmasked() == four_notes.len_unmasked() - 2
     assert four_notes - notes_to_remove == remaining_notes
 
 # test_sub_clip()
@@ -533,11 +533,11 @@ def test_mul_clip():
 
     two_notes << Name("Two Notes")
     eight_notes: Clip = two_notes * 4
-    print(f"Len: {eight_notes.len()}")
-    assert eight_notes.len() == 8
+    print(f"Len: {eight_notes.len_unmasked()}")
+    assert eight_notes.len_unmasked() == 8
 
     eight_notes_1: Clip = two_notes * 4
-    assert eight_notes_1.len() == 8
+    assert eight_notes_1.len_unmasked() == 8
     first_note = eight_notes_1[0]
     third_note = eight_notes_1[2]
     fifth_note = eight_notes_1[4]
@@ -550,7 +550,7 @@ def test_mul_clip():
     assert fifth_note % Measure() == 2.0   # in measures
     
     eight_notes_2 = four_notes * 2
-    assert eight_notes_2.len() == 8
+    assert eight_notes_2.len_unmasked() == 8
     first_note = eight_notes_2[0]
     third_note = eight_notes_2[2]
     fifth_note = eight_notes_2[4]
@@ -573,17 +573,17 @@ def test_mul_clip():
     assert two_notes / Step(3) % Net(Duration()) == Beats(6)
     settings << Quantization(1/16)   # 1/4 Beats again
 
-    assert (two_notes * two_notes).len() == 4
+    assert (two_notes * two_notes).len_unmasked() == 4
     assert two_notes * two_notes % Net(Duration()) == Measures(1.5) # Measures
 
     hi_hat: Clip = Note(DrumKit("Hi-Hat"), 1/16) / 4 << Iterate(step=2)**Step() << Pipe(TimeSignature(2, 4))
-    assert hi_hat.len() == 4
+    assert hi_hat.len_unmasked() == 4
     assert hi_hat._test_owner_clip()
     hi_hat << Select(Nth(2, 4))
-    assert hi_hat.len() == 2
+    assert hi_hat.len_unmasked() == 2
     assert hi_hat._test_owner_clip()
     hi_hat *= 2
-    assert hi_hat.len() == 4
+    assert hi_hat.len_unmasked() == 4
     assert hi_hat._test_owner_clip()
     hi_hat % At(0) % Position() % Steps() % float() >> Print()
     assert hi_hat % At(0) % Position() % Steps() == 2.0
@@ -596,10 +596,10 @@ def test_mul_clip():
 
     # Test empty Clip
     empty_clip = hi_hat * 0 << Pipe(TimeSignature(2, 4))
-    assert empty_clip.len() == 0
+    assert empty_clip.len_unmasked() == 0
     equally_hi_hat: Clip = empty_clip * hi_hat
-    assert hi_hat.len() == 4
-    assert equally_hi_hat.len() == 4
+    assert hi_hat.len_unmasked() == 4
+    assert equally_hi_hat.len_unmasked() == 4
     assert equally_hi_hat == hi_hat
     
     print("------")
@@ -637,7 +637,7 @@ def test_mul_clip():
                                                 #             Note
                                                 # Rest + Rest + Note
 
-    assert timed_rest_clip.len() == 1 + 2*3
+    assert timed_rest_clip.len_unmasked() == 1 + 2*3
     assert type(timed_rest_clip[0]) == type(Rest())
     assert timed_rest_clip[0] % Position() == 0/1
     assert type(timed_rest_clip[1]) == type(Rest())
@@ -743,9 +743,9 @@ def test_lshift_clip():
 
     two_measures: Clip = Note() / 8
     two_measures << All()**Beat(0)
-    assert two_measures.len() == 8
+    assert two_measures.len_unmasked() == 8
     one_measure: Clip = two_measures << Select(Bellow(Measure(1)))
-    assert one_measure.len() == 4
+    assert one_measure.len_unmasked() == 4
 
     assert two_measures[0]._pitch.get_absolute_pitch() == 60
     # two_measures << Pipe(Key(30))
@@ -761,7 +761,7 @@ def test_lshift_clip():
 
     filtered_notes = eight_notes << Select(Measure(1))
 
-    assert filtered_notes.len() == 4
+    assert filtered_notes.len_unmasked() == 4
     assert filtered_notes % At(0) % Position() == 1.0
     assert filtered_notes % At(1) % Position() == 1.25
     assert filtered_notes % At(2) % Position() == 1.50
@@ -769,7 +769,7 @@ def test_lshift_clip():
 
     filtered_notes << Measure(0)
 
-    assert filtered_notes.len() == 4
+    assert filtered_notes.len_unmasked() == 4
     assert filtered_notes % At(0) % Position() == 0.0
     assert filtered_notes % At(1) % Position() == 0.25
     assert filtered_notes % At(2) % Position() == 0.50
@@ -781,41 +781,41 @@ def test_lshift_clip():
 def test_clip_filter():
 
     four_notes: Clip = Note() / 4
-    assert four_notes.len() == 4
+    assert four_notes.len_unmasked() == 4
     single_note: Clip = four_notes << Select(Beat(2))
-    assert single_note.len() == 1
+    assert single_note.len_unmasked() == 1
 
     eight_notes: Clip = Note() / 8
-    assert eight_notes.len() == 8
+    assert eight_notes.len_unmasked() == 8
     single_note: Clip = eight_notes << Select(Beat(2))
-    assert single_note.len() == 2
+    assert single_note.len_unmasked() == 2
 
     original_note: Clip = Note() / 1
-    assert original_note.len() == 1
+    assert original_note.len_unmasked() == 1
     selected_note: Clip = original_note << Select(Nth(1))
-    assert selected_note.len() == 1
+    assert selected_note.len_unmasked() == 1
     selected_note += Note()
-    assert selected_note.len() == 2
+    assert selected_note.len_unmasked() == 2
     # Needs to be replicated upwards!
-    # assert original_note.len() == 2
+    # assert original_note.len_unmasked() == 2
 
     # Stacks to make Elements (Notes) different
     selected_note >>= Stack()
     second_note: Note = selected_note[1]
     selected_note -= second_note
     # Shall remove just one Element and become size 1, remove by id and not by data
-    assert selected_note.len() == 1
+    assert selected_note.len_unmasked() == 1
     # Needs to be replicated upwards!
-    assert original_note.len() == 1
+    assert original_note.len_unmasked() == 1
 
     original_note: Clip = Note() / 1
-    assert original_note.len() == 1
+    assert original_note.len_unmasked() == 1
     selected_note: Clip = original_note << Select(Nth(1))
-    assert selected_note.len() == 1
+    assert selected_note.len_unmasked() == 1
     selected_note /= 2   # Here "/" results in a multiplication by 2 but stacked directly by Element
-    assert selected_note.len() == 2
+    assert selected_note.len_unmasked() == 2
     # Needs to be replicated upwards!
-    # assert original_note.len() == 2
+    # assert original_note.len_unmasked() == 2
 
 # test_clip_filter()
 
@@ -1186,12 +1186,12 @@ def test_process_mask():
     assert same_mask == copy_clip
     
     long_clip: Clip = Note() / 16
-    print(f"long_clip.len: {long_clip.len()}")
-    assert long_clip.len() == 16
+    print(f"long_clip.len: {long_clip.len_unmasked()}")
+    assert long_clip.len_unmasked() == 16
     # long_mask is still long_clip
     long_mask: Clip = long_clip.select(Last())
-    print(f"long_mask.len: {long_mask.len()}")
-    assert long_mask.len() == 1
+    print(f"long_mask.len_unmasked: {long_mask.len_unmasked()}")
+    assert long_mask.len_unmasked() == 1
 
 # test_process_mask()
 
@@ -1254,14 +1254,14 @@ def test_mul_list():
     assert new_clip[8 - 1] % Velocity() % int() == 100 - 4 + 1
 
     same_as_long_clip = long_clip.select(Beat(3))
-    assert same_as_long_clip.len() == 1 * 8
+    assert same_as_long_clip.len_unmasked() == 1 * 8
     new_clip = same_as_long_clip * [1, 0]   # Picks by Measure, where 0 is the first Measure
     print(f'new_clip % At(0) % Velocity(): {new_clip % At(0) % Velocity() % int()}')
     print(f'new_clip % At(1) % Velocity(): {new_clip % At(1) % Velocity() % int()}')
     assert new_clip % At(0) % Velocity() % int() == 100 - 8 + 1
     assert new_clip % At(1) % Velocity() % int() == 100 - 4 + 1
     same_as_new_clip = new_clip.unmask()
-    assert same_as_new_clip.len() == 4 * 2
+    assert same_as_new_clip.len_unmasked() == 4 * 2
 
 # test_floor_div()
 
@@ -1287,8 +1287,8 @@ def test_floordiv_clip():
     just_rests = Rest(1/2) / 2
     just_rests_mask = Rest(1/2) / 2 << Select(Beat(2))  # 1st beat masked, meaning, 2nd Rest
     assert just_rests_mask == just_rests
-    assert just_rests.len() == 2
-    assert just_rests_mask.len() == 1
+    assert just_rests.len_unmasked() == 2
+    assert just_rests_mask.len_unmasked() == 1
 
     assert just_notes == Note(Beat(1)) / Note()**3
     assert just_rests_mask == Rest(1/2) / 2
@@ -1300,12 +1300,12 @@ def test_floordiv_clip():
     assert just_rests[1] == Note(Beat(1))
 
     eight_notes = Note() / [1/8, 7]
-    assert eight_notes.len() == 8
+    assert eight_notes.len_unmasked() == 8
     assert eight_notes[0] == Position(0)
     assert eight_notes % Duration() == 1.0  # 1 Measures
 
     eight_notes = Note(Position(1/8)) / [1/8, 7]
-    assert eight_notes.len() == 8
+    assert eight_notes.len_unmasked() == 8
     print(f"eight_notes[0] % Position(): {eight_notes[0] % Position() % float()}")
     assert eight_notes[0] == Position(1/8)
     print(f"eight_notes % Length(): {eight_notes % Length() % float()}")
