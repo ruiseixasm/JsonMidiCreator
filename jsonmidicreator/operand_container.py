@@ -2063,6 +2063,8 @@ class Clip(Composition):  # Just a container of Elements
 
         serialization["parameters"]["track_number"] = self._track_number
         serialization["parameters"]["enabled"]      = self._enabled
+        # Useful for json interpretation and bottom placement
+        serialization["parameters"]["elements"] = serialization["parameters"].pop("items")
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -2077,13 +2079,15 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The self Clip object with the respective set parameters.
         """
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "track_number" in serialization["parameters"] and "enabled" in serialization["parameters"]):
+        if "elements" in serialization["parameters"]:
+            serialization['items'] = serialization.pop('elements')
+            if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+                "track_number" in serialization["parameters"] and "enabled" in serialization["parameters"]):
 
-            super().loadSerialization(serialization)
-            self._track_number  = serialization["parameters"]["track_number"]
-            self._enabled       = serialization["parameters"]["enabled"]
-            self._set_owner_clip()
+                super().loadSerialization(serialization)
+                self._track_number  = serialization["parameters"]["track_number"]
+                self._enabled       = serialization["parameters"]["enabled"]
+                self._set_owner_clip()
         return self
 
     def empty_copy(self, *parameters) -> Self:

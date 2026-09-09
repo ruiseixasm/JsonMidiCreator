@@ -1,1 +1,173 @@
-{"filetype": "Json Midi Creator", "url": "https://github.com/ruiseixasm/JsonMidiCreator", "content": {"class": "Clip", "parameters": {"items": [{"class": "Note", "parameters": {"enabled": true, "masked": false, "position": "0/1", "duration": "1/1", "time_signature": {"class": "TimeSignature", "parameters": {"top": 4, "bottom": 4}}, "channel_0": 0, "velocity": 100, "gate": "1/1", "tied": false, "pitch": {"class": "Pitch", "parameters": {"key_signature": {"class": "KeySignature", "parameters": {"unit": 0, "mode_0": 0}}, "tonic_key": 0, "octave_0": 5, "degree_0": 0, "accidental": 0, "transposition": 0, "scale": []}}, "note_effect": null}}, {"class": "Note", "parameters": {"enabled": true, "masked": false, "position": "1/1", "duration": "1/1", "time_signature": {"class": "TimeSignature", "parameters": {"top": 4, "bottom": 4}}, "channel_0": 0, "velocity": 100, "gate": "1/1", "tied": false, "pitch": {"class": "Pitch", "parameters": {"key_signature": {"class": "KeySignature", "parameters": {"unit": 0, "mode_0": 0}}, "tonic_key": 0, "octave_0": 5, "degree_0": 0, "accidental": 0, "transposition": 0, "scale": []}}, "note_effect": null}}, {"class": "Note", "parameters": {"enabled": true, "masked": false, "position": "2/1", "duration": "1/1", "time_signature": {"class": "TimeSignature", "parameters": {"top": 4, "bottom": 4}}, "channel_0": 0, "velocity": 100, "gate": "1/1", "tied": false, "pitch": {"class": "Pitch", "parameters": {"key_signature": {"class": "KeySignature", "parameters": {"unit": 0, "mode_0": 0}}, "tonic_key": 0, "octave_0": 5, "degree_0": 0, "accidental": 0, "transposition": 0, "scale": []}}, "note_effect": null}}, {"class": "Note", "parameters": {"enabled": true, "masked": false, "position": "3/1", "duration": "1/1", "time_signature": {"class": "TimeSignature", "parameters": {"top": 4, "bottom": 4}}, "channel_0": 0, "velocity": 100, "gate": "1/1", "tied": false, "pitch": {"class": "Pitch", "parameters": {"key_signature": {"class": "KeySignature", "parameters": {"unit": 0, "mode_0": 0}}, "tonic_key": 0, "octave_0": 5, "degree_0": 0, "accidental": 0, "transposition": 0, "scale": []}}, "note_effect": null}}], "name": "Clip", "time_signature": {"class": "TimeSignature", "parameters": {"top": 4, "bottom": 4}}, "track_number": 1, "auto": false}}}
+{
+	"filetype": "Json Midi Creator",
+	"url": "https://github.com/ruiseixasm/JsonMidiCreator",
+	"content": {
+		"class": "Clip",
+		"parameters": {
+			"name": "Clip",
+			"time_signature": {
+				"class": "TimeSignature",
+				"parameters": {
+					"top": 4,
+					"bottom": 4
+				}
+			},
+			"track_number": 1,
+			"enabled": true,
+			"elements": [
+				{
+					"class": "Note",
+					"parameters": {
+						"masked": false,
+						"position": "0/1",
+						"duration": "1/1",
+						"time_signature": {
+							"class": "TimeSignature",
+							"parameters": {
+								"top": 4,
+								"bottom": 4
+							}
+						},
+						"channel_0": 0,
+						"velocity": 100,
+						"gate": "1/1",
+						"tied": false,
+						"pitch": {
+							"class": "Pitch",
+							"parameters": {
+								"key_signature": {
+									"class": "KeySignature",
+									"parameters": {
+										"unit": 0,
+										"mode_0": 0
+									}
+								},
+								"tonic_key": 0,
+								"octave_0": 5,
+								"degree_0": 0,
+								"accidental": 0,
+								"transposition": 0,
+								"scale": []
+							}
+						},
+						"note_effect": null
+					}
+				},
+				{
+					"class": "Note",
+					"parameters": {
+						"masked": false,
+						"position": "1/1",
+						"duration": "1/1",
+						"time_signature": {
+							"class": "TimeSignature",
+							"parameters": {
+								"top": 4,
+								"bottom": 4
+							}
+						},
+						"channel_0": 0,
+						"velocity": 100,
+						"gate": "1/1",
+						"tied": false,
+						"pitch": {
+							"class": "Pitch",
+							"parameters": {
+								"key_signature": {
+									"class": "KeySignature",
+									"parameters": {
+										"unit": 0,
+										"mode_0": 0
+									}
+								},
+								"tonic_key": 0,
+								"octave_0": 5,
+								"degree_0": 0,
+								"accidental": 0,
+								"transposition": 0,
+								"scale": []
+							}
+						},
+						"note_effect": null
+					}
+				},
+				{
+					"class": "Note",
+					"parameters": {
+						"masked": false,
+						"position": "2/1",
+						"duration": "1/1",
+						"time_signature": {
+							"class": "TimeSignature",
+							"parameters": {
+								"top": 4,
+								"bottom": 4
+							}
+						},
+						"channel_0": 0,
+						"velocity": 100,
+						"gate": "1/1",
+						"tied": false,
+						"pitch": {
+							"class": "Pitch",
+							"parameters": {
+								"key_signature": {
+									"class": "KeySignature",
+									"parameters": {
+										"unit": 0,
+										"mode_0": 0
+									}
+								},
+								"tonic_key": 0,
+								"octave_0": 5,
+								"degree_0": 0,
+								"accidental": 0,
+								"transposition": 0,
+								"scale": []
+							}
+						},
+						"note_effect": null
+					}
+				},
+				{
+					"class": "Note",
+					"parameters": {
+						"masked": false,
+						"position": "3/1",
+						"duration": "1/1",
+						"time_signature": {
+							"class": "TimeSignature",
+							"parameters": {
+								"top": 4,
+								"bottom": 4
+							}
+						},
+						"channel_0": 0,
+						"velocity": 100,
+						"gate": "1/1",
+						"tied": false,
+						"pitch": {
+							"class": "Pitch",
+							"parameters": {
+								"key_signature": {
+									"class": "KeySignature",
+									"parameters": {
+										"unit": 0,
+										"mode_0": 0
+									}
+								},
+								"tonic_key": 0,
+								"octave_0": 5,
+								"degree_0": 0,
+								"accidental": 0,
+								"transposition": 0,
+								"scale": []
+							}
+						},
+						"note_effect": null
+					}
+				}
+			]
+		}
+	}
+}
