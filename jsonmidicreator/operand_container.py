@@ -535,11 +535,6 @@ class Container(o.Operand):
         match operand:
             case Container():
                 return self._delete(operand._items)
-            case int(): # repeat n times the last argument if any
-                if len(self.unmasked_items()) > 0:
-                    while operand > 0 and len(self.unmasked_items()) > 0:
-                        self._delete([ self.unmasked_items().pop() ], True)
-                        operand -= 1
             case list():
                 return self._delete(operand)
             
