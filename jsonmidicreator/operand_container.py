@@ -441,9 +441,10 @@ class Container(o.Operand):
                     case _: # operand is a Pipe
                         for single_item in self.items_unmasked():
                             if isinstance (single_item, o.Operand):
-                                single_item << operand.copy()   # Avoids the share of a single parameter
-                            else:
-                                single_item << operand
+                                if isinstance(operand, o.Operand):
+                                    single_item << operand.copy()   # Avoids the share of a single parameter
+                                else:
+                                    single_item << operand
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
