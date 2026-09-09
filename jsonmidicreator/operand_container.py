@@ -83,16 +83,16 @@ class Container(o.Operand):
 
     def __setitem__(self, index: Any, value) -> Self:
         if isinstance(index, int):
-            self.unmasked_items()[index] = value
+            self.self._items[index] = value
             return self._sort_items()   # Changing a given item should trigger the sorting of the Container
-        for i, item in enumerate(self.unmasked_items()):
+        for i, item in enumerate(self.self._items):
             if item == index:
-                self.unmasked_items()[i] = value
+                self.self._items[i] = value
                 return self._sort_items()   # Changing a given item should trigger the sorting of the Container
         if isinstance(index, str):
             converted_index = o.tag_to_int(index)
             if converted_index != -1:
-                self.unmasked_items()[converted_index] = value
+                self.self._items[converted_index] = value
         return self._sort_items()   # Changing a given item should trigger the sorting of the Container
     
 
