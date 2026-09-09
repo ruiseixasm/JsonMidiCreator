@@ -127,6 +127,30 @@ def saveJsonMidiCreator(serialization: dict, filename):
             "filetype": "Json Midi Creator",
             "url": "https://github.com/ruiseixasm/JsonMidiCreator",
             "ontology": {
+                "defaults": {
+                    "Clip": {
+                        "parameters": {
+                            "time_signature": {
+                                "class": "TimeSignature",
+                                "parameters": {
+                                    "top": 4,
+                                    "bottom": 4
+                                }
+                            }
+                        }
+                    },
+                    "Pitch": {
+                        "parameters": {
+                            "key_signature": {
+                                "class": "KeySignature",
+                                "parameters": {
+                                    "sharps": 0,
+                                    "diatonic_mode_0": 0
+                                }
+                            }
+                        }
+                    }
+                },
                 "encapsulation": "`Part -> Section -> Clip -> Element`",
                 "position_beats": {
                     "in_element": "The position of the `Element` in the `Clip`",
