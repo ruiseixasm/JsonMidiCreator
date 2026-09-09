@@ -252,7 +252,7 @@ class Container(o.Operand):
         """
         return len(self._items)
 
-    def first(self, include_masked: bool = False) -> Any:
+    def first(self) -> Any:
         """
         Gets the first Item accordingly to it's Position on the TimeSignature.
 
