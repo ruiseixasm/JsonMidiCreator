@@ -704,7 +704,7 @@ class Container(o.Operand):
             Container: Returns an empty self but with all the rest parameters untouched except the ones
             changed by the imputed Args.
         """
-        self._delete(self.unmasked_items(), True)
+        self._delete(self._items, True)
         return super().clear(parameters)
     
     def erase(self, *parameters) -> Self:
@@ -719,7 +719,7 @@ class Container(o.Operand):
             Container: Returns an empty self but with all the rest parameters untouched except the ones
             changed by the imputed Args.
         """
-        self._delete(self.unmasked_items(), True)
+        self._delete(self._items, True)
         for single_parameter in parameters:
             self << single_parameter
         return self
@@ -1527,6 +1527,38 @@ class Clip(Composition):  # Just a container of Elements
             element._position_beats *= beats_per_measure_ratio
             element._duration_beats *= beats_per_measure_ratio
         self._time_signature << time_signature
+        return self
+
+    def clear(self, *parameters) -> Self:
+        """
+        Clears all the given items in the present container and propagates the deletion
+        of the same items for the containers above.
+
+        Args:
+            *parameters: After deletion, any given parameter will be operated with `<<` in the sequence given.
+
+        Returns:
+            Container: Returns an empty self but with all the rest parameters untouched except the ones
+            changed by the imputed Args.
+        """
+        self._delete(self.elements_unmasked(), True)
+        return super().clear(parameters)
+    
+    def erase(self, *parameters) -> Self:
+        """
+        Erases all the given items in the present container and propagates the deletion
+        of the same items for the containers above.
+
+        Args:
+            *parameters: After deletion, any given parameter will be operated with `<<` in the sequence given.
+
+        Returns:
+            Container: Returns an empty self but with all the rest parameters untouched except the ones
+            changed by the imputed Args.
+        """
+        self._delete(self.elements_unmasked(), True)
+        for single_parameter in parameters:
+            self << single_parameter
         return self
 
 
