@@ -433,7 +433,7 @@ class Container(o.Operand):
                     self.deep_copy(item) for item in self.unmasked_items()
                 ]
             case int():
-                return self.len(include_masked=False)
+                return self.len()
             case bool():
                 return self._is_masked()
             case Container():
