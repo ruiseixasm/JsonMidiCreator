@@ -458,14 +458,6 @@ class Container(o.Operand):
             case tuple():
                 for single_operand in operand:
                     self << single_operand
-            case of.Frame():
-                operand._set_inside_container(self)
-                for single_item in self.unmasked_items():
-                    single_item << operand.frame(single_item)
-            case ch.Chaos():
-                for single_item in self.unmasked_items():
-                    single_parameter = operand.chaoticize()
-                    single_item << single_parameter
             case _:
                 items_list = self._items
                 if isinstance(self, Clip):
@@ -2195,13 +2187,17 @@ class Clip(Composition):  # Just a container of Elements
                     for item in self.elements_unmasked():
                         item << operand
 
-            case tuple():
-                for single_operand in operand:
-                    self << single_operand
-
             case Composition():
                 self._time_signature << operand._time_signature
 
+            case of.Frame():
+                operand._set_inside_container(self)
+                for single_element in self.elements_unmasked():
+                    single_element << operand.frame(single_element)
+            case ch.Chaos():
+                for single_element in self.elements_unmasked():
+                    single_parameter = operand.chaoticize()
+                    single_element << single_parameter
             case _:
                 super().__lshift__(operand)
         return self._sort_items()
