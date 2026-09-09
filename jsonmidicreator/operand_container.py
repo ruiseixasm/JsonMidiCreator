@@ -4233,18 +4233,18 @@ class Section(Composition):
             case Section():
                 new_part = Part(self._time_signature)
                 new_part += self
-                finish_position: ra.Position = self.net_finish()
+                finish_position: ra.Position = self.net_finish_unmasked()
                 if finish_position is not None:
                     new_part += operand.copy(finish_position)
                 else:
                     new_part += operand
                 return new_part
             case Clip():
-                finish_position: ra.Position = self.net_finish()
+                finish_position: ra.Position = self.net_finish_unmasked()
                 repositioned_clip: Clip = operand + finish_position # Implicit copy
                 self._append(repositioned_clip) # No implicit copy
             case oe.Element():
-                finish_position: ra.Position = self.net_finish()
+                finish_position: ra.Position = self.net_finish_unmasked()
                 repositioned_clip: Clip = Clip(operand._time_signature)
                 repositioned_clip += operand
                 repositioned_clip += finish_position
