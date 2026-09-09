@@ -1194,30 +1194,33 @@ class Pitch(Generic):
 
         serialization = super().getSerialization()
         serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
-        serialization["parameters"]["tonic_key"]        = self.serialize( self._tonic_key )
+        serialization["parameters"]["tonic_key_0"]      = self.serialize( self._tonic_key )
         serialization["parameters"]["octave_0"]         = self.serialize( self._octave_0 )
         serialization["parameters"]["degree_0"]         = self.serialize( self._degree_0 )
         serialization["parameters"]["accidental"]       = self.serialize( self._accidental )
-        serialization["parameters"]["transposition"]    = self.serialize( self._transposition )
-        serialization["parameters"]["scale"]            = self.serialize( self._scale )
+        if self._transposition:
+            serialization["parameters"]["transposition"]    = self.serialize( self._transposition )
+        if self._scale:
+            serialization["parameters"]["scale"]            = self.serialize( self._scale )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "key_signature" in serialization["parameters"] and "tonic_key" in serialization["parameters"] and
-            "octave_0" in serialization["parameters"] and "degree_0" in serialization["parameters"] and "accidental" in serialization["parameters"] and
-            "transposition" in serialization["parameters"] and "scale" in serialization["parameters"]):
+            "key_signature" in serialization["parameters"] and "tonic_key_0" in serialization["parameters"] and
+            "octave_0" in serialization["parameters"] and "degree_0" in serialization["parameters"] and "accidental" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._key_signature = self.deserialize( serialization["parameters"]["key_signature"] )
-            self._tonic_key     = self.deserialize( serialization["parameters"]["tonic_key"] )
+            self._tonic_key     = self.deserialize( serialization["parameters"]["tonic_key_0"] )
             self._octave_0      = self.deserialize( serialization["parameters"]["octave_0"] )
             self._degree_0      = self.deserialize( serialization["parameters"]["degree_0"] )
             self._accidental    = self.deserialize( serialization["parameters"]["accidental"] )
-            self._transposition = self.deserialize( serialization["parameters"]["transposition"] )
-            self._scale         = self.deserialize( serialization["parameters"]["scale"] )
+            if "transposition" in serialization["parameters"]:
+                self._transposition = self.deserialize( serialization["parameters"]["transposition"] )
+            if "scale" in serialization["parameters"]:
+                self._scale         = self.deserialize( serialization["parameters"]["scale"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
