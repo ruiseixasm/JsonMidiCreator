@@ -1754,13 +1754,6 @@ class Clip(Composition):  # Just a container of Elements
                 return False
         return True
 
-
-    def _total_elements(self, include_masked: bool = False) -> int:
-        if include_masked:
-            return len(self._items)
-        return len(self.elements_unmasked())
-
-
     def checksum(self) -> int:
         """16-bit checksum for a `Clip`, combining Element checksums."""
         master: int = 0
