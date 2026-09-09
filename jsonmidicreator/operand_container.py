@@ -1637,26 +1637,6 @@ class Clip(Composition):  # Just a container of Elements
         """
         return len(self.elements_unmasked())
 
-    def net_finish_unmasked(self) -> 'ra.Position':
-        """
-        Processes each element Position plus Length and returns the finish position
-        as the maximum of all of them.
-
-        Returns:
-            Position: The maximum of Position + Length of all Elements.
-        """
-        unmasked_elements: list[oe.Element] = self.elements_unmasked()
-        if unmasked_elements:
-            finish_beats: Fraction = Fraction(0)
-            for single_element in unmasked_elements:
-                single_element: oe.Element = single_element
-                element_finish: Fraction = \
-                    single_element._position_beats + single_element._duration_beats
-                if element_finish > finish_beats:
-                    finish_beats = element_finish
-            return ra.Position(self, finish_beats)
-        return None
-
 
     def __getitem__(self, index: Any) -> Self:
         elements_unmasked: list = self.elements_unmasked()
@@ -1838,6 +1818,27 @@ class Clip(Composition):  # Just a container of Elements
                         finish_beats = element_finish
             return ra.Position(self, finish_beats)
         return None
+
+    def net_finish_unmasked(self) -> 'ra.Position':
+        """
+        Processes each element Position plus Length and returns the finish position
+        as the maximum of all of them.
+
+        Returns:
+            Position: The maximum of Position + Length of all Elements.
+        """
+        unmasked_elements: list[oe.Element] = self.elements_unmasked()
+        if unmasked_elements:
+            finish_beats: Fraction = Fraction(0)
+            for single_element in unmasked_elements:
+                single_element: oe.Element = single_element
+                element_finish: Fraction = \
+                    single_element._position_beats + single_element._duration_beats
+                if element_finish > finish_beats:
+                    finish_beats = element_finish
+            return ra.Position(self, finish_beats)
+        return None
+
 
     def _last_position_unmasked(self) -> 'ra.Position':
         """
