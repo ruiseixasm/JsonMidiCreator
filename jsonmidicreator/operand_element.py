@@ -5500,8 +5500,6 @@ class ProgramChange(ChannelElement):
         return self_playlist
     
     def getMidilist(self, position_beats: Fraction | None = None) -> list:
-        if not self._enabled:
-            return []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
@@ -5595,8 +5593,6 @@ class Panic(DeviceElement):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
-        if not self._enabled:
-            return []
 
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
