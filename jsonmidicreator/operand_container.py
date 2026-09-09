@@ -1873,6 +1873,8 @@ class Clip(Composition):  # Just a container of Elements
                         return operand._data << self._track_number
                     case ou.Enable():
                         return operand._data << self._enabled
+                    case ou.Disable():
+                        return operand._data << self._enabled == 0
                     case _:
                         return super().__mod__(operand)
             case ou.TrackNumber():
@@ -1881,6 +1883,8 @@ class Clip(Composition):  # Just a container of Elements
                 return Devices(self._devices)
             case ou.Enable():
                 return ou.Enable(self._enabled)
+            case ou.Disable():
+                return ou.Disable(not self._enabled)
             case Section():
                 new_block = Section(self._time_signature)
                 new_block += self   # Implicit copy
@@ -2126,6 +2130,8 @@ class Clip(Composition):  # Just a container of Elements
                         self._track_number = operand._data._unit
                     case ou.Enable():
                         self._enabled = bool(operand._data._unit)
+                    case ou.Disable():
+                        self._enabled = operand._data._unit == 0
 
                     case list():
                         if all(isinstance(item, oe.Element) for item in operand._data):
@@ -2163,6 +2169,8 @@ class Clip(Composition):  # Just a container of Elements
                 self._devices = [operand._data]
             case ou.Enable():
                 self._enabled = bool(operand._unit)
+            case ou.Disable():
+                self._enabled = operand._unit == 0
                 
             case oe.Element():  # Element wapping (wrap)
                 for single_element in self.elements_unmasked():

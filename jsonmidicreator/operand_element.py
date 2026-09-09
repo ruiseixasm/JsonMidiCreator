@@ -309,8 +309,8 @@ class Element(o.Operand):
             case og.TimeSignature():
                                     return self._time_signature.copy()
             case ou.Enable():       return ou.Enable(self._enabled)
-            case ou.Masked():       return ou.Masked(self._masked)
             case ou.Disable():      return ou.Disable(not self._enabled)
+            case ou.Masked():       return ou.Masked(self._masked)
             case oc.Clip():         return oc.Clip().__iadd__(self)
             case Element():         return operand.copy(self)
             case om.Vector():       return om.Vector(self.getVectordict())
