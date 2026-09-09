@@ -1191,9 +1191,6 @@ class Composition(Container):
             return ra.Length( net_finish ).roundMeasures() % ra.Position()
         return None
 
-    def last_position(self, include_masked: bool = False) -> 'ra.Position':
-        return self._last_position(include_masked)
-
 
     def gross_length(self) -> 'ra.Length':
         """
@@ -1820,9 +1817,6 @@ class Clip(Composition):  # Just a container of Elements
                         finish_beats = element_finish
             return ra.Position(self, finish_beats)
         return None
-
-    def last_position(self, include_masked: bool = False) -> 'ra.Position':
-        return self._last_position(include_masked)
 
     def _last_position_unmasked(self) -> 'ra.Position':
         """
