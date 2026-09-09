@@ -759,7 +759,7 @@ class Operand:
         chained_operand = self._chained_operand
         if isinstance(self._chained_operand, Operand):
             chained_operand = self._chained_operand.getSerialization()
-            serialization[chained_operand] = chained_operand
+            serialization["chained_operand"] = chained_operand
         if self._index > -1:
             serialization["index"] = self._index
         return serialization

@@ -121,16 +121,16 @@ class Container(o.Operand):
 
     def __setitem__(self, index: Any, value) -> Self:
         if isinstance(index, int):
-            self.self._items[index] = value
+            self._items[index] = value
             return self._sort_items()   # Changing a given item should trigger the sorting of the Container
-        for i, item in enumerate(self.self._items):
+        for i, item in enumerate(self._items):
             if item == index:
-                self.self._items[i] = value
+                self._items[i] = value
                 return self._sort_items()   # Changing a given item should trigger the sorting of the Container
         if isinstance(index, str):
             converted_index = o.tag_to_int(index)
             if converted_index != -1:
-                self.self._items[converted_index] = value
+                self._items[converted_index] = value
         return self._sort_items()   # Changing a given item should trigger the sorting of the Container
     
 
@@ -530,7 +530,8 @@ class Container(o.Operand):
                     self << single_operand
             case _:
                 for single_item in self.items_unmasked():
-                    single_item << operand
+                    if isinstance(single_item, o.Operand):
+                        single_item << operand
         return self
 
 
@@ -3762,7 +3763,7 @@ class Section(Composition):
     def _get_time_signature(self) -> 'og.TimeSignature':
         if self._items:
             return self._items[0]._time_signature
-        return super()._get_timesignature()
+        return super()._get_time_signature()
 
     def _set_time_signature(self, time_signature: 'og.TimeSignature', pipe_it: bool = False) -> Self:
         for single_clip in self._items:
@@ -4344,7 +4345,7 @@ class Part(Composition):
             first_section = self._items[0]
             if first_section._items:
                 return first_section._items[0]._time_signature
-        return super()._get_timesignature()
+        return super()._get_time_signature()
 
     def _set_time_signature(self, time_signature: 'og.TimeSignature', pipe_it: bool = False) -> Self:
         for single_section in self._items:
@@ -4701,7 +4702,7 @@ class Part(Composition):
                             self._items = [item for item in operand._data]
                             self._set_owner_part()
                         else:   # Not for me
-                            for item in self.self._items:
+                            for item in self._items:
                                 item << operand._data
                     case str():
                         self._name = operand._data
@@ -4716,13 +4717,13 @@ class Part(Composition):
                     self._items = [item.copy() for item in operand]
                     self._set_owner_part()
                 else:   # Not for me
-                    for item in self.self._items:
+                    for item in self._items:
                         item << operand
             case dict():
                 if all(isinstance(item, Section) for item in operand.values()):
                     for index, item in operand.items():
-                        if isinstance(index, int) and index >= 0 and index < len(self.self._items):
-                            self.self._items[index] = item.copy()
+                        if isinstance(index, int) and index >= 0 and index < len(self._items):
+                            self._items[index] = item.copy()
                 else:   # Not for me
                     for item in self._items:
                         item << operand
