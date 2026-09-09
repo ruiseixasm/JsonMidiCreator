@@ -4468,30 +4468,30 @@ class Part(Composition):
         with a shallow `Part`.
         """
         if owner_part is None:
-            for block in self._items:
-                block._set_owner_part(self)
+            for single_section in self._items:
+                single_section._set_owner_part(self)
         elif isinstance(owner_part, Part):
             self._time_signature << owner_part._time_signature    # Does a parameters copy
-            for block in self._items:
-                block._set_owner_part(owner_part)
+            for single_section in self._items:
+                single_section._set_owner_part(owner_part)
         return self
 
 
     def _test_owner_part(self) -> bool:
-        for block in self:
-            if block._owner_part is not self:
+        for single_section in self:
+            if single_section._owner_part is not self:
                 return False
         return True
 
 
     def _last_position_and_element(self, include_masked: bool = False) -> tuple:
         last_elements_list: list[tuple[ra.Position, Clip]] = []
-        for block in self._items:
-            block_last_element: oe.Element = block._last_element(include_masked)
+        for single_section in self._items:
+            block_last_element: oe.Element = single_section._last_element(include_masked)
             if block_last_element is not None:
                 # NEEDS TO TAKE INTO CONSIDERATION THE PART POSITION TOO
                 last_elements_list.append(
-                    ( block % ra.Position() + block_last_element % ra.Position(), block_last_element )
+                    ( single_section % ra.Position() + block_last_element % ra.Position(), block_last_element )
                 )
         # In this case a dictionary works like a list of pairs where [0] is the key
         last_elements_list.sort(key=lambda pair: pair[0])
@@ -4534,8 +4534,8 @@ class Part(Composition):
     def checksum(self) -> int:
         """16-bit checksum for a `Part`, combining 16-bit checksums."""
         master: int = 0
-        for block in self._items:
-            master += block.checksum()
+        for single_section in self._items:
+            master += single_section.checksum()
         return master & 0xFFFF  # 16-bit
 
 
@@ -4605,14 +4605,14 @@ class Part(Composition):
 
     def all_elements(self) -> list['oe.Element']:
         elements: list[oe.Element] = []
-        for block in self._items:
-            elements.extend(block.all_elements())
+        for single_section in self._items:
+            elements.extend(single_section.all_elements())
         return elements
 
     def at_position_elements(self, position: 'ra.Position') -> list['oe.Element']:
         elements: list[oe.Element] = []
-        for block in self._items:
-            elements.extend( block.at_position_elements(position) )
+        for single_section in self._items:
+            elements.extend( single_section.at_position_elements(position) )
         return elements
 
 
@@ -4628,8 +4628,8 @@ class Part(Composition):
                 return self._name
             case od.Names():
                 all_names: list[str] = []
-                for block in self.unmasked_items():
-                    all_names.append(block._name)
+                for single_section in self.unmasked_items():
+                    all_names.append(single_section._name)
                 return od.Names(*tuple(all_names))
             case og.PitchTransitions():
                 pitch_transitions = og.PitchTransitions()
@@ -4649,8 +4649,8 @@ class Part(Composition):
         """
         plot_list: list = []
         
-        for block in self._items:
-            block_plotlist: list[dict] = block.getPlotlist(True)
+        for single_section in self._items:
+            block_plotlist: list[dict] = single_section.getPlotlist(True)
             # Block uses the Part Time Signature as Elements use the Clip Time Signature, so, no need for conversions
             plot_list.extend( block_plotlist )
 
@@ -4668,8 +4668,8 @@ class Part(Composition):
             list[dict]: A list with multiple Play configuration dictionaries.
         """
         play_list: list = []
-        for block in self._items:
-            play_list.extend(block.getPlaylist(True))
+        for single_section in self._items:
+            play_list.extend(single_section.getPlaylist(True))
         return play_list
 
     def getMidilist(self) -> list[dict]:
@@ -4683,8 +4683,8 @@ class Part(Composition):
             list[dict]: A list with multiple Midi file configuration dictionaries.
         """
         midi_list: list = []
-        for block in self:
-            midi_list.extend(block.getMidilist(True))
+        for single_section in self:
+            midi_list.extend(single_section.getMidilist(True))
         return midi_list
 
     def getSerialization(self) -> dict:
@@ -4778,8 +4778,8 @@ class Part(Composition):
     def __iadd__(self, operand: any) -> Self:
         match operand:
             case Part():
-                for block in operand:
-                    self += block
+                for single_section in operand:
+                    self += single_section
             case Section():
                 self._append(Section(operand)._set_owner_part(self))._sort_items()
             case Clip():
@@ -4820,8 +4820,8 @@ class Part(Composition):
                 left_length: ra.Length = self % ra.Length()
                 position_offset: ra.Position = ra.Position(left_length)
 
-                for block in right_part:
-                    block += position_offset
+                for single_section in right_part:
+                    single_section += position_offset
 
                 self._extend(right_part._items)
                 
@@ -4868,8 +4868,8 @@ class Part(Composition):
                 left_length: ra.Length = self % ra.Duration() % ra.Length()
                 position_offset: ra.Position = ra.Position(left_length.roundMeasures())
 
-                for block in right_part:
-                    block += position_offset
+                for single_section in right_part:
+                    single_section += position_offset
 
                 self._extend(right_part._items)  # Propagates upwards in the stack
             case Section():
