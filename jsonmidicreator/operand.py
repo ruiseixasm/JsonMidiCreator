@@ -620,7 +620,6 @@ class Operand:
         self._initiated: bool               = False
         self._set: bool                     = False # Intended to be used by Frame subclasses to flag set Operands
         self._index: int                    = -1    # negative means no iteration so far
-        self._masked: bool                  = False
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -722,8 +721,6 @@ class Operand:
                 return od.Serialization(self)
             case ra.Index():
                 return ra.Index(self._index)
-            case ou.Masked():
-                return ou.Masked(self._masked)
             case tuple():
                 results: list = []
                 for single_parameter in operand:
@@ -760,7 +757,6 @@ class Operand:
             next_operand = self._next_operand.getSerialization()
         return { 
             "class": type(self).__name__,
-            "masked": self._masked,
             "parameters": {},
             "next_operand": next_operand
         }
@@ -768,8 +764,7 @@ class Operand:
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
-        if "masked" in serialization and "next_operand" in serialization:
-            self._masked = self.deserialize(serialization["masked"])
+        if "next_operand" in serialization:
             self._next_operand = self.deserialize(serialization["next_operand"])
         return self
        
@@ -784,10 +779,6 @@ class Operand:
         match operand:
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case od.Mask():
-                self._masked = True
-            case od.Unmask():
-                self._masked = False
             case ol.Null():
                 pass
             case od.AsIs():
@@ -801,7 +792,6 @@ class Operand:
                     self._set = False   # by default a new copy of data unsets the Operand
                     # COPY THE SELF OPERANDS RECURSIVELY
                     self._next_operand = self.deep_copy(operand._next_operand)
-                    self._masked = operand._masked
             case tuple():
                 for single_parameter in operand:
                     self.__lshift__(single_parameter)
