@@ -265,13 +265,9 @@ class Container(o.Operand):
         Returns:
             Item: The first Item of all Items.
         """
-        first_item: Any = None
-        if include_masked:
-            if self._items:
-                first_item = self._items[0]
-        elif self.unmasked_items():
-            first_item = self.unmasked_items()[0]
-        return first_item
+        if self._items:
+            return self._items[0]
+        return None
 
     def last(self) -> Any:
         """
@@ -281,8 +277,8 @@ class Container(o.Operand):
             Item: The last Item of all Items.
         """
         if self._items:
-            last_item = self.unmasked_items()[-1]
-        return last_item
+            return self._items[-1]
+        return None
 
     def __eq__(self, other: any) -> bool:
         match other:
