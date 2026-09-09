@@ -134,7 +134,7 @@ class Element(o.Operand):
             if self._owner_clip is None:
                 return False
             clip = self._owner_clip
-        last_position: ra.Position = clip._last_element_position()
+        last_position: ra.Position = clip._last_position()
         if last_position is None:   # An empty Composition doesn't count
             return False
         # Starts by checking if it's a starting measure Element

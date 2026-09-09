@@ -1080,7 +1080,7 @@ class Composition(Container):
         return None
 
 
-    def _last_element_position(self, include_masked: bool = False) -> 'ra.Position':
+    def _last_position(self, include_masked: bool = False) -> 'ra.Position':
         """
         Gets the last Element position.
 
@@ -1095,13 +1095,10 @@ class Composition(Container):
             return last_element % ra.Position()
         return None
 
-    def last_position_unmasked(self) -> 'ra.Position':
-        """
-        Gets the last Element position.
-
-        Returns:
-            Position: The Position of the last Element.
-        """
+    def _last_position_unmasked(self) -> 'ra.Position':
+        last_element: oe.Element = self._last_element_unmasked()
+        if last_element is not None:
+            return last_element % ra.Position()
         return None
 
 
@@ -1195,13 +1192,7 @@ class Composition(Container):
         return None
 
     def last_position(self, include_masked: bool = False) -> 'ra.Position':
-        return self._last_element_position(include_masked)
-
-    def last_position_unmasked(self) -> 'ra.Position':
-        last_element: oe.Element = self._last_element_unmasked()
-        if last_element is not None:
-            return last_element % ra.Position()
-        return None
+        return self._last_position(include_masked)
 
 
     def gross_length(self) -> 'ra.Length':
@@ -1215,7 +1206,7 @@ class Composition(Container):
             Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
         """
         if self._items:
-            last_position: ra.Position = self._last_element_position(True)
+            last_position: ra.Position = self._last_position(True)
             position_length: ra.Length = ra.Length( last_position.roundMeasures() ) + ra.Measure(1)
             finish_length: ra.Length = ra.Length( self.net_finish().roundMeasures() )
             if finish_length > position_length:
@@ -1305,7 +1296,7 @@ class Composition(Container):
             case og.TimeSignature():
                 return self._time_signature.copy()
             case int():
-                last_position_unmasked: ra.Position = self.last_position_unmasked()
+                last_position_unmasked: ra.Position = self._last_position_unmasked()
                 if last_position_unmasked is not None:
                     measures_length: ra.Length = ra.Length(last_position_unmasked)
                     return measures_length % ra.Measure() % int()
@@ -1831,9 +1822,9 @@ class Clip(Composition):  # Just a container of Elements
         return None
 
     def last_position(self, include_masked: bool = False) -> 'ra.Position':
-        return self._last_element_position(include_masked)
+        return self._last_position(include_masked)
 
-    def last_position_unmasked(self) -> 'ra.Position':
+    def _last_position_unmasked(self) -> 'ra.Position':
         """
         Gets the last Element position.
 
@@ -4493,7 +4484,7 @@ class Part(Composition):
             return last_position_element[1]
         return None
 
-    def _last_element_position(self, include_masked: bool = False) -> ra.Position:
+    def _last_position(self, include_masked: bool = False) -> ra.Position:
         """
         Returns the `Position` of tha last `Element`.
 
