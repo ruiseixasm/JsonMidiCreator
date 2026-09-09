@@ -802,12 +802,6 @@ class Container(o.Operand):
         return self
 
 
-    def is_masked(self) -> bool:
-        for single_item in self._items:
-            if isinstance(single_item, o.Operand) and single_item._masked:
-                return True
-        return False
-    
     def is_empty(self) -> bool:
         return len(self._items) == 0
     
@@ -1631,6 +1625,12 @@ class Clip(Composition):  # Just a container of Elements
 
     # UNMASKED METHODS
 
+    def is_masked(self) -> bool:
+        for single_item in self._items:
+            if isinstance(single_item, o.Operand) and single_item._masked:
+                return True
+        return False
+    
     def elements(self) -> list['oe.Element']:
         return self._items
 
