@@ -59,7 +59,7 @@ class Container(o.Operand):
         for single_operand in operands:
             self << single_operand
 
-    def unmasked_items(self) -> list[Any]:
+    def items_unmasked(self) -> list[Any]:
         if isinstance(self, Clip):
             return self.elements_unmasked()
         return self._items
@@ -252,7 +252,7 @@ class Container(o.Operand):
         """
         if include_masked:
             return len(self._items)
-        return len(self.unmasked_items())
+        return len(self.items_unmasked())
 
     def first(self, include_masked: bool = False) -> Any:
         """
@@ -289,13 +289,13 @@ class Container(o.Operand):
                 return other == self
             case of.Frame():
                 other._set_inside_container(self)
-                for single_item in self.unmasked_items():
+                for single_item in self.items_unmasked():
                     other_frame = other.frame(single_item)
                     if not single_item == other_frame:
                         return False
                 return True
             case ch.Chaos():
-                for single_item in self.unmasked_items():
+                for single_item in self.items_unmasked():
                     other_chaoticize = other.chaoticize()
                     if not single_item == other_chaoticize:
                         return False
@@ -361,7 +361,7 @@ class Container(o.Operand):
             case list():
                 if operand: # Non empty list
                     parameters: list = []
-                    for single_item in self.unmasked_items():
+                    for single_item in self.items_unmasked():
                         if isinstance(single_item, o.Operand):
                             operand_parameter: any = single_item
                             for single_parameter in operand:
@@ -446,8 +446,8 @@ class Container(o.Operand):
                 self._extend( [self.deep_copy(item) for item in operand] )
             case dict():
                 for index, item in operand.items():
-                    if isinstance(index, int) and index >= 0 and index < len(self.unmasked_items()):
-                        self.unmasked_items()[index] = self.deep_copy(item)
+                    if isinstance(index, int) and index >= 0 and index < len(self.items_unmasked()):
+                        self.items_unmasked()[index] = self.deep_copy(item)
             case od.Select():
                 self.select(operand._data)
             case od.Mask():
@@ -473,7 +473,7 @@ class Container(o.Operand):
                 return operand._direct_process(self)
             case of.Frame():
                 operand._set_inside_container(self)
-                unmasked_items: list = self.unmasked_items()
+                unmasked_items: list = self.items_unmasked()
                 for index, single_item in enumerate(unmasked_items):
                     unmasked_items[index] >>= operand.frame(single_item)
                 return self
@@ -505,10 +505,10 @@ class Container(o.Operand):
                     self += single_operand
             case of.Frame():
                 operand._set_inside_container(self)
-                for single_item in self.unmasked_items():
+                for single_item in self.items_unmasked():
                     single_item += operand.frame(single_item)
             case ch.Chaos():
-                for single_item in self.unmasked_items():
+                for single_item in self.items_unmasked():
                     single_parameter = operand.chaoticize()
                     single_item += single_parameter
             case _:
@@ -536,14 +536,14 @@ class Container(o.Operand):
                     self -= single_operand
             case of.Frame():
                 operand._set_inside_container(self)
-                for single_item in self.unmasked_items():
+                for single_item in self.items_unmasked():
                     single_parameter = operand.frame(single_item)
                     if single_parameter == ol.Full():
                         self._remove(single_item)
                     else:
                         single_item -= single_parameter
             case ch.Chaos():
-                for single_item in self.unmasked_items():
+                for single_item in self.items_unmasked():
                     single_parameter = operand.chaoticize()
                     if single_parameter == ol.Full():
                         self._remove(single_item)
