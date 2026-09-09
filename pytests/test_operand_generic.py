@@ -742,10 +742,12 @@ def test_sharps_and_flats_picker():
 
     no_sharps_or_flats = [0] * 12
     assert Scale.sharps_or_flats_picker(0, major_scale) == no_sharps_or_flats
+    assert sum(Scale.sharps_or_flats_picker(0, major_scale)) == 0
 
     #            C       D       E   F       G       A       B
     D_sharps = [+1, +0, +0, +0, +0, +1, +0, +0, +0, +0, +0, +0]
     assert Scale.sharps_or_flats_picker(2, major_scale) == D_sharps
+    assert sum(Scale.sharps_or_flats_picker(2, major_scale)) == +2
 
     #            C       D       E   F       G       A       B
     E_sharps = [+1, +0, +1, +0, +0, +1, +0, +1, +0, +0, +0, +0]
@@ -758,6 +760,7 @@ def test_sharps_and_flats_picker():
     #            C       D       E   F       G       A       B
     G_sharp  = [+0, +0, +0, +0, +0, +1, +0, +0, +0, +0, +0, +0]
     assert Scale.sharps_or_flats_picker(7, major_scale) == G_sharp
+    assert sum(Scale.sharps_or_flats_picker(7, major_scale)) == +1
 
     #            C       D       E   F       G       A       B
     A_sharp  = [+1, +0, +0, +0, +0, +1, +0, +1, +0, +0, +0, +0]
