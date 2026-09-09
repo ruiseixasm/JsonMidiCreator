@@ -564,7 +564,15 @@ class Container(o.Operand):
                     self._extend(items_copy)  # Propagates upwards in the stack
                 elif operand == 0:
                     self._delete()
-                    
+            case of.Frame():
+                operand._set_inside_container(self)
+                for single_element in self.items_unmasked():
+                    single_element *= operand.frame(single_element)
+            case ch.Chaos():
+                for single_element in self.items_unmasked():
+                    single_parameter = operand.chaoticize()
+                    single_element *= single_parameter
+
             case tuple():
                 for single_operand in operand:
                     self.__imul__(single_operand)
@@ -2325,20 +2333,8 @@ class Clip(Composition):  # Just a container of Elements
                 line_elements: list[oe.Element] = oe.get_elements_from_line(operand)
                 self *= Clip()._extend(line_elements)._set_owner_clip()._sort_items()
 
-            case of.Frame():
-                operand._set_inside_container(self)
-                for single_element in self.elements_unmasked():
-                    single_element *= operand.frame(single_element)
-            case ch.Chaos():
-                for single_element in self.elements_unmasked():
-                    single_parameter = operand.chaoticize()
-                    single_element *= single_parameter
-
-            case Container():
-                pass
             case _:
-                for single_element in self.elements_unmasked():
-                    single_element.__imul__(operand)
+                super().__imul__(operand)
         return self._sort_items()  # Shall be sorted!
 
     def __rmul__(self, operand: any) -> Self:
