@@ -81,6 +81,7 @@ class Element(o.Operand):
         from . import operand_container as oc
         super().__init__()
         self._enabled: bool                 = True
+        self._masked: bool                  = False
         self._position_beats: Fraction      = Fraction(0)   # in Beats
         self._duration_beats: Fraction      = Fraction(1)
         self._time_signature: og.TimeSignature  = og.settings._time_signature.copy()
@@ -308,6 +309,7 @@ class Element(o.Operand):
             case og.TimeSignature():
                                     return self._time_signature.copy()
             case ou.Enable():       return ou.Enable(self._enabled)
+            case ou.Masked():       return ou.Masked(self._masked)
             case ou.Disable():      return ou.Disable(not self._enabled)
             case oc.Clip():         return oc.Clip().__iadd__(self)
             case Element():         return operand.copy(self)
@@ -336,6 +338,7 @@ class Element(o.Operand):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["enabled"]          = self.serialize(self._enabled)
+        serialization["parameters"]["masked"]           = self.serialize(self._masked)
         serialization["parameters"]["position"]         = self.serialize(self._position_beats)
         serialization["parameters"]["duration"]         = self.serialize(self._duration_beats)
         serialization["parameters"]["time_signature"]   = self.serialize(self._time_signature)
@@ -345,11 +348,12 @@ class Element(o.Operand):
 
     def loadSerialization(self, serialization: dict) -> 'Element':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "enabled" in serialization["parameters"] and "position" in serialization["parameters"] and "duration" in serialization["parameters"] and
+            "enabled" in serialization["parameters"] and "masked" in serialization["parameters"] and "position" in serialization["parameters"] and "duration" in serialization["parameters"] and
             "time_signature" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._enabled           = self.deserialize(serialization["parameters"]["enabled"])
+            self._masked            = self.deserialize(serialization["parameters"]["masked"])
             self._position_beats    = self.deserialize(serialization["parameters"]["position"])
             self._duration_beats    = self.deserialize(serialization["parameters"]["duration"])
             self._time_signature    = self.deserialize(serialization["parameters"]["time_signature"])
@@ -362,6 +366,7 @@ class Element(o.Operand):
             case Element():
                 super().__lshift__(operand)
                 self._enabled               = operand._enabled
+                self._masked                = operand._masked
                 # No conversion is done, beat and note_value values are directly copied (Same for Block)
                 self._position_beats        = operand._position_beats
                 self._duration_beats        = operand._duration_beats
@@ -463,6 +468,11 @@ class Element(o.Operand):
                 self._enabled               = operand._unit != 0
             case ou.Disable():
                 self._enabled               = operand._unit == 0
+                
+            case ou.Masked():
+                self._masked                = operand._unit != 0
+            case od.Mask():                 self._masked = True
+            case od.Unmask():               self._masked = False
             case oc.Composition():
                 self._time_signature << operand._time_signature
             case tuple():
