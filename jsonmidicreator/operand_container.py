@@ -60,10 +60,9 @@ class Container(o.Operand):
             self << single_operand
 
     def unmasked_items(self) -> list[Any]:
-        return [
-            item for item in self._items
-            if not isinstance(item, o.Operand) or not item._masked
-        ]
+        if isinstance(self, Clip):
+            return self.elements_unmasked()
+        return self._items
 
 
     def __getitem__(self, index: Any) -> any:
