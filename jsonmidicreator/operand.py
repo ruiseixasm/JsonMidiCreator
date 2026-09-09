@@ -755,10 +755,14 @@ class Operand:
         chained_operand = self._chained_operand
         if isinstance(self._chained_operand, Operand):
             chained_operand = self._chained_operand.getSerialization()
+            return { 
+                "class": type(self).__name__,
+                "parameters": {},
+                "chained_operand": chained_operand
+            }
         return { 
             "class": type(self).__name__,
-            "parameters": {},
-            "chained_operand": chained_operand
+            "parameters": {}
         }
 
     # CHAINABLE OPERATIONS
@@ -766,6 +770,8 @@ class Operand:
     def loadSerialization(self, serialization: dict) -> Self:
         if "chained_operand" in serialization:
             self._chained_operand = self.deserialize(serialization["chained_operand"])
+        else:
+            self._chained_operand = None
         return self
        
     def set(self, operand: any) -> Self:
