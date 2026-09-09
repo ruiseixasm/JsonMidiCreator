@@ -4062,8 +4062,8 @@ class Section(Composition):
         """
         serialization = super().getSerialization()
 
-        serialization["parameters"]["position"] = self.serialize(self._position_beats)
-        serialization["parameters"]["name"]     = self.serialize(self._name)
+        serialization["parameters"]["position_beats"]   = self.serialize(self._position_beats)
+        serialization["parameters"]["name"]             = self.serialize(self._name)
         # Useful for json interpretation and bottom placement
         serialization["parameters"]["clips"] = serialization["parameters"].pop("items")
         return serialization
@@ -4083,10 +4083,10 @@ class Section(Composition):
         if "clips" in serialization["parameters"]:
             serialization["parameters"]['items'] = serialization["parameters"].pop('clips')
             if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-                "position" in serialization["parameters"] and "name" in serialization["parameters"]):
+                "position_beats" in serialization["parameters"] and "name" in serialization["parameters"]):
 
                 super().loadSerialization(serialization)
-                self._position_beats    = self.deserialize(serialization["parameters"]["position"])
+                self._position_beats    = self.deserialize(serialization["parameters"]["position_beats"])
                 self._name              = self.deserialize(serialization["parameters"]["name"])
         return self
 

@@ -127,6 +127,7 @@ def saveJsonMidiCreator(serialization: dict, filename):
             "filetype": "Json Midi Creator",
             "url": "https://github.com/ruiseixasm/JsonMidiCreator",
             "ontology": {
+                "position_beats": "In the `Element` is the position in the `Clip`, this position should be added to the `Section` homologous position if in one",
                 "tied_to_previous": "Notes can only be tied to the previous `Note`, so, they work as duration extension of the previous one",
                 "accidental": "The accidentals are chromatic offsets on the Key Signature and NOT on the Major Scale necessarily",
                 "sharps": "Negative values mean Flats",
