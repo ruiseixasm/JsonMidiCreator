@@ -3834,8 +3834,8 @@ class Section(Composition):
             Element: The last `Element` of all elements in each `Clip`.
         """
         last_element: oe.Element = None
-        for clip in self._items:
-            clip_last: oe.Element = clip._last_element(include_masked)
+        for single_clip in self._items:
+            clip_last: oe.Element = single_clip._last_element(include_masked)
             if clip_last:
                 if last_element:
                     # Implicit conversion
