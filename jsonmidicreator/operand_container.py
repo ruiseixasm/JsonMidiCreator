@@ -589,12 +589,12 @@ class Container(o.Operand):
                     self._delete()
             case of.Frame():
                 operand._set_inside_container(self)
-                for single_element in self.items_unmasked():
-                    single_element *= operand.frame(single_element)
+                for single_item in self.items_unmasked():
+                    single_item *= operand.frame(single_item)
             case ch.Chaos():
-                for single_element in self.items_unmasked():
+                for single_item in self.items_unmasked():
                     single_parameter = operand.chaoticize()
-                    single_element *= single_parameter
+                    single_item *= single_parameter
 
             case tuple():
                 for single_operand in operand:
@@ -630,12 +630,12 @@ class Container(o.Operand):
                 pass
             case of.Frame():
                 operand._set_inside_container(self)
-                for single_element in self.items_unmasked():
-                    single_element //= operand.frame(single_element)
+                for single_item in self.items_unmasked():
+                    single_item //= operand.frame(single_item)
             case ch.Chaos():
-                for single_element in self.items_unmasked():
+                for single_item in self.items_unmasked():
                     single_parameter = operand.chaoticize()
-                    single_element //= single_parameter
+                    single_item //= single_parameter
             case tuple():
                 for single_operand in operand:
                     self.__ifloordiv__(single_operand)
