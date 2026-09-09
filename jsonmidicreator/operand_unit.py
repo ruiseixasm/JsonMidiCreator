@@ -229,81 +229,6 @@ class Port(Unit):
     """
     pass
 
-class PitchCentroid(Unit):
-    """`Unit -> PitchCentroid`
-    """
-    pass
-
-
-class PitchParameter(Unit):
-    """`Unit -> PitchParameter`
-    """
-    pass
-
-class AbsolutePitch(PitchParameter):
-    """`Unit -> PitchParameter -> AbsolutePitch`
-
-    Sharps() is intended to be used with KeySignature to set its amount of Sharps.
-    
-    Parameters
-    ----------
-    int(60) : Sets the absolute pitch from 0 to 127, with 60, middle C, as the default value.
-    """
-    def __init__(self, *parameters):
-        super().__init__(60, *parameters)
-
-class Accidentals(PitchParameter):
-    """`Unit -> PitchParameter -> Accidentals`
-    """
-    def __init__(self, *parameters):
-        super().__init__(1, *parameters)
-
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case str():
-                total_sharps = len(re.findall(r"#", operand))
-                total_flats = len(re.findall(r"b", operand))
-                self._unit = total_sharps - total_flats
-            case _:
-                super().__lshift__(operand)
-        return self
-
-class Sharps(Accidentals):  # Sharps (###)
-    """`Unit -> PitchParameter -> Accidentals -> Sharps`
-
-    Sharps() is intended to be used with KeySignature to set its amount of Sharps.
-    
-    Parameters
-    ----------
-    int(1) : Sets the amount of sharps from 0 to 7 where 3 means "###".
-    """
-    pass
-
-class Flats(Accidentals):   # Flats (bbb)
-    """`Unit -> Accidentals -> Flats`
-
-    Flats() is intended to be used with KeySignature to set its amount of Flats.
-    
-    Parameters
-    ----------
-    int(1) : Sets the amount of flats from 0 to 7 where 3 means "bbb".
-    """
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case str():
-                super().__lshift__(operand)
-                self._unit *= -1    # Flips the signal, from sharp to flat
-            case _:
-                super().__lshift__(operand)
-        return self
-
-
 class Metric(Unit):
     """`Unit -> Metric`
 
@@ -393,6 +318,81 @@ class Variations(Metric):
     set() : Any metric keys, no keys given means all keys by default.
     """
     pass
+
+
+class PitchCentroid(Unit):
+    """`Unit -> PitchCentroid`
+    """
+    pass
+
+
+class PitchParameter(Unit):
+    """`Unit -> PitchParameter`
+    """
+    pass
+
+class AbsolutePitch(PitchParameter):
+    """`Unit -> PitchParameter -> AbsolutePitch`
+
+    Sharps() is intended to be used with KeySignature to set its amount of Sharps.
+    
+    Parameters
+    ----------
+    int(60) : Sets the absolute pitch from 0 to 127, with 60, middle C, as the default value.
+    """
+    def __init__(self, *parameters):
+        super().__init__(60, *parameters)
+
+class Accidentals(PitchParameter):
+    """`Unit -> PitchParameter -> Accidentals`
+    """
+    def __init__(self, *parameters):
+        super().__init__(1, *parameters)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case str():
+                total_sharps = len(re.findall(r"#", operand))
+                total_flats = len(re.findall(r"b", operand))
+                self._unit = total_sharps - total_flats
+            case _:
+                super().__lshift__(operand)
+        return self
+
+class Sharps(Accidentals):  # Sharps (###)
+    """`Unit -> PitchParameter -> Accidentals -> Sharps`
+
+    Sharps() is intended to be used with KeySignature to set its amount of Sharps.
+    
+    Parameters
+    ----------
+    int(1) : Sets the amount of sharps from 0 to 7 where 3 means "###".
+    """
+    pass
+
+class Flats(Accidentals):   # Flats (bbb)
+    """`Unit -> Accidentals -> Flats`
+
+    Flats() is intended to be used with KeySignature to set its amount of Flats.
+    
+    Parameters
+    ----------
+    int(1) : Sets the amount of flats from 0 to 7 where 3 means "bbb".
+    """
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case str():
+                super().__lshift__(operand)
+                self._unit *= -1    # Flips the signal, from sharp to flat
+            case _:
+                super().__lshift__(operand)
+        return self
 
 
 class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
