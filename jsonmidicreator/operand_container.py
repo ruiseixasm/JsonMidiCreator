@@ -1141,7 +1141,7 @@ class Composition(Container):
         return self % ra.Position()
 
 
-    def net_start(self, include_masked: bool = False) -> 'ra.Position':
+    def net_start(self) -> 'ra.Position':
         """
         Gets the starting position of all its Elements.
         This is the same as the minimum Position of all `Element` positions.
@@ -1787,7 +1787,7 @@ class Clip(Composition):  # Just a container of Elements
 
 
     # Ignores the self Length
-    def net_start(self, include_masked: bool = False) -> 'ra.Position':
+    def net_start(self) -> 'ra.Position':
         """
         Gets the starting position of all its BASE Elements.
         This is the same as the minimum Position of all `Element` positions.
@@ -1798,12 +1798,9 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Position: The minimum Position of all Elements.
         """
-        if self.len(include_masked):
-            start_beats: Fraction = Fraction(0)
-            first_element: oe.Element = self._first_element()
-            if first_element is not None:
-                start_beats = first_element._position_beats
-            return ra.Position(self, start_beats)
+        first_element: oe.Element = self._first_element()
+        if first_element is not None:
+            return first_element % ra.Position(self)
         return None
 
     # Ignores the self Length
@@ -2269,7 +2266,7 @@ class Clip(Composition):  # Just a container of Elements
             case Clip():
                 operand_copy: Clip = operand.copy()._set_owner_clip(self)   # To be dropped
 
-                start_position: ra.Position = operand_copy.net_start(include_masked=True)
+                start_position: ra.Position = operand_copy.net_start()
                 if start_position is not None:
 
                     self_length: ra.Length = self.gross_length()
@@ -2396,7 +2393,7 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             # New Clip/Element results in an insertion at the respective operand position
             case Clip():
-                split_position: ra.Position = operand.net_start(include_masked=True)
+                split_position: ra.Position = operand.net_start()
                 if split_position is not None:
                     position_offset: ra.Position = operand.net_finish(include_masked=True) - split_position
                     self //= split_position
@@ -3891,7 +3888,7 @@ class Section(Composition):
                 return self % other > other
     
 
-    def net_start(self, include_masked: bool = False) -> ra.Position:
+    def net_start(self) -> ra.Position:
         """
         Gets the starting position of all its Clips.
         This is the same as the minimum `Position` of all `Clip` positions.
@@ -3903,12 +3900,8 @@ class Section(Composition):
         Returns:
             Position: The minimum `Position` of all Clips.
         """
-        clips_list: list[Clip] = [
-            clip for clip in self._items if isinstance(clip, Clip)
-        ]
-
         start_position: ra.Position = None
-        for single_clip in clips_list:
+        for single_clip in self._items:
             clip_start: ra.Position = single_clip.net_start()
             if clip_start is not None:
                 if start_position is not None:
@@ -4538,7 +4531,6 @@ class Part(Composition):
             Position: The minimum `Position` of all Blocks.
         """
         start_position: ra.Position = None
-
         for single_section in self._items:
             # Already includes the Part TimeSignature conversion
             section_start: ra.Position = single_section.net_start()
