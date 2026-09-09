@@ -1101,7 +1101,28 @@ class Composition(Container):
             return last_element % ra.Position()
         return None
 
+    def net_length_unmasked(self) -> 'ra.Length':
+        """
+        Returns the rounded `Length` to `Measures` that goes from start to position of the last `Element`.
 
+        Returns:
+            Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
+        """
+        elements_unmasked = self.elements_unmasked()
+        if elements_unmasked:
+            return ra.Length(self.net_finish_unmasked() - self.net_start_unmasked())
+        return ra.Length(self, 0)
+
+    def net_duration_unmasked(self) -> 'ra.Duration':
+        """
+        Returns the `Duration` that goes from `start` to the `finish` of all elements.
+
+        Returns:
+            Duration: Equal to `Clip.finish() - Clip.start()` converted to `Duration`.
+        """
+        return ra.Duration(self.net_length_unmasked())
+    
+    
     def checksum(self) -> int:
         return 0
 
