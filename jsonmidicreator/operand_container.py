@@ -1301,7 +1301,7 @@ class Composition(Container):
             case od.Pipe():
                 match operand._data:
                     case og.TimeSignature():
-                        return self._time_signature
+                        return self._get_time_signature()
                     case _:                 return super().__mod__(operand)
             # By definition Clips are always at Position 0
             case ra.Position():
@@ -1329,7 +1329,7 @@ class Composition(Container):
             case od.Name():
                 return od.Name(self._name)
             case og.TimeSignature():
-                return self._time_signature.copy()
+                return self._get_time_signature().copy()
             case int():
                 last_position_unmasked: ra.Position = self._last_position_unmasked()
                 if last_position_unmasked is not None:
@@ -1439,7 +1439,7 @@ class Composition(Container):
             case od.Pipe():
                 match operand._data:
                     case og.TimeSignature():
-                        self._time_signature = operand._data
+                        self._set_time_signature(operand._data, True)
                     case _:                 super().__lshift__(operand)
 
             case od.Name():
