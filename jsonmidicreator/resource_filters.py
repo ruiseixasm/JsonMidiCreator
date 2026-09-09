@@ -54,7 +54,7 @@ def filter_all_but_one_same_duration(clip: 'oc.Clip') -> bool:
 
 def filter_increasing_pitch(clip: 'oc.Clip') -> bool:
     """Applies only to unmasked `clip` notes"""
-    unmasked_elements: list[oe.Element] = clip.unmasked_items()
+    unmasked_elements: list[oe.Element] = clip.elements_unmasked()
     unmasked_notes: list[oe.Note] = [note for note in unmasked_elements if isinstance(note, oe.Note)]
     for i in range(len(unmasked_notes)):
         if i > 0:
@@ -66,7 +66,7 @@ def filter_increasing_pitch(clip: 'oc.Clip') -> bool:
      
 def filter_same_pitch(clip: 'oc.Clip') -> bool:
     """Applies only to unmasked `clip` notes"""
-    unmasked_elements: list[oe.Element] = clip.unmasked_items()
+    unmasked_elements: list[oe.Element] = clip.elements_unmasked()
     unmasked_notes: list[oe.Note] = [note for note in unmasked_elements if isinstance(note, oe.Note)]
     for i in range(len(unmasked_notes)):
         if i > 0:
@@ -78,7 +78,7 @@ def filter_same_pitch(clip: 'oc.Clip') -> bool:
      
 def filter_decreasing_pitch(clip: 'oc.Clip') -> bool:
     """Applies only to unmasked `clip` notes"""
-    unmasked_elements: list[oe.Element] = clip.unmasked_items()
+    unmasked_elements: list[oe.Element] = clip.elements_unmasked()
     unmasked_notes: list[oe.Note] = [note for note in unmasked_elements if isinstance(note, oe.Note)]
     for i in range(len(unmasked_notes)):
         if i > 0:

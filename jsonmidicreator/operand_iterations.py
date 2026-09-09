@@ -253,7 +253,7 @@ class I_SplitDuration(Iterations):
         quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
         total_duration_beats = Fraction(0)
         seed_copy: oc.Clip = self._seed.copy()
-        for single_element in seed_copy.unmasked_items():
+        for single_element in seed_copy.elements_unmasked():
             total_duration_beats += single_element._duration_beats
         if total_duration_beats > 0:
             try_i: int = 0
@@ -264,7 +264,7 @@ class I_SplitDuration(Iterations):
                     continuous_split_step: int = self._chaos % int()
                     continuous_split_beat: Fraction = quantization_beats * continuous_split_step % total_duration_beats
                     continuous_start_beat = Fraction(0)
-                    for single_element in iteration_clip.unmasked_items():
+                    for single_element in iteration_clip.elements_unmasked():
                         continuous_finish_beat = continuous_start_beat + single_element._duration_beats
                         if continuous_split_beat < continuous_finish_beat:
                             if continuous_split_beat > continuous_start_beat:
@@ -284,7 +284,7 @@ class I_ShuffleLocus(Iterations):
 
     def _single_iteration(self) -> 'oc.Clip':
         original_loci: list[og.Locus] = [
-            locus for locus in self._seed.unmasked_items()
+            locus for locus in self._seed.elements_unmasked()
         ]
         shuffled_loci: list[og.Locus] = []
         while original_loci:
@@ -293,7 +293,7 @@ class I_ShuffleLocus(Iterations):
                 original_loci.pop(pick_index)
             )
         new_clip = self._seed.copy()
-        for single_element, locus in zip(new_clip.unmasked_items(), shuffled_loci):
+        for single_element, locus in zip(new_clip.elements_unmasked(), shuffled_loci):
             single_element << locus
         return new_clip.sort()
 
@@ -302,7 +302,7 @@ class I_ShuffleDuration(Iterations):
 
     def _get_available_durations_beats(self) -> list[Fraction]:
         choosable_durations_beats: list[Fraction] = []
-        for single_element in self._seed.unmasked_items():
+        for single_element in self._seed.elements_unmasked():
             choosable_durations_beats.append(single_element._duration_beats)
         return choosable_durations_beats
     
@@ -353,7 +353,7 @@ class I_ChooseDuration(I_ShuffleDuration):
     def _get_durations_beats(self) -> list[Fraction]:
         durations_beats: list[Fraction] = []
         if self._durations:
-            unmasked_elements: list[oe.Element] = self._seed.unmasked_items()
+            unmasked_elements: list[oe.Element] = self._seed.elements_unmasked()
             total_elements = len(unmasked_elements)
             choosable_durations_beats: list[Fraction] = self._get_available_durations_beats()
             duration_beats_sum: Fraction = Fraction(0)
@@ -383,7 +383,7 @@ class I_ChooseDuration(I_ShuffleDuration):
 class I_SwapDuration(Iterations):
     def _single_iteration(self) -> 'oc.Clip':
         seed_copy: oc.Clip = self._seed.copy()
-        clip_elements: list[oe.Element] = seed_copy.unmasked_items()
+        clip_elements: list[oe.Element] = seed_copy.elements_unmasked()
         clip_len: int = len(clip_elements)
         if clip_len > 1:
             indexes: list[int] = [
@@ -418,7 +418,7 @@ class I_ChooseParameter(Iterations):
         if self._parameters:
             seed_copy: oc.Clip = self._seed.copy()
             total_parameters: int = len(self._parameters)
-            for element in seed_copy.unmasked_items():
+            for element in seed_copy.elements_unmasked():
                 index_choice: int = self._chaos % int()
                 chosen_parameter = self._parameters[index_choice % total_parameters]
                 element << o.Operand.deep_copy(chosen_parameter)    # copy guarantees parameter decoupling
@@ -436,7 +436,7 @@ class I_ShuffleParameter(Iterations):
 
     def _single_iteration(self) -> 'oc.Clip':
         seed_copy: oc.Clip = self._seed.copy()
-        clip_elements: list[oe.Element] = seed_copy.unmasked_items()
+        clip_elements: list[oe.Element] = seed_copy.elements_unmasked()
         clip_len: int = len(clip_elements)
         parameters: list[Any] = [
             element % self._parameter for element in clip_elements
@@ -469,7 +469,7 @@ class I_SetParameter(Iterations):
             operand = self._parameter.copy(global_parameter)  # copy guarantees operand decoupling
             seed_copy << operand
         else:
-            for element in seed_copy.unmasked_items():
+            for element in seed_copy.elements_unmasked():
                 parameter = self._chaos.chaoticize()
                 operand = self._parameter.copy(parameter)     # copy guarantees operand decoupling
                 element << operand
