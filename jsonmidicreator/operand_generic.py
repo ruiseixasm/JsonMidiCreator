@@ -746,10 +746,12 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
         match other:
             case KeySignature():
                 return self._sharps == other._sharps and self._diatonic_mode_0 == other._diatonic_mode_0
+            case int():
+                return self._sharps == other
             case od.Conditional():
                 return other == self
-            case int() | float() | Fraction() | ol.Carrier() | None:
-                return super().__eq__(other)
+            case None:
+                return False
         return self % other == other
     
     def getSerialization(self) -> dict:
