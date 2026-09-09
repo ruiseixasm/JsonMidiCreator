@@ -462,9 +462,14 @@ class Container(o.Operand):
                     single_parameter = operand.chaoticize()
                     single_item << single_parameter
             case _:
-                for single_item in self.unmasked_items():
-                    if isinstance (single_item, o.Operand):
-                        single_item << operand
+                if isinstance(self, Clip):
+                    for single_element in self.elements_unmasked():
+                        if isinstance (single_element, o.Operand):
+                            single_element << operand
+                else:
+                    for single_item in self._items:
+                        if isinstance (single_item, o.Operand):
+                            single_item << operand
         return self
 
 
