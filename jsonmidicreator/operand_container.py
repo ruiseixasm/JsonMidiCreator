@@ -428,14 +428,6 @@ class Container(o.Operand):
                         self._delete() # deletes all
                         # Finally adds the decomposed elements to the Container stack
                         self._extend(operand._data)
-                    case of.Frame():
-                        operand._data._set_inside_container(self)
-                        for single_item in self.unmasked_items():
-                            single_item << od.Pipe( operand._data.frame(single_item) )
-                    case ch.Chaos():
-                        for single_item in self.unmasked_items():
-                            single_parameter = operand._data.chaoticize()
-                            single_item << od.Pipe( single_parameter )
                     case _: # operand is a Pipe
                         for single_item in self.unmasked_items():
                             if isinstance (single_item, o.Operand):
@@ -2139,6 +2131,14 @@ class Clip(Composition):  # Just a container of Elements
                             for item in self.elements_unmasked():
                                 item <<= operand._data
 
+                    case of.Frame():
+                        operand._data._set_inside_container(self)
+                        for single_element in self.elements_unmasked():
+                            single_element << od.Pipe( operand._data.frame(single_element) )
+                    case ch.Chaos():
+                        for single_element in self.elements_unmasked():
+                            single_parameter = operand._data.chaoticize()
+                            single_element << od.Pipe( single_parameter )
                     case _:
                         super().__lshift__(operand)
 
