@@ -66,17 +66,56 @@ class Container(o.Operand):
 
 
     def __getitem__(self, index: Any) -> any:
+        items_unmasked = self.items_unmasked()
         match index:
+            case of.Frame():
+                index._set_inside_container(self)
+                new_container = self.empty_copy()
+                new_container._upper_container = self
+                for single_item in items_unmasked:
+                    frame_result = index.frame(single_item)
+                    if single_item == frame_result:
+                        new_container._append(single_item)
+                return new_container
+            case ch.Chaos():
+                new_container = self.empty_copy()
+                new_container._upper_container = self
+                for single_item in items_unmasked:
+                    chaos_result = index.chaoticize()
+                    if single_item == chaos_result:
+                        new_container._append(single_item)
+                return new_container
+            case od.Pipe():
+                match index._data:
+                    case of.Frame():
+                        pipped_frame = index._data
+                        pipped_frame._set_inside_container(self)
+                        new_container = self.empty_copy()
+                        new_container._upper_container = self
+                        for single_item in items_unmasked:
+                            frame_result = pipped_frame.frame(single_item)
+                            if single_item == od.Pipe(frame_result):
+                                new_container._append(single_item)
+                        return new_container
+                    case ch.Chaos():
+                        pipped_chaos = index._data
+                        new_container = self.empty_copy()
+                        new_container._upper_container = self
+                        for single_item in items_unmasked:
+                            chaos_result = pipped_chaos.chaoticize()
+                            if single_item == od.Pipe(chaos_result):
+                                new_container._append(single_item)
+                        return new_container
             case int():
-                if index < len(self._items):
-                    return self._items[index]
+                if index < len(items_unmasked):
+                    return items_unmasked[index]
             case str():
                 index = o.tag_to_int(index)
                 if index != -1:
                     return self[index]
-        for item in self._items:
-            if item == index:
-                return item
+        for single_item in items_unmasked:
+            if single_item == index:
+                return single_item
         return ol.Null()
     
 
@@ -1668,61 +1707,6 @@ class Clip(Composition):  # Just a container of Elements
         """
         return self._last_element_unmasked()
 
-
-
-    def __getitem__(self, index: Any) -> Self:
-        elements_unmasked: list = self.elements_unmasked()
-        match index:
-            case of.Frame():
-                index._set_inside_container(self)
-                new_container = self.empty_copy()
-                new_container._upper_container = self
-                for single_item in elements_unmasked:
-                    frame_result = index.frame(single_item)
-                    if single_item == frame_result:
-                        new_container._append(single_item)
-                return new_container
-            case ch.Chaos():
-                new_container = self.empty_copy()
-                new_container._upper_container = self
-                for single_item in elements_unmasked:
-                    chaos_result = index.chaoticize()
-                    if single_item == chaos_result:
-                        new_container._append(single_item)
-                return new_container
-            case od.Pipe():
-                match index._data:
-                    case of.Frame():
-                        pipped_frame = index._data
-                        pipped_frame._set_inside_container(self)
-                        new_container = self.empty_copy()
-                        new_container._upper_container = self
-                        for single_item in elements_unmasked:
-                            frame_result = pipped_frame.frame(single_item)
-                            if single_item == od.Pipe(frame_result):
-                                new_container._append(single_item)
-                        return new_container
-                    case ch.Chaos():
-                        pipped_chaos = index._data
-                        new_container = self.empty_copy()
-                        new_container._upper_container = self
-                        for single_item in elements_unmasked:
-                            chaos_result = pipped_chaos.chaoticize()
-                            if single_item == od.Pipe(chaos_result):
-                                new_container._append(single_item)
-                        return new_container
-            case int():
-                if index < len(elements_unmasked):
-                    return elements_unmasked[index]
-            case str():
-                index = o.tag_to_int(index)
-                if index != -1:
-                    return self[index]
-        for single_element in elements_unmasked:
-            if single_element == index:
-                return single_element
-        return ol.Null()
-    
 
     def __setitem__(self, index: Any, value: Union['oe.Element', 'Clip']) -> Self:
         """
