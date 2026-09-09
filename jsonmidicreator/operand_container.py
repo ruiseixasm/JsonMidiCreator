@@ -1277,7 +1277,7 @@ class Composition(Container):
                 if isinstance(operand, od.Net):
                     match convertible:
                         case ra.Finish():
-                            return self.net_finish_unmasked()
+                            return self.net_finish()
                         case ra.Position():
                             return self.start()
                         case ra.Length():
@@ -3032,7 +3032,7 @@ class Clip(Composition):  # Just a container of Elements
                     right = ra.Beat(right)
             self_start: ra.Position = self.start()
             if self_start is not None:
-                self_net_length: ra.Length = self.net_length()
+                self_net_length: ra.Length = self.net_length(include_masked=False)
                 first_measure: int = self_start % ra.Measure() % int()
                 length_measures: int = self_net_length % ra.Measure() % int()
                 # Shift all items first
