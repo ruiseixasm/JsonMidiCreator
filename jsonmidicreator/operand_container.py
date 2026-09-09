@@ -4128,7 +4128,7 @@ class Section(Composition):
                         if all(isinstance(item, Clip) for item in operand._data):
                             self._items = [item for item in operand._data]
                         else:   # Not for me
-                            for item in self.unmasked_items():
+                            for item in self._items:
                                 item << operand._data
                     case _:
                         super().__lshift__(operand)
@@ -4141,15 +4141,15 @@ class Section(Composition):
                 if all(isinstance(item, Clip) for item in operand):
                     self._items = [item.copy() for item in operand]
                 else:   # Not for me
-                    for item in self.unmasked_items():
+                    for item in self._items:
                         item << operand
             case dict():
                 if all(isinstance(item, Clip) for item in operand.values()):
                     for index, item in operand.items():
-                        if isinstance(index, int) and index >= 0 and index < len(self.unmasked_items()):
-                            self.unmasked_items()[index] = item.copy()
+                        if isinstance(index, int) and index >= 0 and index < len(self._items):
+                            self._items[index] = item.copy()
                 else:   # Not for me
-                    for item in self.unmasked_items():
+                    for item in self._items:
                         item << operand
 
             case od.Name():
@@ -4330,7 +4330,7 @@ class Section(Composition):
         clip_punch_in: ra.Position = punch_in - ra.Beats(self._position_beats)
 
         # No Clip is removed, only elements are removed
-        for single_clip in self.unmasked_items():
+        for single_clip in self._items:
             single_clip.loop(clip_punch_in, punch_length)
 
         if self._position_beats < punch_in._rational:
@@ -4620,7 +4620,7 @@ class Part(Composition):
                 return self._name
             case od.Names():
                 all_names: list[str] = []
-                for single_section in self.unmasked_items():
+                for single_section in self._items:
                     all_names.append(single_section._name)
                 return od.Names(*tuple(all_names))
             case og.PitchTransitions():
