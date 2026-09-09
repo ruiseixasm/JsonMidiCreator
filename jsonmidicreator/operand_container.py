@@ -1972,8 +1972,6 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             list[dict]: A list with multiple Plot configuration dictionaries.
         """
-        if not self._enabled:
-            return []
         self_plotlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0, 1)

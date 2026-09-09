@@ -2433,7 +2433,7 @@ class Note(ChannelElement):
                     "note": {
                         "position_on": position_on,
                         "position_off": position_off,
-                        "enabled": single_note._enabled,
+                        "enabled": True if self._owner_clip is None else self._owner_clip._enabled,
                         "pitch": pitch_int,
                         "tonic_key": single_note._pitch._tonic_key % 12,
                         "sharps": single_note._pitch._key_signature._unit,
@@ -2458,9 +2458,6 @@ class Note(ChannelElement):
 
         for single_note in component_notes:
 
-            if not single_note._enabled:
-                continue    # Next note
-            
             absolute_position_beats: Fraction = Fraction(0)
             if position_beats is not None:
                 absolute_position_beats = position_beats + single_note._position_beats
@@ -2517,9 +2514,6 @@ class Note(ChannelElement):
 
         for single_note in component_notes:
 
-            if not single_note._enabled:
-                continue    # Next note
-            
             absolute_position_beats: Fraction = Fraction(0)
             if position_beats is not None:
                 absolute_position_beats = position_beats + single_note._position_beats
@@ -3871,7 +3865,7 @@ class ControlChange(Automatable):
             {
                 "automation": {
                     "position": position_on,
-                    "enabled": self._enabled,
+                    "enabled": True if self._owner_clip is None else self._owner_clip._enabled,
                     "value": clamp_value_128(self._value),
                     "channel": self._channel_0,
                     "masked": self._masked,
@@ -4535,7 +4529,7 @@ class Aftertouch(Automatable):
             {
                 "automation": {
                     "position": position_on,
-                    "enabled": self._enabled,
+                    "enabled": True if self._owner_clip is None else self._owner_clip._enabled,
                     "value": clamp_value_128(self._pressure),
                     "channel": self._channel_0,
                     "masked": self._masked,
@@ -4918,7 +4912,7 @@ class PitchBend(Automatable):
             {
                 "automation": {
                     "position": position_on,
-                    "enabled": self._enabled,
+                    "enabled": True if self._owner_clip is None else self._owner_clip._enabled,
                     "value": clamp_value_128(round(self.get_value())),
                     "channel": self._channel_0,
                     "masked": self._masked,
