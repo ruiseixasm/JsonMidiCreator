@@ -1073,7 +1073,7 @@ class Composition(Container):
         Returns:
             Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
         """
-        elements_unmasked: list[oe.Element] = self.unmasked_items()
+        elements_unmasked: list[oe.Element] = self.elements_unmasked()
         if elements_unmasked:
             return ra.Length(self.net_finish_unmasked() - self.net_start_unmasked())
         return ra.Length(self, 0)
@@ -2576,12 +2576,12 @@ class Clip(Composition):  # Just a container of Elements
             self._extend(items)
         else:
             parameters: list = []
-            for operand in self.unmasked_items():
+            for operand in self.elements_unmasked():
                 if isinstance(operand, o.Operand):
                     parameters.append( operand % parameter_instance )
                 else:
                     parameters.append( ol.Null() )
-            for operand in self.unmasked_items():
+            for operand in self.elements_unmasked():
                 if isinstance(operand, o.Operand):
                     operand << parameters[ right % len(parameters) ]
                 right += 1
@@ -3097,7 +3097,7 @@ class Clip(Composition):  # Just a container of Elements
             
         self_len: int = self.len(include_masked=False)
         for operand_i in range(self_len // 2):
-            self._swap(self.unmasked_items()[operand_i], self.unmasked_items()[self_len - 1 - operand_i])
+            self._swap(self.elements_unmasked()[operand_i], self.elements_unmasked()[self_len - 1 - operand_i])
         return self._sort_items()
 
     def flip(self) -> Self:
