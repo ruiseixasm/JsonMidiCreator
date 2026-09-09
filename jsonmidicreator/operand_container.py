@@ -624,17 +624,9 @@ class Container(o.Operand):
             case tuple():
                 for single_operand in operand:
                     self.__ifloordiv__(single_operand)
-            case of.Frame():
-                operand._set_inside_container(self)
-                for single_item in self.unmasked_items():
-                    single_item //= operand.frame(single_item)
-            case ch.Chaos():
-                for single_item in self.unmasked_items():
-                    single_parameter = operand.chaoticize()
-                    single_item //= single_parameter
             case _:
-                for item in self.unmasked_items():
-                    item.__ifloordiv__(operand)
+                for single_item in self._items:
+                    single_item.__ifloordiv__(operand)
         return self
 
 
@@ -2553,8 +2545,23 @@ class Clip(Composition):  # Just a container of Elements
                     self._items = base_elements
                     self._set_owner_clip()
 
+            case tuple():
+                for single_operand in operand:
+                    self.__ifloordiv__(single_operand)
+            case of.Frame():
+                operand._set_inside_container(self)
+                for single_element in self.elements_unmasked():
+                    single_element //= operand.frame(single_element)
+            case ch.Chaos():
+                for single_element in self.elements_unmasked():
+                    single_parameter = operand.chaoticize()
+                    single_element //= single_parameter
+
+            case Container():
+                pass
             case _:
-                super().__ifloordiv__(operand)
+                for single_element in self.elements_unmasked():
+                    single_element.__ifloordiv__(operand)
         return self._sort_items()  # Shall be sorted!
 
 
