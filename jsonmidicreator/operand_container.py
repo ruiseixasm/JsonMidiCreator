@@ -1019,30 +1019,6 @@ class Composition(Container):
     def elements_unmasked(self) -> list['oe.Element']:
         return []
 
-    def first_unmasked(self) -> 'oe.Element':
-        """
-        Gets the first Element accordingly to it's Position on the TimeSignature.
-
-        Returns:
-            Element: The first Element of all Elements.
-        """
-        elements_unmasked = self.elements_unmasked()
-        if elements_unmasked:
-            return elements_unmasked[0]
-        return None
-
-    def last_unmasked(self) -> 'oe.Element':
-        """
-        Gets the last Element accordingly to it's Position on the TimeSignature.
-
-        Returns:
-            Element: The last Element of all Elements.
-        """
-        elements_unmasked = self.elements_unmasked()
-        if elements_unmasked:
-            return elements_unmasked[-1]
-        return None
-
     def net_start_unmasked(self) -> 'ra.Position':
         """
         Gets the starting position of all its Elements.
@@ -1051,7 +1027,7 @@ class Composition(Container):
         Returns:
             Position: The minimum Position of all Elements.
         """
-        first_element_unmasked: oe.Element = self.first_unmasked()
+        first_element_unmasked: oe.Element = self._first_element_unmasked()
         if first_element_unmasked is not None:
             return first_element_unmasked % ra.Position()
         return None
@@ -1222,7 +1198,7 @@ class Composition(Container):
         return self._last_element_position(include_masked)
 
     def last_position_unmasked(self) -> 'ra.Position':
-        last_element: oe.Element = self.last_unmasked()
+        last_element: oe.Element = self._last_element_unmasked()
         if last_element is not None:
             return last_element % ra.Position()
         return None
@@ -1611,7 +1587,10 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Element: The first Element of all Elements.
         """
-        return super().first()
+        elements_unmasked = self.elements_unmasked()
+        if elements_unmasked:
+            return elements_unmasked[0]
+        return None
 
     def _last_element_unmasked(self) -> 'oe.Element':
         """
@@ -1620,7 +1599,10 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Element: The last Element of all Elements.
         """
-        return super().last()
+        elements_unmasked = self.elements_unmasked()
+        if elements_unmasked:
+            return elements_unmasked[-1]
+        return None
     
     def is_masked(self) -> bool:
         for single_item in self._items:
@@ -1645,30 +1627,6 @@ class Clip(Composition):  # Just a container of Elements
             int: Returns the equivalent to the len(self._unmasked_items()).
         """
         return len(self.elements_unmasked())
-
-    def first_unmasked(self) -> 'oe.Element':
-        """
-        Gets the first Item accordingly to it's Position on the TimeSignature.
-
-        Returns:
-            Item: The first Item of all Items.
-        """
-        elements_unmasked: list[oe.Element] = self.elements_unmasked()
-        if elements_unmasked:
-            return elements_unmasked[0]
-        return None
-
-    def last_unmasked(self) -> Any:
-        """
-        Gets the last Item accordingly to it's Position on the TimeSignature.
-
-        Returns:
-            Item: The last Item of all Items.
-        """
-        elements_unmasked: list[oe.Element] = self.elements_unmasked()
-        if elements_unmasked:
-            return elements_unmasked[-1]
-        return None
 
     def net_finish_unmasked(self) -> 'ra.Position':
         """
@@ -1885,7 +1843,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Position: The Position of the last Element.
         """
-        last_element: oe.Element = self.last_unmasked()
+        last_element: oe.Element = self._last_element_unmasked()
         if last_element is not None:
             return last_element % ra.Position()
         return None
@@ -4423,7 +4381,7 @@ class Part(Composition):
     def _last_position_and_element_unmasked(self) -> tuple:
         last_elements_list: list[tuple[ra.Position, Clip]] = []
         for single_section in self._items:
-            block_last_element: oe.Element = single_section.last_unmasked()
+            block_last_element: oe.Element = single_section._last_element_unmasked()
             if block_last_element is not None:
                 # NEEDS TO TAKE INTO CONSIDERATION THE PART POSITION TOO
                 last_elements_list.append(
