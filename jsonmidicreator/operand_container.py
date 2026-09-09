@@ -356,9 +356,7 @@ class Container(o.Operand):
             case od.Pipe():
                 match operand._data:
                     case list():
-                        return [
-                            item for item in self.unmasked_items()
-                        ]
+                        return self._items
                     case of.Frame():    # Works as a Selector, returns the Item, NOT the parameter passed (NOT a reversal of `<<`)
                         # One to One, NOT One to Many (return)
                         operand._data._set_inside_container(self)
@@ -379,9 +377,7 @@ class Container(o.Operand):
                         else:
                             parameters.append( ol.Null() )
                     return parameters
-                return [
-                    self.deep_copy(item) for item in self.unmasked_items()
-                ]
+                return self.deep_copy(self._items)
             case int():
                 return self.len()
             case bool():
