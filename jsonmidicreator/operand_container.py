@@ -1277,13 +1277,6 @@ class Composition(Container):
         return ra.Length(self, 0)
         
 
-
-    def _has_elements(self, include_masked: bool = False) -> bool:
-        return False
-
-    def _total_elements(self, include_masked: bool = False) -> int:
-        return 0
-
     def _first_element(self, include_masked: bool = False) -> 'oe.Element':
         """
         Gets the first Element accordingly to it's Position on the TimeSignature.
@@ -1534,9 +1527,9 @@ class Composition(Container):
             case og.TimeSignature():
                 return self._time_signature.copy()
             case int():
-                if self._items:
-                    last_element_position: ra.Position = self._last_element_position()
-                    measures_length: ra.Length = ra.Length(last_element_position)
+                last_position_unmasked: ra.Position = self.last_position_unmasked()
+                if last_position_unmasked is not None:
+                    measures_length: ra.Length = ra.Length(last_position_unmasked)
                     return measures_length % ra.Measure() % int()
                 return 0
             case og.PitchTransitions():
@@ -3822,15 +3815,6 @@ class Section(Composition):
         return self
 
 
-    def _total_elements(self, include_masked: bool = False) -> int:
-        total_elements: int = 0
-        items_list: list[Clip] = self._items
-        if not include_masked:
-            items_list = self.unmasked_items()
-        for single_clip in items_list:
-            total_elements += single_clip._total_elements(include_masked)
-        return total_elements
-
     def _last_element(self, include_masked: bool = False) -> 'oe.Element':
         """
         Returns the `Element` with the last `Position` in the given `Block`.
@@ -4485,12 +4469,6 @@ class Part(Composition):
                 return False
         return True
 
-
-    def _total_elements(self, include_masked: bool = False) -> int:
-        total_elements: int = 0
-        for block in self._items:
-            total_elements += block._total_elements(include_masked)
-        return total_elements
 
     def _last_position_and_element(self, include_masked: bool = False) -> tuple:
         last_elements_list: list[tuple[ra.Position, Clip]] = []
