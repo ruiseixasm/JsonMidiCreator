@@ -1860,9 +1860,9 @@ class Clip(Composition):  # Just a container of Elements
                     case of.Frame():    # Works as a Selector, returns the Item, NOT the parameter passed (NOT a reversal of `<<`)
                         # One to One, NOT One to Many (return)
                         operand._data._set_inside_container(self)
-                        for single_item in self.unmasked_items():
-                            if single_item == operand._data:
-                                return single_item
+                        for single_element in self.elements_unmasked():
+                            if single_element == operand._data:
+                                return single_element
                     case _:
                         return super().__mod__(operand)
             case ou.TrackNumber():
@@ -1896,11 +1896,11 @@ class Clip(Composition):  # Just a container of Elements
             case of.Frame():    # Works as a Selector, returns the Item, NOT the parameter passed (NOT a reversal of `<<`)
                 # One to One, NOT One to Many (return)
                 operand._set_inside_container(self)
-                for single_item in self.unmasked_items():
-                    if single_item == operand:
-                        if isinstance(single_item, o.Operand):
-                            return single_item.copy()
-                        return single_item
+                for single_element in self.elements_unmasked():
+                    if single_element == operand:
+                        if isinstance(single_element, o.Operand):
+                            return single_element.copy()
+                        return single_element
             case _:
                 return super().__mod__(operand)
 
