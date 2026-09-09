@@ -273,21 +273,14 @@ class Container(o.Operand):
             first_item = self.unmasked_items()[0]
         return first_item
 
-    def last(self, include_masked: bool = False) -> Any:
+    def last(self) -> Any:
         """
         Gets the last Item accordingly to it's Position on the TimeSignature.
-
-        Args:
-            None
 
         Returns:
             Item: The last Item of all Items.
         """
-        last_item: Any = None
-        if include_masked:
-            if self._items:
-                last_item = self._items[-1]
-        elif self.unmasked_items():
+        if self._items:
             last_item = self.unmasked_items()[-1]
         return last_item
 
