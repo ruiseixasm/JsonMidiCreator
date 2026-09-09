@@ -1455,8 +1455,6 @@ class Talkie(Element):
 
 
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
-        if not self._enabled:
-            return []
         
         absolute_position_beats: Fraction = Fraction(0)
         if position_beats is not None:
@@ -1774,8 +1772,6 @@ class DeviceElement(Element):
     """
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True,
                     derived_element: 'Element' = None) -> list[dict]:
-        if not self._enabled:
-            return []
         
         absolute_position_beats: Fraction = Fraction(0)
         if position_beats is not None:
@@ -1792,8 +1788,6 @@ class DeviceElement(Element):
             ]
 
     def getMidilist(self, position_beats: Fraction | None = None, derived_element: 'Element' = None) -> list:
-        if not self._enabled:
-            return []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
@@ -1883,7 +1877,7 @@ class Clock(DeviceElement):
     
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True,
                                                                     time_signature: og.TimeSignature = None) -> list[dict]:
-        if not self._enabled or self._duration_beats < 1:
+        if self._duration_beats < 1:
             return []
 
         if not isinstance(position_beats, Fraction):
@@ -2137,8 +2131,6 @@ class ChannelElement(DeviceElement):
 
     def getMidilist(self, position_beats: Fraction | None = None,
                     derived_element: 'Element' = None) -> list[dict]:
-        if not self._enabled:
-            return []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
@@ -3892,7 +3884,7 @@ class ControlChange(Automatable):
 
 
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
-        if not self._enabled or self.is_clipped():
+        if self.is_clipped():
             return []
 
         absolute_position_beats: Fraction = Fraction(0)
@@ -3981,7 +3973,7 @@ class ControlChange(Automatable):
         return self_playlist
     
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
-        if not self._enabled or self.is_clipped():
+        if self.is_clipped():
             return []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -4555,7 +4547,7 @@ class Aftertouch(Automatable):
 
 
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list:
-        if not self._enabled or self.is_clipped():
+        if self.is_clipped():
             return []
         
         absolute_position_beats: Fraction = Fraction(0)
@@ -4590,7 +4582,7 @@ class Aftertouch(Automatable):
     
 
     def getMidilist(self, position_beats: Fraction | None = None) -> list:
-        if not self._enabled or self.is_clipped():
+        if self.is_clipped():
             return []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -4724,8 +4716,6 @@ class PolyAftertouch(Aftertouch):
     
 
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
-        if not self._enabled:
-            return []
 
         absolute_position_beats: Fraction = Fraction(0)
         if position_beats is not None:
@@ -4941,7 +4931,7 @@ class PitchBend(Automatable):
 
 
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
-        if not self._enabled or self.is_clipped():
+        if self.is_clipped():
             return []
         
         absolute_position_beats: Fraction = Fraction(0)
@@ -4976,7 +4966,7 @@ class PitchBend(Automatable):
         return self_playlist
     
     def getMidilist(self, position_beats: Fraction | None = None) -> list:
-        if not self._enabled or self.is_clipped():
+        if self.is_clipped():
             return []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -5459,8 +5449,6 @@ class ProgramChange(ChannelElement):
                 return super().__eq__(other)
     
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
-        if not self._enabled:
-            return []
         
         absolute_position_beats: Fraction = Fraction(0)
         if position_beats is not None:
