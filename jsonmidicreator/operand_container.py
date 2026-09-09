@@ -1755,12 +1755,6 @@ class Clip(Composition):  # Just a container of Elements
         return True
 
 
-
-    def _has_elements(self, include_masked: bool = False) -> bool:
-        if include_masked:
-            return len(self._items) > 0
-        return len(self.elements_unmasked()) > 0
-
     def _total_elements(self, include_masked: bool = False) -> int:
         if include_masked:
             return len(self._items)
