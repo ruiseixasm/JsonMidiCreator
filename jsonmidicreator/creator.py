@@ -127,7 +127,7 @@ def saveJsonMidiCreator(serialization: dict, filename):
             "filetype": "Json Midi Creator",
             "url": "https://github.com/ruiseixasm/JsonMidiCreator",
             "ontology": {
-                "defaults": {
+                "class_defaults": {
                     "Clip": {
                         "parameters": {
                             "time_signature": {

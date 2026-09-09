@@ -1193,7 +1193,8 @@ class Pitch(Generic):
     def getSerialization(self) -> dict:
 
         serialization = super().getSerialization()
-        serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
+        if self._key_signature._sharps != 0 or self._key_signature._diatonic_mode_0 != 0:
+            serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
         serialization["parameters"]["tonic_key_0"]      = self.serialize( self._tonic_key )
         serialization["parameters"]["octave_0"]         = self.serialize( self._octave_0 )
         serialization["parameters"]["degree_0"]         = self.serialize( self._degree_0 )
@@ -1208,11 +1209,12 @@ class Pitch(Generic):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "key_signature" in serialization["parameters"] and "tonic_key_0" in serialization["parameters"] and
+            "tonic_key_0" in serialization["parameters"] and
             "octave_0" in serialization["parameters"] and "degree_0" in serialization["parameters"] and "accidental" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._key_signature = self.deserialize( serialization["parameters"]["key_signature"] )
+            if "key_signature" in serialization["parameters"]:
+                self._key_signature = self.deserialize( serialization["parameters"]["key_signature"] )
             self._tonic_key     = self.deserialize( serialization["parameters"]["tonic_key_0"] )
             self._octave_0      = self.deserialize( serialization["parameters"]["octave_0"] )
             self._degree_0      = self.deserialize( serialization["parameters"]["degree_0"] )
