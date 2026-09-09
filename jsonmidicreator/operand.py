@@ -1083,7 +1083,7 @@ class Operand:
                         print("Object is not callable:", data["name"]) 
                     return None
                 else:
-                    if "class" in data and "parameters" in data and "next_operand" in data:
+                    if "class" in data:
 
                         operand_name = data["class"]
                         operand_class: type[Operand] = find_class_by_name(Operand, operand_name)   # Heavy duty call

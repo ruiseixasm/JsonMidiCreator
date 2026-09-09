@@ -2080,7 +2080,7 @@ class Clip(Composition):  # Just a container of Elements
             Clip: The self Clip object with the respective set parameters.
         """
         if "elements" in serialization["parameters"]:
-            serialization['items'] = serialization.pop('elements')
+            serialization["parameters"]['items'] = serialization["parameters"].pop('elements')
             if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
                 "track_number" in serialization["parameters"] and "enabled" in serialization["parameters"]):
 
@@ -4081,7 +4081,7 @@ class Section(Composition):
             Block: The self Block object with the respective set parameters.
         """
         if "clips" in serialization["parameters"]:
-            serialization['items'] = serialization.pop('clips')
+            serialization["parameters"]['items'] = serialization["parameters"].pop('clips')
             if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
                 "position" in serialization["parameters"] and "name" in serialization["parameters"]):
 
@@ -4683,7 +4683,7 @@ class Part(Composition):
             Part: The self Part object with the respective set parameters.
         """
         if "sections" in serialization["parameters"]:
-            serialization['items'] = serialization.pop('sections')
+            serialization["parameters"]['items'] = serialization["parameters"].pop('sections')
             if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
                 "time_signature" in serialization["parameters"] and "name" in serialization["parameters"]):
 
