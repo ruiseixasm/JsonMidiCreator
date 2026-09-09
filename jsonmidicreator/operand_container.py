@@ -1780,7 +1780,7 @@ class Clip(Composition):  # Just a container of Elements
         return None
 
     # Ignores the self Length
-    def net_finish(self, include_masked: bool = False) -> 'ra.Position':
+    def net_finish(self) -> 'ra.Position':
         """
         Processes each element Position plus Length and returns the finish position
         as the maximum of all BASE them.
@@ -1791,12 +1791,9 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Position: The maximum of Position + Length of all Elements.
         """
-        if self.len(include_masked):
+        if self._items:
             finish_beats: Fraction = Fraction(0)
-            items_list: list[oe.Element] = self._items
-            if not include_masked:
-                items_list = self.elements_unmasked()
-            for item in items_list:
+            for item in self._items:
                 if isinstance(item, oe.Element):
                     single_element: oe.Element = item
                     element_finish: Fraction = \
@@ -2330,7 +2327,7 @@ class Clip(Composition):  # Just a container of Elements
 
                 if operand_elements:
 
-                    left_finish_position: ra.Position = self.net_finish(include_masked=True)
+                    left_finish_position: ra.Position = self.net_finish()
                     if left_finish_position is None:
                         left_finish_position = ra.Position(self)
                         
@@ -2389,7 +2386,7 @@ class Clip(Composition):  # Just a container of Elements
             case Clip():
                 split_position: ra.Position = operand.net_start()
                 if split_position is not None:
-                    position_offset: ra.Position = operand.net_finish(include_masked=True) - split_position
+                    position_offset: ra.Position = operand.net_finish() - split_position
                     self //= split_position
                     self += of.DownTo(split_position)**position_offset
                     self += operand # Finally adds the Clip elements
