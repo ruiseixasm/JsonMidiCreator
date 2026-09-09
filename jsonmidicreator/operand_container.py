@@ -1067,7 +1067,7 @@ class Composition(Container):
         """
         return None
 
-    def _last_element(self, include_masked: bool = False) -> 'oe.Element':
+    def _last_element(self) -> 'oe.Element':
         """
         Gets the last Element accordingly to it's Position on the TimeSignature.
 
@@ -1090,7 +1090,7 @@ class Composition(Container):
         Returns:
             Position: The Position fo the last Element.
         """
-        last_element: oe.Element = self._last_element(include_masked)
+        last_element: oe.Element = self._last_element()
         if last_element is not None:
             return last_element % ra.Position()
         return None
@@ -1568,14 +1568,14 @@ class Clip(Composition):  # Just a container of Elements
         """
         return super().first(include_masked)
 
-    def _last_element(self, include_masked: bool = False) -> 'oe.Element':
+    def _last_element(self) -> 'oe.Element':
         """
         Gets the last Element accordingly to it's Position on the TimeSignature.
 
         Returns:
             Element: The last Element of all Elements.
         """
-        return super().last(include_masked)
+        return super().last()
 
 
     # UNMASKED METHODS
@@ -3823,7 +3823,7 @@ class Section(Composition):
         return self
 
 
-    def _last_element(self, include_masked: bool = False) -> 'oe.Element':
+    def _last_element(self) -> 'oe.Element':
         """
         Returns the `Element` with the last `Position` in the given `Block`.
 
@@ -3835,7 +3835,7 @@ class Section(Composition):
         """
         last_element: oe.Element = None
         for single_clip in self._items:
-            clip_last: oe.Element = single_clip._last_element(include_masked)
+            clip_last: oe.Element = single_clip._last_element()
             if clip_last:
                 if last_element:
                     # Implicit conversion
@@ -4473,7 +4473,7 @@ class Part(Composition):
     def _last_position_and_element(self, include_masked: bool = False) -> tuple:
         last_elements_list: list[tuple[ra.Position, Clip]] = []
         for single_section in self._items:
-            block_last_element: oe.Element = single_section._last_element(include_masked)
+            block_last_element: oe.Element = single_section._last_element()
             if block_last_element is not None:
                 # NEEDS TO TAKE INTO CONSIDERATION THE PART POSITION TOO
                 last_elements_list.append(
@@ -4485,7 +4485,7 @@ class Part(Composition):
             return last_elements_list[-1]
         return None
 
-    def _last_element(self, include_masked: bool = False) -> 'oe.Element':
+    def _last_element(self) -> 'oe.Element':
         """
         Returns the `Element` with the last `Position` in the given `Block`.
 
@@ -4495,7 +4495,7 @@ class Part(Composition):
         Returns:
             Element: The last `Element` of all elements in each `Clip`.
         """
-        last_position_element: tuple = self._last_position_and_element(include_masked)
+        last_position_element: tuple = self._last_position_and_element()
         if last_position_element is not None:
             return last_position_element[1]
         return None
