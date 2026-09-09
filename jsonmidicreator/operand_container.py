@@ -67,54 +67,15 @@ class Container(o.Operand):
 
 
     def __getitem__(self, index: Any) -> any:
-        unmasked_items: list = self.unmasked_items()
         match index:
-            case of.Frame():
-                index._set_inside_container(self)
-                new_container = self.empty_copy()
-                new_container._upper_container = self
-                for single_item in unmasked_items:
-                    frame_result = index.frame(single_item)
-                    if single_item == frame_result:
-                        new_container._append(single_item)
-                return new_container
-            case ch.Chaos():
-                new_container = self.empty_copy()
-                new_container._upper_container = self
-                for single_item in unmasked_items:
-                    chaos_result = index.chaoticize()
-                    if single_item == chaos_result:
-                        new_container._append(single_item)
-                return new_container
-            case od.Pipe():
-                match index._data:
-                    case of.Frame():
-                        pipped_frame = index._data
-                        pipped_frame._set_inside_container(self)
-                        new_container = self.empty_copy()
-                        new_container._upper_container = self
-                        for single_item in unmasked_items:
-                            frame_result = pipped_frame.frame(single_item)
-                            if single_item == od.Pipe(frame_result):
-                                new_container._append(single_item)
-                        return new_container
-                    case ch.Chaos():
-                        pipped_chaos = index._data
-                        new_container = self.empty_copy()
-                        new_container._upper_container = self
-                        for single_item in unmasked_items:
-                            chaos_result = pipped_chaos.chaoticize()
-                            if single_item == od.Pipe(chaos_result):
-                                new_container._append(single_item)
-                        return new_container
             case int():
-                if index < len(unmasked_items):
-                    return unmasked_items[index]
+                if index < len(self._items):
+                    return self._items[index]
             case str():
                 index = o.tag_to_int(index)
                 if index != -1:
                     return self[index]
-        for item in unmasked_items:
+        for item in self._items:
             if item == index:
                 return item
         return ol.Null()
