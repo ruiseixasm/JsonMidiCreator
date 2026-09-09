@@ -3931,7 +3931,7 @@ class Section(Composition):
     def last_position(self) -> 'ra.Position':
         position: ra.Position = None
         for clip in self._items:
-            clip_position: ra.Position = clip.last_position()
+            clip_position: ra.Position = clip._last_position()
             if clip_position is not None:
                 if position is None:
                     position = clip_position
@@ -4563,7 +4563,7 @@ class Part(Composition):
     def last_position(self) -> 'ra.Position':
         position: ra.Position = None
         for single_section in self._items:
-            section_position: ra.Position = single_section.last_position()
+            section_position: ra.Position = single_section._last_position()
             if section_position is not None:
                 if position is None:
                     position = section_position
