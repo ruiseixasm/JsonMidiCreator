@@ -513,7 +513,10 @@ class Container(o.Operand):
                     single_parameter = operand.chaoticize()
                     single_item += single_parameter
             case _:
-                for single_item in self.unmasked_items():
+                items_list = self._items
+                if isinstance(self, Clip):
+                    items_list = self.elements_unmasked()
+                for single_item in items_list:
                     single_item += operand
         return self
 
@@ -548,7 +551,10 @@ class Container(o.Operand):
                     else:
                         single_item -= single_parameter
             case _:
-                for single_item in self.unmasked_items():
+                items_list = self._items
+                if isinstance(self, Clip):
+                    items_list = self.elements_unmasked()
+                for single_item in items_list:
                     single_item -= operand
         return self
 
@@ -576,7 +582,10 @@ class Container(o.Operand):
                 for single_operand in operand:
                     self.__imul__(single_operand)
             case _:
-                for single_item in self._items:
+                items_list = self._items
+                if isinstance(self, Clip):
+                    items_list = self.elements_unmasked()
+                for single_item in items_list:
                     single_item.__imul__(operand)
         return self
     
@@ -588,7 +597,10 @@ class Container(o.Operand):
                 for single_operand in operand:
                     self.__itruediv__(single_operand)
             case _:
-                for single_item in self._items:
+                items_list = self._items
+                if isinstance(self, Clip):
+                    items_list = self.elements_unmasked()
+                for single_item in items_list:
                     single_item.__itruediv__(operand)
         return self
 
@@ -601,7 +613,10 @@ class Container(o.Operand):
                 for single_operand in operand:
                     self.__ifloordiv__(single_operand)
             case _:
-                for single_item in self._items:
+                items_list = self._items
+                if isinstance(self, Clip):
+                    items_list = self.elements_unmasked()
+                for single_item in items_list:
                     single_item.__ifloordiv__(operand)
         return self
 
@@ -2545,9 +2560,6 @@ class Clip(Composition):  # Just a container of Elements
                     self._items = base_elements
                     self._set_owner_clip()
 
-            case tuple():
-                for single_operand in operand:
-                    self.__ifloordiv__(single_operand)
             case of.Frame():
                 operand._set_inside_container(self)
                 for single_element in self.elements_unmasked():
@@ -2556,12 +2568,8 @@ class Clip(Composition):  # Just a container of Elements
                 for single_element in self.elements_unmasked():
                     single_parameter = operand.chaoticize()
                     single_element //= single_parameter
-
-            case Container():
-                pass
             case _:
-                for single_element in self.elements_unmasked():
-                    single_element.__ifloordiv__(operand)
+                super().__ifloordiv__(operand)
         return self._sort_items()  # Shall be sorted!
 
 
