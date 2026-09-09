@@ -678,17 +678,15 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
     _major_scale = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)    # Major scale for the default staff
 
     def get_tonic_key(self) -> int:
-        from . import operand_generic as og
         if self._diatonic_mode_0 % 7 < 7:    # Diatonic scale
-            zero_tonic_key: int = og.Scale.transpose_key(self._diatonic_mode_0)
+            zero_tonic_key: int = Scale.transpose_key(self._diatonic_mode_0)
             circle_fifths_position: int = self._sharps
             return (zero_tonic_key + circle_fifths_position * 7) % 12
         return 9    # A key
 
     def get_scale(self) -> tuple[int]:
-        from . import operand_generic as og
         scale_mode: int = self._diatonic_mode_0 % 9 + 1
-        return og.Scale._scales[scale_mode]
+        return Scale._scales[scale_mode]
 
     def is_enharmonic(self, key: int) -> bool:
         self_key_signature: list[int] = self._key_signatures[(self._sharps + 7) % 15]
@@ -696,7 +694,6 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
 
 
     def __mod__(self, operand: o.T) -> o.T:
-        from . import operand_generic as og
         match operand:
             case od.Pipe():
                 match operand._data:
@@ -732,7 +729,7 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
                 return ou.Flats(0)
             case ou.Accidentals():
                 return ou.Accidentals(self._sharps)
-            case og.Scale():            return og.Scale(self % list())
+            case Scale():            return Scale(self % list())
             case ou.Mode():                return ou.Mode(self._diatonic_mode_0 + 1)
             case list():                return list(self.get_scale())
             case str():
@@ -772,7 +769,6 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
         return self
       
     def __lshift__(self, operand: any) -> Self:
-        from . import operand_generic as og
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case KeySignature():
@@ -794,10 +790,10 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
             case ou.Accidentals():
                 self._sharps = operand._unit
             case ou.Key():
-                self._sharps = sum( og.Scale.sharps_or_flats_picker(operand._unit, self % list()) )
+                self._sharps = sum( Scale.sharps_or_flats_picker(operand._unit, self % list()) )
             case ou.Mode():
                 self._diatonic_mode_0 = operand._unit - 1
-            case og.Scale():
+            case Scale():
                 for mode_0 in range(7):
                     if self.get_scale() == operand._scale:
                         self._diatonic_mode_0 = mode_0
