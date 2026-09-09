@@ -1206,7 +1206,7 @@ class Composition(Container):
             Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
         """
         if self._items:
-            last_position: ra.Position = self._last_position(True)
+            last_position: ra.Position = self._last_position()
             position_length: ra.Length = ra.Length( last_position.roundMeasures() ) + ra.Measure(1)
             finish_length: ra.Length = ra.Length( self.net_finish().roundMeasures() )
             if finish_length > position_length:
@@ -4454,7 +4454,7 @@ class Part(Composition):
         return True
 
 
-    def _last_position_and_element(self, include_masked: bool = False) -> tuple:
+    def _last_position_and_element(self) -> tuple:
         last_elements_list: list[tuple[ra.Position, Clip]] = []
         for single_section in self._items:
             block_last_element: oe.Element = single_section._last_element()
@@ -4484,7 +4484,7 @@ class Part(Composition):
             return last_position_element[1]
         return None
 
-    def _last_position(self, include_masked: bool = False) -> ra.Position:
+    def _last_position(self) -> ra.Position:
         """
         Returns the `Position` of tha last `Element`.
 
@@ -4494,7 +4494,7 @@ class Part(Composition):
         Returns:
             Position: The `Position` of the last `Element` of all elements in each `Block`.
         """
-        last_position_element: tuple = self._last_position_and_element(include_masked)
+        last_position_element: tuple = self._last_position_and_element()
         if last_position_element is not None:
             # NEEDS TO TAKE INTO CONSIDERATION THE PART POSITION TOO, SO DON'T REMOVE THIS METHOD
             return last_position_element[0]
