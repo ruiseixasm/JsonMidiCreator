@@ -441,7 +441,7 @@ class RS_Clip(RS_Solutions):
         """
         def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
-                new_key_signature = ou.KeySignature(results[0])  # One iteration
+                new_key_signature = og.KeySignature(results[0])  # One iteration
                 segmented_composition << new_key_signature << ou.TonicKey(-1)
             return segmented_composition
 
@@ -459,7 +459,7 @@ class RS_Clip(RS_Solutions):
         """
         def _iterator(results: list, segmented_composition: 'oc.Composition') -> 'oc.Composition':
             if isinstance(segmented_composition, oc.Clip):
-                new_key_signature = ou.KeySignature(results[0] * -1)  # One iteration
+                new_key_signature = og.KeySignature(results[0] * -1)  # One iteration
                 segmented_composition << new_key_signature << ou.TonicKey(-1)
             return segmented_composition
 
@@ -569,7 +569,7 @@ class RS_Clip(RS_Solutions):
 
     def parameter_global_set(self,
             iterations: int = 1,
-            parameter: any = of.Match(ra.Measure(1))**ou.KeySignature(),
+            parameter: any = of.Match(ra.Measure(1))**og.KeySignature(),
             chaos: ch.Chaos = ch.SinX(25, ot.Decrease(3)**ot.Modulo(7)),
             title: str | None = None) -> Self:
         """

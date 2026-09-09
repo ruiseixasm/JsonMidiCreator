@@ -20,6 +20,7 @@ from typing import Self
 from fractions import Fraction
 import enum
 import math
+import re
 # Json Midi Creator Libraries
 from . import creator as c
 from . import operand as o
@@ -657,6 +658,187 @@ class Dots(Generic):
         return self
 
 
+class KeySignature(Generic):       # Sharps (+) and Flats (-)
+    """`Generic -> KeySignature`
+
+    A KeySignature() consists in an integer from -7 to 7 describing the amount
+    of Sharps for positive values and the amount of Flats for negative values.
+    It also sets the type as Major or minor key signature.
+    
+    Parameters
+    ----------
+    int(0) : By default it has no Sharps or Flats, it's the C Major scale.
+    bool(True) : By default it considers the Major scale.
+    """
+    def __init__(self, *parameters):
+        self._sharps: int = 0
+        self._diatonic_mode_0: int = 0
+        super().__init__(*parameters)
+    
+    _major_scale = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)    # Major scale for the default staff
+
+    def get_tonic_key(self) -> int:
+        from . import operand_generic as og
+        if self._diatonic_mode_0 % 7 < 7:    # Diatonic scale
+            zero_tonic_key: int = og.Scale.transpose_key(self._diatonic_mode_0)
+            circle_fifths_position: int = self._sharps
+            return (zero_tonic_key + circle_fifths_position * 7) % 12
+        return 9    # A key
+
+    def get_scale(self) -> tuple[int]:
+        from . import operand_generic as og
+        scale_mode: int = self._diatonic_mode_0 % 9 + 1
+        return og.Scale._scales[scale_mode]
+
+    def is_enharmonic(self, key: int) -> bool:
+        self_key_signature: list[int] = self._key_signatures[(self._sharps + 7) % 15]
+        return self_key_signature[key % 12] != 0
+
+
+    def __mod__(self, operand: o.T) -> o.T:
+        from . import operand_generic as og
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case KeySignature():        return self
+                    case int():                 return self._sharps
+                    case ou.Mode():                return ou.Mode(self._diatonic_mode_0 + 1)
+                    case _:                     return super().__mod__(operand)
+            case int():                 return self._sharps
+            case float():
+                return float(self._diatonic_mode_0 + 1)
+            case ou.TonicKey():
+                return ou.TonicKey(self.get_tonic_key())
+            case ou.Key():
+                tonic_key: int = self.get_tonic_key()
+                key_line: int = 0
+                if self._sharps < 0:
+                    key_line = 1    # To get b instead of #
+                # It happens only for 7 Flats (-7) (Cb)
+                if self.is_enharmonic(tonic_key):
+                    key_line += 2    # All Sharps/Flats
+                return ou.Key(tonic_key, float(key_line))
+            
+            case ou.Major():                return ou.Major(self._diatonic_mode_0 == 0)
+            case ou.Minor():                return ou.Minor(self._diatonic_mode_0 == 5)
+            case int():                     return self._sharps
+            case ou.Sharps():
+                if self._sharps > 0:
+                    return ou.Sharps(self._sharps)
+                return ou.Sharps(0)
+            case ou.Flats():
+                if self._sharps < 0:
+                    return ou.Flats(self._sharps * -1)
+                return ou.Flats(0)
+            case ou.Accidentals():
+                return ou.Accidentals(self._sharps)
+            case og.Scale():            return og.Scale(self % list())
+            case ou.Mode():                return ou.Mode(self._diatonic_mode_0 + 1)
+            case list():                return list(self.get_scale())
+            case str():
+                if self._sharps < 0:
+                    flats: int = self._sharps * -1
+                    return "b" * flats
+                return "#" * self._sharps
+            case _:                     return super().__mod__(operand)
+
+    def __eq__(self, other: any) -> bool:
+        match other:
+            case KeySignature():
+                return self._sharps == other._sharps and self._diatonic_mode_0 == other._diatonic_mode_0
+            case od.Conditional():
+                return other == self
+            case int() | float() | Fraction() | ol.Carrier() | None:
+                return super().__eq__(other)
+        return self % other == other
+    
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["sharps"] = self.serialize( self._sharps )
+        serialization["parameters"]["diatonic_mode_0"] = self.serialize( self._diatonic_mode_0 )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'KeySignature':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "sharps" in serialization["parameters"] and "diatonic_mode_0" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._sharps = self.deserialize( serialization["parameters"]["sharps"] )
+            self._diatonic_mode_0 = self.deserialize( serialization["parameters"]["diatonic_mode_0"] )
+        return self
+      
+    def __lshift__(self, operand: any) -> Self:
+        from . import operand_generic as og
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case KeySignature():
+                super().__lshift__(operand)
+                self._sharps            = operand._sharps
+                self._diatonic_mode_0   = operand._diatonic_mode_0
+            case od.Pipe():
+                match operand._data:
+                    case int():         self._sharps            = operand._data
+                    case ou.Mode():     self._diatonic_mode_0   = operand._data._unit - 1
+            case int():     self._sharps = operand
+            case float():   self._diatonic_mode_0 = int(operand - 1)
+            case ou.Major():
+                if operand: self._diatonic_mode_0 = 0    # Major
+            case ou.Minor():
+                if operand: self._diatonic_mode_0 = 5    # minor
+            case ou.Flats():
+                self._sharps = operand._unit * -1
+            case ou.Accidentals():
+                self._sharps = operand._unit
+            case ou.Key():
+                self._sharps = sum( og.Scale.sharps_or_flats_picker(operand._unit, self % list()) )
+            case ou.Mode():
+                self._diatonic_mode_0 = operand._unit - 1
+            case og.Scale():
+                for mode_0 in range(7):
+                    if self.get_scale() == operand._scale:
+                        self._diatonic_mode_0 = mode_0
+                        break
+            case str(): # Processes series of "#" and "b"
+                if len(operand) == 0:
+                    self._sharps = 0
+                else:
+                    sharps = re.findall(r"#+", operand)
+                    if len(sharps) > 0:
+                        self._sharps = len(sharps[0])
+                    else:
+                        flats = re.findall(r"b+", operand)
+                        if len(flats) > 0:
+                            self._sharps = -len(flats[0])
+            case _: 
+                super().__lshift__(operand)
+        return self
+
+    # Circle of fifths (modulations) (fast access)
+    _key_signatures: list[list] = [
+    #     C      D      E   F      G      A      B
+        [-1, 0, -1, 0, -1, -1, 0, -1, 0, -1, 0, -1],    # -7
+        [-1, 0, -1, 0, -1, -0, 0, -1, 0, -1, 0, -1],    # -6
+        [-0, 0, -1, 0, -1, -0, 0, -1, 0, -1, 0, -1],    # -5
+        [-0, 0, -1, 0, -1, -0, 0, -0, 0, -1, 0, -1],    # -4
+        [-0, 0, -0, 0, -1, -0, 0, -0, 0, -1, 0, -1],    # -3
+        [-0, 0, -0, 0, -1, -0, 0, -0, 0, -0, 0, -1],    # -2
+        [-0, 0, -0, 0, -0, -0, 0, -0, 0, -0, 0, -1],    # -1
+    #     C      D      E   F      G      A      B
+        [+0, 0, +0, 0, +0, +0, 0, +0, 0, +0, 0, +0],    # +0
+    #     C      D      E   F      G      A      B
+        [+0, 0, +0, 0, +0, +1, 0, +0, 0, +0, 0, +0],    # +1
+        [+1, 0, +0, 0, +0, +1, 0, +0, 0, +0, 0, +0],    # +2
+        [+1, 0, +0, 0, +0, +1, 0, +1, 0, +0, 0, +0],    # +3
+        [+1, 0, +1, 0, +0, +1, 0, +1, 0, +0, 0, +0],    # +4
+        [+1, 0, +1, 0, +0, +1, 0, +1, 0, +1, 0, +0],    # +5
+        [+1, 0, +1, 0, +1, +1, 0, +1, 0, +1, 0, +0],    # +6
+        [+1, 0, +1, 0, +1, +1, 0, +1, 0, +1, 0, +1]     # +7
+    ]
+
+
+
 class Pitch(Generic):
     """`Generic -> Pitch`
 
@@ -675,8 +857,8 @@ class Pitch(Generic):
     bool(True) : Sets if the given scale is processed as transposition (True) or as modulation (False).
     """
     def __init__(self, *parameters):
-        self._key_signature: ou.KeySignature \
-                                        = settings % ou.KeySignature()
+        self._key_signature: KeySignature \
+                                        = settings % KeySignature()
         self._tonic_key: int            = self._key_signature.get_tonic_key()
         self._octave_0: int             = 5     # By default it's the 4th Octave, that's 5 in 0 based!
         self._degree_0: int             = 0     # By default it's Degree 1, that's 0 in 0 based
@@ -735,7 +917,7 @@ class Pitch(Generic):
         # For Semitones
         if signature_scale[tonic_to_root % 12] == 0: # Not on the Scale
             # No two consecutive empty notes! (assumption for all scales!!)
-            flats: bool = self._key_signature._unit < 0
+            flats: bool = self._key_signature._sharps < 0
             if flats:
                 tonic_to_root += 1
                 accidental = -1
@@ -923,7 +1105,7 @@ class Pitch(Generic):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case ou.KeySignature(): return self._key_signature
+                    case KeySignature(): return self._key_signature
                     case ou.Octave():
                         return operand._data << od.Pipe(self._octave_0)
                     case ou.TonicKey():
@@ -945,7 +1127,7 @@ class Pitch(Generic):
                     case Scale():           return operand._data << od.Pipe(self._scale)
                     case list():            return self._scale
                     case _:                 return super().__mod__(operand)
-            case ou.KeySignature():
+            case KeySignature():
                 return self._key_signature.copy()
             case ou.Quality() | ou.Mode() | ou.Accidentals():
                 return self._key_signature % operand
@@ -977,7 +1159,7 @@ class Pitch(Generic):
                     key_operand._flattened = self._accidental < 0
                     key_operand._enharmonic = True
                 else:
-                    key_operand._flattened = self._key_signature._unit < 0
+                    key_operand._flattened = self._key_signature._sharps < 0
                     key_operand._enharmonic = self._key_signature.is_enharmonic(key_operand._unit)
                 return key_operand
             
@@ -1050,7 +1232,7 @@ class Pitch(Generic):
                 self._scale                 = operand._scale.copy()
             case od.Pipe():
                 match operand._data:
-                    case ou.KeySignature(): # Preserves the chromatic_pitch
+                    case KeySignature(): # Preserves the chromatic_pitch
                         self._key_signature = operand._data
 
                     case ou.TonicKey():    # Must come before than Key()
@@ -1088,7 +1270,7 @@ class Pitch(Generic):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             # Setting of the KeySignature and respective parameters
-            case ou.KeySignature(): # Preserves the Semitone
+            case KeySignature(): # Preserves the Semitone
                 original_semitone = self % ou.Semitone()
                 self._key_signature << operand
                 self._tonic_key = self._key_signature.get_tonic_key()   # Setting a Key Signature adjusts the Tonic Key accordingly
@@ -1568,7 +1750,7 @@ class Scale(Generic):
         For example, `Scale.sharps_or_flats_picker(2)` will return `[+1, +0, +0, +0, +0, +1, +0, +0, +0, +0, +0, +0]`.
 
         """
-        major_scale: tuple[int] = ou.KeySignature._major_scale
+        major_scale: tuple[int] = KeySignature._major_scale
         sharps_or_flats: list[int] = [0] * 12
         major_key: int = 0
         for picker_key in range(12):
@@ -3284,7 +3466,7 @@ class Plot(ReadOnly):
                 self.__rrshift__(line)
             case Scale():
                 Scale.plot(self._parameters[1], operand % list())
-            case ou.KeySignature():
+            case KeySignature():
                 Scale.plot(self._parameters[1], operand % list(), operand % ou.Key(), operand % str())
             case oi.Iterations():
                 if not isinstance(self._title, str):
@@ -5415,7 +5597,7 @@ class Settings(Generic):
         self._tempo: Fraction                       = Fraction(120)
         self._quantization: Fraction                = Fraction(1/4) # Quantization is in Beats ratio
         self._time_signature: TimeSignature         = TimeSignature(4, 4)
-        self._key_signature: ou.KeySignature        = ou.KeySignature()
+        self._key_signature: KeySignature        = KeySignature()
         self._controller: Controller                = Controller("Pan")
         self._devices: list[str]                    = ["VMPK", "FLUID", "loopMIDI", "Microsoft", "IAC Bus", "Apple"]
         self._clocked_devices: list[str]            = []
@@ -5455,7 +5637,7 @@ class Settings(Generic):
                     case TimeSignature():       return self._time_signature
                     case ra.BeatsPerMeasure():  return self._time_signature % od.Pipe( ra.BeatsPerMeasure() )
                     case ra.BeatNoteValue():    return self._time_signature % od.Pipe( ra.BeatNoteValue() )
-                    case ou.KeySignature():     return self._key_signature
+                    case KeySignature():     return self._key_signature
                     case Controller():          return self._controller
                     case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
                     case oc.ControlledDevices():
@@ -5474,7 +5656,7 @@ class Settings(Generic):
             case ra.BeatsPerMeasure():  return self._time_signature % ra.BeatsPerMeasure()
             case ra.BeatNoteValue():    return self._time_signature % ra.BeatNoteValue()
             case ra.NotesPerMeasure():  return self._time_signature % ra.NotesPerMeasure()
-            case ou.KeySignature():     return self._key_signature.copy()
+            case KeySignature():     return self._key_signature.copy()
             case ou.Key() | ou.Quality() | int() | float() | Fraction() | str():
                                         return self._key_signature % operand
             # Calculated Values
@@ -5576,7 +5758,7 @@ class Settings(Generic):
                     case ra.Tempo():                self._tempo = operand._data._rational
                     case ra.Quantization():         self._quantization = operand._data._rational
                     case TimeSignature():           self._time_signature = operand._data
-                    case ou.KeySignature():         self._key_signature = operand._data
+                    case KeySignature():         self._key_signature = operand._data
                     case Controller():              self._controller = operand._data
                     case oc.ClockedDevices():       self._clocked_devices = operand._data % od.Pipe( list() )
                     case oc.ControlledDevices():    self._controlled_devices = operand._data % od.Pipe( list() )
@@ -5593,7 +5775,7 @@ class Settings(Generic):
                 self._quantization = self._time_signature % ra.BeatsPerMeasure() / operand % Fraction()
             case TimeSignature() | ra.TimeSignatureParameter():
                                         self._time_signature << operand
-            case ou.KeySignature() | ou.Key() | ou.Quality() | int() | float() | Fraction() | str():
+            case KeySignature() | ou.Key() | ou.Quality() | int() | float() | Fraction() | str():
                                         self._key_signature << operand
             case Controller() | ou.Number():
                                         self._controller << operand
