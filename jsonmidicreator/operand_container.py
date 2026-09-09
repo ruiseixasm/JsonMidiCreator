@@ -3928,17 +3928,6 @@ class Section(Composition):
                     finish_position = clip_finish
         return finish_position
 
-    def last_position(self) -> 'ra.Position':
-        position: ra.Position = None
-        for clip in self._items:
-            clip_position: ra.Position = clip._last_position()
-            if clip_position is not None:
-                if position is None:
-                    position = clip_position
-                elif clip_position > position:
-                    position = clip_position
-        return position
-
 
     def all_elements(self) -> list['oe.Element']:
         elements: list[oe.Element] = []
@@ -4559,17 +4548,6 @@ class Part(Composition):
                 else:
                     finish_position = absolute_finish
         return finish_position
-
-    def last_position(self) -> 'ra.Position':
-        position: ra.Position = None
-        for single_section in self._items:
-            section_position: ra.Position = single_section._last_position()
-            if section_position is not None:
-                if position is None:
-                    position = section_position
-                elif section_position > position:
-                    position = section_position
-        return position
 
 
     def all_elements(self) -> list['oe.Element']:
