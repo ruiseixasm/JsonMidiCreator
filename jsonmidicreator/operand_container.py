@@ -676,17 +676,6 @@ class Container(o.Operand):
         match operand:
             case Container():
                 pass
-            case int(): # split n times the self content if any
-                if operand > 0:
-                    many_operands = self.__class__()    # with an empty list
-                    cut_len: int = self.len(include_masked=False) % od.Pipe( operand )
-                    nth_item: int = cut_len
-                    while nth_item > 0:
-                        many_operands._items.append(
-                                self.deep_copy( self._items[cut_len - nth_item] )
-                            )
-                        nth_item -= 1
-                    return many_operands
 
             case tuple():
                 for single_operand in operand:
