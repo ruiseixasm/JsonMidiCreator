@@ -1017,7 +1017,6 @@ class Composition(Container):
     def __init__(self, *operands):
         # Part sets the TimeSignature, this is just a reference
         self._name: str = "Composition"
-        self._time_signature: og.TimeSignature  = og.settings._time_signature.copy()
         super().__init__(*operands)
 
 
@@ -1373,7 +1372,6 @@ class Composition(Container):
         serialization = super().getSerialization()
 
         serialization["parameters"]["name"]             = self._name
-        serialization["parameters"]["time_signature"]   = self.serialize(self._time_signature)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -1389,11 +1387,10 @@ class Composition(Container):
             Clip: The self Clip object with the respective set parameters.
         """
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "name" in serialization["parameters"]) and "time_signature" in serialization["parameters"]:
+            "name" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._name              = serialization["parameters"]["name"]
-            self._time_signature    << self.deserialize(serialization["parameters"]["time_signature"])
         return self
 
     def empty_copy(self, *parameters) -> Self:
@@ -1408,7 +1405,6 @@ class Composition(Container):
         """
         new_composition: Composition    = super().empty_copy()
         new_composition._name           = self._name
-        new_composition._time_signature << self._time_signature
         return new_composition << parameters
 
 
@@ -1426,15 +1422,13 @@ class Composition(Container):
         new_composition: Composition    = super().shallow_copy()
         # It's a shallow copy, so it shares the same TimeSignature and midi track
         new_composition._name           = self._name
-        new_composition._time_signature << self._time_signature
         return new_composition << parameters
 
     def __lshift__(self, operand: any) -> Self:
         match operand:
             case Composition():
                 super().__lshift__(operand)
-                self._name              = operand._name
-                self._time_signature    << operand._time_signature
+                self._name = operand._name
 
             case od.Pipe():
                 match operand._data:
@@ -1450,25 +1444,6 @@ class Composition(Container):
             case _:
                 super().__lshift__(operand)
         return self
-
-
-    # Avoids the costly copy of Track self doing +=
-    def __iadd__(self, operand: any) -> Self:
-        match operand:
-            case og.TimeSignature():
-                self._time_signature += operand
-            case _:
-                super().__iadd__(operand)
-        return self
-
-    def __isub__(self, operand: any) -> Self:
-        match operand:
-            case og.TimeSignature():
-                self._time_signature -= operand
-            case _:
-                super().__isub__(operand)
-        return self
-
 
     def __ipow__(self, operand: Any) -> Self:
         if isinstance(operand, int):
@@ -1567,6 +1542,7 @@ class Clip(Composition):  # Just a container of Elements
     """
     def __init__(self, *operands):
         super().__init__()
+        self._time_signature: og.TimeSignature  = og.settings._time_signature.copy()
         self._name                      = "Clip"
         self._devices: list[str]        = og.settings._devices.copy()
         self._track_number: int         = 1 # Only useful to render .midi files
@@ -2063,6 +2039,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         serialization = super().getSerialization()
 
+        serialization["parameters"]["time_signature"]   = self.serialize(self._time_signature)
         serialization["parameters"]["track_number"] = self._track_number
         serialization["parameters"]["enabled"]      = self._enabled
         # Useful for json interpretation and bottom placement
@@ -2084,9 +2061,10 @@ class Clip(Composition):  # Just a container of Elements
         if "elements" in serialization["parameters"]:
             serialization["parameters"]['items'] = serialization["parameters"].pop('elements')
             if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-                "track_number" in serialization["parameters"] and "enabled" in serialization["parameters"]):
+                "track_number" in serialization["parameters"] and "enabled" in serialization["parameters"] and "time_signature" in serialization["parameters"]):
 
                 super().loadSerialization(serialization)
+                self._time_signature    << self.deserialize(serialization["parameters"]["time_signature"])
                 self._track_number  = serialization["parameters"]["track_number"]
                 self._enabled       = serialization["parameters"]["enabled"]
                 self._set_owner_clip()
@@ -2103,6 +2081,7 @@ class Clip(Composition):  # Just a container of Elements
             Clip: Returns the copy of self but with an empty list of items.
         """
         new_clip: Clip          = super().empty_copy()
+        new_clip._time_signature << self._time_signature
         new_clip._track_number  = self._track_number
         new_clip._devices       = self._devices.copy()
         new_clip._enabled       = self._enabled
@@ -2121,6 +2100,7 @@ class Clip(Composition):  # Just a container of Elements
             Clip: Returns the copy of self but with a list of the same items of the original one.
         """
         new_clip: Clip              = super().shallow_copy()
+        new_clip._time_signature << self._time_signature
         # It's a shallow copy, so it shares the same TimeSignature and midi track
         new_clip._track_number  = self._track_number
         new_clip._enabled       = self._enabled
@@ -3793,11 +3773,6 @@ class Section(Composition):
             self._owner_part = owner_part
         return self
 
-    def _get_time_signature(self) -> 'og.TimeSignature':
-        if self._owner_part is None:
-            return self._time_signature
-        return self._owner_part._time_signature
-
 
     # UNMASKED METHODS
 
@@ -3982,7 +3957,7 @@ class Section(Composition):
                     case _:
                         return super().__mod__(operand)
             case ra.Position() | ra.TimeValue() | ra.TimeUnit():
-                return operand.copy( ra.Position(self._time_signature, self._position_beats) )
+                return operand.copy( ra.Position(self._get_time_signature(), self._position_beats) )
             case od.Name():
                 return operand << self._name
             case str():
@@ -4075,7 +4050,6 @@ class Section(Composition):
         serialization = super().getSerialization()
 
         serialization["parameters"]["position_beats"]   = self.serialize(self._position_beats)
-        serialization["parameters"]["name"]             = self.serialize(self._name)
         # Useful for json interpretation and bottom placement
         serialization["parameters"]["clips"] = serialization["parameters"].pop("items")
         return serialization
@@ -4095,11 +4069,10 @@ class Section(Composition):
         if "clips" in serialization["parameters"]:
             serialization["parameters"]['items'] = serialization["parameters"].pop('clips')
             if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-                "position_beats" in serialization["parameters"] and "name" in serialization["parameters"]):
+                "position_beats" in serialization["parameters"]):
 
                 super().loadSerialization(serialization)
                 self._position_beats    = self.deserialize(serialization["parameters"]["position_beats"])
-                self._name              = self.deserialize(serialization["parameters"]["name"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -4203,7 +4176,7 @@ class Section(Composition):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Section():
-                new_part = Part(self._time_signature)
+                new_part = Part()
                 self_length: ra.Length = self.gross_length()
                 new_part += self
                 if self_length is not None:
@@ -4245,7 +4218,7 @@ class Section(Composition):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Section():
-                new_part = Part(self._time_signature)
+                new_part = Part()
                 new_part += self
                 finish_position: ra.Position = self.net_finish_unmasked()
                 if finish_position is not None:
@@ -4278,7 +4251,7 @@ class Section(Composition):
     def __ifloordiv__(self, operand: any) -> Self:
         match operand:
             case Section():
-                new_part = Part(self._time_signature)
+                new_part = Part()
                 new_part += self
                 start_position: ra.Position = self.start()
                 if start_position is not None:
@@ -4457,7 +4430,6 @@ class Part(Composition):
             for single_section in self._items:
                 single_section._set_owner_part(self)
         elif isinstance(owner_part, Part):
-            self._time_signature << owner_part._time_signature    # Does a parameters copy
             for single_section in self._items:
                 single_section._set_owner_part(owner_part)
         return self
@@ -4689,8 +4661,6 @@ class Part(Composition):
         """
         serialization = super().getSerialization()
 
-        serialization["parameters"]["time_signature"] = self.serialize(self._time_signature)
-        serialization["parameters"]["name"] = self.serialize(self._name)
         # Useful for json interpretation and bottom placement
         serialization["parameters"]["sections"] = serialization["parameters"].pop("items")
         return serialization
@@ -4709,12 +4679,9 @@ class Part(Composition):
         """
         if "sections" in serialization["parameters"]:
             serialization["parameters"]['items'] = serialization["parameters"].pop('sections')
-            if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-                "time_signature" in serialization["parameters"] and "name" in serialization["parameters"]):
+            if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization):
 
                 super().loadSerialization(serialization)
-                self._time_signature << self.deserialize(serialization["parameters"]["time_signature"])
-                self._name = self.deserialize(serialization["parameters"]["name"])
                 self._set_owner_part()
         return self
 
@@ -4722,7 +4689,6 @@ class Part(Composition):
         match operand:
             case Part():
                 super().__lshift__(operand)
-                self._time_signature << operand._time_signature
                 self._name = operand._name
                 self._set_owner_part()
 
