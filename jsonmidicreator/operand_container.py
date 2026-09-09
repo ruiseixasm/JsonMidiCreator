@@ -876,9 +876,9 @@ class Container(o.Operand):
         Returns:
             Container: The same self object with the items processed.
         """
-        self_len: int = self.len(include_masked=False)
+        self_len: int = self.len()
         for operand_i in range(self_len // 2):
-            self._swap(self.unmasked_items()[operand_i], self.unmasked_items()[self_len - 1 - operand_i])
+            self._swap(self._items[operand_i], self._items[self_len - 1 - operand_i])
         return self._sort_items()
     
     def filter(self, *conditions) -> Self:
@@ -3074,7 +3074,11 @@ class Clip(Composition):  # Just a container of Elements
             element_length_beats: Fraction = single_element % ra.Length() % od.Pipe( Fraction() )
             # Only changes Positions
             single_element._position_beats = first_measure_position_beats + clip_length_beats - (element_position_beats + element_length_beats)
-        return super().reverse()    # Reverses the list
+            
+        self_len: int = self.len(include_masked=False)
+        for operand_i in range(self_len // 2):
+            self._swap(self.unmasked_items()[operand_i], self.unmasked_items()[self_len - 1 - operand_i])
+        return self._sort_items()
 
     def flip(self) -> Self:
         """
