@@ -356,6 +356,12 @@ class Container(o.Operand):
                 match operand._data:
                     case list():
                         return self._items
+                    case of.Frame():    # Works as a Selector, returns the Item, NOT the parameter passed (NOT a reversal of `<<`)
+                        # One to One, NOT One to Many (return)
+                        operand._data._set_inside_container(self)
+                        for single_item in self.items_unmasked():
+                            if single_item == operand._data:
+                                return single_item
                     case _:
                         return super().__mod__(operand)
             case list():
@@ -377,6 +383,14 @@ class Container(o.Operand):
                 return self._is_masked()
             case Container():
                 return operand.copy().__iadd__(self)
+            case of.Frame():    # Works as a Selector, returns the Item, NOT the parameter passed (NOT a reversal of `<<`)
+                # One to One, NOT One to Many (return)
+                operand._set_inside_container(self)
+                for single_item in self.items_unmasked():
+                    if single_item == operand:
+                        if isinstance(single_item, o.Operand):
+                            return single_item.copy()
+                        return single_item
             case _:
                 return super().__mod__(operand)
 
@@ -1887,12 +1901,6 @@ class Clip(Composition):  # Just a container of Elements
                         return operand._data << self._track_number
                     case ou.Auto():
                         return operand._data << self._auto
-                    case of.Frame():    # Works as a Selector, returns the Item, NOT the parameter passed (NOT a reversal of `<<`)
-                        # One to One, NOT One to Many (return)
-                        operand._data._set_inside_container(self)
-                        for single_element in self.elements_unmasked():
-                            if single_element == operand._data:
-                                return single_element
                     case _:
                         return super().__mod__(operand)
             case ou.TrackNumber():
@@ -1923,14 +1931,6 @@ class Clip(Composition):  # Just a container of Elements
                                 pitch_transitions._sum += delta_pitch
                                 pitch_transitions._max = max(pitch_transitions._max, delta_pitch)
                 return pitch_transitions
-            case of.Frame():    # Works as a Selector, returns the Item, NOT the parameter passed (NOT a reversal of `<<`)
-                # One to One, NOT One to Many (return)
-                operand._set_inside_container(self)
-                for single_element in self.elements_unmasked():
-                    if single_element == operand:
-                        if isinstance(single_element, o.Operand):
-                            return single_element.copy()
-                        return single_element
             case _:
                 return super().__mod__(operand)
 
