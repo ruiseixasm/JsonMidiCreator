@@ -332,20 +332,20 @@ class Element(o.Operand):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["masked"]           = self.serialize(self._masked)
-        serialization["parameters"]["position"]         = self.serialize(self._position_beats)
-        serialization["parameters"]["duration"]         = self.serialize(self._duration_beats)
+        serialization["parameters"]["position_beats"]   = self.serialize(self._position_beats)
+        serialization["parameters"]["duration_beats"]   = self.serialize(self._duration_beats)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Element':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "masked" in serialization["parameters"] and "position" in serialization["parameters"] and "duration" in serialization["parameters"]):
+            "masked" in serialization["parameters"] and "position_beats" in serialization["parameters"] and "duration_beats" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._masked            = self.deserialize(serialization["parameters"]["masked"])
-            self._position_beats    = self.deserialize(serialization["parameters"]["position"])
-            self._duration_beats    = self.deserialize(serialization["parameters"]["duration"])
+            self._position_beats    = self.deserialize(serialization["parameters"]["position_beats"])
+            self._duration_beats    = self.deserialize(serialization["parameters"]["duration_beats"])
         return self
 
     def __lshift__(self, operand: any) -> Self:

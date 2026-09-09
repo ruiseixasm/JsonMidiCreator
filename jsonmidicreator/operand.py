@@ -752,26 +752,25 @@ class Operand:
         return []
 
     def getSerialization(self) -> dict:
+        serialization = {
+            "class": type(self).__name__,
+            "parameters": {},
+        }
         chained_operand = self._chained_operand
         if isinstance(self._chained_operand, Operand):
             chained_operand = self._chained_operand.getSerialization()
-            return { 
-                "class": type(self).__name__,
-                "parameters": {},
-                "chained_operand": chained_operand
-            }
-        return { 
-            "class": type(self).__name__,
-            "parameters": {}
-        }
+            serialization[chained_operand] = chained_operand
+        if self._index > -1:
+            serialization["index"] = self._index
+        return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if "chained_operand" in serialization:
             self._chained_operand = self.deserialize(serialization["chained_operand"])
-        else:
-            self._chained_operand = None
+        if "index" in serialization:
+            self._index = self.deserialize(serialization["index"])
         return self
        
     def set(self, operand: any) -> Self:
