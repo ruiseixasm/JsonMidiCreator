@@ -1637,6 +1637,25 @@ class Clip(Composition):  # Just a container of Elements
         """
         return len(self.elements_unmasked())
 
+    def first_unmasked(self) -> Any:
+        """
+        Gets the first Item accordingly to it's Position on the TimeSignature.
+
+        Returns:
+            Item: The first Item of all Items.
+        """
+        return self._first_element_unmasked()
+
+    def last_unmasked(self) -> Any:
+        """
+        Gets the last Item accordingly to it's Position on the TimeSignature.
+
+        Returns:
+            Item: The last Item of all Items.
+        """
+        return self._last_element_unmasked()
+
+
 
     def __getitem__(self, index: Any) -> Self:
         elements_unmasked: list = self.elements_unmasked()
