@@ -135,7 +135,20 @@ def saveJsonMidiCreator(serialization: dict, filename):
                 "tied_to_previous": "Notes can only be tied to the previous `Note`, so, they work as duration extension of the previous one",
                 "accidental": "The accidentals are chromatic offsets on the Key Signature and NOT on the Major Scale necessarily",
                 "sharps": "Negative values mean Flats",
-                "diatonic_mode_0": "This is the mode of the Diatonic scale, where `0` means Major and `5` means minor"
+                "diatonic_mode_0": {
+                    "description": "Sets the Diatonic scale or other 7 keys scales, where `0` means Major and `5` means minor",
+                    "values": {
+                        0: "Major",
+                        1: "Dorian",
+                        2: "Phrygian",
+                        3: "Lydian",
+                        4: "Mixolydian",
+                        5: "minor",
+                        6: "Locrian",
+                        7: "Harmonic",
+                        8: "Melodic"
+                    }
+                }
             },
             "class_defaults": {
                 "Clip": {
