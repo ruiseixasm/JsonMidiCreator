@@ -739,7 +739,7 @@ class First(Selector):
     def frame(self, input: o.T) -> o.T:
         from . import operand_container as oc
         if isinstance(self._inside_container, oc.Container):
-            item_index: int = self._inside_container._item_index(input)
+            item_index: int = self._inside_container._element_index(input)
             if item_index is not None and item_index < self._named_parameters['amount']:
                 if isinstance(self._next_operand, Frame):
                     return self._next_operand.frame(input)
@@ -761,7 +761,7 @@ class Last(Selector):
     def frame(self, input: o.T) -> o.T:
         from . import operand_container as oc
         if isinstance(self._inside_container, oc.Container):
-            item_index: int = self._inside_container._item_index(input)
+            item_index: int = self._inside_container._element_index(input)
             if item_index is not None:  # Empty container returns index None
                 container_len: int = self._inside_container.len()
                 amount_index: int = -1 * self._named_parameters['amount'] % container_len

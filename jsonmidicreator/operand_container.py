@@ -111,11 +111,11 @@ class Container(o.Operand):
             raise StopIteration
 
 
-    def _item_index(self, item: Any) -> int | None:
+    def _element_index(self, item: Any) -> int | None:
         """
         Returns the index of a given item by its id or `None` if nonexistent in the unmasked list.
         """
-        for index, single_item in enumerate(self.unmasked_items()):
+        for index, single_item in enumerate(self._items):
             if item is single_item:
                 return index
         return None
@@ -1722,6 +1722,16 @@ class Clip(Composition):  # Just a container of Elements
     
     def __next__(self) -> 'oe.Element':
         return super().__next__()
+
+    def _element_index(self, item: Any) -> int | None:
+        """
+        Returns the index of a given item by its id or `None` if nonexistent in the unmasked list.
+        """
+        for index, single_element in enumerate(self.elements_unmasked()):
+            if item is single_element:
+                return index
+        return None
+
 
     def _sort_items(self) -> Self:
         super()._sort_items()
