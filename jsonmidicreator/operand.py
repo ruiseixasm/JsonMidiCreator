@@ -646,12 +646,6 @@ class Operand:
         from . import operand_data as od
         return od.Inline(self)
 
-    def len(self) -> int:
-        list_size = 0
-        for _ in self:
-            list_size += 1
-        return list_size
-
     def get(self, operand: T) -> T:
         """Applies `% operand` returning the same type operand"""
         return self.__mod__(operand)
