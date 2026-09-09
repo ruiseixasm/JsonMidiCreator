@@ -1572,7 +1572,7 @@ class Clip(Composition):  # Just a container of Elements
         self._name                      = "Clip"
         self._devices: list[str]        = og.settings._devices.copy()
         self._track_number: int         = 1 # Only useful to render .midi files
-        self._auto: bool                = False
+        self._enabled: bool             = True
         self._items: list[oe.Element]   = []
         for single_operand in operands:
             self << single_operand
@@ -1731,15 +1731,6 @@ class Clip(Composition):  # Just a container of Elements
         return None
 
 
-    def _sort_items(self) -> Self:
-        super()._sort_items()
-        if self._auto:  # Does auto formatting
-            self.fit()
-            if self._upper_container is not None:   # Recursive call
-                self._upper_container.fit() # upper container is a Clip too
-        return self
-
-
     def _replace(self, old_item: Any = None, new_item: Any = None) -> Self:
         if isinstance(new_item, oe.Element):
             return super()._replace(old_item, new_item)
@@ -1880,16 +1871,16 @@ class Clip(Composition):  # Just a container of Elements
                 match operand._data:
                     case ou.TrackNumber():
                         return operand._data << self._track_number
-                    case ou.Auto():
-                        return operand._data << self._auto
+                    case ou.Enable():
+                        return operand._data << self._enabled
                     case _:
                         return super().__mod__(operand)
             case ou.TrackNumber():
                 return ou.TrackNumber(self._track_number)
             case Devices():
                 return Devices(self._devices)
-            case ou.Auto():
-                return ou.Auto(self._auto)
+            case ou.Enable():
+                return ou.Enable(self._enabled)
             case Section():
                 new_block = Section(self._time_signature)
                 new_block += self   # Implicit copy
@@ -2063,7 +2054,7 @@ class Clip(Composition):  # Just a container of Elements
         serialization = super().getSerialization()
 
         serialization["parameters"]["track_number"] = self._track_number
-        serialization["parameters"]["auto"]         = self._auto
+        serialization["parameters"]["enabled"]      = self._enabled
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -2079,11 +2070,11 @@ class Clip(Composition):  # Just a container of Elements
             Clip: The self Clip object with the respective set parameters.
         """
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "track_number" in serialization["parameters"] and "auto" in serialization["parameters"]):
+            "track_number" in serialization["parameters"] and "enabled" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._track_number  = serialization["parameters"]["track_number"]
-            self._auto          = serialization["parameters"]["auto"]
+            self._enabled       = serialization["parameters"]["enabled"]
             self._set_owner_clip()
         return self
 
@@ -2100,7 +2091,7 @@ class Clip(Composition):  # Just a container of Elements
         new_clip: Clip          = super().empty_copy()
         new_clip._track_number  = self._track_number
         new_clip._devices       = self._devices.copy()
-        new_clip._auto          = self._auto
+        new_clip._enabled       = self._enabled
         return new_clip << parameters
 
 
@@ -2118,7 +2109,7 @@ class Clip(Composition):  # Just a container of Elements
         new_clip: Clip              = super().shallow_copy()
         # It's a shallow copy, so it shares the same TimeSignature and midi track
         new_clip._track_number  = self._track_number
-        new_clip._auto          = self._auto
+        new_clip._enabled       = self._enabled
         return new_clip << parameters
 
     def __lshift__(self, operand: any) -> Self:
@@ -2126,15 +2117,15 @@ class Clip(Composition):  # Just a container of Elements
             case Clip():
                 super().__lshift__(operand)
                 self._track_number  = operand._track_number
-                self._auto          = operand._auto
+                self._enabled       = operand._enabled
                 self._set_owner_clip()
 
             case od.Pipe():
                 match operand._data:
                     case ou.TrackNumber():
                         self._track_number = operand._data._unit
-                    case ou.Auto():
-                        self._auto = bool(operand._data._unit)
+                    case ou.Enable():
+                        self._enabled = bool(operand._data._unit)
 
                     case list():
                         if all(isinstance(item, oe.Element) for item in operand._data):
@@ -2170,8 +2161,8 @@ class Clip(Composition):  # Just a container of Elements
                 self._devices = operand._items.copy()
             case od.Device():
                 self._devices = [operand._data]
-            case ou.Auto():
-                self._auto = bool(operand._unit)
+            case ou.Enable():
+                self._enabled = bool(operand._unit)
                 
             case oe.Element():  # Element wapping (wrap)
                 for single_element in self.elements_unmasked():
