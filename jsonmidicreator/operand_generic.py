@@ -3551,7 +3551,7 @@ class Plot(ReadOnly):
         from . import operand_container as oc
         # The plotting is managed by the single and original Composition.
         plotlist: list[dict] = self._plot_lists[self._iteration_index]
-        time_signature = self._compositions[self._iteration_index]._time_signature
+        time_signature = self._compositions[self._iteration_index]._get_time_signature()
         checksum_str: str = self._plot_checksums[self._iteration_index]
 
         self._ax.clear()
@@ -5602,7 +5602,7 @@ class Settings(Generic):
         self._tempo: Fraction                       = Fraction(120)
         self._quantization: Fraction                = Fraction(1/4) # Quantization is in Beats ratio
         self._time_signature: TimeSignature         = TimeSignature(4, 4)
-        self._key_signature: KeySignature        = KeySignature()
+        self._key_signature: KeySignature           = KeySignature()
         self._controller: Controller                = Controller("Pan")
         self._devices: list[str]                    = ["VMPK", "FLUID", "loopMIDI", "Microsoft", "IAC Bus", "Apple"]
         self._clocked_devices: list[str]            = []
