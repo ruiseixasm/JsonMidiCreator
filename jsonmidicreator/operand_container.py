@@ -3839,24 +3839,16 @@ class Section(Composition):
         Returns:
             Element: The last `Element` of all elements in each `Clip`.
         """
-        items_list: list[Clip] = self._items
-        if not include_masked:
-            items_list = self.unmasked_items()
-        clips_list: list[Clip] = [
-            clip for clip in items_list if isinstance(clip, Clip)
-        ]
-
         last_element: oe.Element = None
-        if len(clips_list) > 0:
-            for clip in clips_list:
-                clip_last: oe.Element = clip._last_element(include_masked)
-                if clip_last:
-                    if last_element:
-                        # Implicit conversion
-                        if clip_last > last_element:
-                            last_element = clip_last
-                    else:
+        for clip in self._items:
+            clip_last: oe.Element = clip._last_element(include_masked)
+            if clip_last:
+                if last_element:
+                    # Implicit conversion
+                    if clip_last > last_element:
                         last_element = clip_last
+                else:
+                    last_element = clip_last
         return last_element
 
 
@@ -4739,7 +4731,7 @@ class Part(Composition):
                             self._items = [item for item in operand._data]
                             self._set_owner_part()
                         else:   # Not for me
-                            for item in self.unmasked_items():
+                            for item in self.self._items:
                                 item << operand._data
                     case str():
                         self._name = operand._data
@@ -4754,15 +4746,15 @@ class Part(Composition):
                     self._items = [item.copy() for item in operand]
                     self._set_owner_part()
                 else:   # Not for me
-                    for item in self.unmasked_items():
+                    for item in self.self._items:
                         item << operand
             case dict():
                 if all(isinstance(item, Section) for item in operand.values()):
                     for index, item in operand.items():
-                        if isinstance(index, int) and index >= 0 and index < len(self.unmasked_items()):
-                            self.unmasked_items()[index] = item.copy()
+                        if isinstance(index, int) and index >= 0 and index < len(self.self._items):
+                            self.self._items[index] = item.copy()
                 else:   # Not for me
-                    for item in self.unmasked_items():
+                    for item in self._items:
                         item << operand
 
             case od.Name():
@@ -4931,7 +4923,7 @@ class Part(Composition):
             punch_length = ra.Length(self, length)
 
         # No Block is removed, only elements are removed
-        for block_loop in self.unmasked_items():
+        for block_loop in self._items:
             block_loop.loop(position, punch_length)
 
         return self._sort_items()
