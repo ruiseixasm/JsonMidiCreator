@@ -1080,7 +1080,7 @@ class Composition(Container):
         return None
 
 
-    def _last_position(self, include_masked: bool = False) -> 'ra.Position':
+    def _last_position(self) -> 'ra.Position':
         """
         Gets the last Element position.
 
@@ -4381,22 +4381,6 @@ class Part(Composition):
             return last_position_element[1]
         return None
 
-    def _last_position_unmasked(self) -> ra.Position:
-        """
-        Returns the `Position` of tha last `Element`.
-
-        Args:
-            None
-
-        Returns:
-            Position: The `Position` of the last `Element` of all elements in each `Block`.
-        """
-        last_position_element: tuple = self._last_position_and_element_unmasked()
-        if last_position_element is not None:
-            # NEEDS TO TAKE INTO CONSIDERATION THE PART POSITION TOO, SO DON'T REMOVE THIS METHOD
-            return last_position_element[0]
-        return None
-
 
     def __getitem__(self, index: Any) -> Union['Section', 'Part']:
         return super().__getitem__(index)
@@ -4484,6 +4468,22 @@ class Part(Composition):
             Position: The `Position` of the last `Element` of all elements in each `Block`.
         """
         last_position_element: tuple = self._last_position_and_element()
+        if last_position_element is not None:
+            # NEEDS TO TAKE INTO CONSIDERATION THE PART POSITION TOO, SO DON'T REMOVE THIS METHOD
+            return last_position_element[0]
+        return None
+
+    def _last_position_unmasked(self) -> ra.Position:
+        """
+        Returns the `Position` of tha last `Element`.
+
+        Args:
+            None
+
+        Returns:
+            Position: The `Position` of the last `Element` of all elements in each `Block`.
+        """
+        last_position_element: tuple = self._last_position_and_element_unmasked()
         if last_position_element is not None:
             # NEEDS TO TAKE INTO CONSIDERATION THE PART POSITION TOO, SO DON'T REMOVE THIS METHOD
             return last_position_element[0]
