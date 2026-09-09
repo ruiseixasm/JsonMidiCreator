@@ -1193,7 +1193,7 @@ class Composition(Container):
 
 
     # Ignores the self Length
-    def net_finish(self, include_masked: bool = False) -> 'ra.Position':
+    def net_finish(self) -> 'ra.Position':
         """
         Processes each element Position plus Length and returns the finish position
         as the maximum of all of them.
