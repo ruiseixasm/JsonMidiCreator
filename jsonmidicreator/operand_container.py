@@ -1024,7 +1024,7 @@ class Composition(Container):
     def _get_time_signature(self) -> 'og.TimeSignature':
         return og.settings._time_signature
 
-    def _set_time_signature(self, time_signature: 'og.TimeSignature') -> Self:
+    def _set_time_signature(self, time_signature: 'og.TimeSignature', pipe_it: bool = False) -> Self:
         return self
 
 
@@ -1578,12 +1578,13 @@ class Clip(Composition):  # Just a container of Elements
     def _get_time_signature(self) -> 'og.TimeSignature':
         return self._time_signature
 
-    def _set_time_signature(self, time_signature: 'og.TimeSignature') -> Self:
-        beats_per_measure_ratio: Fraction \
-            = time_signature % ra.BeatsPerMeasure() % Fraction() / self._time_signature._top
-        for element in self._items:
-            element._position_beats *= beats_per_measure_ratio
-            element._duration_beats *= beats_per_measure_ratio
+    def _set_time_signature(self, time_signature: 'og.TimeSignature', pipe_it: bool = False) -> Self:
+        if not pipe_it:
+            beats_per_measure_ratio: Fraction \
+                = time_signature % ra.BeatsPerMeasure() % Fraction() / self._time_signature._top
+            for element in self._items:
+                element._position_beats *= beats_per_measure_ratio
+                element._duration_beats *= beats_per_measure_ratio
         self._time_signature << time_signature
         return self
 
@@ -3781,9 +3782,9 @@ class Section(Composition):
             return self._items[0]._time_signature
         return super()._get_timesignature()
 
-    def _set_time_signature(self, time_signature: 'og.TimeSignature') -> Self:
+    def _set_time_signature(self, time_signature: 'og.TimeSignature', pipe_it: bool = False) -> Self:
         for single_clip in self._items:
-            single_clip << time_signature
+            single_clip._set_time_signature(time_signature, pipe_it)
         return self
 
 
@@ -4370,10 +4371,10 @@ class Part(Composition):
                 return first_section._items[0]._time_signature
         return super()._get_timesignature()
 
-    def _set_time_signature(self, time_signature: 'og.TimeSignature') -> Self:
+    def _set_time_signature(self, time_signature: 'og.TimeSignature', pipe_it: bool = False) -> Self:
         for single_section in self._items:
             for single_clip in single_section:
-                single_clip << time_signature
+                single_clip._set_time_signature(time_signature, pipe_it)
         return self
 
 
