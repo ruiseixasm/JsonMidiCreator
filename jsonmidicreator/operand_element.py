@@ -129,12 +129,12 @@ class Element(o.Operand):
         return ra.Measure(start_measure)
 
 
-    def crossing(self, composition: 'Composition' = None) -> bool:
-        if composition is None:
+    def crossing(self, clip: 'Clip' = None) -> bool:
+        if clip is None:
             if self._owner_clip is None:
                 return False
-            composition = self._owner_clip
-        last_position: ra.Position = composition._last_element_position()
+            clip = self._owner_clip
+        last_position: ra.Position = clip._last_element_position()
         if last_position is None:   # An empty Composition doesn't count
             return False
         # Starts by checking if it's a starting measure Element
