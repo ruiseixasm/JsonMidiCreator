@@ -577,6 +577,14 @@ class Container(o.Operand):
         match operand:
             case Container():
                 pass
+            case of.Frame():
+                operand._set_inside_container(self)
+                for single_item in self.items_unmasked():
+                    single_item /= operand.frame(single_item)
+            case ch.Chaos():
+                for single_item in self.items_unmasked():
+                    single_parameter = operand.chaoticize()
+                    single_item /= single_parameter
             case tuple():
                 for single_operand in operand:
                     self.__itruediv__(single_operand)
@@ -591,10 +599,10 @@ class Container(o.Operand):
                 pass
             case of.Frame():
                 operand._set_inside_container(self)
-                for single_element in self.elements_unmasked():
+                for single_element in self.items_unmasked():
                     single_element //= operand.frame(single_element)
             case ch.Chaos():
-                for single_element in self.elements_unmasked():
+                for single_element in self.items_unmasked():
                     single_parameter = operand.chaoticize()
                     single_element //= single_parameter
             case tuple():
@@ -2395,23 +2403,8 @@ class Clip(Composition):  # Just a container of Elements
                 self /= clip_segments
                 self._set_owner_clip()
 
-            case tuple():
-                for single_operand in operand:
-                    self.__itruediv__(single_operand)
-            case of.Frame():
-                operand._set_inside_container(self)
-                for single_item in self.elements_unmasked():
-                    single_item /= operand.frame(single_item)
-            case ch.Chaos():
-                for single_item in self.elements_unmasked():
-                    single_parameter = operand.chaoticize()
-                    single_item /= single_parameter
-
-            case Container():
-                pass
             case _:
-                for item in self.elements_unmasked():
-                    item.__itruediv__(operand)
+                super().__itruediv__(operand)
         return self._sort_items()  # Shall be sorted!
 
     def __ifloordiv__(self, operand: any) -> Self:
