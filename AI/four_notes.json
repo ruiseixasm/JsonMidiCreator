@@ -40,13 +40,6 @@
 		"class": "Clip",
 		"parameters": {
 			"name": "Four Notes",
-			"time_signature": {
-				"class": "TimeSignature",
-				"parameters": {
-					"top": 4,
-					"bottom": 4
-				}
-			},
 			"track_number": 1,
 			"enabled": true,
 			"elements": [

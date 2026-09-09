@@ -2039,7 +2039,8 @@ class Clip(Composition):  # Just a container of Elements
         """
         serialization = super().getSerialization()
 
-        serialization["parameters"]["time_signature"]   = self.serialize(self._time_signature)
+        if self._time_signature._top != 4 or self._time_signature._bottom != 4:
+            serialization["parameters"]["time_signature"]   = self.serialize(self._time_signature)
         serialization["parameters"]["track_number"] = self._track_number
         serialization["parameters"]["enabled"]      = self._enabled
         # Useful for json interpretation and bottom placement
@@ -2061,10 +2062,11 @@ class Clip(Composition):  # Just a container of Elements
         if "elements" in serialization["parameters"]:
             serialization["parameters"]['items'] = serialization["parameters"].pop('elements')
             if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-                "track_number" in serialization["parameters"] and "enabled" in serialization["parameters"] and "time_signature" in serialization["parameters"]):
+                "track_number" in serialization["parameters"] and "enabled" in serialization["parameters"]):
 
                 super().loadSerialization(serialization)
-                self._time_signature    << self.deserialize(serialization["parameters"]["time_signature"])
+                if "time_signature" in serialization["parameters"]:
+                    self._time_signature    << self.deserialize(serialization["parameters"]["time_signature"])
                 self._track_number  = serialization["parameters"]["track_number"]
                 self._enabled       = serialization["parameters"]["enabled"]
                 self._set_owner_clip()
