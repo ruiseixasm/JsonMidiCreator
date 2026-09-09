@@ -2905,7 +2905,7 @@ class Process(Generic):
         match operand:
             case oc.Composition() | oe.Element():
                 if isinstance(operand, oc.Composition) and operand.len() == 0:
-                    return playlist # exists with nothing right away
+                    return playlist # exits with nothing right away
                 # Generates the Clock data regardless, needed for correct JsonMidiPlayer processing
                 clock_length: ra.Length = (operand.finish() % ra.Length()).roundMeasures()
                 default_clock: oe.Clock = settings % oe.Clock()
