@@ -1391,7 +1391,11 @@ def test_match_time_signature():
     stretched_triplets = Note(1/3) / 3
     assert three_quarters != stretched_triplets # Both have a Time Signature of 4/4
 
-    time_signature_3_4 = Note(TimeSignature(3)) / 3
+    time_signature_3_4 = Note() * 1
+    assert time_signature_3_4 % Duration() == Beats(1)
+    time_signature_3_4 <<= TimeSignature(3) # Only Clips have TimeSignature
+    assert time_signature_3_4 % Duration() == Beats(1)
+    time_signature_3_4 /= 3
     assert time_signature_3_4 % list() == three_quarters % list()
     time_signature_3_4 << three_quarters % TimeSignature()
     assert time_signature_3_4 == stretched_triplets

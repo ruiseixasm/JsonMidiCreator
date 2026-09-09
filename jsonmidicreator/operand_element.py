@@ -98,7 +98,7 @@ class Element(o.Operand):
 
     def _get_time_signature(self) -> 'og.TimeSignature':
         if self._owner_clip is None:
-            return self._time_signature
+            return og.settings._time_signature
         return self._owner_clip._time_signature
 
 
@@ -304,8 +304,6 @@ class Element(o.Operand):
             case og.Segment():      return operand.copy(self % ra.Position())
             case float():           return self % ra.NoteValue() % float()
             case Fraction():        return self._duration_beats
-            case og.TimeSignature():
-                                    return self._time_signature.copy()
             case ou.Masked():       return ou.Masked(self._masked)
             case oc.Clip():         return oc.Clip().__iadd__(self)
             case Element():         return operand.copy(self)
@@ -336,21 +334,18 @@ class Element(o.Operand):
         serialization["parameters"]["masked"]           = self.serialize(self._masked)
         serialization["parameters"]["position"]         = self.serialize(self._position_beats)
         serialization["parameters"]["duration"]         = self.serialize(self._duration_beats)
-        serialization["parameters"]["time_signature"]   = self.serialize(self._time_signature)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Element':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "masked" in serialization["parameters"] and "position" in serialization["parameters"] and "duration" in serialization["parameters"] and
-            "time_signature" in serialization["parameters"]):
+            "masked" in serialization["parameters"] and "position" in serialization["parameters"] and "duration" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._masked            = self.deserialize(serialization["parameters"]["masked"])
             self._position_beats    = self.deserialize(serialization["parameters"]["position"])
             self._duration_beats    = self.deserialize(serialization["parameters"]["duration"])
-            self._time_signature    = self.deserialize(serialization["parameters"]["time_signature"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -363,7 +358,6 @@ class Element(o.Operand):
                 # No conversion is done, beat and note_value values are directly copied (Same for Block)
                 self._position_beats        = operand._position_beats
                 self._duration_beats        = operand._duration_beats
-                self._time_signature        << operand._time_signature
                 # Because an Element is also defined by the Owner Clip, this also needs to be copied!
                 if self._owner_clip is None:    # << and copy operation doesn't override ownership
                     self._owner_clip        = operand._owner_clip
@@ -374,8 +368,6 @@ class Element(o.Operand):
                     case ra.Duration() | ra.Length():
                                             self._duration_beats = operand._data._rational
                     case Fraction():        self._duration_beats = operand._data
-                    case og.TimeSignature():
-                                            self._time_signature = operand._data
                     case _:
                         super().__lshift__(operand)
 
@@ -451,15 +443,10 @@ class Element(o.Operand):
                         self._owner_clip._set = True
                     self._owner_clip._remove(self, True)
 
-            case og.TimeSignature():
-                self._time_signature << operand
-                
             case ou.Masked():
                 self._masked                = operand._unit != 0
             case od.Mask():                 self._masked = True
             case od.Unmask():               self._masked = False
-            case oc.Composition():
-                self._time_signature << operand._time_signature
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -803,7 +790,7 @@ class Element(o.Operand):
                 if self._owner_clip is not None:    # Owner clip is always the base container
                     return self._owner_clip._delete(self, True)._extend(new_elements)._sort_items()
                 else:
-                    return oc.Clip(self._time_signature)._extend(new_elements)._set_owner_clip()
+                    return oc.Clip()._extend(new_elements)._set_owner_clip()
             case tuple():
                 return super().__itruediv__(operand)
             case _:
@@ -921,7 +908,7 @@ class Element(o.Operand):
                 if self._owner_clip is not None:    # Owner clip is always the base container
                     return self._owner_clip._delete(self, True)._extend(new_elements)._sort_items()
                 else:
-                    return oc.Clip(self._time_signature)._extend(new_elements)._sort_items()
+                    return oc.Clip()._extend(new_elements)._sort_items()
             case tuple():
                 return super().__ifloordiv__(operand)
             case _:

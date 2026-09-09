@@ -2286,7 +2286,7 @@ class Clip(Composition):  # Just a container of Elements
 
             case oe.Element():
                 self.__imul__(
-                    Clip(operand._time_signature).__iadd__(operand)
+                    Clip().__iadd__(operand)
                 )
 
             case int():
@@ -2357,7 +2357,7 @@ class Clip(Composition):  # Just a container of Elements
                     self._extend(operand_elements)
             case oe.Element():
                 self.__itruediv__(
-                        Clip(operand._time_signature).__iadd__(operand)
+                        Clip().__iadd__(operand)
                     )
 
             case int():
@@ -4161,7 +4161,7 @@ class Section(Composition):
                 self._append(operand.copy())
             case oe.Element():
                 self._append(
-                    Clip(operand._time_signature).__iadd__(operand)
+                    Clip().__iadd__(operand)
                 )
 
             case ra.Position() | ra.TimeValue() | ra.TimeUnit():
@@ -4208,9 +4208,9 @@ class Section(Composition):
             case oe.Element():
                 self_length: ra.Length = self.gross_length()
                 if self_length is not None:
-                    self._append(Clip(operand._time_signature, operand + ra.Position(self_length)))   # Implicit copy
+                    self._append(Clip(operand + ra.Position(self_length)))   # Implicit copy
                 else:
-                    self._append(Clip(operand._time_signature, operand))
+                    self._append(Clip(operand))
             case int():
                 new_blocks: list[Section] = []
                 if operand > 0:
@@ -4247,7 +4247,7 @@ class Section(Composition):
                 self._append(repositioned_clip) # No implicit copy
             case oe.Element():
                 finish_position: ra.Position = self.net_finish_unmasked()
-                repositioned_clip: Clip = Clip(operand._time_signature)
+                repositioned_clip: Clip = Clip()
                 repositioned_clip += operand
                 repositioned_clip += finish_position
                 self._append(repositioned_clip) # No implicit copy
@@ -4277,7 +4277,7 @@ class Section(Composition):
             case Clip():
                 self._append(operand.copy())
             case oe.Element():
-                new_clip = Clip(operand._time_signature)
+                new_clip = Clip()
                 new_clip += operand
                 self._append(new_clip)
             case int():
@@ -4754,7 +4754,7 @@ class Part(Composition):
             case Clip():
                 self += Section(operand)
             case oe.Element():
-                self += Clip(operand._time_signature, operand)
+                self += Clip(operand)
 
             case list():
                 for item in operand:
@@ -4799,7 +4799,7 @@ class Part(Composition):
             case Clip():
                 self.__imul__(Section(operand))
             case oe.Element():
-                self.__imul__(Clip(operand._time_signature, operand))
+                self.__imul__(Clip(operand))
 
             case int():
                 if operand > 1:
@@ -4846,7 +4846,7 @@ class Part(Composition):
             case Clip():
                 self.__itruediv__(Section(operand))
             case oe.Element():
-                self.__itruediv__(Clip(operand._time_signature, operand))
+                self.__itruediv__(Clip(operand))
 
             case int():
                 if operand > 1:
@@ -4869,7 +4869,7 @@ class Part(Composition):
             case Clip():
                 self.__ifloordiv__(Section(operand))
             case oe.Element():
-                self.__ifloordiv__(Clip(operand._time_signature, operand))
+                self.__ifloordiv__(Clip(operand))
 
             case int():
                 if operand > 1:
