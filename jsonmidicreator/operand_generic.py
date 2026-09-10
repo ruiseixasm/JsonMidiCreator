@@ -2011,7 +2011,7 @@ class Scale(Generic):
             case str():
                 self_scale = Scale.get_scale(operand)
                 if len(self_scale) == 12:
-                    self._scale = list(self_scale)
+                    self._scale = self_scale
             case list():
                 if len(operand) == 12 and all(x in {0, 1} for x in operand) and any(x == 1 for x in operand):
                     self._scale = operand.copy()
@@ -2176,12 +2176,12 @@ class Scale(Generic):
             return Scale._names[scale_number][0]
 
     @staticmethod
-    def get_scale(scale: int | str | list = 0) -> tuple[int]:
+    def get_scale(scale: int | str | list = 0) -> list[int]:
         if scale != [] and scale != -1 and scale != "":
             scale_number = Scale.get_scale_number(scale)
             if scale_number >= 0:
-                return Scale._scales[scale_number]
-        return tuple([])    # Has no scale at all
+                return list(Scale._scales[scale_number])
+        return []   # Has no scale at all
 
 
 class PitchTransitions(Generic):
