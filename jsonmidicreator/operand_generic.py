@@ -1340,11 +1340,11 @@ class Pitch(Generic):
             case ou.Major():
                 self._key_signature << operand
                 if operand: self._diatonic_mode_0 = 0    # Major
-                self.apply_key_signature(self._key_signature)
+                self.reset_tonic_key()
             case ou.Minor():
                 self._key_signature << operand
                 if operand: self._diatonic_mode_0 = 5    # minor
-                self.apply_key_signature(self._key_signature)
+                self.reset_tonic_key()
             case ou.Mode():
                 self._key_signature << operand
                 self._diatonic_mode_0 = operand._unit - 1
