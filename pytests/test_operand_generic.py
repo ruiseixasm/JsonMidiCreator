@@ -367,9 +367,9 @@ def test_pitch_key_signature():
     settings << KeySignature()
 
     major_keys_signatures: list[str] = [
-        "Cb", "Gb", "Db", "Ab", "Eb", "Bb", "F",
+        "B", "Gb", "Db", "Ab", "Eb", "Bb", "F",
         "C",
-        "G", "D", "A", "E", "B", "F#", "C#"
+        "G", "D", "A", "E", "B", "Gb", "Db"
     ]
     for signature in range(len(major_keys_signatures)): # Major
 
@@ -380,9 +380,9 @@ def test_pitch_key_signature():
         assert pitch_key % Key() % str() == major_keys_signatures[signature]
 
     minor_keys_signatures: list[str] = [
-        "Ab", "Eb", "Bb", "F", "C", "G", "D",
+        "G#", "Eb", "Bb", "F", "C", "G", "D",
         "A",
-        "E", "B", "F#", "C#", "G#", "D#", "A#"
+        "E", "B", "F#", "C#", "G#", "Eb", "Bb"
     ]
     for signature in range(len(minor_keys_signatures)): # Minor
         
