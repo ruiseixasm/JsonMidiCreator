@@ -1010,8 +1010,8 @@ class Pitch(Generic):
         """
         tonic_to_root_key: int = 0
         if self._degree_0 != 0: # Optimization
-            signature_scale: list[int] = self._key_signature.get_scale()
-            tonic_to_root_key = Scale.transpose_key(self._degree_0, signature_scale)
+            diatonic_scale: tuple[int] = self.get_diatonic_scale()
+            tonic_to_root_key = Scale.transpose_key(self._degree_0, diatonic_scale)
         tonic_to_root_key += self._accidental
         return self._tonic_key % 12 + tonic_to_root_key
 
