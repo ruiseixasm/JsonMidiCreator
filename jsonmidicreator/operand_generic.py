@@ -1575,18 +1575,6 @@ class Pitch(Generic):
         return self
 
 
-    _major_scale = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)    # Major scale for the default staff
-
-    _white_keys: dict = {
-            "c": 0,
-            "d": 2,
-            "e": 4,
-            "f": 5,
-            "g": 7,
-            "a": 9,
-            "b": 11
-         }
-
     def snap(self, up: bool = False) -> Self:
         diatonic_scale: tuple[int] = self.get_diatonic_scale()
         self_pitch: int = self.get_absolute_pitch()
