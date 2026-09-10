@@ -1397,7 +1397,7 @@ class Pitch(Generic):
             # ADJUSTING KEYS DIRECTLY KEEPS THE SAME OCTAVE
             case ou.TonicKey():    # Must come before than Key()
                 if operand._unit < 0:
-                    self._tonic_key = self._sharps_to_tonic(self._key_signature._sharps)
+                    self.reset_tonic_key()
                 else:
                     self._tonic_key = operand._unit % 12
             case ou.RootKey():
