@@ -98,29 +98,17 @@ def test_tonic_key_signature():
 
 def test_enharmonic_key():
 
-    key_signature = KeySignature(+6)
-    # assert key_signature.is_enharmonic_old(6, 5)
-    assert key_signature.is_enharmonic(5)
-    # assert key_signature.is_enharmonic_new(6, 5)
-    key_signature = KeySignature(+7)
-    # assert key_signature.is_enharmonic_old(1, 0)
-    # assert key_signature.is_enharmonic_old(1, 5)
-    assert key_signature.is_enharmonic(0)
-    assert key_signature.is_enharmonic(5)
-    # assert key_signature.is_enharmonic_new(1, 0)
-    # assert key_signature.is_enharmonic_new(1, 5)
+    sharps = +6
+    assert KeySignature.is_enharmonic(5, sharps)
+    sharps = +7
+    assert KeySignature.is_enharmonic(0, sharps)
+    assert KeySignature.is_enharmonic(5, sharps)
 
-    key_signature = KeySignature(-6)
-    # assert key_signature.is_enharmonic_old(6, 11)
-    assert key_signature.is_enharmonic(11)
-    # assert key_signature.is_enharmonic_new(6, 11)
-    key_signature = KeySignature(-7)
-    # assert key_signature.is_enharmonic_old(11, 4)
-    # assert key_signature.is_enharmonic_old(11, 11)
-    assert key_signature.is_enharmonic(4)
-    assert key_signature.is_enharmonic(11)
-    # assert key_signature.is_enharmonic_new(11, 4)
-    # assert key_signature.is_enharmonic_new(11, 11)
+    sharps = -6
+    assert KeySignature.is_enharmonic(11, sharps)
+    sharps = -7
+    assert KeySignature.is_enharmonic(4, sharps)
+    assert KeySignature.is_enharmonic(11, sharps)
 
 # test_enharmonic_key()
 

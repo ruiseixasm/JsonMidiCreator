@@ -695,10 +695,6 @@ class KeySignature(Generic):
         scale_mode: int = self._diatonic_mode_0 % 9 + 1
         return Scale._scales[scale_mode]
 
-    def is_enharmonic(self, key: int) -> bool:
-        self_key_signature: tuple[int] = KeySignature._key_signatures[(self._sharps + 7) % 15]
-        return self_key_signature[key % 12] != 0
-
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -721,7 +717,7 @@ class KeySignature(Generic):
                 if self._sharps < 0:
                     key_line = 1    # To get b instead of #
                 # It happens only for 7 Flats (-7) (Cb)
-                if self.is_enharmonic(tonic_key):
+                if self.is_enharmonic(tonic_key, self._sharps):
                     key_line += 2    # All Sharps/Flats
                 return ou.Key(tonic_key, float(key_line))
             
@@ -858,6 +854,11 @@ class KeySignature(Generic):
         (+1, 0, +1, 0, +1, +1, 0, +1, 0, +1, 0, +0),    # +6
         (+1, 0, +1, 0, +1, +1, 0, +1, 0, +1, 0, +1)     # +7
     )
+
+    @staticmethod
+    def is_enharmonic(key: int, sharps: int) -> bool:
+        self_key_signature: tuple[int] = KeySignature._key_signatures[(sharps + 7) % 15]
+        return self_key_signature[key % 12] != 0
 
 
 
@@ -1210,7 +1211,7 @@ class Pitch(Generic):
                     sharps_or_flats: tuple[int] = Scale.sharps_or_flats_picker(self._tonic_key, diatonic_scale)
                     total_sharps: int = sum(sharps_or_flats)
                     key_operand._flattened = total_sharps < 0
-                    key_operand._enharmonic = self._key_signature.is_enharmonic(key_operand._unit)
+                    key_operand._enharmonic = KeySignature.is_enharmonic(key_operand._unit, total_sharps)
                 return key_operand
             
             case ou.Octave():
