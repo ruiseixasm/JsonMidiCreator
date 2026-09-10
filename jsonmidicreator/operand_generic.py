@@ -920,6 +920,11 @@ class Pitch(Generic):
         return self << ou.Degree(unit)
 
 
+    def apply_key_signature(self, key_signature: KeySignature) -> Self:
+        self._diatonic_mode_0   = key_signature._diatonic_mode_0
+        self._tonic_key         = self._sharps_to_tonic(key_signature._sharps)
+        return self
+
     def _sharps_to_tonic(self, sharps: int = 0) -> int:
         if self._diatonic_mode_0 % 7 < 7:    # Diatonic scale
             zero_tonic_key: int = Scale.transpose_key(self._diatonic_mode_0)
@@ -933,11 +938,6 @@ class Pitch(Generic):
 
     def apply_sharps(self, sharps: int = 0) -> Self:
         self._tonic_key = self._sharps_to_tonic(sharps)
-        return self
-
-    def apply_key_signature(self, key_signature: KeySignature) -> Self:
-        self._diatonic_mode_0   = key_signature._diatonic_mode_0
-        self._tonic_key         = self._sharps_to_tonic(key_signature._sharps)
         return self
 
     def reset_tonic_key(self) -> Self:
@@ -1382,14 +1382,15 @@ class Pitch(Generic):
                     self._degree_0 = operand._unit - 1
                 elif operand == ou.Degree(0):
                     # Resets the degree to I (tonic)
-                    self.apply_key_signature(self._key_signature)
+                    self.reset_tonic_key()
                     self._degree_0 = 0
                 elif operand._unit < 0:
                     self._degree_0 = operand._unit  # Negative remains negative!
                 # A Degree with Just an accidental defined can set just that!
             case None:  # Works as a reset
                 self.apply_key_signature(self._key_signature)
-                # Resets the degree to I
+                # Resets the degree to I (tonic)
+                # self.reset_tonic_key()
                 self._degree_0 = 0
                 self._accidental = 0
                 self._transposition = 0
