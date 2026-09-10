@@ -696,7 +696,7 @@ class KeySignature(Generic):
         return Scale._scales[scale_mode]
 
     def is_enharmonic(self, key: int) -> bool:
-        self_key_signature: list[int] = self._key_signatures[(self._sharps + 7) % 15]
+        self_key_signature: tuple[int] = KeySignature._key_signatures[(self._sharps + 7) % 15]
         return self_key_signature[key % 12] != 0
 
 
@@ -714,6 +714,7 @@ class KeySignature(Generic):
                 return float(self._diatonic_mode_0 + 1)
             case ou.TonicKey():
                 return ou.TonicKey(self.get_tonic_key())
+            case ou.TonicKey():         return ou.TonicKey(self._tonic_key)
             case ou.Key():
                 tonic_key: int = self.get_tonic_key()
                 key_line: int = 0
@@ -723,7 +724,6 @@ class KeySignature(Generic):
                 if self.is_enharmonic(tonic_key):
                     key_line += 2    # All Sharps/Flats
                 return ou.Key(tonic_key, float(key_line))
-            case ou.TonicKey():         return ou.TonicKey(self._tonic_key)
             
             case ou.Major():                return ou.Major(self._diatonic_mode_0 == 0)
             case ou.Minor():                return ou.Minor(self._diatonic_mode_0 == 5)
@@ -809,10 +809,10 @@ class KeySignature(Generic):
             case ou.Accidentals():
                 self._sharps = operand._unit
                 # self._tonic_key = self._sharps_to_tonic(operand._unit)
-            case ou.Key():
-                self._sharps = sum( Scale.sharps_or_flats_picker(operand._unit, self % list()) )
             case ou.TonicKey():
                 self._tonic_key = operand._unit % 12    # The Tonic Key is always a % 12 (principles)
+            case ou.Key():
+                self._sharps = sum( Scale.sharps_or_flats_picker(operand._unit, self % list()) )
             case Scale():
                 for mode_0 in range(7):
                     if self.get_scale() == operand._scale:
@@ -1332,7 +1332,7 @@ class Pitch(Generic):
                 self << original_semitone
             case ou.Quality() | ou.Mode() | ou.Accidentals():
                 self._key_signature << operand
-                self._tonic_key = self._key_signature.get_tonic_key()   # Setting a Key Signature adjusts the Tonic Key accordingly
+                self.key_signature(self._key_signature)
 
             case ou.AbsolutePitch():
                 self.set_absolute_pitch(operand._unit)
