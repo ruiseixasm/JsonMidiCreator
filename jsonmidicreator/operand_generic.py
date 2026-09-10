@@ -1334,9 +1334,19 @@ class Pitch(Generic):
                 self._key_signature << operand
                 self.apply_key_signature(self._key_signature)
                 self << original_semitone
-            case ou.Quality() | ou.Mode() | ou.Accidentals():
+            case ou.Quality():
                 self._key_signature << operand
                 self.apply_key_signature(self._key_signature)
+            case ou.Mode():
+                self._key_signature << operand
+                self.apply_key_signature(self._key_signature)
+                self._diatonic_mode_0 = operand._unit - 1
+            case ou.Flats():
+                self._key_signature << operand
+                self.apply_sharps(operand._unit * -1)
+            case ou.Accidentals():
+                self._key_signature << operand
+                self.apply_sharps(operand._unit)
 
             case ou.AbsolutePitch():
                 self.set_absolute_pitch(operand._unit)
