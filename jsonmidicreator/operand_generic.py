@@ -907,11 +907,6 @@ class Pitch(Generic):
         * Setting Keys or Semitones ONLY adjust the Degree and not the Octave, avoiding repeated offsets on repeated setting
     """
 
-    def apply_key_signature(self, key_signature: KeySignature) -> Self:
-        self._diatonic_mode_0   = key_signature._diatonic_mode_0
-        self._tonic_key         = self._sharps_to_tonic(key_signature._sharps)
-        return self
-
     def sharp(self, unit: bool = True) -> Self:
         return self << ou.Sharp(unit)
 
@@ -935,6 +930,15 @@ class Pitch(Generic):
     def get_diatonic_scale(self) -> tuple[int]:
         scale_mode: int = self._diatonic_mode_0 % 9 + 1
         return Scale._scales[scale_mode]
+
+    def apply_sharps(self, sharps: int = 0) -> Self:
+        self._tonic_key = self._sharps_to_tonic(sharps)
+        return self
+
+    def apply_key_signature(self, key_signature: KeySignature) -> Self:
+        self._diatonic_mode_0   = key_signature._diatonic_mode_0
+        self._tonic_key         = self._sharps_to_tonic(key_signature._sharps)
+        return self
 
 
     """
