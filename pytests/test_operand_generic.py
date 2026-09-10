@@ -738,62 +738,62 @@ def test_root_key_set():
 def test_sharps_and_flats_picker():
     major_scale = Scale("Major") % list()
 
-    no_sharps_or_flats = [0] * 12
+    no_sharps_or_flats = tuple([0] * 12)
     assert Scale.sharps_or_flats_picker(0, major_scale) == no_sharps_or_flats
     assert sum(Scale.sharps_or_flats_picker(0, major_scale)) == 0
 
     #            C       D       E   F       G       A       B
-    D_sharps = [+1, +0, +0, +0, +0, +1, +0, +0, +0, +0, +0, +0]
+    D_sharps = (+1, +0, +0, +0, +0, +1, +0, +0, +0, +0, +0, +0)
     assert Scale.sharps_or_flats_picker(2, major_scale) == D_sharps
     assert sum(Scale.sharps_or_flats_picker(2, major_scale)) == +2
 
     #            C       D       E   F       G       A       B
-    E_sharps = [+1, +0, +1, +0, +0, +1, +0, +1, +0, +0, +0, +0]
+    E_sharps = (+1, +0, +1, +0, +0, +1, +0, +1, +0, +0, +0, +0)
     assert Scale.sharps_or_flats_picker(4, major_scale) == E_sharps
     assert sum(Scale.sharps_or_flats_picker(4, major_scale)) == +4
 
     #                 C       D       E   F       G       A       B
-    Fsharp_flats  = [+1, +0, +1, +0, +1, +1, +0, +1, +0, +1, +0, +0]
+    Fsharp_flats  = (+1, +0, +1, +0, +1, +1, +0, +1, +0, +1, +0, +0)
     assert sum(Scale.sharps_or_flats_picker(6, major_scale)) == -6
 
     #            C       D       E   F       G       A       B
-    F_flats  = [+0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, -1]
+    F_flats  = (+0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, -1)
     assert Scale.sharps_or_flats_picker(5, major_scale) == F_flats
 
     #            C       D       E   F       G       A       B
-    G_sharp  = [+0, +0, +0, +0, +0, +1, +0, +0, +0, +0, +0, +0]
+    G_sharp  = (+0, +0, +0, +0, +0, +1, +0, +0, +0, +0, +0, +0)
     assert Scale.sharps_or_flats_picker(7, major_scale) == G_sharp
     assert sum(Scale.sharps_or_flats_picker(7, major_scale)) == +1
 
     #            C       D       E   F       G       A       B
-    A_sharp  = [+1, +0, +0, +0, +0, +1, +0, +1, +0, +0, +0, +0]
+    A_sharp  = (+1, +0, +0, +0, +0, +1, +0, +1, +0, +0, +0, +0)
     assert Scale.sharps_or_flats_picker(9, major_scale) == A_sharp
     assert sum(Scale.sharps_or_flats_picker(9, major_scale)) == +3
 
     #            C       D       E   F       G       A       B
-    B_sharp  = [+1, +0, +1, +0, +0, +1, +0, +1, +0, +1, +0, +0]
+    B_sharp  = (+1, +0, +1, +0, +0, +1, +0, +1, +0, +1, +0, +0)
     assert Scale.sharps_or_flats_picker(11, major_scale) == B_sharp
     assert sum(Scale.sharps_or_flats_picker(11, major_scale)) == +5
 
 
     #             C       D       E   F       G       A       B
-    Db_flats  = [+0, +0, -1, +0, -1, +0, +0, -1, +0, -1, +0, -1]
+    Db_flats  = (+0, +0, -1, +0, -1, +0, +0, -1, +0, -1, +0, -1)
     assert Scale.sharps_or_flats_picker(1, major_scale) == Db_flats
 
     #             C       D       E   F       G       A       B
-    Eb_flats  = [+0, +0, +0, +0, -1, +0, +0, +0, +0, -1, +0, -1]
+    Eb_flats  = (+0, +0, +0, +0, -1, +0, +0, +0, +0, -1, +0, -1)
     assert Scale.sharps_or_flats_picker(3, major_scale) == Eb_flats
 
     #             C       D       E   F       G       A       B
-    Gb_flats  = [-1, +0, -1, +0, -1, +0, +0, -1, +0, -1, +0, -1]
+    Gb_flats  = (-1, +0, -1, +0, -1, +0, +0, -1, +0, -1, +0, -1)
     assert Scale.sharps_or_flats_picker(6, major_scale) == Gb_flats
 
     #             C       D       E   F       G       A       B
-    Ab_flats  = [+0, +0, -1, +0, -1, +0, +0, +0, +0, -1, +0, -1]
+    Ab_flats  = (+0, +0, -1, +0, -1, +0, +0, +0, +0, -1, +0, -1)
     assert Scale.sharps_or_flats_picker(8, major_scale) == Ab_flats
 
     #             C       D       E   F       G       A       B
-    Bb_flats  = [+0, +0, +0, +0, -1, +0, +0, +0, +0, +0, +0, -1]
+    Bb_flats  = (+0, +0, +0, +0, -1, +0, +0, +0, +0, +0, +0, -1)
     assert Scale.sharps_or_flats_picker(10, major_scale) == Bb_flats
 
 # test_sharps_and_flats_picker()
@@ -1589,14 +1589,15 @@ def test_pitch_multi():
     pitch_C << Pipe(TonicKey(60))
     assert pitch_C % Pipe(TonicKey()) == 0  # The Tonic Key always goes from 0 to 11
 
-    tonic_As = Pitch(TonicKey("A#"))
+    tonic_As = Pitch(TonicKey("A#"))    # This is a Major scale, in the circle of fifths A# is the Bb
     print(f"tonic_As.pitch_int(): {tonic_As.get_absolute_pitch()}")
     assert tonic_As.get_absolute_pitch() == 60 + 10
-    assert tonic_As % Key() % str() == "A#"
+    assert tonic_As % Key() % str() == "Bb"
     assert (tonic_As + 2.0) % Key() % str() == "D"
 
+    # On the Major scale, A# is Bb (Circle of Fifths)
     tonic_As_major_scale: list[str] = [
-        "A#", "C", "D", "D#", "F", "G", "A"
+        "Bb", "C", "D", "Eb", "F", "G", "A"
     ]
     for degree in range(7):
         print(f"RootKey {degree}: {tonic_As % str()}")

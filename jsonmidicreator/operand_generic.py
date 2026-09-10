@@ -1206,7 +1206,10 @@ class Pitch(Generic):
                     key_operand._flattened = self._accidental < 0
                     key_operand._enharmonic = True
                 else:
-                    key_operand._flattened = self._key_signature._sharps < 0
+                    diatonic_scale: tuple[int] = self.get_diatonic_scale()
+                    sharps_or_flats: tuple[int] = Scale.sharps_or_flats_picker(self._tonic_key, diatonic_scale)
+                    total_sharps: int = sum(sharps_or_flats)
+                    key_operand._flattened = total_sharps < 0
                     key_operand._enharmonic = self._key_signature.is_enharmonic(key_operand._unit)
                 return key_operand
             
@@ -1831,7 +1834,7 @@ class Scale(Generic):
         return tonic_modulation
     
     @staticmethod
-    def sharps_or_flats_picker(tonic_key: int = 0, picker_scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) -> list[int]:
+    def sharps_or_flats_picker(tonic_key: int = 0, picker_scale: tuple[int] = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)) -> tuple[int]:
         """
         This method returns all the Sharps or Flats for a given `tonic_key` on a specified `picker_scale`.
 
@@ -1858,7 +1861,7 @@ class Scale(Generic):
                     sharps[(tonic_key + major_key) % 12] = picker_key - major_key
                     major_key += 1 # Moves to the next key to be available
             return sharps
-        return sharps_or_flats
+        return tuple(sharps_or_flats)
     
 
     @staticmethod
