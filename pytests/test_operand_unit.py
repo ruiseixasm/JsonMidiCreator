@@ -63,39 +63,6 @@ def test_key_signature():
 # test_key_signature()
 
 
-def test_tonic_key_signature():
-
-    signature: int = -2     # Two flats bb
-    key_signature_single: KeySignature = KeySignature(signature)
-
-    print(f"Major Signature: {signature}, returned {key_signature_single % TonicKey() % int() % 12}")
-    assert int( key_signature_single % TonicKey() % int() ) % 12 == 10   # Bb is 10
-
-    print("------")
-    major_tonic_keys_int: list[int] = [
-        11, 6, 1, 8, 3, 10, 5,
-        0,
-        7, 2, 9, 4, 11, 6, 1
-    ]
-    for signature in range(len(major_tonic_keys_int)): # Major
-        key_signature: KeySignature = KeySignature(signature - 7)
-        print(f"Major Signature: {signature - 7}, returned {key_signature % TonicKey() % int() % 12}")
-        assert key_signature % TonicKey() % int() % 12 == major_tonic_keys_int[signature]
-
-    print("------")
-    minor_tonic_keys_int: list[int] = [
-        8, 3, 10, 5, 0, 7, 2,
-        9,
-        4, 11, 6, 1, 8, 3, 10
-    ]
-    for signature in range(len(minor_tonic_keys_int)): # minor
-        key_signature: KeySignature = KeySignature(signature - 7, Minor())
-        print(f"minor Signature: {signature - 7}, returned {key_signature % TonicKey() % int() % 12}")
-        assert key_signature % TonicKey() % int() % 12 == minor_tonic_keys_int[signature]
-
-# test_tonic_key_signature()
-
-
 def test_enharmonic_key():
 
     sharps = +6
@@ -150,49 +117,6 @@ def test_size_set():
     assert size % int() == 4
 
 # test_size_set()
-
-
-def test_key_signature_by_key():
-
-    A_minor = KeySignature(Minor())
-    print(f"A_minor % str(): {A_minor % str()}")
-    assert A_minor == ''
-    assert A_minor == Key("A")
-
-    A_minor << Key("D")
-    assert A_minor == 'b'
-    assert A_minor == Key("D")
-
-    C_major = KeySignature()
-
-    C_key = Key()
-    for sharps in range(6): # Up to 6 because 6 is considered b
-        C_major << C_key + 7 * sharps   # next Fifth
-        print(f"C_major % str(): {C_major % str()}")
-        assert C_major == '#' * sharps
-
-    C_key = Key()
-    for flats in range(7): # Up to 7 because 7 is considered #
-        C_major << C_key + 5 * flats    # next Fourth
-        print(f"C_major % str(): {C_major % str()}")
-        assert C_major == 'b' * flats
-
-
-    A_minor = KeySignature(Minor())
-    
-    A_key = Key("A")
-    for sharps in range(6): # Up to 6 because 6 is considered b
-        A_minor << A_key + 7 * sharps   # next Fifth
-        print(f"A_minor % str(): {A_minor % str()}")
-        assert A_minor == '#' * sharps
-
-    A_key = Key("A")
-    for flats in range(7): # Up to 7 because 7 is considered b
-        A_minor << A_key + 5 * flats    # next Fourth
-        print(f"A_minor % str(): {A_minor % str()}")
-        assert A_minor == 'b' * flats
-
-# test_key_signature_by_key()
 
 
 def test_degree_multi():

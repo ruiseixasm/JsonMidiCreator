@@ -675,21 +675,6 @@ class KeySignature(Generic):
         self._diatonic_mode_0: int = 0
         super().__init__(*parameters)
     
-    def _sharps_to_tonic(self, sharps: int = 0) -> int:
-        if self._diatonic_mode_0 % 7 < 7:    # Diatonic scale
-            zero_tonic_key: int = Scale.transpose_key(self._diatonic_mode_0)
-            circle_fifths_position: int = sharps
-            return (zero_tonic_key + circle_fifths_position * 7) % 12
-        return 9    # A key
-
-
-    def get_tonic_key(self) -> int:
-        if self._diatonic_mode_0 % 7 < 7:    # Diatonic scale
-            zero_tonic_key: int = Scale.transpose_key(self._diatonic_mode_0)
-            circle_fifths_position: int = self._sharps
-            return (zero_tonic_key + circle_fifths_position * 7) % 12
-        return 9    # A key
-
     def get_scale(self) -> tuple[int]:
         scale_mode: int = self._diatonic_mode_0 % 9 + 1
         return Scale._scales[scale_mode]
@@ -706,17 +691,6 @@ class KeySignature(Generic):
             case int():                 return self._sharps
             case float():
                 return float(self._diatonic_mode_0 + 1)
-            case ou.TonicKey():
-                return ou.TonicKey(self.get_tonic_key())
-            case ou.Key():
-                tonic_key: int = self.get_tonic_key()
-                key_line: int = 0
-                if self._sharps < 0:
-                    key_line = 1    # To get b instead of #
-                # It happens only for 7 Flats (-7) (Cb)
-                if self.is_enharmonic(tonic_key, self._sharps):
-                    key_line += 2    # All Sharps/Flats
-                return ou.Key(tonic_key, float(key_line))
             
             case ou.Major():                return ou.Major(self._diatonic_mode_0 == 0)
             case ou.Minor():                return ou.Minor(self._diatonic_mode_0 == 5)
@@ -5747,8 +5721,6 @@ class Settings(Generic):
             # Calculated Values
             case list():
                 return self._key_signature.get_scale() # Faster this way
-            case ou.TonicKey():
-                return ou.TonicKey( self._key_signature.get_tonic_key() )
             case Controller():          return self._controller.copy()
             case ou.Number():           return self._controller % ou.Number()
             case ou.Value():            return ou.Number.getDefaultValue(self % ou.Number() % int())
