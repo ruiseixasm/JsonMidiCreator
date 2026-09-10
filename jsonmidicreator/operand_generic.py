@@ -675,10 +675,6 @@ class KeySignature(Generic):
         self._diatonic_mode_0: int = 0
         super().__init__(*parameters)
     
-    def get_scale(self) -> tuple[int]:
-        scale_mode: int = self._diatonic_mode_0 % 9 + 1
-        return Scale._scales[scale_mode]
-
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -707,7 +703,6 @@ class KeySignature(Generic):
                 return ou.Accidentals(self._sharps)
             case Scale():               return Scale(self % list())
             case ou.Mode():             return ou.Mode(self._diatonic_mode_0 + 1)
-            case list():                return list(self.get_scale())
             case str():
                 if self._sharps < 0:
                     flats: int = self._sharps * -1
@@ -774,12 +769,6 @@ class KeySignature(Generic):
                 # self._tonic_key = self._sharps_to_tonic(operand._unit)
             case ou.Key():
                 self._sharps = sum( Scale.sharps_or_flats_picker(operand._unit, self % list()) )
-            case Scale():
-                for mode_0 in range(7):
-                    if self.get_scale() == operand._scale:
-                        self._diatonic_mode_0 = mode_0
-                        # self._tonic_key = self._sharps_to_tonic()
-                        break
             case str(): # Processes series of "#" and "b"
                 if len(operand) == 0:
                     self._sharps = 0
@@ -1277,6 +1266,8 @@ class Pitch(Generic):
                         if operand._data: self._diatonic_mode_0 = 0    # Major
                     case ou.Minor():
                         if operand._data: self._diatonic_mode_0 = 5    # minor
+                    case ou.Quality():
+                        self._diatonic_mode_0 = operand._data._unit
                     case ou.Mode():
                         self._diatonic_mode_0 = operand._data._unit - 1
                     case ou.Flats():
@@ -2007,6 +1998,16 @@ class Scale(Generic):
                     case _:                 super().__lshift__(operand)
             case od.Serialization():
                 self.loadSerialization(operand % od.Pipe( dict() ))
+                
+            case ou.Major():
+                self._scale = self.get_diatonic_scale(1)
+            case ou.Minor():
+                self._scale = self.get_diatonic_scale(6)
+            case ou.Quality():
+                self._scale = self.get_diatonic_scale(operand._unit + 1)
+            case ou.Mode():
+                self._scale = self.get_diatonic_scale(operand._unit)
+
             case str():
                 self_scale = Scale.get_scale(operand)
                 if len(self_scale) == 12:
@@ -2141,8 +2142,9 @@ class Scale(Generic):
     def get_tonic_key(scale: list[int]) -> int:
         return Scale._tonics[ max(0, Scale.get_scale_number( scale )) ]
 
+    @staticmethod
     def get_diatonic_scale(mode: int = 1) -> list[int]:
-        return Scale._scales[mode]
+        return list(Scale._scales[mode])
 
     @staticmethod
     def get_scale_number(scale: int | str | list = 0) -> int:
@@ -5718,9 +5720,6 @@ class Settings(Generic):
             case KeySignature():     return self._key_signature.copy()
             case ou.Key() | ou.Quality() | int() | float() | Fraction() | str():
                                         return self._key_signature % operand
-            # Calculated Values
-            case list():
-                return self._key_signature.get_scale() # Faster this way
             case Controller():          return self._controller.copy()
             case ou.Number():           return self._controller % ou.Number()
             case ou.Value():            return ou.Number.getDefaultValue(self % ou.Number() % int())

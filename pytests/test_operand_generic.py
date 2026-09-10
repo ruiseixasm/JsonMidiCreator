@@ -146,7 +146,7 @@ def test_scale_mod():
     scale.clear()
 
     assert scale % str() == "Major"
-    scale << KeySignature(Minor()) % list()
+    scale << Minor()
     assert scale % str() == "minor"
 
 
@@ -393,30 +393,6 @@ def test_pitch_key_signature():
 
         print(f"minor Signature: {signature - 7}, result: {pitch_key % str()}")
         assert pitch_key % Key() % str() == minor_keys_signatures[signature]
-
-    c_major_scale: Scale = Scale()
-
-    for scale_mode in range(7):         # For Sharps, shall be 8 but there is only 7 Diatonic scales to compare with!
-        key_signature: KeySignature = KeySignature(Mode(scale_mode + 1))
-        key_signature_list: list[int] = list(key_signature.get_scale())
-        pitch_key: Key = key_signature % Key()
-        scale_mode_list: list = c_major_scale.copy().modulation(scale_mode + 1)
-        print(scale_mode)
-        print(pitch_key % str())
-        print(key_signature_list)
-        print(scale_mode_list)
-        assert key_signature_list == scale_mode_list
-
-    for scale_mode in range(0, -7, -1): # For Flats, shall be -8 but there is only 7 Diatonic scales to compare with!
-        key_signature: KeySignature = KeySignature(Mode(scale_mode + 1))
-        key_signature_list: list[int] = list(key_signature.get_scale())
-        pitch_key: Key = key_signature % Key()
-        scale_mode_list: list = c_major_scale.copy().modulation(scale_mode + 1)
-        print(scale_mode)
-        print(pitch_key % str())
-        print(key_signature_list)
-        print(scale_mode_list)
-        assert key_signature_list == scale_mode_list
 
     settings << KeySignature("#", Minor())
     E_minor_key: Pitch = Pitch()

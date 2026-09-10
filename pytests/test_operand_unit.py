@@ -50,19 +50,6 @@ def test_unit_mod():
     assert integer_1 / integer_2 == int(12 / 10)
 
 
-def test_key_signature():
-
-    key_signature: KeySignature = KeySignature()
-    assert key_signature % list() == [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]   # Major scale
-    key_signature << Minor()
-    assert key_signature % list() == [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]   # minor scale
-
-    assert not key_signature is None
-    assert not key_signature == None
-
-# test_key_signature()
-
-
 def test_enharmonic_key():
 
     sharps = +6
