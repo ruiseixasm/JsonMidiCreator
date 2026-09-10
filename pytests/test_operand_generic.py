@@ -1400,10 +1400,9 @@ def test_degree_set():
     minor_d_pitch = Pitch()
     assert minor_d_pitch % TonicKey() == "C"
 
-    minor_d_pitch <<= KeySignature("b")
-    minor_d_pitch <<= Minor()
+    minor_d_pitch << Minor() << Flats("b")
     assert minor_d_pitch % TonicKey() == "D"
-    minor_d_pitch << Minor() << KeySignature("b") # Resets the Tonic to D
+    minor_d_pitch << KeySignature("b") # Keeps the Tonic D
     assert minor_d_pitch % TonicKey() == "D"
     assert minor_d_pitch % RootKey() == "D"
     assert minor_d_pitch % Octave() == 4
