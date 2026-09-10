@@ -940,6 +940,9 @@ class Pitch(Generic):
         self._tonic_key         = self._sharps_to_tonic(key_signature._sharps)
         return self
 
+    def reset_tonic_key(self) -> Self:
+        self._tonic_key = self._sharps_to_tonic()
+        return self
 
     """
     Auxiliary methods concerning the Degree
@@ -1344,8 +1347,8 @@ class Pitch(Generic):
                 self.apply_key_signature(self._key_signature)
             case ou.Mode():
                 self._key_signature << operand
-                self.apply_key_signature(self._key_signature)
                 self._diatonic_mode_0 = operand._unit - 1
+                self.reset_tonic_key()
             case ou.Flats():
                 self._key_signature << operand
                 self.apply_sharps(operand._unit * -1)
