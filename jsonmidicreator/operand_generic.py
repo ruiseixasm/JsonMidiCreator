@@ -881,8 +881,9 @@ class Pitch(Generic):
     def __init__(self, *parameters):
         self._key_signature: KeySignature \
                                         = settings % KeySignature()
-        self._diatonic_mode_0: int      = self._key_signature._diatonic_mode_0
-        self._tonic_key: int            = self._sharps_to_tonic(self._key_signature._sharps)
+        self._diatonic_mode_0: int      = 0
+        self._tonic_key: int            = 0
+        self.key_signature(self._key_signature)
         self._octave_0: int             = 5     # By default it's the 4th Octave, that's 5 in 0 based!
         self._degree_0: int             = 0     # By default it's Degree 1, that's 0 in 0 based
         self._accidental: int           = 0     # By default it has no accidental
@@ -906,6 +907,10 @@ class Pitch(Generic):
         * Setting Keys or Semitones ONLY adjust the Degree and not the Octave, avoiding repeated offsets on repeated setting
     """
 
+    def key_signature(self, key_signature: KeySignature) -> Self:
+        self._diatonic_mode_0   = key_signature._diatonic_mode_0
+        self._tonic_key         = self._sharps_to_tonic(key_signature._sharps)
+        return self
 
     def sharp(self, unit: bool = True) -> Self:
         return self << ou.Sharp(unit)
