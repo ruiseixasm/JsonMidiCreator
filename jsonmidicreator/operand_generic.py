@@ -932,7 +932,7 @@ class Pitch(Generic):
             return (zero_tonic_key + circle_fifths_position * 7) % 12
         return 9    # A key
 
-    def get_scale(self) -> tuple[int]:
+    def get_diatonic_scale(self) -> tuple[int]:
         scale_mode: int = self._diatonic_mode_0 % 9 + 1
         return Scale._scales[scale_mode]
 
@@ -950,7 +950,7 @@ class Pitch(Generic):
 
 
     def _tone_and_semitone(self, root_key: int) -> tuple[int, int]:
-        signature_scale: list[int] = self._key_signature.get_scale()
+        signature_scale: tuple[int] = self.get_diatonic_scale()
         degree_0: int = 0
         accidental: int = 0
         tonic_to_root: int = root_key - self._tonic_key % 12
@@ -1549,7 +1549,7 @@ class Pitch(Generic):
          }
 
     def snap(self, up: bool = False) -> Self:
-        diatonic_scale: tuple[int] = self.get_scale()
+        diatonic_scale: tuple[int] = self.get_diatonic_scale()
         self_pitch: int = self.get_absolute_pitch()
         pitch_offset: int = 0
         if up:
