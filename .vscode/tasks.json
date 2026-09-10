@@ -1,0 +1,18 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run JsonMidiCreator on this file",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "${workspaceFolder}/json_midi_player.py",
+                "${file}"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always", "panel": "shared"
+            }
+        }
+    ]
+}
