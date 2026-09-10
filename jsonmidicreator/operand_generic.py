@@ -937,6 +937,11 @@ class Pitch(Generic):
         scale_mode: int = self._diatonic_mode_0 % 9 + 1
         return Scale._scales[scale_mode]
 
+    def get_sharps(self) -> int:
+        diatonic_scale: tuple[int] = self.get_diatonic_scale()
+        sharps_or_flats: tuple[int] = Scale.sharps_or_flats_picker(self._tonic_key, diatonic_scale)
+        return sum(sharps_or_flats)
+
     def apply_sharps(self, sharps: int = 0) -> Self:
         self._tonic_key = self._sharps_to_tonic(sharps)
         return self
@@ -965,9 +970,7 @@ class Pitch(Generic):
         # For Semitones
         if signature_scale[tonic_to_root % 12] == 0: # Not on the Scale
             # No two consecutive empty notes! (assumption for all scales!!)
-            diatonic_scale: tuple[int] = self.get_diatonic_scale()
-            sharps_or_flats: tuple[int] = Scale.sharps_or_flats_picker(self._tonic_key, diatonic_scale)
-            total_sharps: int = sum(sharps_or_flats)
+            total_sharps: int = self.get_sharps()
             flats: bool = total_sharps < 0
             if flats:
                 tonic_to_root += 1
@@ -1186,14 +1189,10 @@ class Pitch(Generic):
                 return operand.copy(self._diatonic_mode_0)
 
             case ou.Flats():
-                diatonic_scale: tuple[int] = self.get_diatonic_scale()
-                sharps_or_flats: tuple[int] = Scale.sharps_or_flats_picker(self._tonic_key, diatonic_scale)
-                total_sharps: int = sum(sharps_or_flats)
+                total_sharps: int = self.get_sharps()
                 return ou.Flats(total_sharps * -1)
             case KeySignature() | ou.Accidentals():
-                diatonic_scale: tuple[int] = self.get_diatonic_scale()
-                sharps_or_flats: tuple[int] = Scale.sharps_or_flats_picker(self._tonic_key, diatonic_scale)
-                total_sharps: int = sum(sharps_or_flats)
+                total_sharps: int = self.get_sharps()
                 return operand.copy(total_sharps)
             
             case int():
@@ -1223,9 +1222,7 @@ class Pitch(Generic):
                     key_operand._flattened = self._accidental < 0
                     key_operand._enharmonic = True
                 else:
-                    diatonic_scale: tuple[int] = self.get_diatonic_scale()
-                    sharps_or_flats: tuple[int] = Scale.sharps_or_flats_picker(self._tonic_key, diatonic_scale)
-                    total_sharps: int = sum(sharps_or_flats)
+                    total_sharps: int = self.get_sharps()
                     key_operand._flattened = total_sharps < 0
                     key_operand._enharmonic = KeySignature.is_enharmonic(key_operand._unit, total_sharps)
                 return key_operand
