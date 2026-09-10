@@ -163,9 +163,13 @@ def saveJsonMidiCreator(serialization: dict, filename: str, include_settings: bo
                         }
                     }
                 }
-            },
-            "content": serialization
+            }
         }
+    if include_settings:
+        from . import operand_generic as og
+        settings_serialization: dict = og.settings.getSerialization()
+        json_file_dict["settings"] = settings_serialization
+    json_file_dict["content"] = serialization
     with open(filename, "w") as outfile:
         json.dump(json_file_dict, outfile)
 

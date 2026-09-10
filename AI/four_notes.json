@@ -38,6 +38,48 @@
             }
         }
     },
+    "settings": {
+        "class": "Settings",
+        "parameters": {
+            "tempo": "120/1",
+            "quantization": "1/4",
+            "time_signature": {
+                "class": "TimeSignature",
+                "parameters": {
+                    "top": 4,
+                    "bottom": 4
+                }
+            },
+            "diatonic_mode_0": 0,
+            "key_signature": {
+                "class": "KeySignature",
+                "parameters": {
+                    "sharps": 0
+                }
+            },
+            "controller": {
+                "class": "Controller",
+                "parameters": {
+                    "number_msb": 10,
+                    "lsb": 0,
+                    "nrpn": false,
+                    "high": false
+                }
+            },
+            "devices": [
+                "VMPK",
+                "FLUID",
+                "loopMIDI",
+                "Microsoft",
+                "IAC Bus",
+                "Apple"
+            ],
+            "clocked_devices": [],
+            "controlled_devices": [],
+            "clock_ppqn": 24,
+            "folder": ""
+        }
+    },
     "content": {
         "class": "Clip",
         "parameters": {
