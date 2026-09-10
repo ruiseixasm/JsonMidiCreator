@@ -793,7 +793,7 @@ class KeySignature(Generic):
                 match operand._data:
                     case int():         self._sharps            = operand._data
                     case ou.Mode():     self._diatonic_mode_0   = operand._data._unit - 1
-                    case ou.TonicKey(): self._tonic_key         = operand._data._unit
+                    case ou.Key():      self._tonic_key         = operand._data._unit
             case int():     self._sharps = operand
             case float():   self._diatonic_mode_0 = int(operand - 1)
             case ou.Major():
