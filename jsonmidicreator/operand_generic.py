@@ -1388,9 +1388,8 @@ class Pitch(Generic):
                     self._degree_0 = operand._unit  # Negative remains negative!
                 # A Degree with Just an accidental defined can set just that!
             case None:  # Works as a reset
-                self.apply_key_signature(self._key_signature)
                 # Resets the degree to I (tonic)
-                # self.reset_tonic_key()
+                self.reset_tonic_key()
                 self._degree_0 = 0
                 self._accidental = 0
                 self._transposition = 0
