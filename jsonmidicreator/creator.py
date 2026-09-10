@@ -132,7 +132,8 @@ def saveJsonMidiCreator(serialization: dict, filename):
                     "in_element": "The position of the `Element` in the `Clip`",
                     "in_section": "The position of the `Section`, to be added to the positions of the respective `Element`s encapsulated by it"
                 },
-                "tied_to_previous": "Notes can only be tied to the previous `Note`, so, they work as duration extension of the previous one",
+                "tied_to_previous": "Notes can only be tied to a previous `Note`, as long as the previous note has the same pitch and with a finish coinciding with the start,"
+                " doing so, they will work as duration extension of the previous one",
                 "accidental": "The accidental is a chromatic offset on the selected scale, relative to its tonic and NOT necessarilly to the Major scale",
                 "sharps": "For diatonic modes `0-6`, positive values mean Sharps and negative values mean Flats",
                 "diatonic_mode_0": {
