@@ -931,10 +931,6 @@ class Pitch(Generic):
         scale_mode: int = self._diatonic_mode_0 % 9 + 1
         return Scale._scales[scale_mode]
 
-    def is_enharmonic(self, key: int) -> bool:
-        self_key_signature: list[int] = self._key_signatures[(self._sharps + 7) % 15]
-        return self_key_signature[key % 12] != 0
-
 
     """
     Auxiliary methods concerning the Degree
@@ -1232,6 +1228,7 @@ class Pitch(Generic):
         serialization = super().getSerialization()
         if self._key_signature._sharps != 0 or self._key_signature._diatonic_mode_0 != 0:
             serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
+        serialization["parameters"]["diatonic_mode_0"]  = self.serialize( self._diatonic_mode_0 )
         serialization["parameters"]["tonic_key_0"]      = self.serialize( self._tonic_key )
         serialization["parameters"]["octave_0"]         = self.serialize( self._octave_0 )
         serialization["parameters"]["degree_0"]         = self.serialize( self._degree_0 )
@@ -1246,7 +1243,7 @@ class Pitch(Generic):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "tonic_key_0" in serialization["parameters"] and
+            "diatonic_mode_0" in serialization["parameters"] and "tonic_key_0" in serialization["parameters"] and
             "octave_0" in serialization["parameters"] and "degree_0" in serialization["parameters"] and "accidental" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
@@ -1254,6 +1251,7 @@ class Pitch(Generic):
                 self._key_signature << self.deserialize( serialization["parameters"]["key_signature"] )
             else:
                 self._key_signature << KeySignature()
+            self._diatonic_mode_0 = self.deserialize( serialization["parameters"]["diatonic_mode_0"] )
             self._tonic_key     = self.deserialize( serialization["parameters"]["tonic_key_0"] )
             self._octave_0      = self.deserialize( serialization["parameters"]["octave_0"] )
             self._degree_0      = self.deserialize( serialization["parameters"]["degree_0"] )
@@ -1274,6 +1272,7 @@ class Pitch(Generic):
             case Pitch():
                 super().__lshift__(operand)
                 self._key_signature         << operand._key_signature
+                self._diatonic_mode_0       = operand._diatonic_mode_0
                 self._tonic_key             = operand._tonic_key
                 self._octave_0              = operand._octave_0
                 self._degree_0              = operand._degree_0
