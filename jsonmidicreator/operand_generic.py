@@ -693,7 +693,6 @@ class KeySignature(Generic):
                 return ou.Flats(0)
             case ou.Accidentals():
                 return ou.Accidentals(self._sharps)
-            case Scale():               return Scale(self % list())
             case str():
                 if self._sharps < 0:
                     flats: int = self._sharps * -1
@@ -740,12 +739,8 @@ class KeySignature(Generic):
             case int():     self._sharps = operand
             case ou.Flats():
                 self._sharps = operand._unit * -1
-                # self._tonic_key = self._sharps_to_tonic(operand._unit * -1)
             case ou.Accidentals():
                 self._sharps = operand._unit
-                # self._tonic_key = self._sharps_to_tonic(operand._unit)
-            case ou.Key():
-                self._sharps = sum( Scale.sharps_or_flats_picker(operand._unit, self % list()) )
             case str(): # Processes series of "#" and "b"
                 if len(operand) == 0:
                     self._sharps = 0
@@ -754,12 +749,10 @@ class KeySignature(Generic):
                     sharps = re.findall(r"#+", operand)
                     if len(sharps) > 0:
                         self._sharps = len(sharps[0])
-                        # self._tonic_key = self._sharps_to_tonic(len(sharps[0]))
                     else:
                         flats = re.findall(r"b+", operand)
                         if len(flats) > 0:
                             self._sharps = -len(flats[0])
-                            # self._tonic_key = self._sharps_to_tonic(-len(flats[0]))
             case _: 
                 super().__lshift__(operand)
         return self
@@ -1761,7 +1754,7 @@ class Scale(Generic):
         """
         This method returns all the Sharps or Flats for a given `tonic_key` on a specified `picker_scale`.
 
-        For example, `Scale.sharps_or_flats_picker(2)` will return `[+1, +0, +0, +0, +0, +1, +0, +0, +0, +0, +0, +0]`.
+        For example, `Scale.sharps_or_flats_picker(2)` will return `(+1, +0, +0, +0, +0, +1, +0, +0, +0, +0, +0, +0)`.
 
         """
         major_scale: tuple[int] = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
