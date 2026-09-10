@@ -1039,8 +1039,8 @@ class Pitch(Generic):
             the tonic_offset is 0 for the new calculated degree
             """
             transposition_degree_0: float = self._degree_0 + self._transposition
-            signature_scale: list[int] = self._key_signature.get_scale()
-            tonic_to_target_key: int = Scale.transpose_key(transposition_degree_0, signature_scale)
+            diatonic_scale: tuple[int] = self.get_diatonic_scale()
+            tonic_to_target_key: int = Scale.transpose_key(transposition_degree_0, diatonic_scale)
             target_key = self._tonic_key % 12 + tonic_to_target_key + self._accidental
         return target_key
 
