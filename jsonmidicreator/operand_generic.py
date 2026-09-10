@@ -1159,6 +1159,12 @@ class Pitch(Generic):
                 match operand._data:
                     case ou.Octave():
                         return operand._data << od.Pipe(self._octave_0)
+                    case ou.Major():
+                        return ou.Major(self._diatonic_mode_0 == 0)
+                    case ou.Minor():
+                        return ou.Minor(self._diatonic_mode_0 == 5)
+                    case ou.Quality() | ou.Mode():
+                        return operand._data << self._diatonic_mode_0
                     case ou.TonicKey():
                         return operand._data << od.Pipe(self._tonic_key)    # Must come before than Key()
                     case ou.Degree():   # Returns an absolute degree_0
@@ -5686,6 +5692,7 @@ class Settings(Generic):
         self._tempo: Fraction                       = Fraction(120)
         self._quantization: Fraction                = Fraction(1/4) # Quantization is in Beats ratio
         self._time_signature: TimeSignature         = TimeSignature(4, 4)
+        self._diatonic_mode_0: int                  = 0
         self._key_signature: KeySignature           = KeySignature()
         self._controller: Controller                = Controller("Pan")
         self._devices: list[str]                    = ["VMPK", "FLUID", "loopMIDI", "Microsoft", "IAC Bus", "Apple"]
@@ -5726,6 +5733,12 @@ class Settings(Generic):
                     case TimeSignature():       return self._time_signature
                     case ra.BeatsPerMeasure():  return self._time_signature % od.Pipe( ra.BeatsPerMeasure() )
                     case ra.BeatNoteValue():    return self._time_signature % od.Pipe( ra.BeatNoteValue() )
+                    case ou.Major():
+                        return ou.Major(self._diatonic_mode_0 == 0)
+                    case ou.Minor():
+                        return ou.Minor(self._diatonic_mode_0 == 5)
+                    case ou.Quality() | ou.Mode():
+                        return operand._data << self._diatonic_mode_0
                     case KeySignature():     return self._key_signature
                     case Controller():          return self._controller
                     case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
@@ -5745,6 +5758,12 @@ class Settings(Generic):
             case ra.BeatsPerMeasure():  return self._time_signature % ra.BeatsPerMeasure()
             case ra.BeatNoteValue():    return self._time_signature % ra.BeatNoteValue()
             case ra.NotesPerMeasure():  return self._time_signature % ra.NotesPerMeasure()
+            case ou.Major():
+                return ou.Major(self._diatonic_mode_0 == 0)
+            case ou.Minor():
+                return ou.Minor(self._diatonic_mode_0 == 5)
+            case ou.Quality() | ou.Mode():
+                return operand.copy(self._diatonic_mode_0)
             case KeySignature():     return self._key_signature.copy()
             case ou.Key() | ou.Quality() | int() | float() | Fraction() | str():
                                         return self._key_signature % operand
@@ -5775,6 +5794,7 @@ class Settings(Generic):
         return  self._tempo                 == other._tempo \
             and self._quantization          == other._quantization \
             and self._time_signature        == other._time_signature \
+            and self._diatonic_mode_0       == other._diatonic_mode_0 \
             and self._key_signature         == other._key_signature \
             and self._controller            == other._controller \
             and self._devices               == other._devices \
@@ -5794,6 +5814,7 @@ class Settings(Generic):
         serialization["parameters"]["tempo"]                = self.serialize( self._tempo )
         serialization["parameters"]["quantization"]         = self.serialize( self._quantization )
         serialization["parameters"]["time_signature"]       = self.serialize( self._time_signature )
+        serialization["parameters"]["diatonic_mode_0"]      = self.serialize( self._diatonic_mode_0 )
         serialization["parameters"]["key_signature"]        = self.serialize( self._key_signature )
         serialization["parameters"]["controller"]           = self.serialize( self._controller )
         serialization["parameters"]["devices"]              = self.serialize( self._devices )
@@ -5808,7 +5829,8 @@ class Settings(Generic):
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "tempo" in serialization["parameters"] and "quantization" in serialization["parameters"] and
-            "time_signature" in serialization["parameters"] and "key_signature" in serialization["parameters"] and "controller" in serialization["parameters"] and
+            "time_signature" in serialization["parameters"] and "diatonic_mode_0" in serialization["parameters"] and
+            "key_signature" in serialization["parameters"] and "controller" in serialization["parameters"] and
             "devices" in serialization["parameters"] and "clocked_devices" in serialization["parameters"] and  "controlled_devices" in serialization["parameters"] and 
             "clock_ppqn" in serialization["parameters"] and "folder" in serialization["parameters"]):
 
@@ -5816,6 +5838,7 @@ class Settings(Generic):
             self._tempo                 = self.deserialize( serialization["parameters"]["tempo"] )
             self._quantization          = self.deserialize( serialization["parameters"]["quantization"] )
             self._time_signature        = self.deserialize( serialization["parameters"]["time_signature"] )
+            self._diatonic_mode_0       = self.deserialize( serialization["parameters"]["diatonic_mode_0"] )
             self._key_signature         = self.deserialize( serialization["parameters"]["key_signature"] )
             self._controller            = self.deserialize( serialization["parameters"]["controller"] )
             self._devices               = self.deserialize( serialization["parameters"]["devices"] )
@@ -5835,6 +5858,7 @@ class Settings(Generic):
                 self._tempo                 = operand._tempo
                 self._quantization          = operand._quantization
                 self._time_signature        << operand._time_signature
+                self._diatonic_mode_0       = operand._diatonic_mode_0
                 self._key_signature         << operand._key_signature
                 self._controller            << operand._controller
                 self._devices               = operand._devices.copy()
@@ -5847,7 +5871,13 @@ class Settings(Generic):
                     case ra.Tempo():                self._tempo = operand._data._rational
                     case ra.Quantization():         self._quantization = operand._data._rational
                     case TimeSignature():           self._time_signature = operand._data
-                    case KeySignature():         self._key_signature = operand._data
+                    case ou.Major():
+                        if operand._data: self._diatonic_mode_0 = 0    # Major
+                    case ou.Minor():
+                        if operand._data: self._diatonic_mode_0 = 5    # minor
+                    case ou.Mode():
+                        self._diatonic_mode_0 = operand._data._unit - 1
+                    case KeySignature():            self._key_signature = operand._data
                     case Controller():              self._controller = operand._data
                     case oc.ClockedDevices():       self._clocked_devices = operand._data % od.Pipe( list() )
                     case oc.ControlledDevices():    self._controlled_devices = operand._data % od.Pipe( list() )
@@ -5864,6 +5894,12 @@ class Settings(Generic):
                 self._quantization = self._time_signature % ra.BeatsPerMeasure() / operand % Fraction()
             case TimeSignature() | ra.TimeSignatureParameter():
                                         self._time_signature << operand
+            case ou.Major():
+                if operand: self._diatonic_mode_0 = 0    # Major
+            case ou.Minor():
+                if operand: self._diatonic_mode_0 = 5    # minor
+            case ou.Mode():
+                self._diatonic_mode_0 = operand._unit - 1
             case KeySignature() | ou.Key() | ou.Quality() | int() | float() | Fraction() | str():
                                         self._key_signature << operand
             case Controller() | ou.Number():
