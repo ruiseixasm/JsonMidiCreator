@@ -384,9 +384,11 @@ def test_pitch_key_signature():
         "A",
         "E", "B", "F#", "C#", "G#", "Eb", "Bb"
     ]
+    
+    settings << Minor()
     for signature in range(len(minor_keys_signatures)): # Minor
         
-        settings << KeySignature(signature - 7, Minor())
+        settings << KeySignature(signature - 7)
         pitch_key: Pitch = Pitch()
 
         print(f"minor Signature: {signature - 7}, result: {pitch_key % str()}")
@@ -1398,9 +1400,10 @@ def test_degree_set():
     minor_d_pitch = Pitch()
     assert minor_d_pitch % TonicKey() == "C"
 
-    minor_d_pitch <<= KeySignature(Minor(), "b")
+    minor_d_pitch <<= KeySignature("b")
+    minor_d_pitch <<= Minor()
     assert minor_d_pitch % TonicKey() == "D"
-    minor_d_pitch << KeySignature(Minor(), "b") # Resets the Tonic to D
+    minor_d_pitch << Minor() << KeySignature("b") # Resets the Tonic to D
     assert minor_d_pitch % TonicKey() == "D"
     assert minor_d_pitch % RootKey() == "D"
     assert minor_d_pitch % Octave() == 4

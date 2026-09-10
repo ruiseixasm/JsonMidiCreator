@@ -880,7 +880,7 @@ class Pitch(Generic):
     bool(True) : Sets if the given scale is processed as transposition (True) or as modulation (False).
     """
     def __init__(self, *parameters):
-        self._diatonic_mode_0: int      = 0
+        self._diatonic_mode_0: int      = settings._diatonic_mode_0
         self._tonic_key: int            = 0
         self.apply_key_signature(settings._key_signature)
         self._octave_0: int             = 5     # By default it's the 4th Octave, that's 5 in 0 based!
@@ -920,7 +920,6 @@ class Pitch(Generic):
 
 
     def apply_key_signature(self, key_signature: KeySignature) -> Self:
-        self._diatonic_mode_0   = key_signature._diatonic_mode_0
         self._tonic_key         = self._sharps_to_tonic(key_signature._sharps)
         return self
 
@@ -5900,7 +5899,7 @@ class Settings(Generic):
                 if operand: self._diatonic_mode_0 = 5    # minor
             case ou.Mode():
                 self._diatonic_mode_0 = operand._unit - 1
-            case KeySignature() | ou.Key() | ou.Quality() | int() | float() | Fraction() | str():
+            case KeySignature() | ou.Key() | int() | float() | Fraction() | str():
                                         self._key_signature << operand
             case Controller() | ou.Number():
                                         self._controller << operand
