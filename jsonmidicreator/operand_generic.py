@@ -1175,9 +1175,26 @@ class Pitch(Generic):
                     case Scale():           return operand._data << od.Pipe(self._scale)
                     case list():            return self._scale
                     case _:                 return super().__mod__(operand)
-            case KeySignature():
-                return self._key_signature.copy()
-            case ou.Quality() | ou.Mode() | ou.Accidentals():
+
+            case ou.Major():
+                return ou.Major(self._diatonic_mode_0 == 0)
+            case ou.Minor():
+                return ou.Minor(self._diatonic_mode_0 == 5)
+            case ou.Quality() | ou.Mode():
+                return operand.copy(self._diatonic_mode_0)
+
+            case ou.Flats():
+                diatonic_scale: tuple[int] = self.get_diatonic_scale()
+                sharps_or_flats: tuple[int] = Scale.sharps_or_flats_picker(self._tonic_key, diatonic_scale)
+                total_sharps: int = sum(sharps_or_flats)
+                return ou.Flats(total_sharps * -1)
+            case KeySignature() | ou.Accidentals():
+                diatonic_scale: tuple[int] = self.get_diatonic_scale()
+                sharps_or_flats: tuple[int] = Scale.sharps_or_flats_picker(self._tonic_key, diatonic_scale)
+                total_sharps: int = sum(sharps_or_flats)
+                return operand.copy(total_sharps)
+            
+            case ou.Accidentals():
                 return self._key_signature % operand
             
             case int():
