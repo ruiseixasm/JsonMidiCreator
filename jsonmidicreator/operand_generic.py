@@ -881,8 +881,8 @@ class Pitch(Generic):
     def __init__(self, *parameters):
         self._key_signature: KeySignature \
                                         = settings % KeySignature()
-        self._diatonic_mode_0: int      = 0
-        self._tonic_key: int            = self._key_signature.get_tonic_key()
+        self._diatonic_mode_0: int      = self._key_signature._diatonic_mode_0
+        self._tonic_key: int            = self._sharps_to_tonic(self._key_signature._sharps)
         self._octave_0: int             = 5     # By default it's the 4th Octave, that's 5 in 0 based!
         self._degree_0: int             = 0     # By default it's Degree 1, that's 0 in 0 based
         self._accidental: int           = 0     # By default it has no accidental
