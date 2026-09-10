@@ -793,7 +793,7 @@ class KeySignature(Generic):
                 match operand._data:
                     case int():         self._sharps            = operand._data
                     case ou.Mode():     self._diatonic_mode_0   = operand._data._unit - 1
-                    case ou.Key():      self._tonic_key         = operand._data._unit
+                    case ou.Key():      self._tonic_key         = operand._data._unit % 12  # The Tonic Key is always a % 12 (principles)
             case int():     self._sharps = operand
             case float():   self._diatonic_mode_0 = int(operand - 1)
             case ou.Major():
@@ -813,7 +813,7 @@ class KeySignature(Generic):
                 self._tonic_key = self._sharps_to_tonic(operand._unit)
             case ou.Key():
                 self._sharps = sum( Scale.sharps_or_flats_picker(operand._unit, self % list()) )
-                self._tonic_key = operand._unit
+                self._tonic_key = operand._unit % 12    # The Tonic Key is always a % 12 (principles)
             case Scale():
                 for mode_0 in range(7):
                     if self.get_scale() == operand._scale:
