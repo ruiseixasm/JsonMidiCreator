@@ -1549,14 +1549,14 @@ class Pitch(Generic):
          }
 
     def snap(self, up: bool = False) -> Self:
-        scale_list: list[int] = self._key_signature % list()
+        diatonic_scale: tuple[int] = self.get_scale()
         self_pitch: int = self.get_absolute_pitch()
         pitch_offset: int = 0
         if up:
             pitch_step: int = 1
         else:
             pitch_step: int = -1
-        while scale_list[self_pitch + pitch_offset] == 0:
+        while diatonic_scale[self_pitch + pitch_offset] == 0:
             pitch_offset += pitch_step
         if pitch_offset > 0:
             self += pitch_offset
