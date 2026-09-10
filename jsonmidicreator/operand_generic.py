@@ -684,8 +684,6 @@ class KeySignature(Generic):
         return 9    # A key
 
 
-    _major_scale = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)    # Major scale for the default staff
-
     def get_tonic_key(self) -> int:
         if self._diatonic_mode_0 % 7 < 7:    # Diatonic scale
             zero_tonic_key: int = Scale.transpose_key(self._diatonic_mode_0)
@@ -883,6 +881,7 @@ class Pitch(Generic):
     def __init__(self, *parameters):
         self._key_signature: KeySignature \
                                         = settings % KeySignature()
+        self._diatonic_mode_0: int      = 0
         self._tonic_key: int            = self._key_signature.get_tonic_key()
         self._octave_0: int             = 5     # By default it's the 4th Octave, that's 5 in 0 based!
         self._degree_0: int             = 0     # By default it's Degree 1, that's 0 in 0 based
@@ -919,6 +918,14 @@ class Pitch(Generic):
 
     def degree(self, unit: int = 1) -> Self:
         return self << ou.Degree(unit)
+
+
+    def _sharps_to_tonic(self, sharps: int = 0) -> int:
+        if self._diatonic_mode_0 % 7 < 7:    # Diatonic scale
+            zero_tonic_key: int = Scale.transpose_key(self._diatonic_mode_0)
+            circle_fifths_position: int = sharps
+            return (zero_tonic_key + circle_fifths_position * 7) % 12
+        return 9    # A key
 
 
     """
@@ -1785,7 +1792,7 @@ class Scale(Generic):
         For example, `Scale.sharps_or_flats_picker(2)` will return `[+1, +0, +0, +0, +0, +1, +0, +0, +0, +0, +0, +0]`.
 
         """
-        major_scale: tuple[int] = KeySignature._major_scale
+        major_scale: tuple[int] = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)
         sharps_or_flats: list[int] = [0] * 12
         major_key: int = 0
         for picker_key in range(12):
