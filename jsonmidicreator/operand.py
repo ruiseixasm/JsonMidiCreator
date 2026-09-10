@@ -771,6 +771,8 @@ class Operand:
             self._chained_operand = self.deserialize(serialization["chained_operand"])
         if "index" in serialization:
             self._index = self.deserialize(serialization["index"])
+        else:
+            self._index = -1
         return self
        
     def set(self, operand: any) -> Self:

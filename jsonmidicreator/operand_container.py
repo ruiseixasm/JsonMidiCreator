@@ -2067,7 +2067,9 @@ class Clip(Composition):  # Just a container of Elements
 
                 super().loadSerialization(serialization)
                 if "time_signature" in serialization["parameters"]:
-                    self._time_signature    << self.deserialize(serialization["parameters"]["time_signature"])
+                    self._time_signature << self.deserialize(serialization["parameters"]["time_signature"])
+                else:
+                    self._time_signature << og.settings._time_signature
                 self._track_number  = serialization["parameters"]["track_number"]
                 self._enabled       = serialization["parameters"]["enabled"]
                 self._set_owner_clip()
