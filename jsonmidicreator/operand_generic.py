@@ -1335,7 +1335,7 @@ class Pitch(Generic):
             case KeySignature(): # Preserves the Semitone
                 original_semitone = self % ou.Semitone()
                 self._key_signature << operand
-                self.apply_key_signature(self._key_signature)
+                self.apply_key_signature(operand)
                 self << original_semitone
             case ou.Major():
                 self._key_signature << operand
