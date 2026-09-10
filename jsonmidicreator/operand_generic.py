@@ -1156,7 +1156,6 @@ class Pitch(Generic):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case KeySignature(): return self._key_signature
                     case ou.Octave():
                         return operand._data << od.Pipe(self._octave_0)
                     case ou.TonicKey():
@@ -1259,8 +1258,6 @@ class Pitch(Generic):
     def getSerialization(self) -> dict:
 
         serialization = super().getSerialization()
-        if self._key_signature._sharps != 0 or self._key_signature._diatonic_mode_0 != 0:
-            serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
         serialization["parameters"]["diatonic_mode_0"]  = self.serialize( self._diatonic_mode_0 )
         serialization["parameters"]["tonic_key_0"]      = self.serialize( self._tonic_key )
         serialization["parameters"]["octave_0"]         = self.serialize( self._octave_0 )
@@ -1280,10 +1277,6 @@ class Pitch(Generic):
             "octave_0" in serialization["parameters"] and "degree_0" in serialization["parameters"] and "accidental" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            if "key_signature" in serialization["parameters"]:
-                self._key_signature << self.deserialize( serialization["parameters"]["key_signature"] )
-            else:
-                self._key_signature << KeySignature()
             self._diatonic_mode_0 = self.deserialize( serialization["parameters"]["diatonic_mode_0"] )
             self._tonic_key     = self.deserialize( serialization["parameters"]["tonic_key_0"] )
             self._octave_0      = self.deserialize( serialization["parameters"]["octave_0"] )
@@ -1304,7 +1297,6 @@ class Pitch(Generic):
         match operand:
             case Pitch():
                 super().__lshift__(operand)
-                self._key_signature         << operand._key_signature
                 self._diatonic_mode_0       = operand._diatonic_mode_0
                 self._tonic_key             = operand._tonic_key
                 self._octave_0              = operand._octave_0
@@ -1315,7 +1307,6 @@ class Pitch(Generic):
             case od.Pipe():
                 match operand._data:
                     case KeySignature(): # Preserves the chromatic_pitch
-                        self._key_signature = operand._data
                         self.apply_key_signature(operand._data)
 
                     case ou.Major():
@@ -1366,26 +1357,20 @@ class Pitch(Generic):
             # Setting of the KeySignature and respective parameters
             case KeySignature(): # Preserves the Semitone
                 original_semitone = self % ou.Semitone()
-                self._key_signature << operand
                 self.apply_key_signature(operand)
                 self << original_semitone
             case ou.Major():
-                self._key_signature << operand
                 if operand: self._diatonic_mode_0 = 0    # Major
                 self.reset_tonic_key()
             case ou.Minor():
-                self._key_signature << operand
                 if operand: self._diatonic_mode_0 = 5    # minor
                 self.reset_tonic_key()
             case ou.Mode():
-                self._key_signature << operand
                 self._diatonic_mode_0 = operand._unit - 1
                 self.reset_tonic_key()
             case ou.Flats():
-                self._key_signature << operand
                 self.apply_sharps(operand._unit * -1)
             case ou.Accidentals():
-                self._key_signature << operand
                 self.apply_sharps(operand._unit)
 
             case ou.AbsolutePitch():
