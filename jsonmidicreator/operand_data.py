@@ -954,6 +954,24 @@ class Serialization(Data):
     def __truediv__(self, operand: any) -> 'o.Operand':
         return self._data / operand
 
+
+class Deserialize(Serialization):
+    """`Data -> Serialization -> Deserialize`
+
+    This `Operand` allows the direct reading of a dict into its respective `Operand` type.
+
+    Parameters
+    ----------
+    dict() : The content dictionary to load the `Operand` serialization from.
+    """
+    def __new__(self, serialization: dict):
+        if "content" in serialization and "filetype" in serialization and \
+                serialization["filetype"] == "Json Midi Creator" and serialization["url"] == "https://github.com/ruiseixasm/JsonMidiCreator":
+            operand_serialization: dict = serialization["content"]
+            return self.deserialize(operand_serialization)  # Must convert to an Operand
+        return None
+
+
 class Load(Serialization):
     """`Data -> Serialization -> Load`
 
