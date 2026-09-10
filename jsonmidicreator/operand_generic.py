@@ -672,7 +672,6 @@ class KeySignature(Generic):
     """
     def __init__(self, *parameters):
         self._sharps: int = 0
-        self._diatonic_mode_0: int = 0
         super().__init__(*parameters)
     
 
@@ -682,15 +681,8 @@ class KeySignature(Generic):
                 match operand._data:
                     case KeySignature():        return self
                     case int():                 return self._sharps
-                    case ou.Mode():             return ou.Mode(self._diatonic_mode_0 + 1)
                     case _:                     return super().__mod__(operand)
             case int():                 return self._sharps
-            case float():
-                return float(self._diatonic_mode_0 + 1)
-            
-            case ou.Major():                return ou.Major(self._diatonic_mode_0 == 0)
-            case ou.Minor():                return ou.Minor(self._diatonic_mode_0 == 5)
-            case int():                     return self._sharps
             case ou.Sharps():
                 if self._sharps > 0:
                     return ou.Sharps(self._sharps)
@@ -702,7 +694,6 @@ class KeySignature(Generic):
             case ou.Accidentals():
                 return ou.Accidentals(self._sharps)
             case Scale():               return Scale(self % list())
-            case ou.Mode():             return ou.Mode(self._diatonic_mode_0 + 1)
             case str():
                 if self._sharps < 0:
                     flats: int = self._sharps * -1
@@ -713,7 +704,7 @@ class KeySignature(Generic):
     def __eq__(self, other: any) -> bool:
         match other:
             case KeySignature():
-                return self._sharps == other._sharps and self._diatonic_mode_0 == other._diatonic_mode_0
+                return self._sharps == other._sharps
             case int():
                 return self._sharps == other
             case od.Conditional():
@@ -725,18 +716,16 @@ class KeySignature(Generic):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["sharps"] = self.serialize( self._sharps )
-        serialization["parameters"]["diatonic_mode_0"] = self.serialize( self._diatonic_mode_0 )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'KeySignature':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "sharps" in serialization["parameters"] and "diatonic_mode_0" in serialization["parameters"]):
+            "sharps" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._sharps = self.deserialize( serialization["parameters"]["sharps"] )
-            self._diatonic_mode_0 = self.deserialize( serialization["parameters"]["diatonic_mode_0"] )
         return self
       
     def __lshift__(self, operand: any) -> Self:
@@ -745,22 +734,10 @@ class KeySignature(Generic):
             case KeySignature():
                 super().__lshift__(operand)
                 self._sharps            = operand._sharps
-                self._diatonic_mode_0   = operand._diatonic_mode_0
             case od.Pipe():
                 match operand._data:
                     case int():         self._sharps            = operand._data
-                    case ou.Mode():     self._diatonic_mode_0   = operand._data._unit - 1
             case int():     self._sharps = operand
-            case float():   self._diatonic_mode_0 = int(operand - 1)
-            case ou.Major():
-                if operand: self._diatonic_mode_0 = 0    # Major
-                # self._tonic_key = self._sharps_to_tonic()
-            case ou.Minor():
-                if operand: self._diatonic_mode_0 = 5    # minor
-                # self._tonic_key = self._sharps_to_tonic()
-            case ou.Mode():
-                self._diatonic_mode_0 = operand._unit - 1
-                # self._tonic_key = self._sharps_to_tonic()
             case ou.Flats():
                 self._sharps = operand._unit * -1
                 # self._tonic_key = self._sharps_to_tonic(operand._unit * -1)
