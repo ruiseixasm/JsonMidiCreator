@@ -3310,14 +3310,16 @@ class Save(ReadOnly):
     Parameters
     ----------
     None, str() : The filename of the Operand's serialization data.
+    False, bool() : Include the global settings.
     """
-    def __init__(self, filename: str | None = None):
-        super().__init__(filename)
+    def __init__(self, filename: str | None = None, include_settings = False):
+        super().__init__([filename, include_settings])
+        self._indexes = {'filename': 0, 'include_settings': 1}
 
     def _direct_process(self, operand: o.T) -> o.T:
         from . import operand_container as oc
         if isinstance(operand, o.Operand):
-            file_path: str = self._parameters
+            file_path: str = self._parameters[self._indexes["filename"]]
             folder: str = settings._folder
             if not isinstance(file_path, str):
                 if isinstance(operand, oc.Composition):
