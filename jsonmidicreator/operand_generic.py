@@ -978,11 +978,11 @@ class Pitch(Generic):
         accidental: int = 0
         scale_degrees: int = 7  # Diatonic scales
         if self._scale:
-            transposition_scale: list[int] = self._scale
+            transposition_scale: tuple[int] = tuple(self._scale)
             scale_degrees = sum(self._scale)
             first_key_int: int = self._get_root_key()
         else:
-            transposition_scale: list[int] = self._key_signature.get_scale()
+            transposition_scale: tuple[int] = self.get_diatonic_scale()
             first_key_int: int = self._tonic_key % 12   # Transposition becomes equivalent to degrees
         first_key_offset: int = target_key - first_key_int
         
