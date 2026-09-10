@@ -179,6 +179,9 @@ def loadJsonMidiCreator(filename):
             json_file_dict = json.load(infile)
         if "content" in json_file_dict and "filetype" in json_file_dict and \
                 json_file_dict["filetype"] == "Json Midi Creator" and json_file_dict["url"] == "https://github.com/ruiseixasm/JsonMidiCreator":
+            if "settings" in json_file_dict:
+                from . import operand_generic as og
+                og.settings.loadSerialization(json_file_dict["settings"])
             return json_file_dict["content"]
     except Exception as e:
         print(f"Unable to Load the file: {filename}")
