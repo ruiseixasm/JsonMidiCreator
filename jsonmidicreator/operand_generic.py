@@ -3328,7 +3328,8 @@ class Save(ReadOnly):
                     file_path = folder + "json/_Save_jsonMidiCreator.json"
             else: # Folder is just a prefix
                 file_path = folder + file_path
-            c.saveJsonMidiCreator(operand.getSerialization(), file_path)
+            c.saveJsonMidiCreator(operand.getSerialization(), file_path,
+                                  self._parameters[self._indexes["include_settings"]])
             return operand
         return super().__rrshift__(operand)
 

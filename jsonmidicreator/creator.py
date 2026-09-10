@@ -122,7 +122,7 @@ def loadTalkieLibrary():
                 not_found_talkie_library = True
 
 
-def saveJsonMidiCreator(serialization: dict, filename):
+def saveJsonMidiCreator(serialization: dict, filename: str, include_settings: bool):
     json_file_dict = {
             "filetype": "Json Midi Creator",
             "url": "https://github.com/ruiseixasm/JsonMidiCreator",
