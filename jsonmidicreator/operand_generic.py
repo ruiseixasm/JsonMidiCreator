@@ -883,7 +883,7 @@ class Pitch(Generic):
                                         = settings % KeySignature()
         self._diatonic_mode_0: int      = 0
         self._tonic_key: int            = 0
-        self.key_signature(self._key_signature)
+        self.apply_key_signature(self._key_signature)
         self._octave_0: int             = 5     # By default it's the 4th Octave, that's 5 in 0 based!
         self._degree_0: int             = 0     # By default it's Degree 1, that's 0 in 0 based
         self._accidental: int           = 0     # By default it has no accidental
@@ -907,7 +907,7 @@ class Pitch(Generic):
         * Setting Keys or Semitones ONLY adjust the Degree and not the Octave, avoiding repeated offsets on repeated setting
     """
 
-    def key_signature(self, key_signature: KeySignature) -> Self:
+    def apply_key_signature(self, key_signature: KeySignature) -> Self:
         self._diatonic_mode_0   = key_signature._diatonic_mode_0
         self._tonic_key         = self._sharps_to_tonic(key_signature._sharps)
         return self
@@ -1328,11 +1328,11 @@ class Pitch(Generic):
             case KeySignature(): # Preserves the Semitone
                 original_semitone = self % ou.Semitone()
                 self._key_signature << operand
-                self.key_signature(self._key_signature)
+                self.apply_key_signature(self._key_signature)
                 self << original_semitone
             case ou.Quality() | ou.Mode() | ou.Accidentals():
                 self._key_signature << operand
-                self.key_signature(self._key_signature)
+                self.apply_key_signature(self._key_signature)
 
             case ou.AbsolutePitch():
                 self.set_absolute_pitch(operand._unit)
@@ -1360,13 +1360,13 @@ class Pitch(Generic):
                     self._degree_0 = operand._unit - 1
                 elif operand == ou.Degree(0):
                     # Resets the degree to I (tonic)
-                    self._tonic_key = self._key_signature % ou.Key() % int()
+                    self.apply_key_signature(self._key_signature)
                     self._degree_0 = 0
                 elif operand._unit < 0:
                     self._degree_0 = operand._unit  # Negative remains negative!
                 # A Degree with Just an accidental defined can set just that!
             case None:  # Works as a reset
-                self._tonic_key = self._key_signature % ou.Key() % int()
+                self.apply_key_signature(self._key_signature)
                 # Resets the degree to I
                 self._degree_0 = 0
                 self._accidental = 0
@@ -1375,7 +1375,7 @@ class Pitch(Generic):
             # ADJUSTING KEYS DIRECTLY KEEPS THE SAME OCTAVE
             case ou.TonicKey():    # Must come before than Key()
                 if operand._unit < 0:
-                    self._tonic_key = self._key_signature % ou.Key() % int()
+                    self._tonic_key = self._sharps_to_tonic(self._key_signature._sharps)
                 else:
                     self._tonic_key = operand._unit % 12
             case ou.RootKey():
