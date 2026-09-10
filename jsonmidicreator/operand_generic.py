@@ -965,7 +965,10 @@ class Pitch(Generic):
         # For Semitones
         if signature_scale[tonic_to_root % 12] == 0: # Not on the Scale
             # No two consecutive empty notes! (assumption for all scales!!)
-            flats: bool = self._key_signature._sharps < 0
+            diatonic_scale: tuple[int] = self.get_diatonic_scale()
+            sharps_or_flats: tuple[int] = Scale.sharps_or_flats_picker(self._tonic_key, diatonic_scale)
+            total_sharps: int = sum(sharps_or_flats)
+            flats: bool = total_sharps < 0
             if flats:
                 tonic_to_root += 1
                 accidental = -1
@@ -1193,9 +1196,6 @@ class Pitch(Generic):
                 sharps_or_flats: tuple[int] = Scale.sharps_or_flats_picker(self._tonic_key, diatonic_scale)
                 total_sharps: int = sum(sharps_or_flats)
                 return operand.copy(total_sharps)
-            
-            case ou.Accidentals():
-                return self._key_signature % operand
             
             case int():
                 return self % ou.Octave() % int()
