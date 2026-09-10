@@ -1219,15 +1219,21 @@ class Pitch(Generic):
 
             super().loadSerialization(serialization)
             if "key_signature" in serialization["parameters"]:
-                self._key_signature = self.deserialize( serialization["parameters"]["key_signature"] )
+                self._key_signature << self.deserialize( serialization["parameters"]["key_signature"] )
+            else:
+                self._key_signature << KeySignature()
             self._tonic_key     = self.deserialize( serialization["parameters"]["tonic_key_0"] )
             self._octave_0      = self.deserialize( serialization["parameters"]["octave_0"] )
             self._degree_0      = self.deserialize( serialization["parameters"]["degree_0"] )
             self._accidental    = self.deserialize( serialization["parameters"]["accidental"] )
             if "transposition" in serialization["parameters"]:
                 self._transposition = self.deserialize( serialization["parameters"]["transposition"] )
+            else:
+                self._transposition = 0
             if "scale" in serialization["parameters"]:
                 self._scale         = self.deserialize( serialization["parameters"]["scale"] )
+            else:
+                self._scale = []
         return self
 
     def __lshift__(self, operand: any) -> Self:

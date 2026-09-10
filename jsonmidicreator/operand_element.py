@@ -346,6 +346,8 @@ class Element(o.Operand):
             super().loadSerialization(serialization)
             if "masked" in serialization["parameters"]:
                 self._masked            = self.deserialize(serialization["parameters"]["masked"])
+            else:
+                self._masked = False
             self._position_beats    = self.deserialize(serialization["parameters"]["position_beats"])
             self._duration_beats    = self.deserialize(serialization["parameters"]["duration_beats"])
         return self
