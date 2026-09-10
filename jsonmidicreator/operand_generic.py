@@ -1295,7 +1295,18 @@ class Pitch(Generic):
                 match operand._data:
                     case KeySignature(): # Preserves the chromatic_pitch
                         self._key_signature = operand._data
-                        self._diatonic_mode_0 = self._key_signature._diatonic_mode_0
+                        self.apply_key_signature(operand._data)
+
+                    case ou.Major():
+                        if operand._data: self._diatonic_mode_0 = 0    # Major
+                    case ou.Minor():
+                        if operand._data: self._diatonic_mode_0 = 5    # minor
+                    case ou.Mode():
+                        self._diatonic_mode_0 = operand._data._unit - 1
+                    case ou.Flats():
+                        self.apply_sharps(operand._data._unit * -1)
+                    case ou.Accidentals():
+                        self.apply_sharps(operand._data._unit)
 
                     case ou.TonicKey():    # Must come before than Key()
                         self._octave_0 = operand._data._unit // 12

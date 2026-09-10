@@ -63,8 +63,6 @@ def test_pitch_tonic():
     # Pitch keeps its own Key Signature
     pitch <<= KeySignature(2) # Dorian is the 2nd in the Circle of fifths
 
-    assert pitch % TonicKey() == "C"
-    pitch << TonicKey("D")   # Resets the Tonic
     assert pitch % TonicKey() == "D"
 
     new_pitch = Pitch(Accidentals(2))
@@ -1402,8 +1400,6 @@ def test_degree_set():
     assert minor_d_pitch % TonicKey() == "C"
 
     minor_d_pitch <<= KeySignature(Minor(), "b")
-    assert minor_d_pitch % TonicKey() == "C"
-    minor_d_pitch << TonicKey("D")  # Sets the Tonic to D
     assert minor_d_pitch % TonicKey() == "D"
     minor_d_pitch << KeySignature(Minor(), "b") # Resets the Tonic to D
     assert minor_d_pitch % TonicKey() == "D"
