@@ -658,7 +658,7 @@ class Dots(Generic):
         return self
 
 
-class KeySignature(Generic):       # Sharps (+) and Flats (-)
+class KeySignature(Generic):
     """`Generic -> KeySignature`
 
     A KeySignature() consists in an integer from -7 to 7 describing the amount
@@ -673,9 +673,17 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
     def __init__(self, *parameters):
         self._sharps: int = 0
         self._diatonic_mode_0: int = 0
-        self._tonic_key_0: int = 0
+        self._tonic_key: int = 0
         super().__init__(*parameters)
     
+    def _sharps_to_tonic(self, sharps: int = 0) -> int:
+        if self._diatonic_mode_0 % 7 < 7:    # Diatonic scale
+            zero_tonic_key: int = Scale.transpose_key(self._diatonic_mode_0)
+            circle_fifths_position: int = sharps
+            return (zero_tonic_key + circle_fifths_position * 7) % 12
+        return 9    # A key
+
+
     _major_scale = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)    # Major scale for the default staff
 
     def get_tonic_key(self) -> int:
@@ -701,7 +709,7 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
                     case KeySignature():        return self
                     case int():                 return self._sharps
                     case ou.Mode():             return ou.Mode(self._diatonic_mode_0 + 1)
-                    case ou.TonicKey():         return operand._data << self._tonic_key_0
+                    case ou.TonicKey():         return operand._data << self._tonic_key
                     case _:                     return super().__mod__(operand)
             case int():                 return self._sharps
             case float():
@@ -733,7 +741,7 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
                 return ou.Accidentals(self._sharps)
             case Scale():               return Scale(self % list())
             case ou.Mode():             return ou.Mode(self._diatonic_mode_0 + 1)
-            case ou.TonicKey():         return ou.TonicKey(self._tonic_key_0)
+            case ou.TonicKey():         return ou.TonicKey(self._tonic_key)
             case list():                return list(self.get_scale())
             case str():
                 if self._sharps < 0:
@@ -758,7 +766,7 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
         serialization = super().getSerialization()
         serialization["parameters"]["sharps"] = self.serialize( self._sharps )
         serialization["parameters"]["diatonic_mode_0"] = self.serialize( self._diatonic_mode_0 )
-        serialization["parameters"]["tonic_key_0"] = self.serialize( self._tonic_key_0 )
+        serialization["parameters"]["tonic_key_0"] = self.serialize( self._tonic_key )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -770,7 +778,7 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
             super().loadSerialization(serialization)
             self._sharps = self.deserialize( serialization["parameters"]["sharps"] )
             self._diatonic_mode_0 = self.deserialize( serialization["parameters"]["diatonic_mode_0"] )
-            self._tonic_key_0 = self.deserialize( serialization["parameters"]["tonic_key_0"] )
+            self._tonic_key = self.deserialize( serialization["parameters"]["tonic_key_0"] )
         return self
       
     def __lshift__(self, operand: any) -> Self:
@@ -780,44 +788,52 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
                 super().__lshift__(operand)
                 self._sharps            = operand._sharps
                 self._diatonic_mode_0   = operand._diatonic_mode_0
-                self._tonic_key_0       = operand._tonic_key_0
+                self._tonic_key         = operand._tonic_key
             case od.Pipe():
                 match operand._data:
                     case int():         self._sharps            = operand._data
                     case ou.Mode():     self._diatonic_mode_0   = operand._data._unit - 1
-                    case ou.TonicKey(): self._tonic_key_0       = operand._data._unit
+                    case ou.TonicKey(): self._tonic_key         = operand._data._unit
             case int():     self._sharps = operand
             case float():   self._diatonic_mode_0 = int(operand - 1)
             case ou.Major():
                 if operand: self._diatonic_mode_0 = 0    # Major
+                self._tonic_key = self._sharps_to_tonic()
             case ou.Minor():
                 if operand: self._diatonic_mode_0 = 5    # minor
-            case ou.Flats():
-                self._sharps = operand._unit * -1
-            case ou.Accidentals():
-                self._sharps = operand._unit
-            case ou.Key():
-                self._sharps = sum( Scale.sharps_or_flats_picker(operand._unit, self % list()) )
+                self._tonic_key = self._sharps_to_tonic()
             case ou.Mode():
                 self._diatonic_mode_0 = operand._unit - 1
-            case ou.TonicKey():
-                self._tonic_key_0 = operand._unit
+                self._tonic_key = self._sharps_to_tonic()
+            case ou.Flats():
+                self._sharps = operand._unit * -1
+                self._tonic_key = self._sharps_to_tonic(operand._unit * -1)
+            case ou.Accidentals():
+                self._sharps = operand._unit
+                self._tonic_key = self._sharps_to_tonic(operand._unit)
+            case ou.Key():
+                self._sharps = sum( Scale.sharps_or_flats_picker(operand._unit, self % list()) )
+                self._tonic_key = operand._unit
             case Scale():
                 for mode_0 in range(7):
                     if self.get_scale() == operand._scale:
                         self._diatonic_mode_0 = mode_0
+                        self._tonic_key = self._sharps_to_tonic()
                         break
             case str(): # Processes series of "#" and "b"
                 if len(operand) == 0:
                     self._sharps = 0
+                    self._tonic_key = self._sharps_to_tonic()
                 else:
                     sharps = re.findall(r"#+", operand)
                     if len(sharps) > 0:
                         self._sharps = len(sharps[0])
+                        self._tonic_key = self._sharps_to_tonic(len(sharps[0]))
                     else:
                         flats = re.findall(r"b+", operand)
                         if len(flats) > 0:
                             self._sharps = -len(flats[0])
+                            self._tonic_key = self._sharps_to_tonic(-len(flats[0]))
             case _: 
                 super().__lshift__(operand)
         return self
