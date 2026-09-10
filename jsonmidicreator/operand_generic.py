@@ -1288,6 +1288,7 @@ class Pitch(Generic):
                 match operand._data:
                     case KeySignature(): # Preserves the chromatic_pitch
                         self._key_signature = operand._data
+                        self._diatonic_mode_0 = self._key_signature._diatonic_mode_0
 
                     case ou.TonicKey():    # Must come before than Key()
                         self._octave_0 = operand._data._unit // 12
@@ -1327,7 +1328,7 @@ class Pitch(Generic):
             case KeySignature(): # Preserves the Semitone
                 original_semitone = self % ou.Semitone()
                 self._key_signature << operand
-                self._tonic_key = self._key_signature.get_tonic_key()   # Setting a Key Signature adjusts the Tonic Key accordingly
+                self.key_signature(self._key_signature)
                 self << original_semitone
             case ou.Quality() | ou.Mode() | ou.Accidentals():
                 self._key_signature << operand
