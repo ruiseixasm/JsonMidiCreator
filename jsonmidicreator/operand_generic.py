@@ -919,10 +919,6 @@ class Pitch(Generic):
         return self << ou.Degree(unit)
 
 
-    def apply_key_signature(self, key_signature: KeySignature) -> Self:
-        self._tonic_key         = self._sharps_to_tonic(key_signature._sharps)
-        return self
-
     def _sharps_to_tonic(self, sharps: int = 0) -> int:
         if self._diatonic_mode_0 % 7 < 7:    # Diatonic scale
             zero_tonic_key: int = Scale.transpose_key(self._diatonic_mode_0)
@@ -942,6 +938,9 @@ class Pitch(Generic):
     def apply_sharps(self, sharps: int = 0) -> Self:
         self._tonic_key = self._sharps_to_tonic(sharps)
         return self
+
+    def apply_key_signature(self, key_signature: KeySignature) -> Self:
+        return self.apply_sharps(key_signature._sharps)
 
     def reset_tonic_key(self) -> Self:
         self._tonic_key = self._sharps_to_tonic()
