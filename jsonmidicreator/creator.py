@@ -133,8 +133,8 @@ def saveJsonMidiCreator(serialization: dict, filename):
                     "in_section": "The position of the `Section`, to be added to the positions of the respective `Element`s encapsulated by it"
                 },
                 "tied_to_previous": "Notes can only be tied to the previous `Note`, so, they work as duration extension of the previous one",
-                "accidental": "The accidentals are chromatic offsets on the Key Signature and NOT on the Major Scale necessarily",
-                "sharps": "Negative values mean Flats",
+                "accidental": "The accidental is a chromatic offset on the selected scale, relative to its tonic and NOT necessarilly to the Major scale",
+                "sharps": "For diatonic modes `0-6`, positive values mean Sharps and negative values mean Flats",
                 "diatonic_mode_0": {
                     "description": "Sets the Diatonic scale or other 7 keys scales, where `0` means Major and `5` means minor",
                     "values": {
@@ -158,17 +158,6 @@ def saveJsonMidiCreator(serialization: dict, filename):
                             "parameters": {
                                 "top": 4,
                                 "bottom": 4
-                            }
-                        }
-                    }
-                },
-                "Pitch": {
-                    "parameters": {
-                        "key_signature": {
-                            "class": "KeySignature",
-                            "parameters": {
-                                "sharps": 0,
-                                "diatonic_mode_0": 0
                             }
                         }
                     }
