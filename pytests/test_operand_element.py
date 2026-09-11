@@ -77,6 +77,7 @@ def test_note_mod():
     playlist: list = [    
         {
             "time_ms": 1909.091,
+            "position_beats": [7, 2],
             "midi_message": {
                 "status_byte": 144,
                 "data_byte_1": 60,
@@ -89,6 +90,7 @@ def test_note_mod():
         },
         {
             "time_ms": 2454.545,
+            "position_beats": [9, 2],
             "midi_message": {
                 "status_byte": 128,
                 "data_byte_1": 60,
@@ -104,6 +106,7 @@ def test_note_mod():
     # Only in a Clip is an Element positioned
     first_note = Clip() + Note(Position(Steps(3*4 + 2)))
     first_note_playlist = playlist_time_ms( first_note.getPlaylist() )
+    print(first_note_playlist)
 
     # Sets the common device as that isn't being check
     first_note_playlist[0]["midi_message"]["device"] = playlist[0]["midi_message"]["device"]

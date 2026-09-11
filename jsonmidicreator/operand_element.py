@@ -2435,10 +2435,7 @@ class Note(ChannelElement):
             if position_beats is not None:
                 absolute_position_beats = position_beats + single_note._position_beats
 
-            self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
-            self_duration_min: Fraction = og.settings.beats_to_minutes(single_note._duration_beats)
-
-            if self_position_min < 0 or self_duration_min <= 0:
+            if absolute_position_beats < 0 or single_note._duration_beats <= 0:
                 continue    # Next note
 
             pitch_int: int = single_note._pitch.get_absolute_pitch()
@@ -2453,10 +2450,14 @@ class Note(ChannelElement):
                     {"devices": devices}
                 )
 
+            self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
+            self_duration_min: Fraction = og.settings.beats_to_minutes(single_note._duration_beats)
+
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist.append(
                 {
                     "time_ms": o.minutes_to_time_ms(self_position_min),
+                    "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                     "midi_message": {
                         "status_byte": 0x90 | single_note._channel_0,
                         "data_byte_1": pitch_int,
@@ -2464,9 +2465,11 @@ class Note(ChannelElement):
                     }
                 }
             )
+            finish_position_beats: Fraction = absolute_position_beats + single_note._duration_beats
             self_playlist.append(
                 {
                     "time_ms": o.minutes_to_time_ms(self_position_min + self_duration_min * single_note._gate),
+                    "position_beats": [finish_position_beats.numerator, finish_position_beats.denominator],
                     "midi_message": {
                         "status_byte": 0x80 | single_note._channel_0,
                         "data_byte_1": pitch_int,
@@ -4521,9 +4524,7 @@ class Aftertouch(Automatable):
         if position_beats is not None:
             absolute_position_beats = position_beats + self._position_beats
 
-        self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
-
-        if self_position_min >= 0:
+        if absolute_position_beats >= 0:
 
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist: list[dict] = []
@@ -4535,10 +4536,13 @@ class Aftertouch(Automatable):
                 self_playlist.append(
                     {"devices": devices}
                 )
+
+            self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist.append(
                 {
                     "time_ms": o.minutes_to_time_ms(self_position_min),
+                    "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                     "midi_message": {
                         "status_byte": 0xD0 | self._channel_0,
                         "data_byte": clamp_value_128(self._pressure)
