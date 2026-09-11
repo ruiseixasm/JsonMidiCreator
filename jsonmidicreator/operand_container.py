@@ -2115,6 +2115,7 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case Clip():
                 super().__lshift__(operand)
+                self._time_signature << operand._time_signature
                 self._track_number  = operand._track_number
                 self._enabled       = operand._enabled
                 self._set_owner_clip()

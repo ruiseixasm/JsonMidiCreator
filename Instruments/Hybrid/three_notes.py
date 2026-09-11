@@ -6,6 +6,6 @@ three_notes = Clip(TimeSignature(7, 4), Name("Riffle"), Line(
     "n:3b:C5, :2b:D5, ::D#5"
 ))
 
-three_notes /= 4
+three_notes *= 4
 
 three_notes >> Plot()
