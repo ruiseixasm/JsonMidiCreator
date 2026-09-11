@@ -1917,8 +1917,11 @@ class Clock(DeviceElement):
                 for clock_pulse in range(1, total_clock_pulses):
                     self_playlist.append(
                         {
-                            "time_ms": o.minutes_to_time_ms(distance_min * clock_pulse),
-                            "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
+                            "time_ms": o.minutes_to_time_ms(self_position_min + distance_min * clock_pulse),
+                            "position_beats": [
+                                (absolute_position_beats + distance_beats * clock_pulse).numerator,
+                                (absolute_position_beats + distance_beats * clock_pulse).denominator
+                            ],
                             "midi_message": {
                                 "status_byte": 0xF8     # Timing Clock
                             }
@@ -1928,7 +1931,11 @@ class Clock(DeviceElement):
                 # Last quarter note pulse (45 pulses where this last one sets the stop)
                 self_playlist.append(
                     {
-                        "time_ms": o.minutes_to_time_ms(distance_min * total_clock_pulses),
+                        "time_ms": o.minutes_to_time_ms(absolute_position_beats + distance_min * total_clock_pulses),
+                        "position_beats": [
+                            (absolute_position_beats + distance_beats * total_clock_pulses).numerator,
+                            (absolute_position_beats + distance_beats * total_clock_pulses).denominator
+                        ],
                         "midi_message": {
                             "status_byte": 0xFC         # Stop Track
                         }
@@ -1938,7 +1945,11 @@ class Clock(DeviceElement):
                 # Resets the position back to 0
                 self_playlist.append(
                     {
-                        "time_ms": o.minutes_to_time_ms(distance_min * total_clock_pulses),
+                        "time_ms": o.minutes_to_time_ms(absolute_position_beats + distance_min * total_clock_pulses),
+                        "position_beats": [
+                            (absolute_position_beats + distance_beats * total_clock_pulses).numerator,
+                            (absolute_position_beats + distance_beats * total_clock_pulses).denominator
+                        ],
                         "midi_message": {
                             "status_byte": 0xF2,    # Send a Part Position Pointer (SPP)
                             "data_byte_1": 0,       # Reset
