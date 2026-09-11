@@ -3327,7 +3327,7 @@ class Export(ReadOnly):
 
     def _direct_process(self, operand: o.T) -> o.T:
         from . import operand_container as oc
-        playlist_clocking: list[dict] = settings.getPlaylist()
+        clocking: dict[str, list] = settings.getClocking()
         match operand:
             case o.Operand():
                 file_path: str = self._parameters
@@ -3339,8 +3339,8 @@ class Export(ReadOnly):
                         file_path = folder + "json/_Export_jsonMidiPlayer.json"
                 else: # Folder is just a prefix
                     file_path = folder + file_path
-                playlist_content: list[dict] = self._clocked_playlist(operand)
-                c.saveJsonMidiPlay(playlist_clocking, playlist_content, file_path)
+                playlist: list[dict] = self._clocked_playlist(operand)
+                c.saveJsonMidiPlay(clocking, playlist, file_path)
                 return operand
             case _:
                 return super().__rrshift__(operand)
@@ -4639,34 +4639,34 @@ class Play(ReadOnly):
         import threading
         from . import operand_element as oe
         from . import operand_container as oc
-        playlist_clocking: list[dict] = settings.getPlaylist()
+        clocking: dict[str, list] = settings.getClocking()
         match operand:
             case oc.Composition():
                 if operand._items:
-                    playlist_content: list[dict] = self._clocked_playlist(operand)  # Where the heavy lifting method is called
+                    playlist: list[dict] = self._clocked_playlist(operand)  # Where the heavy lifting method is called
                     if self._parameters[1] and self._parameters[2]:
                         # Start the function in a new process
-                        process = threading.Thread(target=c.jsonMidiPlay, args=(playlist_content, self._parameters[0], self._parameters[3]))
+                        process = threading.Thread(target=c.jsonMidiPlay, args=(playlist, self._parameters[0], self._parameters[3]))
                         process.start()
                         operand >> Plot(self._parameters[2])
                     else:
                         if self._parameters[1] and not self._parameters[2]:
                             operand >> Plot(self._parameters[2])
-                        c.jsonMidiPlay(playlist_clocking, playlist_content, self._parameters[0], self._parameters[3])
+                        c.jsonMidiPlay(clocking, playlist, self._parameters[0], self._parameters[3])
                 else:
                     print(f"Warning: Trying to play an **empty** list!")
                 return operand
             case oe.Element():
-                playlist_content: list[dict] = self._clocked_playlist(operand)  # Where the heavy lifting method is called
+                playlist: list[dict] = self._clocked_playlist(operand)  # Where the heavy lifting method is called
                 if self._parameters[1] and self._parameters[2]:
                     # Start the function in a new process
-                    process = threading.Thread(target=c.jsonMidiPlay, args=(playlist_clocking, playlist_content, self._parameters[0], self._parameters[3]))
+                    process = threading.Thread(target=c.jsonMidiPlay, args=(clocking, playlist, self._parameters[0], self._parameters[3]))
                     process.start()
                     operand >> Plot(self._parameters[2])
                 else:
                     if self._parameters[1] and not self._parameters[2]:
                         operand >> Plot(self._parameters[2])
-                    c.jsonMidiPlay(playlist_clocking, playlist_content, self._parameters[0], self._parameters[3])
+                    c.jsonMidiPlay(clocking, playlist, self._parameters[0], self._parameters[3])
                 return operand
             case od.Line():
                 line_clip = oc.Clip(operand)
@@ -4675,8 +4675,8 @@ class Play(ReadOnly):
                 line = od.Line(operand)
                 self.__rrshift__(line)
             case od.Playlist():
-                playlist_content: list[dict] = self._clocked_playlist(operand)  # Where the heavy lifting method is called
-                c.jsonMidiPlay(playlist_clocking, playlist_content, self._parameters[0], self._parameters[3])
+                playlist: list[dict] = self._clocked_playlist(operand)  # Where the heavy lifting method is called
+                c.jsonMidiPlay(clocking, playlist, self._parameters[0], self._parameters[3])
                 return operand
             case _:
                 return super().__rrshift__(operand)
