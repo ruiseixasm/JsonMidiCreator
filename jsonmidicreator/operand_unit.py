@@ -20,12 +20,24 @@ from typing import Self
 from fractions import Fraction
 import json
 import re
+import time
 import math
 # Json Midi Creator Libraries
 from . import creator as c
 from . import operand as o
 from . import operand_data as od
 from . import operand_label as ol
+
+# Define ANSI escape codes for colors
+RED = "\033[91m"
+RESET = "\033[0m"
+
+try:
+    # pip install keyboard
+    import keyboard as kb
+except ImportError:
+    print(f"{RED}Error: The 'keyboard' library is not installed.{RESET}")
+    print("Please install it by running 'pip install keyboard'.")
 
 
 class Unit(o.Operand):
@@ -223,6 +235,123 @@ class Unit(o.Operand):
                 if number._rational != 0:
                     self._unit = int( self._unit / number._rational )
         return self
+
+
+class Tempo(Unit):
+    """`Unit -> Tempo`
+
+    Tempo() represents the TimeSignature Beats per Minute (BPM). The default is 120 BPM.
+
+    Parameters
+    ----------
+    int(120), float, Fraction : The playing tempo with the default as 120 BPM (Beats Per Minute).
+    
+    Examples
+    --------
+    Gets the TimeSignature Steps per Measure:
+    >>> staff = TimeSignature(Tempo(110))
+    >>> staff % Tempo() % Fraction() >> Print()
+    110
+    """
+    def __init__(self, *parameters):
+        super().__init__(120, *parameters)
+
+    def __eq__(self, other: any) -> bool:
+        match other:
+            case int() | float() | Fraction():
+                return self._unit == int(other * 10)
+        return super().__eq__(other)
+    
+    def __lt__(self, other: any) -> bool:
+        match other:
+            case int() | float() | Fraction():
+                return self._unit < int(other * 10)
+        return super().__lt__(other)
+    
+    def __gt__(self, other: any) -> bool:
+        match other:
+            case int() | float() | Fraction():
+                return self._unit > int(other * 10)
+        return super().__gt__(other)
+    
+    def __str__(self):
+        return f'{str(round(float(self._unit / 10), 1))}'
+    
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case int():             return int(super().__mod__(operand) / 10)
+            case float() | Fraction():
+                                    return super().__mod__(operand) / 10
+            case str():             return str(round(float(self._unit / 10), 1))
+            case _:                 return super().__mod__(operand)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case str():
+                # r"\W(.)\1\W" vs "\\W(.)\\1\\W"
+                tempo = re.findall(r"\d+(?:\.\d+)?", operand)
+                if len(tempo) > 0:
+                    self.__lshift__(float(tempo[0]) * 10)
+            case int() | float() | Fraction():
+                super().__lshift__(operand * 10)
+            case _:
+                super().__lshift__(operand)
+        # Makes sure it's positive
+        self._unit = max(10, self._unit)
+        return self
+
+    def __iadd__(self, value: Union['Unit', Fraction, float, int]) -> 'Tempo':
+        super().__iadd__(value * 10)
+        # Makes sure it's positive
+        self._unit = max(10, self._unit)
+        return self
+    
+    def __isub__(self, value: Union['Unit', Fraction, float, int]) -> 'Tempo':
+        super().__isub__(value * 10)
+        # Makes sure it's positive
+        self._unit = max(Fraction(1), self._unit)
+        return self
+    
+    def __imul__(self, value: Union['Unit', Fraction, float, int]) -> 'Tempo':
+        super().__imul__(value * 10)
+        # Makes sure it's positive
+        self._unit = max(Fraction(1), self._unit)
+        return self
+    
+    def __itruediv__(self, value: Union['Unit', Fraction, float, int]) -> 'Tempo':
+        super().__itruediv__(value * 10)
+        # Makes sure it's positive
+        self._unit = max(Fraction(1), self._unit)
+        return self
+
+    def read(self) -> Self:
+        events_site: int = 10
+        timings_minutes: list[int] = []
+        last_read_event: int = None
+        print("Press and release SHIFT for each Element. Press ENTER to stop.")
+        while True:
+            event = kb.read_event(suppress=True)    # suppress stops it reaching terminal
+            if event.name in ("shift", "left shift", "right shift") and event.event_type == "down":
+                shift_event_ms: int = int(time.time() * 1000)
+                if last_read_event is None:
+                    last_read_event = shift_event_ms
+                else:
+                    elapsed_minutes: Fraction = o.time_ms_to_minutes(shift_event_ms - last_read_event)
+                    last_read_event = shift_event_ms
+                    timings_minutes.append(elapsed_minutes)
+                    if len(timings_minutes) > 1:
+                        if len(timings_minutes) > events_site:
+                            timings_minutes.pop(0)
+                        average_timings: float = sum(timings_minutes) / len(timings_minutes)
+                        self._unit = int(1 / average_timings * 10)
+                        print(f"Tempo: {round(float(self._unit) / 10, 1)} bpm")
+            elif event.name == "enter" and event.event_type == "down":
+                break
+        return self
+
 
 class Port(Unit):
     """`Unit -> Port`

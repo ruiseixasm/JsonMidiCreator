@@ -3106,10 +3106,6 @@ class Process(Generic):
             case oc.Composition() | oe.Element():
                 if isinstance(operand, oc.Composition) and operand.len() == 0:
                     return playlist # exits with nothing right away
-                # Generates the Clock data regardless, needed for correct JsonMidiPlayer processing
-                clock_length: ra.Length = (operand.finish() % ra.Length()).roundMeasures()
-                default_clock._duration_beats = ra.Duration(clock_length)._rational # The same staff will be given next
-                playlist.extend( default_clock.getPlaylist( time_signature = operand._get_time_signature() ) )  # Clock Playlist
                 playlist.extend( operand.getPlaylist() )    # Operand Playlist
             case od.Playlist():
 
@@ -3573,7 +3569,7 @@ class Plot(ReadOnly):
 
         # Horizontal X-Axis, Time related (COMMON)
 
-        composition_tempo: float = float(plotlist[0]["tempo"])
+        composition_tempo: float = float(plotlist[0]["tempo_10"])
         # # 1. Disable autoscaling and force limits
         # self._ax.set_autoscalex_on(False)
         # current_min, current_max = self._ax.get_xlim()
@@ -4818,7 +4814,7 @@ class Read(Process):
 
     def _direct_process(self, operand: o.T) -> o.T:
         from . import operand_element as oe
-        if isinstance(operand, (oe.Element, ra.Tempo)):
+        if isinstance(operand, (oe.Element, ou.Tempo)):
             return operand.read()
         else:
             print(f"Warning: Operand is NOT an `Element` os a `Tempo`!")
@@ -5594,7 +5590,7 @@ class Settings(Generic):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._tempo: Fraction                       = Fraction(120)
+        self._tempo_10: int                         = 1200  # Multiplied by 10
         self._quantization: Fraction                = Fraction(1/4) # Quantization is in Beats ratio
         self._time_signature: TimeSignature         = TimeSignature(4, 4)
         self._diatonic_mode_0: int                  = 0
@@ -5607,20 +5603,11 @@ class Settings(Generic):
             self << single_parameter
 
 
-    def convert_time_to_measures(self, minutes: int = 0, seconds: int = 0) -> int:
-        actual_bps: Fraction = settings._tempo / 60 # Beats Per Second
-        time_seconds: int = 60 * minutes + seconds
-        beats_per_measure: int = self._time_signature._top
-        total_beats: Fraction = time_seconds * actual_bps
-        total_measures: int = int(total_beats / beats_per_measure)
-        return total_measures
-
-
     def beats_to_minutes(self, beats: Fraction) -> Fraction:
-        return beats / self._tempo
+        return beats / self._tempo_10 * 10
 
     def minutes_to_beats(self, minutes: Fraction) -> Fraction:
-        return minutes * self._tempo
+        return minutes * self._tempo_10 / 10
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -5629,7 +5616,8 @@ class Settings(Generic):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case ra.Tempo():            return ra.Tempo(self._tempo)
+                    case ou.Tempo():
+                        return operand._data << od.Pipe(self._tempo_10)
                     case ra.Quantization():     return operand._data << self._quantization
                     case ra.StepsPerNote():
                         return ra.StepsPerNote() << od.Pipe( 1 / self._quantization )
@@ -5648,7 +5636,7 @@ class Settings(Generic):
                     case oc.Devices():          return oc.Devices(self._devices)
                     case od.Folder():           return od.Folder(self._folder)
                     case _:                     return super().__mod__(operand)
-            case ra.Tempo():            return ra.Tempo(self._tempo)
+            case ou.Tempo():            return ou.Tempo(od.Pipe(self._tempo_10))
             case ra.Quantization():     return operand.copy(self._quantization)
             case ra.StepsPerNote():
                 return ra.StepsPerNote() << 1 / self._quantization
@@ -5682,7 +5670,7 @@ class Settings(Generic):
             return False
         if isinstance(other, od.Conditional):
             return other == self
-        return  self._tempo                 == other._tempo \
+        return  self._tempo_10                 == other._tempo_10 \
             and self._quantization          == other._quantization \
             and self._time_signature        == other._time_signature \
             and self._diatonic_mode_0       == other._diatonic_mode_0 \
@@ -5698,7 +5686,7 @@ class Settings(Generic):
             "devices": self._clocked_devices,
             "tempos": [
                 {
-                    "bpm_10": int(self._tempo * 10),
+                    "bpm_10": self._tempo_10,
                     "position_beats": [0, 1]
                 }
             ]
@@ -5706,7 +5694,7 @@ class Settings(Generic):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["tempo"]                = self.serialize( self._tempo )
+        serialization["parameters"]["tempo_10"]             = self.serialize( self._tempo_10 )
         serialization["parameters"]["quantization"]         = self.serialize( self._quantization )
         serialization["parameters"]["time_signature"]       = self.serialize( self._time_signature )
         serialization["parameters"]["diatonic_mode_0"]      = self.serialize( self._diatonic_mode_0 )
@@ -5721,13 +5709,13 @@ class Settings(Generic):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "tempo" in serialization["parameters"] and "quantization" in serialization["parameters"] and
+            "tempo_10" in serialization["parameters"] and "quantization" in serialization["parameters"] and
             "time_signature" in serialization["parameters"] and "diatonic_mode_0" in serialization["parameters"] and
             "key_signature" in serialization["parameters"] and "controller" in serialization["parameters"] and
             "devices" in serialization["parameters"] and "clocked_devices" in serialization["parameters"] and "folder" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._tempo                 = self.deserialize( serialization["parameters"]["tempo"] )
+            self._tempo_10                 = self.deserialize( serialization["parameters"]["tempo_10"] )
             self._quantization          = self.deserialize( serialization["parameters"]["quantization"] )
             self._time_signature        = self.deserialize( serialization["parameters"]["time_signature"] )
             self._diatonic_mode_0       = self.deserialize( serialization["parameters"]["diatonic_mode_0"] )
@@ -5745,7 +5733,7 @@ class Settings(Generic):
         match operand:
             case Settings():
                 super().__lshift__(operand)
-                self._tempo                 = operand._tempo
+                self._tempo_10                 = operand._tempo_10
                 self._quantization          = operand._quantization
                 self._time_signature        << operand._time_signature
                 self._diatonic_mode_0       = operand._diatonic_mode_0
@@ -5756,7 +5744,7 @@ class Settings(Generic):
                 self._folder                = operand._folder
             case od.Pipe():
                 match operand._data:
-                    case ra.Tempo():                self._tempo = operand._data._rational
+                    case ou.Tempo():                self._tempo_10 = operand._data._unit
                     case ra.Quantization():         self._quantization = operand._data._rational
                     case TimeSignature():           self._time_signature = operand._data
                     case ou.Major():
@@ -5772,7 +5760,7 @@ class Settings(Generic):
                     case od.Folder():               self._folder = operand._data._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ra.Tempo():            self._tempo = operand._rational
+            case ou.Tempo():            self._tempo_10 = operand._unit
             case ra.Quantization():     self._quantization = operand._rational
             case ra.StepsPerNote():
                 self._quantization = 1 / (operand % Fraction())
@@ -5811,8 +5799,8 @@ class Settings(Generic):
                     self_devices += operand
                     self._devices = self_devices % od.Pipe( list() )
                 return self
-            case ra.Tempo():
-                self._tempo += operand._rational
+            case ou.Tempo():
+                self._tempo_10 += operand._unit
                 return self
         return super().__iadd__(operand)
 
@@ -5824,8 +5812,8 @@ class Settings(Generic):
                 self_devices -= operand
                 self._devices = self_devices % od.Pipe( list() )
                 return self
-            case ra.Tempo():
-                self._tempo -= operand._rational
+            case ou.Tempo():
+                self._tempo_10 -= operand._unit
                 return self
         return super().__isub__(operand)
 

@@ -1,5 +1,7 @@
 from jsonmidicreator import *
 
+settings << ClockedDevices("loop") << Tempo(100.5)
+
 RD_Hybrid.program_change(27, 1) >> Play()   # Sets the instrument to 27. Steel Galloper
 
 three_notes = Clip(TimeSignature(7, 4), Name("Riffle"), Line(

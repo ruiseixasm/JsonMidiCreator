@@ -18,8 +18,6 @@ from typing import Union, TypeVar, TYPE_CHECKING, Type, Callable, List, Tuple, O
 from typing import Self
 
 from fractions import Fraction
-import re
-import time
 import math
 # Json Midi Creator Libraries
 from . import creator as c
@@ -386,95 +384,6 @@ class Strictness(Rational):
     """
     def __init__(self, *parameters):
         super().__init__(1, *parameters)
-
-
-class Tempo(Rational):
-    """`Rational -> Tempo`
-
-    Tempo() represents the TimeSignature Beats per Minute (BPM). The default is 120 BPM.
-
-    Parameters
-    ----------
-    Fraction(120) : The playing tempo with the default as 120 BPM (Beats Per Minute).
-    
-    Examples
-    --------
-    Gets the TimeSignature Steps per Measure:
-    >>> staff = TimeSignature(Tempo(110))
-    >>> staff % Tempo() % Fraction() >> Print()
-    110
-    """
-    def __init__(self, *parameters):
-        super().__init__(120, *parameters)
-
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case str():             return str(round(float(self._rational), 1))
-            case _:                 return super().__mod__(operand)
-
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case str():
-                # r"\W(.)\1\W" vs "\\W(.)\\1\\W"
-                tempo = re.findall(r"\d+(?:\.\d+)?", operand)
-                if len(tempo) > 0:
-                    self << float(tempo[0])
-            case _: super().__lshift__(operand)
-        # Makes sure it's positive
-        self._rational = max(Fraction(1), self._rational)
-        return self
-
-    def __iadd__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Tempo':
-        super().__iadd__(value)
-        # Makes sure it's positive
-        self._rational = max(Fraction(1), self._rational)
-        return self
-    
-    def __isub__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Tempo':
-        super().__isub__(value)
-        # Makes sure it's positive
-        self._rational = max(Fraction(1), self._rational)
-        return self
-    
-    def __imul__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Tempo':
-        super().__imul__(value)
-        # Makes sure it's positive
-        self._rational = max(Fraction(1), self._rational)
-        return self
-    
-    def __itruediv__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Tempo':
-        super().__itruediv__(value)
-        # Makes sure it's positive
-        self._rational = max(Fraction(1), self._rational)
-        return self
-
-    def read(self) -> Self:
-        events_site: int = 10
-        timings_minutes: list[int] = []
-        last_read_event: int = None
-        print("Press and release SHIFT for each Element. Press ENTER to stop.")
-        while True:
-            event = kb.read_event(suppress=True)    # suppress stops it reaching terminal
-            if event.name in ("shift", "left shift", "right shift") and event.event_type == "down":
-                shift_event_ms: int = int(time.time() * 1000)
-                if last_read_event is None:
-                    last_read_event = shift_event_ms
-                else:
-                    elapsed_minutes: Fraction = o.time_ms_to_minutes(shift_event_ms - last_read_event)
-                    last_read_event = shift_event_ms
-                    timings_minutes.append(elapsed_minutes)
-                    if len(timings_minutes) > 1:
-                        if len(timings_minutes) > events_site:
-                            timings_minutes.pop(0)
-                        average_timings: float = sum(timings_minutes) / len(timings_minutes)
-                        self._rational = 1 / average_timings
-                        print(f"Tempo: {round(float(self._rational), 1)} bpm")
-            elif event.name == "enter" and event.event_type == "down":
-                break
-        return self
 
 
 class TimeSignatureParameter(Rational):
