@@ -1457,8 +1457,6 @@ class Talkie(Element):
         #     6 echo
         #     7 error
 
-        self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
-
         self_playlist: list[dict] = [
             {
                 "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
@@ -1734,9 +1732,7 @@ class DeviceElement(Element):
         if position_beats is not None:
             absolute_position_beats = position_beats + self._position_beats
 
-        self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
-
-        if self_position_min < 0:
+        if absolute_position_beats < 0:
             return []
         return [
                 {
@@ -1845,113 +1841,76 @@ class Clock(DeviceElement):
 
         pulses_per_note: int = self._clock_ppqn * 4
 
-        # Set to be used as a Global clock !
-        if isinstance(time_signature, og.TimeSignature):
+        notes_per_beat: Fraction = self._get_time_signature() % ra.BeatNoteValue() % Fraction()
+        pulses_per_beat: Fraction = notes_per_beat * pulses_per_note
+        total_clock_pulses: int = int( self._duration_beats * pulses_per_beat )
+        # Global duration of the entire clocking period
+        absolute_position_beats = position_beats + self._position_beats
 
-            notes_per_beat: Fraction = time_signature % ra.BeatNoteValue() % Fraction()
-            pulses_per_beat: Fraction = notes_per_beat * pulses_per_note
-            total_clock_pulses: int = int(self._duration_beats * pulses_per_beat)
-            # Global duration of the entire clocking period
-            self_duration_min: Fraction = og.settings.beats_to_minutes(self._duration_beats)
-            
-            if self_duration_min > 0:
+        if absolute_position_beats >= 0 and self._duration_beats > 0:
 
-                distance_min: Fraction = self_duration_min / total_clock_pulses
-
-                # Always send the clock/tempo data
+            # Starts by setting the Devices
+            if devices_header:
+                devices: list[str] = og.settings._devices
+                if self._owner_clip is not None:
+                    devices = self._owner_clip._devices
                 self_playlist.append(
-                    {
-                        "clock": {
-                            # Has to add the extra Stop pulse message afterwards at (single_pulse_duration_min * total_clock_pulses)
-                            "total_clock_pulses": total_clock_pulses,
-                            "pulse_duration_min_numerator": distance_min.numerator,
-                            "pulse_duration_min_denominator": distance_min.denominator,
-                            "clocked_devices": list(set(og.settings._clocked_devices)),
-                            "controlled_devices": list(set(og.settings._controlled_devices))
-                        },
-                        "tempo": {
-                            "f": "JsonMidiCreator",
-                            "bpm_10": round(float(og.settings._tempo * 10))
-                        }
-                    }
+                    {"devices": devices}
                 )
 
-        # NORMAL use case scenario
-        else:
-
-            notes_per_beat: Fraction = self._get_time_signature() % ra.BeatNoteValue() % Fraction()
-            pulses_per_beat: Fraction = notes_per_beat * pulses_per_note
-            total_clock_pulses: int = int( self._duration_beats * pulses_per_beat )
-            # Global duration of the entire clocking period
-            absolute_position_beats = position_beats + self._position_beats
-            self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
-            self_duration_min: Fraction = og.settings.beats_to_minutes(self._duration_beats)
-
-            if self_position_min >= 0 and self_duration_min > 0:
-
-                # Starts by setting the Devices
-                if devices_header:
-                    devices: list[str] = og.settings._devices
-                    if self._owner_clip is not None:
-                        devices = self._owner_clip._devices
-                    self_playlist.append(
-                        {"devices": devices}
-                    )
-
-                # First quarter note pulse (total 1 in 24 pulses per quarter note)
-                self_playlist.append(
-                    {
-                        "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
-                        "midi_message": {
-                            "status_byte": 0xFA     # Start Track
-                        }
+            # First quarter note pulse (total 1 in 24 pulses per quarter note)
+            self_playlist.append(
+                {
+                    "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
+                    "midi_message": {
+                        "status_byte": 0xFA     # Start Track
                     }
-                )
-            
-                distance_beats = self._duration_beats / total_clock_pulses
-                distance_min: Fraction = og.settings.beats_to_minutes(distance_beats)
+                }
+            )
+        
+            distance_beats = self._duration_beats / total_clock_pulses
 
-                # Middle quarter note pulses (total 23 in 24 pulses per quarter note)
-                for clock_pulse in range(1, total_clock_pulses):
-                    self_playlist.append(
-                        {
-                            "position_beats": [
-                                (absolute_position_beats + distance_beats * clock_pulse).numerator,
-                                (absolute_position_beats + distance_beats * clock_pulse).denominator
-                            ],
-                            "midi_message": {
-                                "status_byte": 0xF8     # Timing Clock
-                            }
-                        }
-                    )
-
-                # Last quarter note pulse (45 pulses where this last one sets the stop)
+            # Middle quarter note pulses (total 23 in 24 pulses per quarter note)
+            for clock_pulse in range(1, total_clock_pulses):
                 self_playlist.append(
                     {
                         "position_beats": [
-                            (absolute_position_beats + distance_beats * total_clock_pulses).numerator,
-                            (absolute_position_beats + distance_beats * total_clock_pulses).denominator
+                            (absolute_position_beats + distance_beats * clock_pulse).numerator,
+                            (absolute_position_beats + distance_beats * clock_pulse).denominator
                         ],
                         "midi_message": {
-                            "status_byte": 0xFC         # Stop Track
+                            "status_byte": 0xF8     # Timing Clock
                         }
                     }
                 )
 
-                # Resets the position back to 0
-                self_playlist.append(
-                    {
-                        "position_beats": [
-                            (absolute_position_beats + distance_beats * total_clock_pulses).numerator,
-                            (absolute_position_beats + distance_beats * total_clock_pulses).denominator
-                        ],
-                        "midi_message": {
-                            "status_byte": 0xF2,    # Send a Part Position Pointer (SPP)
-                            "data_byte_1": 0,       # Reset
-                            "data_byte_2": 0        # Reset
-                        }
+            # Last quarter note pulse (45 pulses where this last one sets the stop)
+            self_playlist.append(
+                {
+                    "position_beats": [
+                        (absolute_position_beats + distance_beats * total_clock_pulses).numerator,
+                        (absolute_position_beats + distance_beats * total_clock_pulses).denominator
+                    ],
+                    "midi_message": {
+                        "status_byte": 0xFC         # Stop Track
                     }
-                )
+                }
+            )
+
+            # Resets the position back to 0
+            self_playlist.append(
+                {
+                    "position_beats": [
+                        (absolute_position_beats + distance_beats * total_clock_pulses).numerator,
+                        (absolute_position_beats + distance_beats * total_clock_pulses).denominator
+                    ],
+                    "midi_message": {
+                        "status_byte": 0xF2,    # Send a Part Position Pointer (SPP)
+                        "data_byte_1": 0,       # Reset
+                        "data_byte_2": 0        # Reset
+                    }
+                }
+            )
 
         return self_playlist
 
@@ -2444,9 +2403,6 @@ class Note(ChannelElement):
                 self_playlist.append(
                     {"devices": devices}
                 )
-
-            self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
-            self_duration_min: Fraction = og.settings.beats_to_minutes(single_note._duration_beats)
 
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist.append(
@@ -3867,8 +3823,6 @@ class ControlChange(Automatable):
                     {"devices": devices}
                 )
 
-            self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
-
             if self._controller._nrpn:
                 cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
                 self_playlist.extend([
@@ -4533,7 +4487,6 @@ class Aftertouch(Automatable):
                     {"devices": devices}
                 )
 
-            self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist.append(
                 {
@@ -4702,7 +4655,6 @@ class PolyAftertouch(Aftertouch):
                     {"devices": devices}
                 )
 
-            self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist.append(
                 {
@@ -4916,7 +4868,6 @@ class PitchBend(Automatable):
                     {"devices": devices}
                 )
 
-            self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist.append(
                 {
@@ -5439,7 +5390,6 @@ class ProgramChange(ChannelElement):
                         .getPlaylist(devices_header=False)
                 )
 
-            self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist.append(
                 {

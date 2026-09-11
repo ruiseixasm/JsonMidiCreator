@@ -1493,9 +1493,6 @@ def test_clip_playlist():
     playlist = single_note.getPlaylist()
     assert len(playlist) == 3
 
-    clocked_playlist = Process._clocked_playlist(single_note)
-    assert len(clocked_playlist) == 4
-
     settings << None    # Reset Settings
 
 # test_clip_playlist()
