@@ -40,32 +40,6 @@ def test_element_equal():
     assert Rest(1/1) != Note(1/1)
 
 
-def test_clock_mod():
-    # Redirect stdout to capture the print output
-    captured_output = StringIO()
-    sys.stdout = captured_output
-
-    # Perform the operation
-    clock = Clock(4.0)  # 4 for Position and 4.0 for Duration
-    clock % NoteValue() % Measures() % float() >> Print()
-
-    # Restore stdout
-    sys.stdout = sys.__stdout__
-
-    # Assert the captured output
-    assert captured_output.getvalue().strip() == "4.0"
-
-# test_clock_mod()
-
-
-def test_clock_div_floor():
-
-    clock: Clock = Clock(Length(8))
-    assert clock % od.Pipe( Duration() ) == 8.  # float for note value and int for steps
-
-# test_clock_div_floor()
-
-
 def test_note_mod():
 
     # Perform the operation

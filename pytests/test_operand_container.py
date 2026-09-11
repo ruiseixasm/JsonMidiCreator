@@ -1027,7 +1027,7 @@ def test_clip_content():
     for item in clip_items:
         assert isinstance(item, Element)
 
-    clip_items = clip_items + Channel() + Velocity() + Clock()  # Only Elements are added, in this case Clock
+    clip_items = clip_items + Channel() + Velocity() + Chord()  # Only Elements are added, in this case Clock
     assert clip_items.len() == 1
     for item in clip_items:
         assert isinstance(item, Element)
@@ -1052,7 +1052,7 @@ def test_tied_notes():
 
 def test_part_operations():
 
-    clip_1: Clip = Clip([Clock()])
+    clip_1: Clip = Clip([ControlChange()])
     clip_2: Clip = Clip([Note()])
 
     part_1: Section = Section(clip_1, clip_2)
@@ -1070,7 +1070,7 @@ def test_part_operations():
     part_1 *= clip_2
     assert part_1.len() == 3
 
-test_part_operations()
+# test_part_operations()
 
 
 def test_clip_length():

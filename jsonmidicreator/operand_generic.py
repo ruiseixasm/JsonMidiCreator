@@ -3108,7 +3108,6 @@ class Process(Generic):
                     return playlist # exits with nothing right away
                 # Generates the Clock data regardless, needed for correct JsonMidiPlayer processing
                 clock_length: ra.Length = (operand.finish() % ra.Length()).roundMeasures()
-                default_clock: oe.Clock = settings % oe.Clock()
                 default_clock._duration_beats = ra.Duration(clock_length)._rational # The same staff will be given next
                 playlist.extend( default_clock.getPlaylist( time_signature = operand._get_time_signature() ) )  # Clock Playlist
                 playlist.extend( operand.getPlaylist() )    # Operand Playlist
@@ -5685,7 +5684,6 @@ class Settings(Generic):
             case oc.Devices():          return oc.Devices(self._devices)
             case ou.PPQN():             return ou.PPQN(self._clock_ppqn)
             case od.Folder():           return od.Folder(self._folder)
-            case oe.Clock():            return oe.Clock(self % oc.ClockedDevices(), self % oc.ControlledDevices(), self % ou.PPQN())
             case Settings():
                 return operand.copy(self)
             case _:                     return super().__mod__(operand)
@@ -5818,8 +5816,6 @@ class Settings(Generic):
             case od.Device():           self._devices = [ operand._data ]
             case ou.PPQN():             self._clock_ppqn = operand._unit
             case od.Folder():           self._folder = operand._data
-            case oe.Clock():
-                self << ( operand % oc.ClockedDevices(), operand % oc.ControlledDevices(), operand % ou.PPQN() )
             case None:  # Does a Reset!
                 self << Settings()
             case tuple():
