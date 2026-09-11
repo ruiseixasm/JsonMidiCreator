@@ -5591,9 +5591,6 @@ class Settings(Generic):
     Channel(1) : The default `Channel is the midi channel 1.
     Devices(["VMPK", "FLUID", "loopMIDI", "Microsoft", "IAC Bus", "Apple"]) : Devices that are used by default in order of trying to connect by the `JsonMidiPlayer`.
     ClockedDevices([]) : By default no devices are set to receive clocking messages.
-    ControlledDevices([]) : By default no devices are set to receive controlling messages (for DAWs).
-    PPQN(24) : The default for clocking midi messages is 24 Pulses Per Quarter Note.
-    ClockMMCMode(False) : The default clock stop mode is the one that sends a song position signal back to 0.
     """
     def __init__(self, *parameters):
         super().__init__()
