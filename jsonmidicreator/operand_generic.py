@@ -5693,13 +5693,16 @@ class Settings(Generic):
             and self._folder                == other._folder
     
 
-    def getPlaylist(self) -> list[dict]:
-        return [
-            {
-                "bpm_10": int(self._tempo * 10),
-                "position_beats": [0, 1]
-            }
-        ]
+    def getClocking(self) -> dict[str, list]:
+        return {
+            "devices": self._clocked_devices,
+            "tempos": [
+                {
+                    "bpm_10": int(self._tempo * 10),
+                    "position_beats": [0, 1]
+                }
+            ]
+        }
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()

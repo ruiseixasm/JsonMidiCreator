@@ -187,12 +187,12 @@ def loadJsonMidiCreator(filename):
         print(f"Unable to Load the file: {filename}")
     return []
 
-def saveJsonMidiPlay(playlist_clocking: list[dict], playlist_content: list[dict], filename):
+def saveJsonMidiPlay(clocking: dict[str, list], playlist: list[dict], filename):
     json_file_dict = {
             "filetype": "Json Midi Player",
             "url": "https://github.com/ruiseixasm/JsonMidiPlayer",
-            "clocking": playlist_clocking,
-            "content": playlist_content
+            "clocking": clocking,
+            "playlist": playlist
         }
     with open(filename, "w") as outfile:
         json.dump(json_file_dict, outfile)
@@ -227,7 +227,7 @@ def run_talkie_dll(json_str, delay_ms, verbose):
         except Exception as e:
             print(f"An error occurred when calling the function 'PlayList_ctypes': {e} for JsonTalkiePlayer")
 
-def jsonMidiPlay(playlist_clocking: list[dict], playlist_content: list[dict], verbose: bool = False, talkie_delay_ms: int = 500):
+def jsonMidiPlay(clocking: dict[str, list], playlist: list[dict], verbose: bool = False, talkie_delay_ms: int = 500):
     global lib
     global not_found_library_message_already_shown
     if not lib and not not_found_library_message_already_shown: loadLibrary()
@@ -237,8 +237,8 @@ def jsonMidiPlay(playlist_clocking: list[dict], playlist_content: list[dict], ve
         json_file_dict = {
                 "filetype": "Json Midi Player",
                 "url": "https://github.com/ruiseixasm/JsonMidiPlayer",
-                "clocking": playlist_clocking,
-                "content": playlist_content
+                "clocking": clocking,
+                "playlist": playlist
             }
         # Convert Python dictionary to JSON string
         json_str = json.dumps([ json_file_dict ])
