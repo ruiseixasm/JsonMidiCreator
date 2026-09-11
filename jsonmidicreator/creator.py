@@ -226,7 +226,7 @@ def run_talkie_dll(json_str, delay_ms, verbose):
         except Exception as e:
             print(f"An error occurred when calling the function 'PlayList_ctypes': {e} for JsonTalkiePlayer")
 
-def jsonMidiPlay(play_list: list[dict], verbose: bool = False, talkie_delay_ms: int = 500):
+def jsonMidiPlay(playlist_clocking: list[dict], playlist_content: list[dict], verbose: bool = False, talkie_delay_ms: int = 500):
     global lib
     global not_found_library_message_already_shown
     if not lib and not not_found_library_message_already_shown: loadLibrary()
@@ -236,7 +236,8 @@ def jsonMidiPlay(play_list: list[dict], verbose: bool = False, talkie_delay_ms: 
         json_file_dict = {
                 "filetype": "Json Midi Player",
                 "url": "https://github.com/ruiseixasm/JsonMidiPlayer",
-                "content": play_list
+                "clocking": playlist_clocking,
+                "content": playlist_content
             }
         # Convert Python dictionary to JSON string
         json_str = json.dumps([ json_file_dict ])

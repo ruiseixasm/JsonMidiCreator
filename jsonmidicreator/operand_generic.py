@@ -4658,33 +4658,34 @@ class Play(ReadOnly):
         import threading
         from . import operand_element as oe
         from . import operand_container as oc
+        playlist_clocking: list[dict] = settings.getPlaylist()
         match operand:
             case oc.Composition():
                 if operand._items:
-                    playlist: list[dict] = self._clocked_playlist(operand)  # Where the heavy lifting method is called
+                    playlist_content: list[dict] = self._clocked_playlist(operand)  # Where the heavy lifting method is called
                     if self._parameters[1] and self._parameters[2]:
                         # Start the function in a new process
-                        process = threading.Thread(target=c.jsonMidiPlay, args=(playlist, self._parameters[0], self._parameters[3]))
+                        process = threading.Thread(target=c.jsonMidiPlay, args=(playlist_content, self._parameters[0], self._parameters[3]))
                         process.start()
                         operand >> Plot(self._parameters[2])
                     else:
                         if self._parameters[1] and not self._parameters[2]:
                             operand >> Plot(self._parameters[2])
-                        c.jsonMidiPlay(playlist, self._parameters[0], self._parameters[3])
+                        c.jsonMidiPlay(playlist_clocking, playlist_content, self._parameters[0], self._parameters[3])
                 else:
                     print(f"Warning: Trying to play an **empty** list!")
                 return operand
             case oe.Element():
-                playlist: list[dict] = self._clocked_playlist(operand)  # Where the heavy lifting method is called
+                playlist_content: list[dict] = self._clocked_playlist(operand)  # Where the heavy lifting method is called
                 if self._parameters[1] and self._parameters[2]:
                     # Start the function in a new process
-                    process = threading.Thread(target=c.jsonMidiPlay, args=(playlist, self._parameters[0], self._parameters[3]))
+                    process = threading.Thread(target=c.jsonMidiPlay, args=(playlist_clocking, playlist_content, self._parameters[0], self._parameters[3]))
                     process.start()
                     operand >> Plot(self._parameters[2])
                 else:
                     if self._parameters[1] and not self._parameters[2]:
                         operand >> Plot(self._parameters[2])
-                    c.jsonMidiPlay(playlist, self._parameters[0], self._parameters[3])
+                    c.jsonMidiPlay(playlist_clocking, playlist_content, self._parameters[0], self._parameters[3])
                 return operand
             case od.Line():
                 line_clip = oc.Clip(operand)
@@ -4693,8 +4694,8 @@ class Play(ReadOnly):
                 line = od.Line(operand)
                 self.__rrshift__(line)
             case od.Playlist():
-                playlist: list[dict] = self._clocked_playlist(operand)  # Where the heavy lifting method is called
-                c.jsonMidiPlay(playlist, self._parameters[0], self._parameters[3])
+                playlist_content: list[dict] = self._clocked_playlist(operand)  # Where the heavy lifting method is called
+                c.jsonMidiPlay(playlist_clocking, playlist_content, self._parameters[0], self._parameters[3])
                 return operand
             case _:
                 return super().__rrshift__(operand)
@@ -5725,17 +5726,10 @@ class Settings(Generic):
             and self._folder                == other._folder
     
 
-    def getPlaylist(self, position_beats: Fraction | None = None) -> list[dict]:
-        if isinstance(position_beats, Fraction):
-            return [
-                {
-                    "time_ms": o.minutes_to_time_ms( self.beats_to_minutes(position_beats) ),
-                    "position_beats": [position_beats.numerator, position_beats.denominator]
-                }
-            ]
+    def getPlaylist(self) -> list[dict]:
         return [
             {
-                "time_ms": 0.0,
+                "bpm_10": int(self._tempo * 10),
                 "position_beats": [0, 1]
             }
         ]
