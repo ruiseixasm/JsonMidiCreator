@@ -964,7 +964,7 @@ class Deserialize(Serialization):
     ----------
     dict() : The content dictionary to load the `Operand` serialization from.
     """
-    def __new__(self, serialization: dict):
+    def __new__(self, serialization: dict = {}):
         if "content" in serialization and "filetype" in serialization and \
                 serialization["filetype"] == "Json Midi Creator" and serialization["url"] == "https://github.com/ruiseixasm/JsonMidiCreator":
             operand_serialization: dict = serialization["content"]

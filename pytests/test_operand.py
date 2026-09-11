@@ -100,6 +100,7 @@ def test_operand_copy():
 
     print("1st Cycle - Simple data")
     for single_class in list_all_classes:
+        print(f"Culprit new: {single_class.__name__}")
         class_object: Operand = single_class()
         if isinstance(class_object, Clip):
             class_object << Note() << Rest()
@@ -127,6 +128,7 @@ def test_operand_copy():
 
     print("2nd Cycle - Unit objects data")
     for single_class in list_all_classes:
+        print(f"Culprit new: {single_class.__name__}")
         class_object: Operand = single_class()
         if isinstance(class_object, Clip):
             class_object << Note() << Rest()
