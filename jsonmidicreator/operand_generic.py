@@ -5727,8 +5727,18 @@ class Settings(Generic):
 
     def getPlaylist(self, position_beats: Fraction | None = None) -> list[dict]:
         if isinstance(position_beats, Fraction):
-            return [{ "time_ms": o.minutes_to_time_ms( self.beats_to_minutes(position_beats) ) }]
-        return [{ "time_ms": 0.0 }]
+            return [
+                {
+                    "time_ms": o.minutes_to_time_ms( self.beats_to_minutes(position_beats) ),
+                    "position_beats": [position_beats.numerator, position_beats.denominator]
+                }
+            ]
+        return [
+            {
+                "time_ms": 0.0,
+                "position_beats": [0, 1]
+            }
+        ]
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
