@@ -1429,10 +1429,7 @@ class Talkie(Element):
         if position_beats is not None:
             absolute_position_beats = position_beats + self._position_beats
 
-        self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
-        self_duration_min: Fraction = og.settings.beats_to_minutes(self._duration_beats)
-
-        if self_position_min < 0 or self_duration_min <= 0:
+        if absolute_position_beats < 0 or self._duration_beats <= 0:
             return []
 
         # Keys:
