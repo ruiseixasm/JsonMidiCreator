@@ -587,17 +587,20 @@ def filter_list(items: List[Any], condition: Callable[[Any], bool]) -> List[Any]
 
 def playlist_index(playlist: list[dict], index: int) -> dict:
     for single_dict in playlist:
-        if "time_ms" in single_dict:
+        if "position_beats" in single_dict:
             if index == 0:
                 return single_dict
             index -= 1
-    return {"time_ms": 0}
+    return {
+        "time_ms": 0.0,
+        "position_beats": [0, 1]
+    }
 
 
-def playlist_time_ms(playlist: list[dict]) -> list[dict]:
+def playlist_position_beats(playlist: list[dict]) -> list[dict]:
     return [
         single_dict for single_dict in playlist
-        if "time_ms" in single_dict
+        if "position_beats" in single_dict
     ]
 
 

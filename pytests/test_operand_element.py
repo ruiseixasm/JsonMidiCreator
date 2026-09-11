@@ -105,7 +105,7 @@ def test_note_mod():
 
     # Only in a Clip is an Element positioned
     first_note = Clip() + Note(Position(Steps(3*4 + 2)))
-    first_note_playlist = playlist_time_ms( first_note.getPlaylist() )
+    first_note_playlist = playlist_position_beats( first_note.getPlaylist() )
     print(first_note_playlist)
 
     # Sets the common device as that isn't being check
@@ -406,7 +406,7 @@ def test_milliseconds_duration():
 
     duration_steps = NoteValue(1/16 * (3*4 + 2))
     note = Note(duration_steps)
-    note_playlist = playlist_time_ms( note.getPlaylist() )
+    note_playlist = playlist_position_beats( note.getPlaylist() )
     # 3.5 beats / 120 bpm * 60 * 1000 = 1750.0 ms
     note_start = note_playlist[0]
     note_stop = note_playlist[1]
@@ -414,7 +414,7 @@ def test_milliseconds_duration():
     assert note_stop["time_ms"] == 1750.0
 
     note_copy = note.copy()
-    note_playlist = playlist_time_ms( note_copy.getPlaylist() )
+    note_playlist = playlist_position_beats( note_copy.getPlaylist() )
     # 3.5 beats / 120 bpm * 60 * 1000 = 1750.0 ms
     note_start = note_playlist[0]
     note_stop = note_playlist[1]
@@ -422,7 +422,7 @@ def test_milliseconds_duration():
     assert note_stop["time_ms"] == 1750.0
 
     note_default = Note()
-    note_playlist = playlist_time_ms( note_default.getPlaylist() )
+    note_playlist = playlist_position_beats( note_default.getPlaylist() )
     # 1.0 beat / 120 bpm * 60 * 1000 = 500.0 ms
     note_start = note_playlist[0]
     note_stop = note_playlist[1]
@@ -435,7 +435,7 @@ def test_clock_element():
     settings << None    # Reset the settings
 
     clock_measure = Clock(Length(1))
-    clock_playlist: list = playlist_time_ms( clock_measure.getPlaylist() )
+    clock_playlist: list = playlist_position_beats( clock_measure.getPlaylist() )
     expected_messages: int = 1 * 4 * 24 + 2 # +2 for the Stop and Position clock message
     total_messages: int = len(clock_playlist)
     print(f"{total_messages} / {expected_messages}")
@@ -448,7 +448,7 @@ def test_clock_element():
 
     settings << Tempo(90)
     clock_specific = Clock(NoteValue(Measures(1)))
-    clock_playlist = playlist_time_ms( clock_specific.getPlaylist() )
+    clock_playlist = playlist_position_beats( clock_specific.getPlaylist() )
     total_messages = len(clock_playlist)
     # 1.0 Measure = 1.0 * 4 Beats = 1.0 * 4 / 90 * 60 * 1000
     clock_start = clock_playlist[0]
@@ -457,7 +457,7 @@ def test_clock_element():
     assert clock_stop["time_ms"] == round(1.0 * 4 / 90 * 60 * 1000, 3)
 
     clock_clock = clock_specific.copy()
-    clock_playlist = playlist_time_ms( clock_clock.getPlaylist() )
+    clock_playlist = playlist_position_beats( clock_clock.getPlaylist() )
     total_messages = len(clock_playlist)
     # 1.0 Measure = 1.0 * 4 Beats = 1.0 * 4 / 90 * 60 * 1000
     clock_start = clock_playlist[0]
