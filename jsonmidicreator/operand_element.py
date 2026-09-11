@@ -1457,6 +1457,8 @@ class Talkie(Element):
         #     6 echo
         #     7 error
 
+        self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
+
         self_playlist: list[dict] = [
             {
                 "time_ms": o.minutes_to_time_ms(self_position_min),
