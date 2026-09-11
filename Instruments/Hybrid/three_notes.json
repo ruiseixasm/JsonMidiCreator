@@ -2,7 +2,9 @@
     "filetype": "Json Midi Player",
     "url": "https://github.com/ruiseixasm/JsonMidiPlayer",
     "clocking": {
-        "devices": [],
+        "devices": [
+            "loop"
+        ],
         "tempos": [
             {
                 "bpm_10": 1005,
