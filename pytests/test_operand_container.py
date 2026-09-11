@@ -1037,15 +1037,15 @@ def test_tied_notes():
 
     notes = Note() / 2
     playlist = playlist_position_beats( notes.getPlaylist() )
-    note_length = playlist[1]["time_ms"] - playlist[0]["time_ms"]
+    note_length = Length(playlist[1]["position_beats"]) - Length(playlist[0]["position_beats"])
     assert len(playlist) == 4
         
     tied_notes = Note() / 2 << Tied()
     playlist = playlist_position_beats( tied_notes.getPlaylist() )
-    tied_notes_length = playlist[1]["time_ms"] - playlist[0]["time_ms"]
+    tied_notes_length = Length(playlist[1]["position_beats"]) - Length(playlist[0]["position_beats"])
     assert len(playlist) == 2
 
-    assert tied_notes_length == 2 * note_length
+    assert tied_notes_length == note_length * 2
 
 # test_tied_notes()
 
