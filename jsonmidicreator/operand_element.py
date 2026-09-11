@@ -1462,6 +1462,7 @@ class Talkie(Element):
         self_playlist: list[dict] = [
             {
                 "time_ms": o.minutes_to_time_ms(self_position_min),
+                "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                 "port": self._port,
                 "message": {
                     "m": 0, # talk
