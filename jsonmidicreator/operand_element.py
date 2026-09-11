@@ -2466,7 +2466,7 @@ class Note(ChannelElement):
                     }
                 }
             )
-            finish_position_beats: Fraction = absolute_position_beats + single_note._duration_beats
+            finish_position_beats: Fraction = absolute_position_beats + single_note._duration_beats * single_note._gate
             self_playlist.append(
                 {
                     "time_ms": o.minutes_to_time_ms(self_position_min + self_duration_min * single_note._gate),
