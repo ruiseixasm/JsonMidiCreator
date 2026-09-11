@@ -187,11 +187,12 @@ def loadJsonMidiCreator(filename):
         print(f"Unable to Load the file: {filename}")
     return []
 
-def saveJsonMidiPlay(play_list: list[dict], filename):
+def saveJsonMidiPlay(playlist_clocking: list[dict], playlist_content: list[dict], filename):
     json_file_dict = {
             "filetype": "Json Midi Player",
             "url": "https://github.com/ruiseixasm/JsonMidiPlayer",
-            "content": play_list
+            "clocking": playlist_clocking,
+            "content": playlist_content
         }
     with open(filename, "w") as outfile:
         json.dump(json_file_dict, outfile)

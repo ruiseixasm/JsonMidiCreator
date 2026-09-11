@@ -3347,6 +3347,7 @@ class Export(ReadOnly):
 
     def _direct_process(self, operand: o.T) -> o.T:
         from . import operand_container as oc
+        playlist_clocking: list[dict] = settings.getPlaylist()
         match operand:
             case o.Operand():
                 file_path: str = self._parameters
@@ -3358,8 +3359,8 @@ class Export(ReadOnly):
                         file_path = folder + "json/_Export_jsonMidiPlayer.json"
                 else: # Folder is just a prefix
                     file_path = folder + file_path
-                playlist: list[dict] = self._clocked_playlist(operand)
-                c.saveJsonMidiPlay(playlist, file_path)
+                playlist_content: list[dict] = self._clocked_playlist(operand)
+                c.saveJsonMidiPlay(playlist_clocking, playlist_content, file_path)
                 return operand
             case _:
                 return super().__rrshift__(operand)
