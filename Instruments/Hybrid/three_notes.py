@@ -8,4 +8,4 @@ three_notes = Clip(TimeSignature(7, 4), Name("Riffle"), Line(
 
 three_notes *= 4
 
-three_notes * [1, 2] >> Play(True)
+three_notes * [1, 2] >> Export("Instruments/Hybrid/three_notes.json") >> Play(True)
