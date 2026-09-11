@@ -1461,7 +1461,6 @@ class Talkie(Element):
 
         self_playlist: list[dict] = [
             {
-                "time_ms": o.minutes_to_time_ms(self_position_min),
                 "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                 "port": self._port,
                 "message": {
@@ -1741,7 +1740,6 @@ class DeviceElement(Element):
             return []
         return [
                 {
-                    "time_ms": o.minutes_to_time_ms(self_position_min),
                     "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator]
                 }
             ]
@@ -1903,7 +1901,6 @@ class Clock(DeviceElement):
                 # First quarter note pulse (total 1 in 24 pulses per quarter note)
                 self_playlist.append(
                     {
-                        "time_ms": o.minutes_to_time_ms(self_position_min),
                         "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                         "midi_message": {
                             "status_byte": 0xFA     # Start Track
@@ -1918,7 +1915,6 @@ class Clock(DeviceElement):
                 for clock_pulse in range(1, total_clock_pulses):
                     self_playlist.append(
                         {
-                            "time_ms": o.minutes_to_time_ms(self_position_min + distance_min * clock_pulse),
                             "position_beats": [
                                 (absolute_position_beats + distance_beats * clock_pulse).numerator,
                                 (absolute_position_beats + distance_beats * clock_pulse).denominator
@@ -1932,7 +1928,6 @@ class Clock(DeviceElement):
                 # Last quarter note pulse (45 pulses where this last one sets the stop)
                 self_playlist.append(
                     {
-                        "time_ms": o.minutes_to_time_ms(absolute_position_beats + distance_min * total_clock_pulses),
                         "position_beats": [
                             (absolute_position_beats + distance_beats * total_clock_pulses).numerator,
                             (absolute_position_beats + distance_beats * total_clock_pulses).denominator
@@ -1946,7 +1941,6 @@ class Clock(DeviceElement):
                 # Resets the position back to 0
                 self_playlist.append(
                     {
-                        "time_ms": o.minutes_to_time_ms(absolute_position_beats + distance_min * total_clock_pulses),
                         "position_beats": [
                             (absolute_position_beats + distance_beats * total_clock_pulses).numerator,
                             (absolute_position_beats + distance_beats * total_clock_pulses).denominator
@@ -2457,7 +2451,6 @@ class Note(ChannelElement):
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist.append(
                 {
-                    "time_ms": o.minutes_to_time_ms(self_position_min),
                     "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                     "midi_message": {
                         "status_byte": 0x90 | single_note._channel_0,
@@ -2469,7 +2462,6 @@ class Note(ChannelElement):
             finish_position_beats: Fraction = absolute_position_beats + single_note._duration_beats * single_note._gate
             self_playlist.append(
                 {
-                    "time_ms": o.minutes_to_time_ms(self_position_min + self_duration_min * single_note._gate),
                     "position_beats": [finish_position_beats.numerator, finish_position_beats.denominator],
                     "midi_message": {
                         "status_byte": 0x80 | single_note._channel_0,
@@ -3876,13 +3868,11 @@ class ControlChange(Automatable):
                 )
 
             self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
-            time_ms: float = o.minutes_to_time_ms(self_position_min)
 
             if self._controller._nrpn:
                 cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
                 self_playlist.extend([
                     {
-                        "time_ms": time_ms,
                         "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                         "midi_message": {
                             "status_byte": 0xB0 | self._channel_0,
@@ -4547,7 +4537,6 @@ class Aftertouch(Automatable):
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist.append(
                 {
-                    "time_ms": o.minutes_to_time_ms(self_position_min),
                     "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                     "midi_message": {
                         "status_byte": 0xD0 | self._channel_0,
@@ -4717,7 +4706,6 @@ class PolyAftertouch(Aftertouch):
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist.append(
                 {
-                    "time_ms": o.minutes_to_time_ms(self_position_min),
                     "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                     "midi_message": {
                         "status_byte": 0xA0 | self._channel_0,
@@ -4932,7 +4920,6 @@ class PitchBend(Automatable):
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist.append(
                 {
-                    "time_ms": o.minutes_to_time_ms(self_position_min),
                     "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                     "midi_message": {
                         "status_byte": 0xE0 | self._channel_0,
@@ -5456,7 +5443,6 @@ class ProgramChange(ChannelElement):
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist.append(
                 {
-                    "time_ms": o.minutes_to_time_ms(self_position_min),
                     "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                     "midi_message": {
                         "status_byte": 0xC0 | self._channel_0,

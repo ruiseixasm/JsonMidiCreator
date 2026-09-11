@@ -33,6 +33,8 @@ import sys
 
 def test_foreach_mod():
 
+    settings << None
+
     frame = Foreach(1, 2, 3, 4, 5)**Degree()   # ints represent Degrees
     notes = Note() / 7  # default degree 1 relative to the note C
 
@@ -211,6 +213,8 @@ def test_even_odd():
 
 
 def test_input_clip():
+
+    settings << None
 
     clip = Note() / 4
     clip_G = Note("G") / 4

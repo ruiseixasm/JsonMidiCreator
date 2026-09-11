@@ -76,7 +76,6 @@ def test_note_mod():
 
     playlist: list = [    
         {
-            "time_ms": 1909.091,
             "position_beats": [7, 2],
             "midi_message": {
                 "status_byte": 144,
@@ -89,7 +88,6 @@ def test_note_mod():
             }
         },
         {
-            "time_ms": 2454.545,
             "position_beats": [9, 2],
             "midi_message": {
                 "status_byte": 128,
@@ -400,76 +398,6 @@ def test_program_change_mod():
     assert program_change_int == 12
 
 
-def test_milliseconds_duration():
-
-    settings << None    # Reset the settings
-
-    duration_steps = NoteValue(1/16 * (3*4 + 2))
-    note = Note(duration_steps)
-    note_playlist = playlist_position_beats( note.getPlaylist() )
-    # 3.5 beats / 120 bpm * 60 * 1000 = 1750.0 ms
-    note_start = note_playlist[0]
-    note_stop = note_playlist[1]
-    assert note_start["time_ms"] == 0.0
-    assert note_stop["time_ms"] == 1750.0
-
-    note_copy = note.copy()
-    note_playlist = playlist_position_beats( note_copy.getPlaylist() )
-    # 3.5 beats / 120 bpm * 60 * 1000 = 1750.0 ms
-    note_start = note_playlist[0]
-    note_stop = note_playlist[1]
-    assert note_start["time_ms"] == 0.0
-    assert note_stop["time_ms"] == 1750.0
-
-    note_default = Note()
-    note_playlist = playlist_position_beats( note_default.getPlaylist() )
-    # 1.0 beat / 120 bpm * 60 * 1000 = 500.0 ms
-    note_start = note_playlist[0]
-    note_stop = note_playlist[1]
-    assert note_start["time_ms"] == 0.0
-    assert note_stop["time_ms"] == 500.0
-
-
-def test_clock_element():
-
-    settings << None    # Reset the settings
-
-    clock_measure = Clock(Length(1))
-    clock_playlist: list = playlist_position_beats( clock_measure.getPlaylist() )
-    expected_messages: int = 1 * 4 * 24 + 2 # +2 for the Stop and Position clock message
-    total_messages: int = len(clock_playlist)
-    print(f"{total_messages} / {expected_messages}")
-    assert total_messages == expected_messages
-    # 1.0 Measure = 1.0 * 4 Beats = 1.0 * 4 / 120 * 60 * 1000
-    clock_start = clock_playlist[0]
-    clock_stop = clock_playlist[total_messages - 1]
-    assert clock_start["time_ms"] == 0.0
-    assert clock_stop["time_ms"] == round(1.0 * 4 / 120 * 60 * 1000, 3)
-
-    settings << Tempo(90)
-    clock_specific = Clock(NoteValue(Measures(1)))
-    clock_playlist = playlist_position_beats( clock_specific.getPlaylist() )
-    total_messages = len(clock_playlist)
-    # 1.0 Measure = 1.0 * 4 Beats = 1.0 * 4 / 90 * 60 * 1000
-    clock_start = clock_playlist[0]
-    clock_stop = clock_playlist[total_messages - 1]
-    assert clock_start["time_ms"] == 0.0
-    assert clock_stop["time_ms"] == round(1.0 * 4 / 90 * 60 * 1000, 3)
-
-    clock_clock = clock_specific.copy()
-    clock_playlist = playlist_position_beats( clock_clock.getPlaylist() )
-    total_messages = len(clock_playlist)
-    # 1.0 Measure = 1.0 * 4 Beats = 1.0 * 4 / 90 * 60 * 1000
-    clock_start = clock_playlist[0]
-    clock_stop = clock_playlist[total_messages - 1]
-    assert clock_start["time_ms"] == 0.0
-    assert clock_stop["time_ms"] == round(1.0 * 4 / 90 * 60 * 1000, 3)
-
-    settings << Tempo(120)
-
-# test_clock_element()
-
-
 def test_note3_element():
 
     triplet_note = Triplet("C")
@@ -509,6 +437,8 @@ def test_note_position():
 
 
 def test_note_pitch():
+
+    settings << None
 
     note: Note = Note()
     assert note % Key() % str() == "C"
@@ -582,6 +512,8 @@ def test_note_pitch():
 
 def test_chord_element():
 
+    settings << None
+
     triad: Chord = Chord()
     assert Note(triad) % Key() % str() == "C"
     triad_notes: list[Note] = triad.get_component_elements()
@@ -617,6 +549,9 @@ def test_chord_element():
 
 
 def test_chord_degree():
+    
+    settings << None
+
     chord_triad: Element = Chord()
     print(f"Semitone: {chord_triad % Semitone() % int()}")
     assert chord_triad % Semitone() == 0
@@ -689,6 +624,9 @@ def test_element_position():
 
 
 def test_checksum():
+    
+    settings << None
+
     single_note = Note()
     assert checksum_to_string(single_note.checksum()) == "22c0"
 
@@ -815,6 +753,9 @@ def test_element_stretch():
 
 
 def test_absolute_pitch():
+    
+    settings << None
+
     default_pitch = Note()
     assert default_pitch % Semitone() == 0
     assert default_pitch % Pipe(Semitone()) == 60

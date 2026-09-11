@@ -415,37 +415,6 @@ def test_rrshift_clip():
 # test_rrshift_clip()
 
 
-def test_milliseconds_duration():
-
-    duration = NoteValue(1/16 * (3*4 + 2))
-    duration >> Print()
-    note_clip = Note(duration) / 1
-    clip_playlist = playlist_position_beats( note_clip.getPlaylist() )
-    # 3.5 beats / 120 bpm * 60 * 1000 = 1750.0 ms
-    clip_start = clip_playlist[0]
-    clip_stop = clip_playlist[1]
-    assert clip_start["time_ms"] == 0.0
-    assert clip_stop["time_ms"] == 1750.0
-
-    note_clip_copy = note_clip.copy()
-    clip_playlist = playlist_position_beats( note_clip_copy.getPlaylist() )
-    # 3.5 beats / 120 bpm * 60 * 1000 = 1750.0 ms
-    clip_start = clip_playlist[0]
-    clip_stop = clip_playlist[1]
-    assert clip_start["time_ms"] == 0.0
-    assert clip_stop["time_ms"] == 1750.0
-
-    rest_default_clip = Note() / 1
-    clip_playlist = playlist_position_beats( rest_default_clip.getPlaylist() )
-    # 1.0 beat / 120 bpm * 60 * 1000 = 500.0 ms
-    clip_start = clip_playlist[0]
-    clip_stop = clip_playlist[1]
-    assert clip_start["time_ms"] == 0.0
-    assert clip_stop["time_ms"] == 500.0
-
-# test_milliseconds_duration()
-
-
 def test_playlists():
 
     two_notes: Clip = Note() / 2
