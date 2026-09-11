@@ -3861,11 +3861,7 @@ class ControlChange(Automatable):
         if position_beats is not None:
             absolute_position_beats = position_beats + self._position_beats
 
-        self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
-
-        if self_position_min >= 0:
-
-            time_ms: float = o.minutes_to_time_ms(self_position_min)
+        if absolute_position_beats >= 0:
 
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist: list[dict] = []
@@ -3878,11 +3874,15 @@ class ControlChange(Automatable):
                     {"devices": devices}
                 )
 
+            self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
+            time_ms: float = o.minutes_to_time_ms(self_position_min)
+
             if self._controller._nrpn:
                 cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
                 self_playlist.extend([
                     {
                         "time_ms": time_ms,
+                        "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                         "midi_message": {
                             "status_byte": 0xB0 | self._channel_0,
                             "data_byte_1": 99,
@@ -4692,9 +4692,7 @@ class PolyAftertouch(Aftertouch):
         if position_beats is not None:
             absolute_position_beats = position_beats + self._position_beats
 
-        self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
-
-        if self_position_min >= 0:
+        if absolute_position_beats >= 0:
 
             pitch_int: int = self._pitch.get_absolute_pitch()
 
@@ -4709,10 +4707,12 @@ class PolyAftertouch(Aftertouch):
                     {"devices": devices}
                 )
 
+            self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist.append(
                 {
                     "time_ms": o.minutes_to_time_ms(self_position_min),
+                    "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                     "midi_message": {
                         "status_byte": 0xA0 | self._channel_0,
                         "data_byte_1": pitch_int,
@@ -4909,9 +4909,7 @@ class PitchBend(Automatable):
         if position_beats is not None:
             absolute_position_beats = position_beats + self._position_beats
 
-        self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
-        
-        if self_position_min >= 0:
+        if absolute_position_beats >= 0:
 
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist: list[dict] = []
@@ -4924,9 +4922,12 @@ class PitchBend(Automatable):
                     {"devices": devices}
                 )
 
+            self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
+            # Midi validation is done in the JsonMidiPlayer program
             self_playlist.append(
                 {
                     "time_ms": o.minutes_to_time_ms(self_position_min),
+                    "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                     "midi_message": {
                         "status_byte": 0xE0 | self._channel_0,
                         "data_byte_1": clamp_value_128(self._lsb),
@@ -5425,9 +5426,7 @@ class ProgramChange(ChannelElement):
         if position_beats is not None:
             absolute_position_beats = position_beats + self._position_beats
 
-        self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
-
-        if self_position_min >= 0:
+        if absolute_position_beats >= 0:
 
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist: list[dict] = []
@@ -5447,9 +5446,12 @@ class ProgramChange(ChannelElement):
                         .getPlaylist(devices_header=False)
                 )
 
+            self_position_min: Fraction = og.settings.beats_to_minutes(absolute_position_beats)
+            # Midi validation is done in the JsonMidiPlayer program
             self_playlist.append(
                 {
                     "time_ms": o.minutes_to_time_ms(self_position_min),
+                    "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                     "midi_message": {
                         "status_byte": 0xC0 | self._channel_0,
                         "data_byte": self._program_0
