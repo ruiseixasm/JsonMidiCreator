@@ -3114,26 +3114,7 @@ class Process(Generic):
                 playlist.extend( operand.getPlaylist() )    # Operand Playlist
             case od.Playlist():
 
-                operand_playlist = operand.getPlaylist()
-                playlist_time_ms: list[dict] = [
-                    dict_time_ms for dict_time_ms in operand_playlist
-                    if "time_ms" in dict_time_ms
-                ]
-
-                if playlist_time_ms:
-                    last_time_ms: float = \
-                        sorted(playlist_time_ms, key=lambda x: x['time_ms'])[-1]["time_ms"]
-                    # By default, time classes use the defaults Staff
-                    single_measure_beats: ra.Beats = ra.Measures(1) % ra.Beats()
-                    single_measure_minutes: Fraction = settings.beats_to_minutes( single_measure_beats._rational )
-                    single_measure_ms: float = o.minutes_to_time_ms( single_measure_minutes )
-                    total_measures: int = last_time_ms // single_measure_ms
-                    if last_time_ms > int(last_time_ms):
-                        total_measures += 1
-                    # Generates the Clock data regardless, needed for correct JsonMidiPlayer processing
-                    default_clock: oe.Clock = settings % oe.Clock() << ra.Length(total_measures)
-                    playlist.extend( default_clock.getPlaylist( time_signature = settings._time_signature ) )  # Clock Playlist
-                    playlist.extend( operand_playlist ) # Operand Playlist
+                return operand.getPlaylist()
 
         return playlist
 
