@@ -300,13 +300,13 @@ class Tempo(Unit):
             case _:
                 super().__lshift__(operand)
         # Makes sure it's positive
-        self._unit = max(10, self._unit)
+        self._unit = max(1, self._unit)
         return self
 
     def __iadd__(self, value: Union['Unit', Fraction, float, int]) -> 'Tempo':
         super().__iadd__(value * 10)
         # Makes sure it's positive
-        self._unit = max(10, self._unit)
+        self._unit = max(1, self._unit)
         return self
     
     def __isub__(self, value: Union['Unit', Fraction, float, int]) -> 'Tempo':
