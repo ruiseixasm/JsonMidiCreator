@@ -5798,8 +5798,10 @@ class Settings(Generic):
                     self_devices += operand
                     self._devices = self_devices % od.Pipe( list() )
                 return self
-            case ou.Tempo():
-                self._tempos += operand
+            case oc.Tempos() | ou.Tempo():
+                tempos = oc.Tempos(od.Pipe(self._tempos))
+                tempos += operand
+                self._tempos = tempos._items
                 return self
         return super().__iadd__(operand)
 
@@ -5811,8 +5813,10 @@ class Settings(Generic):
                 self_devices -= operand
                 self._devices = self_devices % od.Pipe( list() )
                 return self
-            case ou.Tempo():
-                self._tempos -= operand
+            case oc.Tempos() | ou.Tempo():
+                tempos = oc.Tempos(od.Pipe(self._tempos))
+                tempos -= operand
+                self._tempos = tempos._items
                 return self
         return super().__isub__(operand)
 
