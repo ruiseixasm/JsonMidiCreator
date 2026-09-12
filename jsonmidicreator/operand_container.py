@@ -985,6 +985,19 @@ class ClockedDevices(Devices):
     pass
 
 
+class Tempos(Container):
+    """`Container -> Tempos`
+
+    Represents a list of `Tempo` in order to be automated and not a constant one.
+
+    Parameters
+    ----------
+    list([Tempo()]) : A list of a single tempo is the default.
+    """
+    def __init__(self, *parameters):
+        super().__init__([ou.Tempo()], *parameters)
+
+
 #####################################################################################################
 ###########################################  COMPOSITION  ###########################################
 #####################################################################################################
