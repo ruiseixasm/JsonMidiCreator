@@ -286,6 +286,11 @@ class Tempo(Unit):
                                     return super().__mod__(operand) / 10
             case str():             return str(round(float(self._unit / 10), 1))
             case ra.Convertible():  return operand.copy(ra.Position(self._position_beats))
+            case list():
+                return [
+                    self._position_beats._numerator,
+                    self._position_beats._denominator
+                ]
             case _:                 return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
@@ -323,6 +328,10 @@ class Tempo(Unit):
                     self.__lshift__(float(tempo[0]) * 10)
             case int() | float() | Fraction():
                 super().__lshift__(operand * 10)
+            case list():
+                if len(operand) == 2:
+                    self._position_beats._numerator = operand[0]
+                    self._position_beats._denominator = operand[1]
             case ra.Convertible():
                 self._position_beats = ra.Position(operand)._rational
             case _:
@@ -332,28 +341,28 @@ class Tempo(Unit):
         return self
 
     def __iadd__(self, value: Union['Unit', Fraction, float, int]) -> 'Tempo':
-        super().__iadd__(value * 10)
-        # Makes sure it's positive
-        self._unit = max(1, self._unit)
-        return self
+        match value:
+            case int() | float() | Fraction():
+                return super().__iadd__(value * 10)
+        return super().__iadd__(value)
     
     def __isub__(self, value: Union['Unit', Fraction, float, int]) -> 'Tempo':
-        super().__isub__(value * 10)
-        # Makes sure it's positive
-        self._unit = max(Fraction(1), self._unit)
-        return self
+        match value:
+            case int() | float() | Fraction():
+                return super().__isub__(value * 10)
+        return super().__isub__(value)
     
     def __imul__(self, value: Union['Unit', Fraction, float, int]) -> 'Tempo':
-        super().__imul__(value * 10)
-        # Makes sure it's positive
-        self._unit = max(Fraction(1), self._unit)
-        return self
+        match value:
+            case int() | float() | Fraction():
+                return super().__imul__(value * 10)
+        return super().__imul__(value)
     
     def __itruediv__(self, value: Union['Unit', Fraction, float, int]) -> 'Tempo':
-        super().__itruediv__(value * 10)
-        # Makes sure it's positive
-        self._unit = max(Fraction(1), self._unit)
-        return self
+        match value:
+            case int() | float() | Fraction():
+                return super().__itruediv__(value * 10)
+        return super().__itruediv__(value)
 
     def read(self) -> Self:
         events_site: int = 10
