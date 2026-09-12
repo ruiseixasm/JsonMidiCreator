@@ -805,8 +805,7 @@ class Pitch(Generic):
     """
     def __init__(self, *parameters):
         self._diatonic_mode_0: int      = settings._diatonic_mode_0
-        self._tonic_key: int            = 0
-        self.apply_key_signature(settings._key_signature)
+        self._tonic_key: int            = settings._tonic_key
         self._octave_0: int             = 5     # By default it's the 4th Octave, that's 5 in 0 based!
         self._degree_0: int             = 0     # By default it's Degree 1, that's 0 in 0 based
         self._accidental: int           = 0     # By default it has no accidental
@@ -1697,6 +1696,15 @@ class Scale(Generic):
     def __init__(self, *parameters):
         self._scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major by default
         super().__init__(*parameters)
+
+
+    @staticmethod
+    def sharps_to_tonic(sharps: int = 0, diatonic_mode_0: int = 0) -> int:
+        if diatonic_mode_0 % 7 < 7:    # Diatonic scale
+            zero_tonic_key: int = Scale.transpose_key(diatonic_mode_0)
+            circle_fifths_position: int = sharps
+            return (zero_tonic_key + circle_fifths_position * 7) % 12
+        return 9    # A key
 
 
     @staticmethod
@@ -5594,7 +5602,7 @@ class Settings(Generic):
         self._quantization: Fraction                = Fraction(1/4) # Quantization is in Beats ratio
         self._time_signature: TimeSignature         = TimeSignature(4, 4)
         self._diatonic_mode_0: int                  = 0
-        self._key_signature: KeySignature           = KeySignature()
+        self._tonic_key: int                        = 0
         self._controller: Controller                = Controller("Pan")
         self._devices: list[str]                    = ["VMPK", "FLUID", "loopMIDI", "Microsoft", "IAC Bus", "Apple"]
         self._clocked_devices: list[str]            = []
@@ -5608,7 +5616,6 @@ class Settings(Generic):
 
     def minutes_to_beats(self, minutes: Fraction) -> Fraction:
         return minutes * self._tempos._unit / 10
-
 
     def __mod__(self, operand: o.T) -> o.T:
         from . import operand_element as oe
@@ -5631,7 +5638,7 @@ class Settings(Generic):
                         return ou.Minor(self._diatonic_mode_0 == 5)
                     case ou.Quality() | ou.Mode():
                         return operand._data << self._diatonic_mode_0
-                    case KeySignature():     return self._key_signature
+                    case ou.TonicKey():         return operand._data << self._tonic_key
                     case Controller():          return self._controller
                     case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
                     case oc.Devices():          return oc.Devices(self._devices)
@@ -5655,9 +5662,15 @@ class Settings(Generic):
                 return ou.Minor(self._diatonic_mode_0 == 5)
             case ou.Quality() | ou.Mode():
                 return operand.copy(self._diatonic_mode_0)
-            case KeySignature():     return self._key_signature.copy()
-            case ou.Key() | ou.Quality() | int() | float() | Fraction() | str():
-                                        return self._key_signature % operand
+            case ou.TonicKey():
+                return ou.TonicKey(self._tonic_key)
+            case KeySignature() | ou.Accidentals():
+                scale_mode: int = self._diatonic_mode_0 % 9 + 1
+                diatonic_scale: tuple[int] = Scale._scales[scale_mode]
+                sharps_or_flats: tuple[int] = Scale.sharps_or_flats_picker(self._tonic_key, diatonic_scale)
+                return operand.copy(sum(sharps_or_flats))
+            case ou.Key() | ou.Accidentals() | ou.Quality() | int() | float() | Fraction() | str():
+                                        return self % KeySignature() % operand
             case Controller():          return self._controller.copy()
             case ou.Number():           return self._controller % ou.Number()
             case ou.Value():            return ou.Number.getDefaultValue(self % ou.Number() % int())
@@ -5677,7 +5690,7 @@ class Settings(Generic):
             and self._quantization          == other._quantization \
             and self._time_signature        == other._time_signature \
             and self._diatonic_mode_0       == other._diatonic_mode_0 \
-            and self._key_signature         == other._key_signature \
+            and self._tonic_key             == other._tonic_key \
             and self._controller            == other._controller \
             and self._devices               == other._devices \
             and self._clocked_devices       == other._clocked_devices \
@@ -5698,7 +5711,7 @@ class Settings(Generic):
         serialization["parameters"]["quantization"]         = self.serialize( self._quantization )
         serialization["parameters"]["time_signature"]       = self.serialize( self._time_signature )
         serialization["parameters"]["diatonic_mode_0"]      = self.serialize( self._diatonic_mode_0 )
-        serialization["parameters"]["key_signature"]        = self.serialize( self._key_signature )
+        serialization["parameters"]["tonic_key_0"]          = self.serialize( self._tonic_key )
         serialization["parameters"]["controller"]           = self.serialize( self._controller )
         serialization["parameters"]["devices"]              = self.serialize( self._devices )
         serialization["parameters"]["clocked_devices"]      = self.serialize( self._clocked_devices )
@@ -5711,7 +5724,7 @@ class Settings(Generic):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "tempos" in serialization["parameters"] and "quantization" in serialization["parameters"] and
             "time_signature" in serialization["parameters"] and "diatonic_mode_0" in serialization["parameters"] and
-            "key_signature" in serialization["parameters"] and "controller" in serialization["parameters"] and
+            "tonic_key_0" in serialization["parameters"] and "controller" in serialization["parameters"] and
             "devices" in serialization["parameters"] and "clocked_devices" in serialization["parameters"] and "folder" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
@@ -5719,7 +5732,7 @@ class Settings(Generic):
             self._quantization          = self.deserialize( serialization["parameters"]["quantization"] )
             self._time_signature        = self.deserialize( serialization["parameters"]["time_signature"] )
             self._diatonic_mode_0       = self.deserialize( serialization["parameters"]["diatonic_mode_0"] )
-            self._key_signature         = self.deserialize( serialization["parameters"]["key_signature"] )
+            self._tonic_key             = self.deserialize( serialization["parameters"]["tonic_key_0"] )
             self._controller            = self.deserialize( serialization["parameters"]["controller"] )
             self._devices               = self.deserialize( serialization["parameters"]["devices"] )
             self._clocked_devices       = self.deserialize( serialization["parameters"]["clocked_devices"] )
@@ -5737,7 +5750,7 @@ class Settings(Generic):
                 self._quantization          = operand._quantization
                 self._time_signature        << operand._time_signature
                 self._diatonic_mode_0       = operand._diatonic_mode_0
-                self._key_signature         << operand._key_signature
+                self._tonic_key             = operand._tonic_key
                 self._controller            << operand._controller
                 self._devices               = operand._devices.copy()
                 self._clocked_devices       = operand._clocked_devices.copy()
@@ -5754,7 +5767,9 @@ class Settings(Generic):
                         if operand._data: self._diatonic_mode_0 = 5    # minor
                     case ou.Mode():
                         self._diatonic_mode_0 = operand._data._unit - 1
-                    case KeySignature():            self._key_signature = operand._data
+                    case ou.TonicKey():
+                        self._tonic_key = operand._data._unit % 12
+
                     case Controller():              self._controller = operand._data
                     case oc.ClockedDevices():       self._clocked_devices = operand._data % od.Pipe( list() )
                     case oc.Devices():              self._devices = operand._data % od.Pipe( list() )
@@ -5777,8 +5792,11 @@ class Settings(Generic):
                 if operand: self._diatonic_mode_0 = 5    # minor
             case ou.Mode():
                 self._diatonic_mode_0 = operand._unit - 1
-            case KeySignature() | ou.Key() | int() | float() | Fraction() | str():
-                                        self._key_signature << operand
+            case KeySignature(): # Preserves the Semitone
+                sharps: int = operand._sharps
+                self._tonic_key = Scale.sharps_to_tonic(sharps, self._diatonic_mode_0)
+            case ou.Quality() | ou.Key() | int() | float() | Fraction() | str():
+                                        self << KeySignature(operand)
             case Controller() | ou.Number():
                                         self._controller << operand
             case oc.ClockedDevices():   self._clocked_devices = operand % list()
