@@ -291,7 +291,13 @@ class Tempo(Unit):
                     self._position_beats._numerator,
                     self._position_beats._denominator
                 ]
-            case _:                 return super().__mod__(operand)
+            case dict():
+                return {
+                    "bpm_10": self._unit,
+                    "position_beats": self % list()
+                }
+            case _:
+                return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -332,6 +338,10 @@ class Tempo(Unit):
                 if len(operand) == 2:
                     self._position_beats._numerator = operand[0]
                     self._position_beats._denominator = operand[1]
+            case dict():
+                if "bpm_10" in operand and "position_beats" in operand:
+                    self._unit = operand["bpm_10"]
+                    self << operand["position_beats"]
             case ra.Convertible():
                 self._position_beats = ra.Position(operand)._rational
             case _:

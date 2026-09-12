@@ -1750,7 +1750,7 @@ class DeviceElement(Element):
         self_denominator: int = self._get_time_signature()._bottom
         self_position: float = float(position_beats + self._position_beats)
         self_duration: float = float(self._duration_beats)
-        self_tempo: float = float(og.settings._tempo._unit / 10)
+        self_tempo: float = og.settings % ou.Tempo() % float()
 
         track_number: int = 1
         track_name: str = "Track 1"
