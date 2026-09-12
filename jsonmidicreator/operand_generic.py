@@ -5618,6 +5618,7 @@ class Settings(Generic):
                 match operand._data:
                     case oc.Tempos():
                         return operand._data << self._tempos
+                    case list():                return self._tempos
                     case ra.Quantization():     return operand._data << self._quantization
                     case ra.StepsPerNote():
                         return ra.StepsPerNote() << od.Pipe( 1 / self._quantization )
@@ -5638,6 +5639,7 @@ class Settings(Generic):
                     case _:                     return super().__mod__(operand)
             case oc.Tempos():           return self._tempos.copy()
             case ou.Tempo():            return oc.Tempos(self._tempos)[0]
+            case list():                return o.Operand.deep_copy(self._tempos)
             case ra.Quantization():     return operand.copy(self._quantization)
             case ra.StepsPerNote():
                 return ra.StepsPerNote() << 1 / self._quantization
@@ -5692,7 +5694,7 @@ class Settings(Generic):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["tempo_10"]             = self.serialize( self._tempos )
+        serialization["parameters"]["tempos"]               = self.serialize( self._tempos )
         serialization["parameters"]["quantization"]         = self.serialize( self._quantization )
         serialization["parameters"]["time_signature"]       = self.serialize( self._time_signature )
         serialization["parameters"]["diatonic_mode_0"]      = self.serialize( self._diatonic_mode_0 )
@@ -5707,13 +5709,13 @@ class Settings(Generic):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "tempo_10" in serialization["parameters"] and "quantization" in serialization["parameters"] and
+            "tempos" in serialization["parameters"] and "quantization" in serialization["parameters"] and
             "time_signature" in serialization["parameters"] and "diatonic_mode_0" in serialization["parameters"] and
             "key_signature" in serialization["parameters"] and "controller" in serialization["parameters"] and
             "devices" in serialization["parameters"] and "clocked_devices" in serialization["parameters"] and "folder" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._tempos                 = self.deserialize( serialization["parameters"]["tempo_10"] )
+            self._tempos                = self.deserialize( serialization["parameters"]["tempos"] )
             self._quantization          = self.deserialize( serialization["parameters"]["quantization"] )
             self._time_signature        = self.deserialize( serialization["parameters"]["time_signature"] )
             self._diatonic_mode_0       = self.deserialize( serialization["parameters"]["diatonic_mode_0"] )
@@ -5742,7 +5744,8 @@ class Settings(Generic):
                 self._folder                = operand._folder
             case od.Pipe():
                 match operand._data:
-                    case ou.Tempo():                self._tempos = operand._data
+                    case oc.Tempos():               self._tempos = operand._data._items
+                    case list():                    self._tempos = operand._data
                     case ra.Quantization():         self._quantization = operand._data._rational
                     case TimeSignature():           self._time_signature = operand._data
                     case ou.Major():
@@ -5758,8 +5761,9 @@ class Settings(Generic):
                     case od.Folder():               self._folder = operand._data._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case oc.Tempos():           self._tempos = o.Operand.deep_copy(operand)
+            case oc.Tempos():           self._tempos = o.Operand.deep_copy(operand._items)
             case ou.Tempo():            self._tempos = [operand.copy()]
+            case list():                self._tempos = o.Operand.deep_copy(operand._data)
             case ra.Quantization():     self._quantization = operand._rational
             case ra.StepsPerNote():
                 self._quantization = 1 / (operand % Fraction())
