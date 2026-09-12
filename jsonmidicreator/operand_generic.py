@@ -744,7 +744,6 @@ class KeySignature(Generic):
             case str(): # Processes series of "#" and "b"
                 if len(operand) == 0:
                     self._sharps = 0
-                    # self._tonic_key = self._sharps_to_tonic()
                 else:
                     sharps = re.findall(r"#+", operand)
                     if len(sharps) > 0:
@@ -842,13 +841,6 @@ class Pitch(Generic):
         return self << ou.Degree(unit)
 
 
-    def _sharps_to_tonic(self, sharps: int = 0) -> int:
-        if self._diatonic_mode_0 % 7 < 7:    # Diatonic scale
-            zero_tonic_key: int = Scale.transpose_key(self._diatonic_mode_0)
-            circle_fifths_position: int = sharps
-            return (zero_tonic_key + circle_fifths_position * 7) % 12
-        return 9    # A key
-
     def get_diatonic_scale(self) -> tuple[int]:
         scale_mode: int = self._diatonic_mode_0 % 9 + 1
         return Scale._scales[scale_mode]
@@ -859,14 +851,14 @@ class Pitch(Generic):
         return sum(sharps_or_flats)
 
     def apply_sharps(self, sharps: int = 0) -> Self:
-        self._tonic_key = self._sharps_to_tonic(sharps)
+        self._tonic_key = Scale.sharps_to_tonic(sharps, self._diatonic_mode_0)
         return self
 
     def apply_key_signature(self, key_signature: KeySignature) -> Self:
         return self.apply_sharps(key_signature._sharps)
 
     def reset_tonic_key(self) -> Self:
-        self._tonic_key = self._sharps_to_tonic()
+        self._tonic_key = Scale.sharps_to_tonic(0, self._diatonic_mode_0)
         return self
 
     """
