@@ -791,7 +791,7 @@ def test_staff_parameters():
     # Resets the defaults
     settings << None
 
-test_staff_parameters()
+# test_staff_parameters()
 
 
 def test_root_key():

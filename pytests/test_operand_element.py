@@ -203,7 +203,7 @@ def test_note_shift():
 
 def test_note_scale():
 
-    settings << KeySignature()
+    settings << None
     major_note: Note = Note()
 
     assert major_note % Pitch() % Key() == "C"
@@ -214,7 +214,7 @@ def test_note_scale():
     major_note += Degree(1)    # Deg alias to Degree
     assert major_note % Pitch() % Key() == "F"
 
-    settings << Minor()
+    settings << Minor() << KeySignature()
     minor_note: Note = Note()
 
     assert minor_note % Pitch() % Key() == "A"
@@ -252,7 +252,7 @@ def test_keyscale_mod():
 
 def test_chord_mod():
 
-    settings << KeySignature() << Scale([])
+    settings << None
 
     # Perform the operation
     chord = Chord("A") << Scale("minor") << Size("7th") << Duration(1/2)
