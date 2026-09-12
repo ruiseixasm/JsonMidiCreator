@@ -1513,13 +1513,13 @@ class Controller(Generic):
 
     Parameters
     ----------
-    Number("Pan"), MSB, int : The Controller number or MSB number (Most Significant Byte).
+    Number("Modulation"), MSB, int : The Controller number or MSB number (Most Significant Byte).
     LSB(0) : The Controller number or MSB number (Least Significant Byte).
     NRPN(False) : Sets the controller as an NRPN one.
     High(False), int : Allows the processing of high resolution values up to 16383 (128*128 - 1) instead the usual 127 (128 - 1).
     """
     def __init__(self, *parameters):
-        self._number_msb: int   = ou.Number("Pan")._unit
+        self._number_msb: int   = 1 # Modulation number
         self._lsb: int          = 0 # lsb for 14 bits messages
         self._nrpn: bool        = False
         self._high: bool        = False
@@ -5595,7 +5595,6 @@ class Settings(Generic):
         self._time_signature: TimeSignature         = TimeSignature(4, 4)
         self._diatonic_mode_0: int                  = 0
         self._tonic_key: int                        = 0
-        self._controller: Controller                = Controller("Pan")
         self._devices: list[str]                    = ["VMPK", "FLUID", "loopMIDI", "Microsoft", "IAC Bus", "Apple"]
         self._clocked_devices: list[str]            = []
         self._folder: str                           = ""
@@ -5631,7 +5630,6 @@ class Settings(Generic):
                     case ou.Quality() | ou.Mode():
                         return operand._data << self._diatonic_mode_0
                     case ou.TonicKey():         return operand._data << self._tonic_key
-                    case Controller():          return self._controller
                     case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
                     case oc.Devices():          return oc.Devices(self._devices)
                     case od.Folder():           return od.Folder(self._folder)
@@ -5663,9 +5661,6 @@ class Settings(Generic):
                 return operand.copy(sum(sharps_or_flats))
             case ou.Key() | ou.Accidentals() | ou.Quality() | int() | float() | Fraction() | str():
                                         return self % KeySignature() % operand
-            case Controller():          return self._controller.copy()
-            case ou.Number():           return self._controller % ou.Number()
-            case ou.Value():            return ou.Number.getDefaultValue(self % ou.Number() % int())
             case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
             case oc.Devices():          return oc.Devices(self._devices)
             case od.Folder():           return od.Folder(self._folder)
@@ -5683,7 +5678,6 @@ class Settings(Generic):
             and self._time_signature        == other._time_signature \
             and self._diatonic_mode_0       == other._diatonic_mode_0 \
             and self._tonic_key             == other._tonic_key \
-            and self._controller            == other._controller \
             and self._devices               == other._devices \
             and self._clocked_devices       == other._clocked_devices \
             and self._folder                == other._folder
@@ -5704,7 +5698,6 @@ class Settings(Generic):
         serialization["parameters"]["time_signature"]       = self.serialize( self._time_signature )
         serialization["parameters"]["diatonic_mode_0"]      = self.serialize( self._diatonic_mode_0 )
         serialization["parameters"]["tonic_key_0"]          = self.serialize( self._tonic_key )
-        serialization["parameters"]["controller"]           = self.serialize( self._controller )
         serialization["parameters"]["devices"]              = self.serialize( self._devices )
         serialization["parameters"]["clocked_devices"]      = self.serialize( self._clocked_devices )
         serialization["parameters"]["folder"]               = self.serialize( self._folder )
@@ -5716,7 +5709,7 @@ class Settings(Generic):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "tempos" in serialization["parameters"] and "quantization" in serialization["parameters"] and
             "time_signature" in serialization["parameters"] and "diatonic_mode_0" in serialization["parameters"] and
-            "tonic_key_0" in serialization["parameters"] and "controller" in serialization["parameters"] and
+            "tonic_key_0" in serialization["parameters"] and
             "devices" in serialization["parameters"] and "clocked_devices" in serialization["parameters"] and "folder" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
@@ -5725,7 +5718,6 @@ class Settings(Generic):
             self._time_signature        = self.deserialize( serialization["parameters"]["time_signature"] )
             self._diatonic_mode_0       = self.deserialize( serialization["parameters"]["diatonic_mode_0"] )
             self._tonic_key             = self.deserialize( serialization["parameters"]["tonic_key_0"] )
-            self._controller            = self.deserialize( serialization["parameters"]["controller"] )
             self._devices               = self.deserialize( serialization["parameters"]["devices"] )
             self._clocked_devices       = self.deserialize( serialization["parameters"]["clocked_devices"] )
             self._folder                = self.deserialize( serialization["parameters"]["folder"] )
@@ -5743,7 +5735,6 @@ class Settings(Generic):
                 self._time_signature        << operand._time_signature
                 self._diatonic_mode_0       = operand._diatonic_mode_0
                 self._tonic_key             = operand._tonic_key
-                self._controller            << operand._controller
                 self._devices               = operand._devices.copy()
                 self._clocked_devices       = operand._clocked_devices.copy()
                 self._folder                = operand._folder
@@ -5762,7 +5753,6 @@ class Settings(Generic):
                     case ou.TonicKey():
                         self._tonic_key = operand._data._unit % 12
 
-                    case Controller():              self._controller = operand._data
                     case oc.ClockedDevices():       self._clocked_devices = operand._data % od.Pipe( list() )
                     case oc.Devices():              self._devices = operand._data % od.Pipe( list() )
                     case od.Folder():               self._folder = operand._data._data
@@ -5789,8 +5779,6 @@ class Settings(Generic):
                 self._tonic_key = Scale.sharps_to_tonic(sharps, self._diatonic_mode_0)
             case ou.Quality() | ou.Key() | int() | float() | Fraction() | str():
                                         self << KeySignature(operand)
-            case Controller() | ou.Number():
-                                        self._controller << operand
             case oc.ClockedDevices():   self._clocked_devices = operand % list()
             case oc.Devices():          self._devices = operand % list()
             case od.Device():           self._devices = [ operand._data ]

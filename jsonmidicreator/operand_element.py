@@ -3459,8 +3459,8 @@ class ControlChange(Automatable):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        self._controller: og.Controller = og.settings % og.Controller()
-        self._value: int                = ou.Number.getDefaultValue(self._controller._number_msb)
+        self._controller: og.Controller = og.Controller()
+        self._value: int                = 0
         super().__init__()
         # Equivalent to one Step
         self._duration_beats = og.settings._quantization    # Quantization is a Beats value already
