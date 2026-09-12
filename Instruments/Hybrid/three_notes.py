@@ -1,6 +1,6 @@
 from jsonmidicreator import *
 
-settings << ClockedDevices(["loop"]) << [Tempo(100.5), Tempo(100.5, Measure(2)), Tempo(140, Measure(2))]
+settings << ClockedDevices(["loop"]) << [Tempo(100.5), Tempo(100.5, Measure(2)), Tempo(200, Measure(2))]
 
 RD_Hybrid.program_change(27, 1) >> Play()   # Sets the instrument to 27. Steel Galloper
 
