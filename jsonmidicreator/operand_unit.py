@@ -254,6 +254,7 @@ class Tempo(Unit):
     110
     """
     def __init__(self, *parameters):
+        self._position_beats: Fraction = Fraction(0)
         super().__init__(120, *parameters)
 
     def __eq__(self, other: any) -> bool:
@@ -278,18 +279,43 @@ class Tempo(Unit):
         return f'{str(round(float(self._unit / 10), 1))}'
     
     def __mod__(self, operand: o.T) -> o.T:
+        from . import operand_rational as ra
         match operand:
             case int():             return int(super().__mod__(operand) / 10)
             case float() | Fraction():
                                     return super().__mod__(operand) / 10
             case str():             return str(round(float(self._unit / 10), 1))
+            case ra.Convertible():  return operand.copy(ra.Position(self._position_beats))
             case _:                 return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["position_beats"] = self.serialize( self._position_beats )
+        return serialization
 
     # CHAINABLE OPERATIONS
 
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "position_beats" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._position_beats = self.deserialize( serialization["parameters"]["position_beats"] )
+        return self
+      
     def __lshift__(self, operand: any) -> Self:
+        from . import operand_rational as ra
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
+            case Tempo():
+                super().__lshift__(operand)
+                self._position_beats = operand._position_beats
+            case od.Pipe():
+                match operand._data:
+                    case ra.Position():
+                        self._position_beats = operand._data._rational
+                    case _:
+                        super().__lshift__(operand)
             case str():
                 # r"\W(.)\1\W" vs "\\W(.)\\1\\W"
                 tempo = re.findall(r"\d+(?:\.\d+)?", operand)
@@ -297,6 +323,8 @@ class Tempo(Unit):
                     self.__lshift__(float(tempo[0]) * 10)
             case int() | float() | Fraction():
                 super().__lshift__(operand * 10)
+            case ra.Convertible():
+                self._position_beats = ra.Position(operand)._rational
             case _:
                 super().__lshift__(operand)
         # Makes sure it's positive
