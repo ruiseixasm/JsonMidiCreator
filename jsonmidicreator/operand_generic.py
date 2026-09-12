@@ -5763,7 +5763,7 @@ class Settings(Generic):
                 self.loadSerialization( operand.getSerialization() )
             case oc.Tempos():           self._tempos = o.Operand.deep_copy(operand._items)
             case ou.Tempo():            self._tempos = [operand.copy()]
-            case list():                self._tempos = o.Operand.deep_copy(operand._data)
+            case list():                self._tempos = o.Operand.deep_copy(operand)
             case ra.Quantization():     self._quantization = operand._rational
             case ra.StepsPerNote():
                 self._quantization = 1 / (operand % Fraction())
