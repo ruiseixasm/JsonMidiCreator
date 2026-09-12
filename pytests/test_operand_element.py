@@ -269,8 +269,8 @@ def test_chord_mod():
     print(f"Key: {three_notes[2] % TargetKey() % str()}")
     assert three_notes[2] % TargetKey() == "G"
 
-    settings << KeySignature(1)    # E minor scale
     settings << Minor()    # E minor scale
+    settings << KeySignature(1)    # E minor scale
     triad_e_minor: Chord = Chord("minor")
     settings << KeySignature()
 
