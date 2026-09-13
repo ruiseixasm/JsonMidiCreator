@@ -3296,14 +3296,13 @@ class Save(ReadOnly):
         from . import operand_container as oc
         if isinstance(operand, o.Operand):
             file_path: str = self._parameters[self._indexes["filename"]]
-            folder: str = settings._folder
             if not isinstance(file_path, str):
                 if isinstance(operand, oc.Composition):
-                    file_path = folder + operand.composition_filename() + "_save.json"
+                    file_path = operand.composition_filename() + "_save.json"
                 else:
-                    file_path = folder + "json/_Save_jsonMidiCreator.json"
+                    file_path = "json/_Save_jsonMidiCreator.json"
             else: # Folder is just a prefix
-                file_path = folder + file_path
+                file_path = file_path
             c.saveJsonMidiCreator(operand.getSerialization(), file_path,
                                   self._parameters[self._indexes["include_settings"]])
             return operand
@@ -3327,14 +3326,13 @@ class Export(ReadOnly):
         match operand:
             case o.Operand():
                 file_path: str = self._parameters
-                folder: str = settings._folder
                 if not isinstance(file_path, str):
                     if isinstance(operand, oc.Composition):
-                        file_path = folder + operand.composition_filename() + "_export.json"
+                        file_path = operand.composition_filename() + "_export.json"
                     else:
-                        file_path = folder + "json/_Export_jsonMidiPlayer.json"
+                        file_path = "json/_Export_jsonMidiPlayer.json"
                 else: # Folder is just a prefix
-                    file_path = folder + file_path
+                    file_path = file_path
                 playlist: list[dict] = self._clocked_playlist(operand)
                 c.saveJsonMidiPlay(clocking, playlist, file_path)
                 return operand
@@ -3358,14 +3356,13 @@ class Render(ReadOnly):
         from . import operand_container as oc
         # filepath and filename
         file_path: str = self._parameters
-        folder: str = settings._folder
         if not isinstance(file_path, str):
             if isinstance(operand, oc.Composition):
-                file_path = folder + operand.composition_filename() + "_render.mid"
+                file_path = operand.composition_filename() + "_render.mid"
             else:
-                file_path = folder + "midi/_MidiExport_song.mid"
+                file_path = "midi/_MidiExport_song.mid"
         else: # Folder is just a prefix
-            file_path = folder + file_path
+            file_path = file_path
         # Rendering of the midi file
         match operand:
             case oc.Composition() | oe.Element():
@@ -5580,11 +5577,6 @@ class Settings(Generic):
     Quantization(1/16) : This sets the Duration of a single `Step`, so, it works like a finer resolution than the `Beat`.
     TimeSignature(4, 4) : Represents the typical Time Signature of a staff.
     KeySignature() : Follows the Circle of Fifths with the setting of the amount of `Sharps` or `Flats`.
-    Duration(1/4) : The default note `Element` duration is 1/4 note.
-    Octave(4) : The default `Octave` is the 4th relative to the middle C.
-    Velocity(100) : Sets the default velocity of a `Note` as 100.
-    Controller("Pan") : The default controller being controlled by CC midi messages is the "Pan", CC number 10.
-    Channel(1) : The default `Channel is the midi channel 1.
     Devices(["VMPK", "FLUID", "loopMIDI", "Microsoft", "IAC Bus", "Apple"]) : Devices that are used by default in order of trying to connect by the `JsonMidiPlayer`.
     ClockedDevices([]) : By default no devices are set to receive clocking messages.
     """
@@ -5597,7 +5589,6 @@ class Settings(Generic):
         self._tonic_key: int                        = 0
         self._devices: list[str]                    = ["VMPK", "FLUID", "loopMIDI", "Microsoft", "IAC Bus", "Apple"]
         self._clocked_devices: list[str]            = []
-        self._folder: str                           = ""
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -5632,7 +5623,6 @@ class Settings(Generic):
                     case ou.TonicKey():         return operand._data << self._tonic_key
                     case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
                     case oc.Devices():          return oc.Devices(self._devices)
-                    case od.Folder():           return od.Folder(self._folder)
                     case _:                     return super().__mod__(operand)
             case oc.Tempos():           return self._tempos.copy()
             case ou.Tempo():            return oc.Tempos(self._tempos)[0]
@@ -5663,7 +5653,6 @@ class Settings(Generic):
                                         return self % KeySignature() % operand
             case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
             case oc.Devices():          return oc.Devices(self._devices)
-            case od.Folder():           return od.Folder(self._folder)
             case Settings():
                 return operand.copy(self)
             case _:                     return super().__mod__(operand)
@@ -5679,8 +5668,7 @@ class Settings(Generic):
             and self._diatonic_mode_0       == other._diatonic_mode_0 \
             and self._tonic_key             == other._tonic_key \
             and self._devices               == other._devices \
-            and self._clocked_devices       == other._clocked_devices \
-            and self._folder                == other._folder
+            and self._clocked_devices       == other._clocked_devices
     
 
     def getClocking(self) -> dict[str, list]:
@@ -5700,7 +5688,6 @@ class Settings(Generic):
         serialization["parameters"]["tonic_key_0"]          = self.serialize( self._tonic_key )
         serialization["parameters"]["devices"]              = self.serialize( self._devices )
         serialization["parameters"]["clocked_devices"]      = self.serialize( self._clocked_devices )
-        serialization["parameters"]["folder"]               = self.serialize( self._folder )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -5709,8 +5696,7 @@ class Settings(Generic):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "tempos" in serialization["parameters"] and "quantization" in serialization["parameters"] and
             "time_signature" in serialization["parameters"] and "diatonic_mode_0" in serialization["parameters"] and
-            "tonic_key_0" in serialization["parameters"] and
-            "devices" in serialization["parameters"] and "clocked_devices" in serialization["parameters"] and "folder" in serialization["parameters"]):
+            "tonic_key_0" in serialization["parameters"] and "devices" in serialization["parameters"] and "clocked_devices" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._tempos                = self.deserialize( serialization["parameters"]["tempos"] )
@@ -5720,7 +5706,6 @@ class Settings(Generic):
             self._tonic_key             = self.deserialize( serialization["parameters"]["tonic_key_0"] )
             self._devices               = self.deserialize( serialization["parameters"]["devices"] )
             self._clocked_devices       = self.deserialize( serialization["parameters"]["clocked_devices"] )
-            self._folder                = self.deserialize( serialization["parameters"]["folder"] )
         return self
     
     def __lshift__(self, operand: any) -> Self:
@@ -5737,7 +5722,6 @@ class Settings(Generic):
                 self._tonic_key             = operand._tonic_key
                 self._devices               = operand._devices.copy()
                 self._clocked_devices       = operand._clocked_devices.copy()
-                self._folder                = operand._folder
             case od.Pipe():
                 match operand._data:
                     case oc.Tempos():               self._tempos = operand._data._items
@@ -5755,7 +5739,6 @@ class Settings(Generic):
 
                     case oc.ClockedDevices():       self._clocked_devices = operand._data % od.Pipe( list() )
                     case oc.Devices():              self._devices = operand._data % od.Pipe( list() )
-                    case od.Folder():               self._folder = operand._data._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case oc.Tempos():           self._tempos = o.Operand.deep_copy(operand._items)
@@ -5782,7 +5765,6 @@ class Settings(Generic):
             case oc.ClockedDevices():   self._clocked_devices = operand % list()
             case oc.Devices():          self._devices = operand % list()
             case od.Device():           self._devices = [ operand._data ]
-            case od.Folder():           self._folder = operand._data
             case None:  # Does a Reset!
                 self << Settings()
             case tuple():

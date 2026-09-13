@@ -990,13 +990,9 @@ class Load(Serialization):
 
     @staticmethod
     def load_operand_data(filename: str) -> dict:
-        from . import operand_generic as og
         file_path: str = filename
-        folder: str = og.settings._folder
         if not isinstance(file_path, str):
             file_path = None
-        else: # Folder is just a prefix
-            file_path = folder + file_path
         return {} if file_path is None else c.loadJsonMidiCreator(file_path)
 
 
@@ -1217,13 +1213,9 @@ class Import(Playlist):
 
     @staticmethod
     def load_playlist(filename: str) -> list[dict]:
-        from . import operand_generic as og
         file_path: str = filename
-        folder: str = og.settings._folder
         if not isinstance(file_path, str):
             file_path = None
-        else: # Folder is just a prefix
-            file_path = folder + file_path
         return [] if file_path is None else c.loadJsonMidiPlay(file_path)
 
 
