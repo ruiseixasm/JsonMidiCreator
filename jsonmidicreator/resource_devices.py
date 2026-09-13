@@ -311,50 +311,50 @@ class RD_Digitakt(RD_Instrument):
             ] = {
                 # PER TRACK PARAMETERS (CHANNEL 1 TO 8)
                 "TRACK": {
-                    "Mute":     {"MSB": 94},
-                    "Level":    {"MSB": 95}
+                    "Mute":         {"MSB": 94},
+                    "Level":        {"MSB": 95}
                 },
                 "TRIG": {
-                    "Note":     {"MSB": 3},
-                    "Velocity": {"MSB": 4},
-                    "Length":   {"MSB": 5},
-                    "Filter":   {"MSB": 13},
-                    "LFO":      {"MSB": 14}
+                    "Note":         {"MSB": 3},
+                    "Velocity":     {"MSB": 4},
+                    "Length":       {"MSB": 5},
+                    "Filter":       {"MSB": 13},
+                    "LFO":          {"MSB": 14}
                 },
                 "SOURCE": {
-                    "Tune": {"MSB": 16},
-                    "Mode": {"MSB": 17},
-                    "Bit": { "MSB": 18},
-                    "Sample": {"MSB": 19},
-                    "Knob E": {"MSB": 20},
-                    "Knob F": {"MSB": 21},
-                    "Knob G": {"MSB": 22},
-                    "Level": {"MSB": 23}
+                    "Tune":         {"MSB": 16},
+                    "Mode":         {"MSB": 17},
+                    "Bit":          {"MSB": 18},
+                    "Sample":       {"MSB": 19},
+                    "Knob E":       {"MSB": 20},
+                    "Knob F":       {"MSB": 21},
+                    "Knob G":       {"MSB": 22},
+                    "Level":        {"MSB": 23}
                 },
                 "FILTER": {
-                    "Frequency": {"MSB": 74},
-                    "Resonance": {"MSB": 75},
-                    "Type": {"MSB": 76},
-                    "Attack": {"MSB": 70},
-                    "Decay": {"MSB": 71},
-                    "Sustain": {"MSB": 72},
-                    "Release": {"MSB": 73},
-                    "Depth": {"MSB": 77},
-                    "Delay": {"MSB": 86},
-                    "Rate": {"MSB": 87},
-                    "Base": {"MSB": 84},
-                    "Width": {"MSB": 85},
-                    "Routing": {"MSB": 88}
+                    "Frequency":    {"MSB": 74},
+                    "Resonance":    {"MSB": 75},
+                    "Type":         {"MSB": 76},
+                    "Attack":       {"MSB": 70},
+                    "Decay":        {"MSB": 71},
+                    "Sustain":      {"MSB": 72},
+                    "Release":      {"MSB": 73},
+                    "Depth":        {"MSB": 77},
+                    "Delay":        {"MSB": 86},
+                    "Rate":         {"MSB": 87},
+                    "Base":         {"MSB": 84},
+                    "Width":        {"MSB": 85},
+                    "Routing":      {"MSB": 88}
                 },
                 "AMP": {
-                    "Attack": {"MSB": 78},
-                    "Hold": {"MSB": 79},
-                    "Decay": {"MSB": 80},
-                    "Overdrive": {"MSB": 81},
-                    "Delay": {"MSB": 82},
-                    "Reverb": {"MSB": 83},
-                    "Pan": {"MSB": 10},
-                    "Volume": {"MSB": 7}
+                    "Attack":       {"MSB": 78},
+                    "Hold":         {"MSB": 79},
+                    "Decay":        {"MSB": 80},
+                    "Overdrive":    {"MSB": 81},
+                    "Delay":        {"MSB": 82},
+                    "Reverb":       {"MSB": 83},
+                    "Pan":          {"MSB": 10},
+                    "Volume":       {"MSB": 7}
                 },
                 "LFO 1": {
                     "Speed": {"MSB": 102},
@@ -556,22 +556,22 @@ class RD_Digitakt(RD_Instrument):
                     "Mix": {"MSB": 2, "LSB": 23, "HIGH": False, "NRPN": True}
                 },
                 "MIXER": {
-                    "Level L": {"MSB": 2, "LSB": 30, "HIGH": False, "NRPN": True},
-                    "Pan L": {"MSB": 2, "LSB": 31, "HIGH": False, "NRPN": True},
-                    "Level R": {"MSB": 2, "LSB": 32, "HIGH": False, "NRPN": True},
-                    "Pan R": {"MSB": 2, "LSB": 33, "HIGH": False, "NRPN": True},
-                    "Delay L": {"MSB": 2, "LSB": 34, "HIGH": False, "NRPN": True},
-                    "Delay R": {"MSB": 2, "LSB": 35, "HIGH": False, "NRPN": True},
-                    "Reverb L": {"MSB": 2, "LSB": 36, "HIGH": False, "NRPN": True},
-                    "Reverb R": {"MSB": 2, "LSB": 37, "HIGH": False, "NRPN": True},
-                    "Stereo": {"MSB": 2, "LSB": 38, "HIGH": False, "NRPN": True},
-                    "LR Level": {"MSB": 2, "LSB": 30, "HIGH": False, "NRPN": True},
-                    "LR Balance": {"MSB": 2, "LSB": 31, "HIGH": False, "NRPN": True},
-                    "LR Delay": {"MSB": 2, "LSB": 34, "HIGH": False, "NRPN": True},
-                    "LR Reverb": {"MSB": 2, "LSB": 36, "HIGH": False, "NRPN": True}
+                    "Level L":      {"MSB": 2, "LSB": 30, "HIGH": False, "NRPN": True},
+                    "Pan L":        {"MSB": 2, "LSB": 31, "HIGH": False, "NRPN": True},
+                    "Level R":      {"MSB": 2, "LSB": 32, "HIGH": False, "NRPN": True},
+                    "Pan R":        {"MSB": 2, "LSB": 33, "HIGH": False, "NRPN": True},
+                    "Delay L":      {"MSB": 2, "LSB": 34, "HIGH": False, "NRPN": True},
+                    "Delay R":      {"MSB": 2, "LSB": 35, "HIGH": False, "NRPN": True},
+                    "Reverb L":     {"MSB": 2, "LSB": 36, "HIGH": False, "NRPN": True},
+                    "Reverb R":     {"MSB": 2, "LSB": 37, "HIGH": False, "NRPN": True},
+                    "Stereo":       {"MSB": 2, "LSB": 38, "HIGH": False, "NRPN": True},
+                    "LR Level":     {"MSB": 2, "LSB": 30, "HIGH": False, "NRPN": True},
+                    "LR Balance":   {"MSB": 2, "LSB": 31, "HIGH": False, "NRPN": True},
+                    "LR Delay":     {"MSB": 2, "LSB": 34, "HIGH": False, "NRPN": True},
+                    "LR Reverb":    {"MSB": 2, "LSB": 36, "HIGH": False, "NRPN": True}
                 },
                 "PATTERN": {
-                    "Mute": {"MSB": 1, "LSB": 104, "HIGH": False, "NRPN": True}
+                    "Mute":         {"MSB": 1, "LSB": 104, "HIGH": False, "NRPN": True}
                 }
             }
 
