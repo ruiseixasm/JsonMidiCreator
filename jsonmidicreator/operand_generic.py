@@ -851,14 +851,14 @@ class Pitch(Generic):
         return sum(sharps_or_flats)
 
     def apply_sharps(self, sharps: int = 0) -> Self:
-        self._tonic_key = Scale.sharps_to_tonic(sharps, self._diatonic_mode_0)
+        self._tonic_key = Scale.sharps_to_tonic(self._diatonic_mode_0, sharps)
         return self
 
     def apply_key_signature(self, key_signature: KeySignature) -> Self:
         return self.apply_sharps(key_signature._sharps)
 
     def reset_tonic_key(self) -> Self:
-        self._tonic_key = Scale.sharps_to_tonic(0, self._diatonic_mode_0)
+        self._tonic_key = Scale.sharps_to_tonic(self._diatonic_mode_0)
         return self
 
     """
@@ -1691,7 +1691,7 @@ class Scale(Generic):
 
 
     @staticmethod
-    def sharps_to_tonic(sharps: int = 0, diatonic_mode_0: int = 0) -> int:
+    def sharps_to_tonic(diatonic_mode_0: int = 0, sharps: int = 0) -> int:
         if diatonic_mode_0 % 7 < 7:    # Diatonic scale
             zero_tonic_key: int = Scale.transpose_key(diatonic_mode_0)
             circle_fifths_position: int = sharps
@@ -5759,7 +5759,7 @@ class Settings(Generic):
                 self._diatonic_mode_0 = operand._unit - 1
             case KeySignature(): # Preserves the Semitone
                 sharps: int = operand._sharps
-                self._tonic_key = Scale.sharps_to_tonic(sharps, self._diatonic_mode_0)
+                self._tonic_key = Scale.sharps_to_tonic(self._diatonic_mode_0, sharps)
             case ou.Quality() | ou.Key() | int() | float() | Fraction() | str():
                                         self << KeySignature(operand)
             case oc.ClockedDevices():   self._clocked_devices = operand % list()
