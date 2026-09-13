@@ -5694,7 +5694,7 @@ class Settings(Generic):
 
     def getClocking(self, length_beats: Fraction) -> dict[str, list]:
         return {
-            "length_beats": [length_beats._numerator, length_beats._denominator],
+            "length_beats": [length_beats.numerator, length_beats.denominator],
             "devices": self._clocked_devices,
             "tempos": [
                 tempo % dict() for tempo in self._tempos

@@ -288,8 +288,8 @@ class Tempo(Unit):
             case ra.Convertible():  return operand.copy(ra.Position(self._position_beats))
             case list():
                 return [
-                    self._position_beats._numerator,
-                    self._position_beats._denominator
+                    self._position_beats.numerator,
+                    self._position_beats.denominator
                 ]
             case dict():
                 return {
@@ -336,8 +336,8 @@ class Tempo(Unit):
                 super().__lshift__(operand * 10)
             case list():
                 if len(operand) == 2:
-                    self._position_beats._numerator = operand[0]
-                    self._position_beats._denominator = operand[1]
+                    self._position_beats.numerator = operand[0]
+                    self._position_beats.denominator = operand[1]
             case dict():
                 if "bpm_10" in operand and "position_beats" in operand:
                     self._unit = operand["bpm_10"]

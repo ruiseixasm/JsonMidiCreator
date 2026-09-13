@@ -1456,7 +1456,7 @@ class Talkie(Element):
 
         self_playlist: list[dict] = [
             {
-                "position_beats": [absolute_position_beats._numerator, absolute_position_beats._denominator],
+                "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                 "port": self._port,
                 "message": {
                     "m": 0, # talk
@@ -1733,7 +1733,7 @@ class DeviceElement(Element):
             return []
         return [
                 {
-                    "position_beats": [absolute_position_beats._numerator, absolute_position_beats._denominator]
+                    "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator]
                 }
             ]
 
@@ -2231,7 +2231,7 @@ class Note(ChannelElement):
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist.append(
                 {
-                    "position_beats": [absolute_position_beats._numerator, absolute_position_beats._denominator],
+                    "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                     "midi_message": {
                         "status_byte": 0x90 | single_note._channel_0,
                         "data_byte_1": pitch_int,
@@ -3651,7 +3651,7 @@ class ControlChange(Automatable):
                 cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
                 self_playlist.extend([
                     {
-                        "position_beats": [absolute_position_beats._numerator, absolute_position_beats._denominator],
+                        "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                         "midi_message": {
                             "status_byte": 0xB0 | self._channel_0,
                             "data_byte_1": 99,
@@ -3659,7 +3659,7 @@ class ControlChange(Automatable):
                         }
                     },
                     {
-                        "position_beats": [absolute_position_beats._numerator, absolute_position_beats._denominator],
+                        "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                         "midi_message": {
                             "status_byte": 0xB0 | self._channel_0,
                             "data_byte_1": 98,
@@ -3667,7 +3667,7 @@ class ControlChange(Automatable):
                         }
                     },
                     {
-                        "position_beats": [absolute_position_beats._numerator, absolute_position_beats._denominator],
+                        "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                         "midi_message": {
                             "status_byte": 0xB0 | self._channel_0,
                             "data_byte_1": 6,
@@ -3679,7 +3679,7 @@ class ControlChange(Automatable):
                     self_playlist.append(
                         {
                             "time_ms": time_ms,
-                            "position_beats": [absolute_position_beats._numerator, absolute_position_beats._denominator],
+                            "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                             "midi_message": {
                                 "status_byte": 0xB0 | self._channel_0,
                                 "data_byte_1": 38,
@@ -3691,7 +3691,7 @@ class ControlChange(Automatable):
                 msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
                 self_playlist.append(
                     {
-                        "position_beats": [absolute_position_beats._numerator, absolute_position_beats._denominator],
+                        "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                         "midi_message": {
                             "status_byte": 0xB0 | self._channel_0,
                             "data_byte_1": self._controller._number_msb,
@@ -3702,7 +3702,7 @@ class ControlChange(Automatable):
                 if self._controller._high:
                     self_playlist.append(
                         {
-                            "position_beats": [absolute_position_beats._numerator, absolute_position_beats._denominator],
+                            "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                             "midi_message": {
                                 "status_byte": 0xB0 | self._channel_0,
                                 "data_byte_1": self._controller._lsb,
@@ -4310,7 +4310,7 @@ class Aftertouch(Automatable):
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist.append(
                 {
-                    "position_beats": [absolute_position_beats._numerator, absolute_position_beats._denominator],
+                    "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                     "midi_message": {
                         "status_byte": 0xD0 | self._channel_0,
                         "data_byte": clamp_value_128(self._pressure)
@@ -4478,7 +4478,7 @@ class PolyAftertouch(Aftertouch):
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist.append(
                 {
-                    "position_beats": [absolute_position_beats._numerator, absolute_position_beats._denominator],
+                    "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                     "midi_message": {
                         "status_byte": 0xA0 | self._channel_0,
                         "data_byte_1": pitch_int,
@@ -4691,7 +4691,7 @@ class PitchBend(Automatable):
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist.append(
                 {
-                    "position_beats": [absolute_position_beats._numerator, absolute_position_beats._denominator],
+                    "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                     "midi_message": {
                         "status_byte": 0xE0 | self._channel_0,
                         "data_byte_1": clamp_value_128(self._lsb),
@@ -5213,7 +5213,7 @@ class ProgramChange(ChannelElement):
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist.append(
                 {
-                    "position_beats": [absolute_position_beats._numerator, absolute_position_beats._denominator],
+                    "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                     "midi_message": {
                         "status_byte": 0xC0 | self._channel_0,
                         "data_byte": self._program_0

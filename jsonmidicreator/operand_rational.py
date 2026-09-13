@@ -87,8 +87,8 @@ class Rational(o.Operand):
             case int():             return int(self._rational)
             case list():
                 return [
-                    self._rational._numerator,
-                    self._rational._denominator
+                    self._rational.numerator,
+                    self._rational.denominator
                 ]
             case str():             return str(self._rational)
             case ou.Unit():         return operand.copy() << od.Pipe( self._rational )
@@ -182,8 +182,8 @@ class Rational(o.Operand):
                 self._rational = self.check_denominator( operand )
             case list():
                 if len(operand) == 2:
-                    self._rational._numerator = operand[0]
-                    self._rational._denominator = operand[1]
+                    self._rational.numerator = operand[0]
+                    self._rational.denominator = operand[1]
             case ou.Unit():
                 self._rational = Fraction(operand._unit)
             case str():
