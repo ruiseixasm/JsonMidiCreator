@@ -1,1 +1,1 @@
-{"filetype": "Json Midi Player", "url": "https://github.com/ruiseixasm/JsonMidiPlayer", "clocking": {"devices": [], "tempos": [{"bpm_10": 1200, "position_beats": [0, 1]}]}, "playlist": []}
+{"filetype": "Json Midi Player", "url": "https://github.com/ruiseixasm/JsonMidiPlayer", "clocking": {"devices": [], "tempos": [{"bpm_10": 1200, "position_beats": [0, 1]}]}, "playlist": [{"devices": ["VMPK", "FLUID", "loopMIDI", "Microsoft", "IAC Bus", "Apple"]}]}

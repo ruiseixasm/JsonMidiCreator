@@ -3101,12 +3101,7 @@ class Process(Generic):
         from . import operand_container as oc
 
         match operand:
-            case oc.Composition() | oe.Element():
-                if isinstance(operand, oc.Composition) and operand.len() == 0:
-                    return [] # exits with nothing right away
-                return operand.getPlaylist()
-            
-            case od.Playlist():
+            case oc.Composition() | oe.Element() | od.Playlist():
                 return operand.getPlaylist()
 
         return []
