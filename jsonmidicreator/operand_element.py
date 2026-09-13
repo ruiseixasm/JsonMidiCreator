@@ -463,10 +463,7 @@ class Element(o.Operand):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case od.Serialization():
-                return self << operand % od.Pipe()
-            case od.Playlist():
-                operand.__rrshift__(self)
-                return self   
+                return self << operand % od.Pipe() 
         return self.copy().__irshift__(operand)
 
 

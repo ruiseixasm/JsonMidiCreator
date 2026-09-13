@@ -3101,7 +3101,7 @@ class Process(Generic):
         from . import operand_container as oc
 
         match operand:
-            case oc.Composition() | oe.Element() | od.Playlist():
+            case oc.Composition() | oe.Element():
                 return operand.getPlaylist()
 
         return []
@@ -3314,21 +3314,34 @@ class Export(ReadOnly):
         super().__init__(filename)
 
     def _direct_process(self, operand: o.T) -> o.T:
+        from . import operand_element as oe
         from . import operand_container as oc
-        clocking: dict[str, list] = settings.getClocking()
         match operand:
-            case o.Operand():
-                file_path: str = self._parameters
-                if not isinstance(file_path, str):
-                    if isinstance(operand, oc.Composition):
+            case oc.Composition():
+                if operand._items:
+                    file_path: str = self._parameters
+                    if not isinstance(file_path, str):
                         file_path = operand.composition_filename() + "_export.json"
-                    else:
-                        file_path = "json/_Export_jsonMidiPlayer.json"
-                else: # Folder is just a prefix
-                    file_path = file_path
+                    else: # Folder is just a prefix
+                        file_path = file_path
+                    composition_length: ra.Length = operand % ra.Length()
+                    composition_length_beats: Fraction = composition_length._rational   # Implicit rounding
+                    clocking: dict[str, list] = settings.getClocking(composition_length_beats)
+                    playlist: list[dict] = self._get_playlist(operand)
+                    c.saveJsonMidiPlay(clocking, playlist, file_path)
+                else:
+                    print(f"Warning: Trying to export an **empty** list!")
+                return operand
+            case oe.Element():
+                if not isinstance(file_path, str):
+                    file_path = "json/_Export_jsonMidiPlayer.json"
+                element_length: ra.Length = operand % ra.Length()
+                element_length_beats: Fraction = element_length.roundMeasures() % Fraction()
+                clocking: dict[str, list] = settings.getClocking(element_length_beats)
                 playlist: list[dict] = self._get_playlist(operand)
                 c.saveJsonMidiPlay(clocking, playlist, file_path)
                 return operand
+
             case _:
                 return super().__rrshift__(operand)
 
@@ -4625,10 +4638,12 @@ class Play(ReadOnly):
         import threading
         from . import operand_element as oe
         from . import operand_container as oc
-        clocking: dict[str, list] = settings.getClocking()
         match operand:
             case oc.Composition():
                 if operand._items:
+                    composition_length: ra.Length = operand % ra.Length()
+                    composition_length_beats: Fraction = composition_length._rational   # Implicit rounding
+                    clocking: dict[str, list] = settings.getClocking(composition_length_beats)
                     playlist: list[dict] = self._get_playlist(operand)  # Where the heavy lifting method is called
                     if self._parameters[1] and self._parameters[2]:
                         # Start the function in a new process
@@ -4643,6 +4658,9 @@ class Play(ReadOnly):
                     print(f"Warning: Trying to play an **empty** list!")
                 return operand
             case oe.Element():
+                element_length: ra.Length = operand % ra.Length()
+                element_length_beats: Fraction = element_length.roundMeasures() % Fraction()
+                clocking: dict[str, list] = settings.getClocking(element_length_beats)
                 playlist: list[dict] = self._get_playlist(operand)  # Where the heavy lifting method is called
                 if self._parameters[1] and self._parameters[2]:
                     # Start the function in a new process
@@ -4660,10 +4678,6 @@ class Play(ReadOnly):
             case str():
                 line = od.Line(operand)
                 self.__rrshift__(line)
-            case od.Playlist():
-                playlist: list[dict] = self._get_playlist(operand)  # Where the heavy lifting method is called
-                c.jsonMidiPlay(clocking, playlist, self._parameters[0], self._parameters[3])
-                return operand
             case _:
                 return super().__rrshift__(operand)
     
@@ -5664,8 +5678,9 @@ class Settings(Generic):
             and self._clocked_devices       == other._clocked_devices
     
 
-    def getClocking(self) -> dict[str, list]:
+    def getClocking(self, length_beats: Fraction) -> dict[str, list]:
         return {
+            "length_beats": [length_beats._numerator, length_beats._denominator],
             "devices": self._clocked_devices,
             "tempos": [
                 tempo % dict() for tempo in self._tempos

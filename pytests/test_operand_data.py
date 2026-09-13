@@ -95,18 +95,6 @@ def test_serialization_mod():
 # test_serialization_mod()
 
 
-def test_playlist_mod():
-
-    # Perform the operation
-    retrigger = Tuplet("D") << Count(6)
-    play_list = Playlist() << retrigger
-    
-    # Depends on the order, different order results in False!
-    assert play_list == retrigger
-    
-# test_playlist_mod()
-
-
 def test_inline_operations():
     four_notes = Note() / 4
     five_notes = four_notes / Note()
