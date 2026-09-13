@@ -152,10 +152,6 @@ def tag_to_int(tag: str) -> int:
     return tag_int
 
 
-def minutes_to_time_ms(minutes: Fraction) -> float:
-    # Validation is done by JsonMidiPlayer and midiutil Midi Range Validation
-    return round(float(minutes * 60_000), 3)
-
 def time_ms_to_minutes(time_ms: float | int) -> Fraction:
     from . import operand_rational as ra
     return ra.Minutes(time_ms / 60_000)._rational
