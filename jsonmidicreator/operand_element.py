@@ -3678,7 +3678,6 @@ class ControlChange(Automatable):
                 if self._controller._high:
                     self_playlist.append(
                         {
-                            "time_ms": time_ms,
                             "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                             "midi_message": {
                                 "status_byte": 0xB0 | self._channel_0,
