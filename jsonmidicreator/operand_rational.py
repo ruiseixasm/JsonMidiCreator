@@ -182,8 +182,7 @@ class Rational(o.Operand):
                 self._rational = self.check_denominator( operand )
             case list():
                 if len(operand) == 2:
-                    self._rational.numerator = operand[0]
-                    self._rational.denominator = operand[1]
+                    self._rational = Fraction(operand[0], operand[1])
             case ou.Unit():
                 self._rational = Fraction(operand._unit)
             case str():
