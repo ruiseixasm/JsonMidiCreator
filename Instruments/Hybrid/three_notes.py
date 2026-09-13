@@ -1,6 +1,6 @@
 from jsonmidicreator import *
 
-settings << ClockedDevices(["loop"])
+# settings << ClockedDevices(["loop"])
 
 three_notes = Clip(TimeSignature(7, 4), Name("Riffle"), Line(
     "n:3b:C5, :2b:D5, ::D#5"

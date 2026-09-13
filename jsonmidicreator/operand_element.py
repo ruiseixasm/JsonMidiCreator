@@ -5117,8 +5117,6 @@ class ProgramChange(ChannelElement):
     """
     def __init__(self, *parameters):
         self._program_0: int    = 0 # Based 0 value, midi friendly
-        self._bank: int         = 0
-        self._high: bool        = False
         super().__init__(*parameters)
 
     def program(self, program: int | str = "Piano") -> Self:
@@ -5141,21 +5139,15 @@ class ProgramChange(ChannelElement):
             case od.Pipe():
                 match operand._data:
                     case ou.Program():          return operand._data << self._program_0 + 1
-                    case ou.Bank():             return operand._data << self._bank
-                    case ou.HighResolution():   return operand._data << self._high
                     case _:                 return super().__mod__(operand)
             case int():                 return self._program_0 + 1
             case ou.Program():          return ou.Program(self._program_0 + 1)
-            case ou.Bank():             return ou.Bank(self._bank)
-            case ou.HighResolution():   return ou.HighResolution(self._high)
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:
             case self.__class__():
-                return super().__eq__(other) \
-                    and self._program_0 == other._program_0 \
-                    and self._bank == other._bank and self._high == other._high
+                return super().__eq__(other) and self._program_0 == other._program_0
             case Element():
                 # Makes a playlist comparison
                 return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
@@ -5179,13 +5171,6 @@ class ProgramChange(ChannelElement):
                     devices = self._owner_clip._devices
                 self_playlist.append(
                     {"devices": devices}
-                )
-
-            if self._bank > 0:
-                # Has to pass self first to set equivalent parameters like position and staff
-                self_playlist.extend(
-                    BankSelect(self, self % od.Pipe( ou.Bank() ), self % od.Pipe( ou.HighResolution() ))
-                        .getPlaylist(devices_header=False)
                 )
 
             # Midi validation is done in the JsonMidiPlayer program
@@ -5214,20 +5199,16 @@ class ProgramChange(ChannelElement):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["program_0"]    = self.serialize( self._program_0 )
-        serialization["parameters"]["bank"]         = self.serialize( self._bank )
-        serialization["parameters"]["high"]         = self.serialize( self._high )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "program_0" in serialization["parameters"] and "bank" in serialization["parameters"] and "high" in serialization["parameters"]):
+            "program_0" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._program_0 = self.deserialize( serialization["parameters"]["program_0"] )
-            self._bank      = self.deserialize( serialization["parameters"]["bank"] )
-            self._high      = self.deserialize( serialization["parameters"]["high"] )
         return self
       
     def __lshift__(self, operand: any) -> Self:
@@ -5236,13 +5217,9 @@ class ProgramChange(ChannelElement):
             case ProgramChange():
                 super().__lshift__(operand)
                 self._program_0 = operand._program_0
-                self._bank      = operand._bank
-                self._high      = operand._high
             case od.Pipe():
                 match operand._data:
                     case ou.Program():          self._program_0 = operand._data._unit - 1
-                    case ou.Bank():             self._bank = operand._data._unit
-                    case ou.HighResolution():   self._high = operand._data % bool()
                     case _:                     super().__lshift__(operand)
             case str():
                 if ":" in operand:  # It's a Token
@@ -5251,10 +5228,6 @@ class ProgramChange(ChannelElement):
                     self._program_0 = ou.Program(operand)._unit - 1
             case ou.Program() | int():
                 self._program_0 = ou.Program(operand)._unit - 1
-            case ou.Bank():
-                self._bank = operand._unit
-            case ou.HighResolution():
-                self._high = operand % bool()
             case _:
                 super().__lshift__(operand)
         return self
