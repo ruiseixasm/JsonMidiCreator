@@ -17,4 +17,4 @@ settings << [
 
 three_notes *= 4
 # In order to the following `.json` file be created in the same folder, run Python in the folder
-three_notes * [1, 2] * 2 >> Export("three_notes.json") >> Play(True)
+three_notes * [1, 2] * 2 >> Export("three_notes.json") >> Play(verbose=True)

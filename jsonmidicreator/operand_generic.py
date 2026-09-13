@@ -4628,10 +4628,10 @@ class Play(ReadOnly):
         plot (bool): Plots a chart before playing it.
         block (bool): Blocks the Plot until is closed and then plays the plotted content.
     """
-    def __init__(self, verbose: bool = False, plot: bool = False, block: bool = False, talkie_delay_ms: int = 500):
-        super().__init__([verbose, plot, block, talkie_delay_ms])
+    def __init__(self, loop: int = 1, verbose: bool = False, plot: bool = False, block: bool = False, talkie_delay_ms: int = 500):
+        super().__init__([loop, verbose, plot, block, talkie_delay_ms])
         self._indexes = {
-            'verbose': 0, 'plot': 1, 'block': 2, 'talkie_delay_ms': 3
+            'loop': 0, 'verbose': 1, 'plot': 2, 'block': 3, 'talkie_delay_ms': 4
         }
 
     def _direct_process(self, operand: o.T) -> o.T:
@@ -4645,15 +4645,22 @@ class Play(ReadOnly):
                     composition_length_beats: Fraction = composition_length._rational   # Implicit rounding
                     clocking: dict[str, list] = settings.getClocking(composition_length_beats)
                     playlist: list[dict] = self._get_playlist(operand)  # Where the heavy lifting method is called
-                    if self._parameters[1] and self._parameters[2]:
+                    if self._parameters[self._indexes["plot"]] and self._parameters[self._indexes["block"]]:
                         # Start the function in a new process
-                        process = threading.Thread(target=c.jsonMidiPlay, args=(playlist, self._parameters[0], self._parameters[3]))
+                        process = threading.Thread(target=c.jsonMidiPlay,
+                                                   args=(clocking, playlist,
+                                                         self._parameters[self._indexes["loop"]],
+                                                         self._parameters[self._indexes["verbose"]],
+                                                         self._parameters[self._indexes["talkie_delay_ms"]]))
                         process.start()
-                        operand >> Plot(self._parameters[2])
+                        operand >> Plot(self._parameters[self._indexes["block"]])
                     else:
-                        if self._parameters[1] and not self._parameters[2]:
-                            operand >> Plot(self._parameters[2])
-                        c.jsonMidiPlay(clocking, playlist, self._parameters[0], self._parameters[3])
+                        if self._parameters[self._indexes["plot"]] and not self._parameters[self._indexes["block"]]:
+                            operand >> Plot(self._parameters[self._indexes["block"]])
+                        c.jsonMidiPlay(clocking, playlist,
+                                            self._parameters[self._indexes["loop"]],
+                                            self._parameters[self._indexes["verbose"]],
+                                            self._parameters[self._indexes["talkie_delay_ms"]])
                 else:
                     print(f"Warning: Trying to play an **empty** list!")
                 return operand
@@ -4662,15 +4669,22 @@ class Play(ReadOnly):
                 element_length_beats: Fraction = element_length.roundMeasures() % Fraction()
                 clocking: dict[str, list] = settings.getClocking(element_length_beats)
                 playlist: list[dict] = self._get_playlist(operand)  # Where the heavy lifting method is called
-                if self._parameters[1] and self._parameters[2]:
+                if self._parameters[self._indexes["plot"]] and self._parameters[self._indexes["block"]]:
                     # Start the function in a new process
-                    process = threading.Thread(target=c.jsonMidiPlay, args=(clocking, playlist, self._parameters[0], self._parameters[3]))
+                    process = threading.Thread(target=c.jsonMidiPlay,
+                                               args=(clocking, playlist,
+                                                         self._parameters[self._indexes["loop"]],
+                                                         self._parameters[self._indexes["verbose"]],
+                                                         self._parameters[self._indexes["talkie_delay_ms"]]))
                     process.start()
-                    operand >> Plot(self._parameters[2])
+                    operand >> Plot(self._parameters[self._indexes["block"]])
                 else:
-                    if self._parameters[1] and not self._parameters[2]:
-                        operand >> Plot(self._parameters[2])
-                    c.jsonMidiPlay(clocking, playlist, self._parameters[0], self._parameters[3])
+                    if self._parameters[self._indexes["plot"]] and not self._parameters[self._indexes["block"]]:
+                        operand >> Plot(self._parameters[self._indexes["block"]])
+                    c.jsonMidiPlay(clocking, playlist,
+                                            self._parameters[self._indexes["loop"]],
+                                            self._parameters[self._indexes["verbose"]],
+                                            self._parameters[self._indexes["talkie_delay_ms"]])
                 return operand
             case od.Line():
                 line_clip = oc.Clip(operand)
