@@ -2053,12 +2053,12 @@ class Number(Midi):
         return 0
 
     @staticmethod
-    def nameToNumber(name: str = "Pan") -> int:
+    def nameToNumber(name: str = "Modulation") -> int:
         for controller in Number._controllers:
             for controller_name in controller["names"]:
                 if controller_name.lower().find(name.strip().lower()) != -1:
                     return controller["midi_number"]
-        return 10   # Default is Pan
+        return 1    # Default is Modulation
 
     @staticmethod
     def numberToName(number: int) -> str:
