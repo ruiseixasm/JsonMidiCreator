@@ -18,7 +18,7 @@ from jsonmidicreator import *
 
 
 settings += Device("Blofeld")
-start_program = RD_Blofeld.program_change(4, "A") >> Play()
+start_program = RD_Blofeld.Clip_instrument_change(4, "A") >> Play()
 # Devices to sync that also guarantee the total playing up to the end of Measures
 # Note that Rest has no impact im prolonging the playing time without the global Clock on
 settings << ClockedDevices("Blofeld")
@@ -35,5 +35,5 @@ for degree in range(1, 8):  # 7 degrees in total
     
 
 
-reset_program = RD_Blofeld.program_change(1, "B") > Play()
+reset_program = RD_Blofeld.Clip_instrument_change(1, "B") > Play()
 

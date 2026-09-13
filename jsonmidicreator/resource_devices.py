@@ -36,16 +36,16 @@ from . import operand_chaos as ch
 
 
 
-class RD_Hybrid:
+class RD_Blofeld:
 
     device          = od.Device("Blofeld")
 
     # Activate "Ctrl Receive" in "Shift + Global" and turn the data knob to select it on Global MIDI
 
 
-    def program_change(sound: int, bank: str | int = "A") -> oe.ProgramChange:
+    def Clip_instrument_change(sound: int, bank: str | int = "A") -> 'oc.Clip':
         if isinstance(bank, str):
-            bank = ou.Bank(RD_Hybrid.banks[bank.strip().upper()])
+            bank = ou.Bank(RD_Blofeld.banks[bank.strip().upper()])
         return oe.ProgramChange(sound, ou.Bank(bank))
 
     # A total of 8 banks
@@ -64,7 +64,7 @@ class RD_Hybrid:
     def control_change(parameter: str = "Cutoff", group: str = "FILTER 1") -> oe.ControlChange:
         parameter = parameter.strip()
         group = group.strip().upper()
-        return oe.ControlChange(RD_Hybrid.midi_cc[group][parameter])
+        return oe.ControlChange(RD_Blofeld.midi_cc[group][parameter])
 
     midi_cc: dict[str,
                 dict[ str, dict[str, int] ]
@@ -268,7 +268,7 @@ class RD_Digitakt:
     fx_control_ch   = ou.Channel(9)
     auto_channel    = ou.Channel(10)
 
-    def program_change(pattern: int, bank: str | int = "A") -> oe.ProgramChange:
+    def Clip_instrument_change(pattern: int, bank: str | int = "A") -> 'oc.Clip':
         if isinstance(bank, str):
             bank = RD_Digitakt.bank_pattern[bank.strip().upper()][0]
         return oe.ProgramChange(bank + pattern)   # based 1 data
@@ -1112,10 +1112,14 @@ class RD_Hybrid:
     # Activate "Ctrl Receive" in "Shift + Global" and turn the data knob to select it on Global MIDI
 
 
-    def program_change(sound: int, bank: str | int = "A") -> oe.ProgramChange:
+    def Clip_instrument_change(sound: int, bank: str | int = "A") -> 'oc.Clip':
+        clip = oc.Clip()
         if isinstance(bank, str):
-            bank = ou.Bank(RD_Hybrid.banks[bank.strip().upper()])
-        return oe.ProgramChange(sound, ou.Bank(bank))
+            clip += oe.BankSelect_MSB(RD_Hybrid.banks[bank.strip().upper()])
+        else:
+            clip += oe.BankSelect_MSB(bank)
+        clip += oe.ProgramChange(sound)
+        return clip
 
     # A total of 8 banks
     banks: dict[str, int] = {
