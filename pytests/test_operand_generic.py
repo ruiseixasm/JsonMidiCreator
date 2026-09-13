@@ -59,6 +59,9 @@ def test_timesignature_mod():
 
 def test_pitch_tonic():
 
+    # Resets the defaults
+    settings << None
+
     pitch = Pitch()
     # Pitch keeps its own Key Signature
     pitch <<= KeySignature(2) # Dorian is the 2nd in the Circle of fifths
@@ -629,6 +632,9 @@ def test_time_signature():
 
 
 def test_key_degrees():
+
+    # Resets the defaults
+    settings << None
 
     pitch_key = Pitch(Sharps("bbb"))
     print(f"pitch_key % Key(): {pitch_key % Key() % str()}")

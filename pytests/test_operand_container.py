@@ -43,6 +43,9 @@ def test_clip_equal():
 
 def test_staff_parameters():
 
+    # Resets the defaults
+    settings << None
+
     four_notes = Note() / 4
     # Tempo is centralized in defaults
     assert settings % Tempo() == 120.0
