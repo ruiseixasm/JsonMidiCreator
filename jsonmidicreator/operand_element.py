@@ -3448,28 +3448,22 @@ class ControlChange(Automatable):
 
     Parameters
     ----------
-    Controller(settings) : An `Operand` that represents parameters like the `Number` of the controller being changed.
-    Value(settings), int : The CC value to be set on the Device controller.
+    Number(1) : The `Number` is 1 for Modulation.
+    Value(0), int : The CC value to be set on the Device controller.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        self._controller: og.Controller = og.Controller()
-        self._value: int                = 0
+        self._number: int   = 1
+        self._value: int    = 0
         super().__init__()
         # Equivalent to one Step
         self._duration_beats = og.settings._quantization    # Quantization is a Beats value already
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def controller(self, msb: Optional[int] = None, lsb: Optional[int] = None) -> Self:
-        self._controller = og.Controller(
-                ou.Number(msb), ou.LSB(lsb)
-            )
-        return self
-    
     def set_from_value(self, value: int | float | Fraction) -> Self:
         if isinstance(value, (int, float, Fraction)):
             self._value = round(value)
@@ -3482,12 +3476,12 @@ class ControlChange(Automatable):
         """16-bit checksum for an `Automation`."""
         master: int = super().checksum()
         master ^= (self._value << 8) | self._value
-        master ^= (self._controller._number_msb << 8) | self._controller._number_msb
+        master ^= (self._number << 8) | self._number
         return master & 0xFFFF  # 16-bit
 
     def is_clipped(self) -> bool:
         return super().is_clipped() \
-            or self._controller._number_msb < 0 or self._controller._number_msb > 128
+            or self._number < 0 or self._number > 128
 
     def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
         super()._set_element_from_token(token, previous_element)
@@ -3513,8 +3507,8 @@ class ControlChange(Automatable):
                             self << ou.Number(number)
                         case _:
                             # Set Controller
-                            if parameter in ControlChange._controller_id:
-                                controller_id: int = ControlChange._controller_id[parameter]
+                            if parameter in ControlChange._controller_number:
+                                controller_id: int = ControlChange._controller_number[parameter]
                                 midi_number: int = ou.Number._controllers[controller_id]["midi_number"]
                                 default_value: int = ou.Number._controllers[controller_id]["default_value"]
                                 self << ou.Number(midi_number)
@@ -3536,24 +3530,20 @@ class ControlChange(Automatable):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case ou.Value():            return operand._data << od.Pipe(self._value)
-                    case ou.MSB():              return ou.MSB() << od.Pipe(self._value)
-                    case og.Controller():       return self._controller
+                    case ou.Number():           return operand._data << self._number
+                    case ou.Value():            return operand._data << self._value
                     case _:                     return super().__mod__(operand)
             case int():                 return self._value
+            case ou.Number():           return operand.copy() << self._number
             case ou.Value():            return operand.copy() << self._value
-            case ou.MSB():              return ou.MSB() << self._value
-            case og.Controller():       return self._controller.copy()
-            case ou.Number() | ou.LSB() | ou.HighResolution() | dict():
-                return self._controller % operand
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: Any) -> bool:
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._value == other._value \
-                    and self._controller == other._controller
+                    and self._number == other._number \
+                    and self._value == other._value
             case Element():
                 # Makes a playlist comparison
                 return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
@@ -3647,68 +3637,16 @@ class ControlChange(Automatable):
                     {"devices": devices}
                 )
 
-            if self._controller._nrpn:
-                cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
-                self_playlist.extend([
-                    {
-                        "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
-                        "midi_message": {
-                            "status_byte": 0xB0 | self._channel_0,
-                            "data_byte_1": 99,
-                            "data_byte_2": clamp_value_128(cc_99_msb)
-                        }
-                    },
-                    {
-                        "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
-                        "midi_message": {
-                            "status_byte": 0xB0 | self._channel_0,
-                            "data_byte_1": 98,
-                            "data_byte_2": clamp_value_128(cc_98_lsb)
-                        }
-                    },
-                    {
-                        "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
-                        "midi_message": {
-                            "status_byte": 0xB0 | self._channel_0,
-                            "data_byte_1": 6,
-                            "data_byte_2": clamp_value_128(cc_6_msb)
-                        }
+            self_playlist.append(
+                {
+                    "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
+                    "midi_message": {
+                        "status_byte": 0xB0 | self._channel_0,
+                        "data_byte_1": self._number,
+                        "data_byte_2": clamp_value_128(self._value)
                     }
-                ])
-                if self._controller._high:
-                    self_playlist.append(
-                        {
-                            "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
-                            "midi_message": {
-                                "status_byte": 0xB0 | self._channel_0,
-                                "data_byte_1": 38,
-                                "data_byte_2": clamp_value_128(cc_38_lsb)
-                            }
-                        }
-                    )
-            else:
-                msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
-                self_playlist.append(
-                    {
-                        "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
-                        "midi_message": {
-                            "status_byte": 0xB0 | self._channel_0,
-                            "data_byte_1": self._controller._number_msb,
-                            "data_byte_2": clamp_value_128(msb_value)
-                        }
-                    }
-                )
-                if self._controller._high:
-                    self_playlist.append(
-                        {
-                            "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
-                            "midi_message": {
-                                "status_byte": 0xB0 | self._channel_0,
-                                "data_byte_1": self._controller._lsb,
-                                "data_byte_2": clamp_value_128(lsb_value)
-                            }
-                        }
-                    )
+                }
+            )
         return self_playlist
     
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
@@ -3722,47 +3660,26 @@ class ControlChange(Automatable):
         self_midilist[0]["event"] = "ControllerEvent"
 
         # Validation is done by midiutil Midi Range Validation
-
-        if self._controller._nrpn:
-            cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values(self._value)
-            self_midilist[0]["number"]      = 99
-            self_midilist[0]["value"]       = clamp_value_128(cc_99_msb)
-            self_midilist[1] = self_midilist[0].copy()
-            self_midilist[1]["number"]      = 98
-            self_midilist[1]["value"]       = clamp_value_128(cc_98_lsb)
-            self_midilist[2] = self_midilist[0].copy()
-            self_midilist[2]["number"]      = 6
-            self_midilist[2]["value"]       = clamp_value_128(cc_6_msb)
-            if self._controller._high:
-                self_midilist[3] = self_midilist[0].copy()
-                self_midilist[3]["number"]      = 38
-                self_midilist[3]["value"]       = clamp_value_128(cc_38_lsb)
-        else:
-            msb_value, lsb_value = self._controller._midi_msb_lsb_values(self._value)
-            self_midilist[0]["number"]      = self._controller._number_msb
-            self_midilist[0]["value"]       = clamp_value_128(msb_value)
-            if self._controller._high:
-                self_midilist[1] = self_midilist[0].copy()
-                self_midilist[1]["number"]      = self._controller._lsb
-                self_midilist[1]["value"]       = clamp_value_128(lsb_value)
+        self_midilist[0]["number"]      = self._number
+        self_midilist[0]["value"]       = clamp_value_128(self._value)
         return self_midilist
 
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["value"]            = self.serialize( self._value )
-        serialization["parameters"]["controller"]       = self.serialize( self._controller )
+        serialization["parameters"]["number"]   = self.serialize( self._number )
+        serialization["parameters"]["value"]    = self.serialize( self._value )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "value" in serialization["parameters"] and "controller" in serialization["parameters"]):
+            "value" in serialization["parameters"] and "number" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._value         = self.deserialize( serialization["parameters"]["value"] )
-            self._controller    = self.deserialize( serialization["parameters"]["controller"] )
+            self._value     = self.deserialize( serialization["parameters"]["value"] )
+            self._number    = self.deserialize( serialization["parameters"]["number"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -3770,25 +3687,19 @@ class ControlChange(Automatable):
         match operand:
             case ControlChange():
                 super().__lshift__(operand)
-                self._value = operand._value
-                self._controller    << operand._controller
+                self._number    = operand._number
+                self._value     = operand._value
             case od.Pipe():
                 match operand._data:
+                    case ou.Number():           self._number = operand._data._unit
                     case ou.Value():            self._value = operand._data._unit
-                    case ou.MSB():              self._value = operand._data._unit
-                    case og.Controller():       self._controller = operand._data
                     case _:                     super().__lshift__(operand)
             case int():
                 self._value = operand
-            case ou.Value() | ou.MSB():
+            case ou.Number():
+                self._number = operand._unit
+            case ou.Value():
                 self._value = operand._unit
-            case str():
-                if ":" in operand:  # It's a Token
-                    super().__lshift__(operand)
-                else:
-                    self._controller << operand
-            case og.Controller() | ou.Number() | ou.LSB() | ou.HighResolution() | dict():
-                self._controller << operand
             case _: super().__lshift__(operand)
         return self
 
@@ -3797,7 +3708,7 @@ class ControlChange(Automatable):
         match operand:
             case int():
                 self._value += operand  # Specific and compounded parameter
-            case ou.Value() | ou.MSB():
+            case ou.Value():
                 self._value += operand._unit  # Specific and compounded parameter
             case _:
                 super().__iadd__(operand)
@@ -3808,14 +3719,14 @@ class ControlChange(Automatable):
         match operand:
             case int():
                 self._value -= operand  # Specific and compounded parameter
-            case ou.Value() | ou.MSB():
+            case ou.Value():
                 self._value -= operand._unit  # Specific and compounded parameter
             case _:
                 super().__isub__(operand)
         return self
 
     # For the `Number` class
-    _controller_id: dict[str, int] = {
+    _controller_number: dict[str, int] = {
         'bank':                 0,
         'modulation':           1,
         'breath':               2,
@@ -3862,65 +3773,6 @@ class ControlChange(Automatable):
         'poly.on':              41
     }
 
-
-class BankSelect(ControlChange):
-    """`Element -> DeviceElement -> ChannelElement -> ControlChange -> BankSelect`
-
-    A `BankSelect` is a specific CC message that is used to select a Bank of presents.
-
-    Parameters
-    ----------
-    Controller(ou.MSB(0), ou.LSB(32), ou.NRPN(False)) : The default and immutable `Controller` parameters \
-        associated to Bank Select, namely, 0 and 32 for MSB and LSB respectively.
-    Value(0), int : Selects the presets Bank in the Device.
-    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(1) : The Midi channel where the midi message will be sent to.
-    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
-    """
-    def __init__(self, *parameters):
-        super().__init__()
-        # 0 -  Bank Select (MSB)
-        # 32 - Bank Select (LSB)
-        self._controller << (ou.MSB(0), ou.LSB(32), ou.NRPN(False))
-        self._value = 0  # Value Byte: 0 (Bank A) (Data Byte 2) (internally, -1 means no Bank selected)
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
-
-    def __mod__(self, operand: o.T) -> o.T:
-        """
-        The % symbol is used to extract a Parameter, in the case of a ControlChange,
-        those Parameters are the ones of the Element, like Position and Duration,
-        and the Controller Number and Value as Number and Value.
-
-        Examples
-        --------
-        >>> controller = Controller("Modulation")
-        >>> controller % Number() % int() >> Print()
-        1
-        """
-        match operand:
-            # Bank Select is 1 based and not 0 based
-            case int():                 return self._value + 1
-            case ou.Value():            return ou.Value(self._value + 1)
-            case _:                     return super().__mod__(operand)
-
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            # Bank Select is 1 based and not 0 based
-            case int():
-                self._value = operand - 1
-            case ou.Value():
-                self._value = operand._unit - 1
-            case _:
-                super().__lshift__(operand)
-        self._controller << (ou.MSB(0), ou.LSB(32), ou.NRPN(False))
-        return self
-
-
 # Channel mode messages determine how an instrument will process MIDI voice messages.
 
 # 1st Data Byte      Description                Meaning of 2nd Data Byte
@@ -3935,6 +3787,133 @@ class BankSelect(ControlChange):
 
 # ** if value = 0 then the number of channels used is determined by the receiver;
 #   all other values set a specific number of channels, beginning with the current basic channel.
+
+
+class BankSelect_MSB(ControlChange):
+    """`Element -> DeviceElement -> ChannelElement -> ControlChange -> BankSelect_MSB`
+
+    A `BankSelect_MSB` is a specific CC message that is used to select a Bank of presents.
+
+    Parameters
+    ----------
+    Value(0), int : Selects the presets Bank in the Device.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(1) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+
+    def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+        if self.is_clipped():
+            return []
+
+        absolute_position_beats: Fraction = Fraction(0)
+        if position_beats is not None:
+            absolute_position_beats = position_beats + self._position_beats
+
+        if absolute_position_beats >= 0:
+
+            # Midi validation is done in the JsonMidiPlayer program
+            self_playlist: list[dict] = []
+            
+            if devices_header:
+                devices: list[str] = og.settings._devices
+                if self._owner_clip is not None:
+                    devices = self._owner_clip._devices
+                self_playlist.append(
+                    {"devices": devices}
+                )
+
+            self_playlist.append(
+                {
+                    "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
+                    "midi_message": {
+                        "status_byte": 0xB0 | self._channel_0,
+                        "data_byte_1": 0,   # Bank Select MSB (CC 0)
+                        "data_byte_2": clamp_value_128(self._value)
+                    }
+                }
+            )
+        return self_playlist
+    
+    def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
+        if self.is_clipped():
+            return []
+        if not isinstance(position_beats, Fraction):
+            position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
+        self_midilist: list[dict] = super().getMidilist(position_beats)
+        self_midilist[0]["event"] = "ControllerEvent"
+
+        # Validation is done by midiutil Midi Range Validation
+        self_midilist[0]["number"]      = 0,    # Bank Select MSB (CC 0)
+        self_midilist[0]["value"]       = clamp_value_128(self._value)
+        return self_midilist
+
+
+class BankSelect_LSB(ControlChange):
+    """`Element -> DeviceElement -> ChannelElement -> ControlChange -> BankSelect_LSB`
+
+    A `BankSelect_LSB` is a specific CC message that is used to select a Bank of presents.
+
+    Parameters
+    ----------
+    Value(0), int : Selects the presets Bank in the Device.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(1) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+
+    def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+        if self.is_clipped():
+            return []
+
+        absolute_position_beats: Fraction = Fraction(0)
+        if position_beats is not None:
+            absolute_position_beats = position_beats + self._position_beats
+
+        if absolute_position_beats >= 0:
+
+            # Midi validation is done in the JsonMidiPlayer program
+            self_playlist: list[dict] = []
+            
+            if devices_header:
+                devices: list[str] = og.settings._devices
+                if self._owner_clip is not None:
+                    devices = self._owner_clip._devices
+                self_playlist.append(
+                    {"devices": devices}
+                )
+
+            self_playlist.append(
+                {
+                    "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
+                    "midi_message": {
+                        "status_byte": 0xB0 | self._channel_0,
+                        "data_byte_1": 32,   # Bank Select LSB (CC 32)
+                        "data_byte_2": clamp_value_128(self._value)
+                    }
+                }
+            )
+        return self_playlist
+    
+    def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
+        if self.is_clipped():
+            return []
+        if not isinstance(position_beats, Fraction):
+            position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
+        self_midilist: list[dict] = super().getMidilist(position_beats)
+        self_midilist[0]["event"] = "ControllerEvent"
+
+        # Validation is done by midiutil Midi Range Validation
+        self_midilist[0]["number"]      = 32,    # Bank Select LSB (CC 32)
+        self_midilist[0]["value"]       = clamp_value_128(self._value)
+        return self_midilist
+
 
 class ValueZero(ControlChange):
     """`Element -> DeviceElement -> ChannelElement -> ControlChange -> ValueZero`
@@ -3986,7 +3965,7 @@ class ResetAllControllers(ValueZero):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._controller << ou.Number(121)  # 0x79
+        self._number << ou.Number(121)  # 0x79
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -3995,7 +3974,7 @@ class ResetAllControllers(ValueZero):
     def __lshift__(self, operand: any) -> Self:
         # No need to processes the tailed self operands or the Frame operand given the total delegation in super()
         super().__lshift__(operand)
-        self._controller << ou.Number(121)  # 0x79
+        self._number << ou.Number(121)  # 0x79
         return self
 
 class LocalControl(ControlChange):
@@ -4014,7 +3993,7 @@ class LocalControl(ControlChange):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._controller << ou.Number(122)  # 0x7A
+        self._number << ou.Number(122)  # 0x7A
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -4023,7 +4002,7 @@ class LocalControl(ControlChange):
     def __lshift__(self, operand: any) -> Self:
         # No need to processes the tailed self operands or the Frame operand given the total delegation in super()
         super().__lshift__(operand)
-        self._controller << ou.Number(122)  # 0x7A
+        self._number << ou.Number(122)  # 0x7A
         return self
 
 class AllNotesOff(ValueZero):
@@ -4042,7 +4021,7 @@ class AllNotesOff(ValueZero):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._controller << ou.Number(123)  # Control Change Number (CC): 123   (Data Byte 1)
+        self._number << ou.Number(123)  # Control Change Number (CC): 123   (Data Byte 1)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -4051,7 +4030,7 @@ class AllNotesOff(ValueZero):
     def __lshift__(self, operand: any) -> Self:
         # No need to processes the tailed self operands or the Frame operand given the total delegation in super()
         super().__lshift__(operand)
-        self._controller << ou.Number(123)
+        self._number << ou.Number(123)
         return self
 
 class OmniModeOff(ValueZero):
@@ -4070,7 +4049,7 @@ class OmniModeOff(ValueZero):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._controller << ou.Number(124)  # 0x7C
+        self._number << ou.Number(124)  # 0x7C
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -4079,7 +4058,7 @@ class OmniModeOff(ValueZero):
     def __lshift__(self, operand: any) -> Self:
         # No need to processes the tailed self operands or the Frame operand given the total delegation in super()
         super().__lshift__(operand)
-        self._controller << ou.Number(124)  # 0x7C
+        self._number << ou.Number(124)  # 0x7C
         return self
 
 class OmniModeOn(ValueZero):
@@ -4098,7 +4077,7 @@ class OmniModeOn(ValueZero):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._controller << ou.Number(125)  # 0x7D
+        self._number << ou.Number(125)  # 0x7D
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -4107,7 +4086,7 @@ class OmniModeOn(ValueZero):
     def __lshift__(self, operand: any) -> Self:
         # No need to processes the tailed self operands or the Frame operand given the total delegation in super()
         super().__lshift__(operand)
-        self._controller << ou.Number(125)  # 0x7D
+        self._number << ou.Number(125)  # 0x7D
         return self
 
 class MonoMode(ControlChange):
@@ -4127,7 +4106,7 @@ class MonoMode(ControlChange):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._controller << ou.Number(126)  # 0x7E
+        self._number << ou.Number(126)  # 0x7E
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -4136,7 +4115,7 @@ class MonoMode(ControlChange):
     def __lshift__(self, operand: any) -> Self:
         # No need to processes the tailed self operands or the Frame operand given the total delegation in super()
         super().__lshift__(operand)
-        self._controller << ou.Number(126)  # 0x7E
+        self._number << ou.Number(126)  # 0x7E
         return self
 
 class PolyModeOn(ValueZero):
@@ -4155,7 +4134,7 @@ class PolyModeOn(ValueZero):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._controller << ou.Number(127)  # 0x7F
+        self._number << ou.Number(127)  # 0x7F
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -4164,7 +4143,7 @@ class PolyModeOn(ValueZero):
     def __lshift__(self, operand: any) -> Self:
         # No need to processes the tailed self operands or the Frame operand given the total delegation in super()
         super().__lshift__(operand)
-        self._controller << ou.Number(127)  # 0x7F
+        self._number << ou.Number(127)  # 0x7F
         return self
 
 
