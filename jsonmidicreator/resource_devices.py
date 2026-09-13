@@ -35,18 +35,34 @@ from . import operand_container as oc
 from . import operand_chaos as ch
 
 
+class RD_Instrument:
 
-class RD_Blofeld:
+    @classmethod
+    def Clip_instrument_change(cls, sound: int, bank: str | int = "A") -> 'oc.Clip':
+        clip = oc.Clip()
+        if isinstance(bank, str):
+            clip += oe.BankSelect_MSB(cls.banks[bank.strip().upper()])
+        else:
+            clip += oe.BankSelect_MSB(bank)
+        clip += oe.ProgramChange(sound)
+        return clip
+    
+    @classmethod
+    def Clip_control_change(cls, parameter: str = "Cutoff", group: str = "FILTER 1") -> 'oc.Clip':
+        clip = oc.Clip()
+        parameter = parameter.strip()
+        group = group.strip().upper()
+        clip += oe.ControlChange(cls.midi_cc[group][parameter])
+        return clip
+    
+
+
+class RD_Blofeld(RD_Instrument):
 
     device          = od.Device("Blofeld")
 
     # Activate "Ctrl Receive" in "Shift + Global" and turn the data knob to select it on Global MIDI
 
-
-    def Clip_instrument_change(sound: int, bank: str | int = "A") -> 'oc.Clip':
-        if isinstance(bank, str):
-            bank = ou.Bank(RD_Blofeld.banks[bank.strip().upper()])
-        return oe.ProgramChange(sound, ou.Bank(bank))
 
     # A total of 8 banks
     banks: dict[str, int] = {
@@ -252,7 +268,7 @@ class RD_Blofeld:
             }
 
 
-class RD_Digitakt:
+class RD_Digitakt(RD_Instrument):
 
     device          = od.Device("Digitakt")
 
@@ -268,11 +284,7 @@ class RD_Digitakt:
     fx_control_ch   = ou.Channel(9)
     auto_channel    = ou.Channel(10)
 
-    def Clip_instrument_change(pattern: int, bank: str | int = "A") -> 'oc.Clip':
-        if isinstance(bank, str):
-            bank = RD_Digitakt.bank_pattern[bank.strip().upper()][0]
-        return oe.ProgramChange(bank + pattern)   # based 1 data
-
+    
     bank_pattern: dict[str, list[int]] = {
         # The first column is just for offset purposes
         "A": list(range(0 * 16, 1 * 16 + 1)),   # 1 to 16
@@ -950,7 +962,7 @@ class RD_Digitakt:
             }
 
 
-class RD_UnoSynth:
+class RD_UnoSynth(RD_Instrument):
 
     device          = od.Device("UNO")
 
@@ -1105,21 +1117,12 @@ class RD_UnoSynth:
 
 
 
-class RD_Hybrid:
+class RD_Hybrid(RD_Instrument):
 
     device          = od.Device("loop")
 
     # Activate "Ctrl Receive" in "Shift + Global" and turn the data knob to select it on Global MIDI
 
-
-    def Clip_instrument_change(sound: int, bank: str | int = "A") -> 'oc.Clip':
-        clip = oc.Clip()
-        if isinstance(bank, str):
-            clip += oe.BankSelect_MSB(RD_Hybrid.banks[bank.strip().upper()])
-        else:
-            clip += oe.BankSelect_MSB(bank)
-        clip += oe.ProgramChange(sound)
-        return clip
 
     # A total of 8 banks
     banks: dict[str, int] = {
