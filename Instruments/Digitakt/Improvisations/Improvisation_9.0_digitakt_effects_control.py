@@ -390,7 +390,7 @@ level_cc * 4 >> Play()
 
 
 variables_level_cc = ControlChange(
-        RD_Digitakt.kick, RD_Digitakt.midi_cc["TRACK"]["Level"]
+        RD_Digitakt.kick, RD_Digitakt.midi_cc_high["TRACK"]["Level"]
     ) * 16 << Iterate(100, -6) >> Reverse()
 variables_level_cc * 4 >> Play()
 

@@ -33,17 +33,17 @@ settings << Tempo(120)
 
 print("1st LOOP")
 
-level_cc = ControlChange(RD_Digitakt.kick, RD_Digitakt.midi_cc["TRACK"]["Level"]) * 16 << Iterate(step=1000)
+level_cc = ControlChange(RD_Digitakt.kick, RD_Digitakt.midi_cc_high["TRACK"]["Level"]) * 16 << Iterate(step=1000)
 level_cc * 4 >> Play()
 
 print("2nd LOOP")
 
-automation_cc = Clip() >> Automate([95, 50, 20, 50, 90, 100], "1... 1.1. .1.. ..11", RD_Digitakt.midi_cc["TRACK"]["Level"]) << RD_Digitakt.kick
+automation_cc = Clip() >> Automate([95, 50, 20, 50, 90, 100], "1... 1.1. .1.. ..11", RD_Digitakt.midi_cc_high["TRACK"]["Level"]) << RD_Digitakt.kick
 automation_cc * 4 >> Play()
 
 print("3rd LOOP")
 
-automation_cc = Clip() >> Automate([100, 50, 20, 50, 100], "1... 1.1. .1.. ..1.", RD_Digitakt.midi_cc["TRACK"]["Level"], False) << RD_Digitakt.kick
+automation_cc = Clip() >> Automate([100, 50, 20, 50, 100], "1... 1.1. .1.. ..1.", RD_Digitakt.midi_cc_high["TRACK"]["Level"], False) << RD_Digitakt.kick
 automation_cc * 4 >> Play()
 
 print("4th LOOP")
