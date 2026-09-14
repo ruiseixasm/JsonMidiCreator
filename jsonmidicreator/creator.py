@@ -103,6 +103,26 @@ available_talkie_library = os.path.isfile(talkie_lib_path)
 talkie_lib = None
 not_found_talkie_library = False
 
+
+# Function to run the DLL in a separate thread
+def run_dll(json_str, loop, verbose):
+    if lib:
+        try:
+            # Call the C++ function with the JSON string
+            lib.PlayList_ctypes(json_str.encode('utf-8'), loop, 1 if verbose else 0)
+        except Exception as e:
+            print(f"An error occurred when calling the function 'PlayList_ctypes': {e}")
+
+# Function to run the DLL in a separate thread
+def run_talkie_dll(json_str, delay_ms, verbose):
+    if talkie_lib:
+        try:
+            # Call the C++ function with the JSON string
+            talkie_lib.PlayList_ctypes(json_str.encode('utf-8'), delay_ms, 1 if verbose else 0)
+        except Exception as e:
+            print(f"An error occurred when calling the function 'PlayList_ctypes': {e} for JsonTalkiePlayer")
+
+
 # Check if the library file exists
 def loadTalkieLibrary():
     global available_talkie_library
@@ -121,6 +141,58 @@ def loadTalkieLibrary():
                 available_talkie_library = False
                 not_found_talkie_library = True
 
+
+def playJsonMidiPlay(clocking: dict[str, list], playlist: list[dict], loop: int = 1, verbose: bool = False, talkie_delay_ms: int = 500):
+    global lib
+    global not_found_library_message_already_shown
+    if not lib and not not_found_library_message_already_shown: loadLibrary()
+    if not talkie_lib and not not_found_talkie_library: loadTalkieLibrary()
+    if lib:
+        if verbose: print() # Avoids verbose cluttering
+        json_file_dict = {
+                "filetype": "Json Midi Player",
+                "url": "https://github.com/ruiseixasm/JsonMidiPlayer",
+                "clocking": clocking,
+                "playlist": playlist
+            }
+        # Convert Python dictionary to JSON string
+        json_str = json.dumps([ json_file_dict ])
+
+        # Create and start a new thread to run the DLL
+        dll_thread = threading.Thread(target=run_dll, args=(json_str, loop, verbose))
+        talkie_dll_thread = threading.Thread(target=run_talkie_dll, args=(json_str, talkie_delay_ms, verbose))
+        
+        talkie_dll_thread.start()   # Starts the talkie right away
+        dll_thread.start()
+        dll_thread.join()  # Wait for the thread to finish
+
+        # # Create and start a new process to run the DLL
+        # dll_process = multiprocessing.Process(target=run_dll, args=(json_str, verbose))
+        # dll_process.start()
+        # dll_process.join()  # Wait for the process to finish
+
+        # try:
+        #     # Call the C++ function with the JSON string
+        #     lib.PlayList_ctypes(json_str.encode('utf-8'), 1 if verbose else 0)
+        # except FileNotFoundError:
+        #     print(f"Could not find the library file: {lib_path}")
+        # except OSError as e:
+        #     print(f"An error occurred while loading the library: {e}")
+        # except AttributeError as e:
+        #     print(f"An error occurred while accessing the function: {e}")
+        # except Exception as e:
+        #     print(f"An unexpected error occurred when calling the function 'PlayList_ctypes': {e}")
+
+def exportJsonMidiPlay(clocking: dict[str, list], playlist: list[dict], filename):
+    json_file_dict = {
+            "filetype": "Json Midi Player",
+            "url": "https://github.com/ruiseixasm/JsonMidiPlayer",
+            "clocking": clocking,
+            "playlist": playlist
+        }
+    with open(filename, "w") as outfile:
+        json.dump(json_file_dict, outfile)
+        
 
 def saveJsonMidiCreator(serialization: dict, filename: str, include_settings: bool):
     json_file_dict = {
@@ -186,77 +258,6 @@ def loadJsonMidiCreator(filename):
     except Exception as e:
         print(f"Unable to Load the file: {filename}")
     return []
-
-def exportJsonMidiPlay(clocking: dict[str, list], playlist: list[dict], filename):
-    json_file_dict = {
-            "filetype": "Json Midi Player",
-            "url": "https://github.com/ruiseixasm/JsonMidiPlayer",
-            "clocking": clocking,
-            "playlist": playlist
-        }
-    with open(filename, "w") as outfile:
-        json.dump(json_file_dict, outfile)
-        
-
-# Function to run the DLL in a separate thread
-def run_dll(json_str, loop, verbose):
-    if lib:
-        try:
-            # Call the C++ function with the JSON string
-            lib.PlayList_ctypes(json_str.encode('utf-8'), loop, 1 if verbose else 0)
-        except Exception as e:
-            print(f"An error occurred when calling the function 'PlayList_ctypes': {e}")
-
-# Function to run the DLL in a separate thread
-def run_talkie_dll(json_str, delay_ms, verbose):
-    if talkie_lib:
-        try:
-            # Call the C++ function with the JSON string
-            talkie_lib.PlayList_ctypes(json_str.encode('utf-8'), delay_ms, 1 if verbose else 0)
-        except Exception as e:
-            print(f"An error occurred when calling the function 'PlayList_ctypes': {e} for JsonTalkiePlayer")
-
-def jsonMidiPlay(clocking: dict[str, list], playlist: list[dict], loop: int = 1, verbose: bool = False, talkie_delay_ms: int = 500):
-    global lib
-    global not_found_library_message_already_shown
-    if not lib and not not_found_library_message_already_shown: loadLibrary()
-    if not talkie_lib and not not_found_talkie_library: loadTalkieLibrary()
-    if lib:
-        if verbose: print() # Avoids verbose cluttering
-        json_file_dict = {
-                "filetype": "Json Midi Player",
-                "url": "https://github.com/ruiseixasm/JsonMidiPlayer",
-                "clocking": clocking,
-                "playlist": playlist
-            }
-        # Convert Python dictionary to JSON string
-        json_str = json.dumps([ json_file_dict ])
-
-        # Create and start a new thread to run the DLL
-        dll_thread = threading.Thread(target=run_dll, args=(json_str, loop, verbose))
-        talkie_dll_thread = threading.Thread(target=run_talkie_dll, args=(json_str, talkie_delay_ms, verbose))
-        
-        talkie_dll_thread.start()   # Starts the talkie right away
-        dll_thread.start()
-        dll_thread.join()  # Wait for the thread to finish
-
-        # # Create and start a new process to run the DLL
-        # dll_process = multiprocessing.Process(target=run_dll, args=(json_str, verbose))
-        # dll_process.start()
-        # dll_process.join()  # Wait for the process to finish
-
-        # try:
-        #     # Call the C++ function with the JSON string
-        #     lib.PlayList_ctypes(json_str.encode('utf-8'), 1 if verbose else 0)
-        # except FileNotFoundError:
-        #     print(f"Could not find the library file: {lib_path}")
-        # except OSError as e:
-        #     print(f"An error occurred while loading the library: {e}")
-        # except AttributeError as e:
-        #     print(f"An error occurred while accessing the function: {e}")
-        # except Exception as e:
-        #     print(f"An unexpected error occurred when calling the function 'PlayList_ctypes': {e}")
-
 
 
 def renderMidiFile(midi_list: list[dict], filename="output.mid"):
@@ -421,7 +422,7 @@ def renderMidiFile(midi_list: list[dict], filename="output.mid"):
             MyMIDI.writeFile(output_file)
 
 
-
+# Profilling methods
 class Timer:
     def __init__(self):
         self.start_time = None
@@ -476,6 +477,7 @@ profiling_timer = Timer()
         # c.profiling_timer.call_timer_a()
         # c.profiling_timer.call_timer_b()
         # print(c.profiling_timer)
+
 
 def chat_gpt_solution(midi_list: list[dict], filename="output.mid"):
     try:
