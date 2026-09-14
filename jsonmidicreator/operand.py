@@ -48,7 +48,7 @@ TypeNumeral = TypeVar('TypeNumeral', 'Operand', int, float, Fraction)   # TypeNu
 #
 # 0b1111111 == 0x7F == 127   (7-bit mask)
 
-MASK_7BIT = 0b1111111   # 127 — the 7 low bits
+MASK_7BIT = 0b01111111   # 127 — the 7 low bits
 
 def convert_14_to_7_bits(value: int) -> tuple[int, int]:
     value_msb: int  = (value >> 7) & MASK_7BIT
