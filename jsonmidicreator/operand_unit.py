@@ -1985,8 +1985,8 @@ class Value(Midi):
     """
     pass
 
-class ValueLSB(Value):
-    """`Unit -> Midi -> Value -> ValueLSB`
+class ValueMSB(Value):
+    """`Unit -> Midi -> Value -> ValueMSB`
 
     Represents the specific LSB value
     
@@ -1997,8 +1997,8 @@ class ValueLSB(Value):
     """
     pass
 
-class ValueMSB(Value):
-    """`Unit -> Midi -> Value -> ValueMSB`
+class ValueLSB(Midi):
+    """`Unit -> Midi -> ValueLSB`
 
     Represents the specific LSB value
     
