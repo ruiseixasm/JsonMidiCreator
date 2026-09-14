@@ -311,131 +311,131 @@ class RD_Digitakt(RD_Instrument):
             ] = {
                 # PER TRACK PARAMETERS (CHANNEL 1 TO 8)
                 "TRACK": {
-                    "Mute":         {"MSB": 94},
-                    "Level":        {"MSB": 95}
+                    "Mute":         {"NUMBER": 94},
+                    "Level":        {"NUMBER": 95}
                 },
                 "TRIG": {
-                    "Note":         {"MSB": 3},
-                    "Velocity":     {"MSB": 4},
-                    "Length":       {"MSB": 5},
-                    "Filter":       {"MSB": 13},
-                    "LFO":          {"MSB": 14}
+                    "Note":         {"NUMBER": 3},
+                    "Velocity":     {"NUMBER": 4},
+                    "Length":       {"NUMBER": 5},
+                    "Filter":       {"NUMBER": 13},
+                    "LFO":          {"NUMBER": 14}
                 },
                 "SOURCE": {
-                    "Tune":         {"MSB": 16},
-                    "Mode":         {"MSB": 17},
-                    "Bit":          {"MSB": 18},
-                    "Sample":       {"MSB": 19},
-                    "Knob E":       {"MSB": 20},
-                    "Knob F":       {"MSB": 21},
-                    "Knob G":       {"MSB": 22},
-                    "Level":        {"MSB": 23}
+                    "Tune":         {"NUMBER": 16},
+                    "Mode":         {"NUMBER": 17},
+                    "Bit":          {"NUMBER": 18},
+                    "Sample":       {"NUMBER": 19},
+                    "Knob E":       {"NUMBER": 20},
+                    "Knob F":       {"NUMBER": 21},
+                    "Knob G":       {"NUMBER": 22},
+                    "Level":        {"NUMBER": 23}
                 },
                 "FILTER": {
-                    "Frequency":    {"MSB": 74},
-                    "Resonance":    {"MSB": 75},
-                    "Type":         {"MSB": 76},
-                    "Attack":       {"MSB": 70},
-                    "Decay":        {"MSB": 71},
-                    "Sustain":      {"MSB": 72},
-                    "Release":      {"MSB": 73},
-                    "Depth":        {"MSB": 77},
-                    "Delay":        {"MSB": 86},
-                    "Rate":         {"MSB": 87},
-                    "Base":         {"MSB": 84},
-                    "Width":        {"MSB": 85},
-                    "Routing":      {"MSB": 88}
+                    "Frequency":    {"NUMBER": 74},
+                    "Resonance":    {"NUMBER": 75},
+                    "Type":         {"NUMBER": 76},
+                    "Attack":       {"NUMBER": 70},
+                    "Decay":        {"NUMBER": 71},
+                    "Sustain":      {"NUMBER": 72},
+                    "Release":      {"NUMBER": 73},
+                    "Depth":        {"NUMBER": 77},
+                    "Delay":        {"NUMBER": 86},
+                    "Rate":         {"NUMBER": 87},
+                    "Base":         {"NUMBER": 84},
+                    "Width":        {"NUMBER": 85},
+                    "Routing":      {"NUMBER": 88}
                 },
                 "AMP": {
-                    "Attack":       {"MSB": 78},
-                    "Hold":         {"MSB": 79},
-                    "Decay":        {"MSB": 80},
-                    "Overdrive":    {"MSB": 81},
-                    "Delay":        {"MSB": 82},
-                    "Reverb":       {"MSB": 83},
-                    "Pan":          {"MSB": 10},
-                    "Volume":       {"MSB": 7}
+                    "Attack":       {"NUMBER": 78},
+                    "Hold":         {"NUMBER": 79},
+                    "Decay":        {"NUMBER": 80},
+                    "Overdrive":    {"NUMBER": 81},
+                    "Delay":        {"NUMBER": 82},
+                    "Reverb":       {"NUMBER": 83},
+                    "Pan":          {"NUMBER": 10},
+                    "Volume":       {"NUMBER": 7}
                 },
                 "LFO 1": {
-                    "Speed":        {"MSB": 102},
-                    "Multiplier":   {"MSB": 103},
-                    "Fade":         {"MSB": 104},
-                    "Destination":  {"MSB": 105},
-                    "Waveform":     {"MSB": 106},
-                    "Phase":        {"MSB": 107},
-                    "Mode":         {"MSB": 108},
+                    "Speed":        {"NUMBER": 102},
+                    "Multiplier":   {"NUMBER": 103},
+                    "Fade":         {"NUMBER": 104},
+                    "Destination":  {"NUMBER": 105},
+                    "Waveform":     {"NUMBER": 106},
+                    "Phase":        {"NUMBER": 107},
+                    "Mode":         {"NUMBER": 108},
                     "Depth":        {"MSB": 109, "LSB": 61}
                 },
                 "LFO 2": {
-                    "Speed":        {"MSB": 112},
-                    "Multiplier":   {"MSB": 113},
-                    "Fade":         {"MSB": 114},
-                    "Destination":  {"MSB": 115},
-                    "Waveform":     {"MSB": 116},
-                    "Phase":        {"MSB": 117},
-                    "Mode":         {"MSB": 118},
+                    "Speed":        {"NUMBER": 112},
+                    "Multiplier":   {"NUMBER": 113},
+                    "Fade":         {"NUMBER": 114},
+                    "Destination":  {"NUMBER": 115},
+                    "Waveform":     {"NUMBER": 116},
+                    "Phase":        {"NUMBER": 117},
+                    "Mode":         {"NUMBER": 118},
                     "Depth":        {"MSB": 119, "LSB": 63}
                 },
                 "MIDI": {
-                    "Val1":         {"MSB": 70},
-                    "Val2":         {"MSB": 71},
-                    "Val3":         {"MSB": 72},
-                    "Val4":         {"MSB": 73},
-                    "Val5":         {"MSB": 74},
-                    "Val6":         {"MSB": 75},
-                    "Val7":         {"MSB": 76},
-                    "Val8":         {"MSB": 77}
+                    "Val1":         {"NUMBER": 70},
+                    "Val2":         {"NUMBER": 71},
+                    "Val3":         {"NUMBER": 72},
+                    "Val4":         {"NUMBER": 73},
+                    "Val5":         {"NUMBER": 74},
+                    "Val6":         {"NUMBER": 75},
+                    "Val7":         {"NUMBER": 76},
+                    "Val8":         {"NUMBER": 77}
                 },
 
                 # PER PATTERN PARAMETERS (CHANNEL 9)
                 "DELAY": {
-                    "Time":         {"MSB": 85},
-                    "Pingpong":     {"MSB": 86},
-                    "Width":        {"MSB": 87},
-                    "Feedback":     {"MSB": 88},
-                    "Highpass":     {"MSB": 89},
-                    "Lowpass":      {"MSB": 90},
-                    "Reverb":       {"MSB": 91},
-                    "Mix":          {"MSB": 92}
+                    "Time":         {"NUMBER": 85},
+                    "Pingpong":     {"NUMBER": 86},
+                    "Width":        {"NUMBER": 87},
+                    "Feedback":     {"NUMBER": 88},
+                    "Highpass":     {"NUMBER": 89},
+                    "Lowpass":      {"NUMBER": 90},
+                    "Reverb":       {"NUMBER": 91},
+                    "Mix":          {"NUMBER": 92}
                 },
                 "REVERB": {
-                    "Predelay":     {"MSB": 24},
-                    "Decay":        {"MSB": 25},
-                    "Frequency":    {"MSB": 26},
-                    "Gain":         {"MSB": 27},
-                    "Highpass":     {"MSB": 28},
-                    "Lowpass":      {"MSB": 29},
-                    "Reverb":       {"MSB": 30},
-                    "Mix":          {"MSB": 31}
+                    "Predelay":     {"NUMBER": 24},
+                    "Decay":        {"NUMBER": 25},
+                    "Frequency":    {"NUMBER": 26},
+                    "Gain":         {"NUMBER": 27},
+                    "Highpass":     {"NUMBER": 28},
+                    "Lowpass":      {"NUMBER": 29},
+                    "Reverb":       {"NUMBER": 30},
+                    "Mix":          {"NUMBER": 31}
                 },
                 "COMPRESSOR": {
-                    "Threshold":    {"MSB": 111},
-                    "Attack":       {"MSB": 112},
-                    "Release":      {"MSB": 113},
-                    "Gain":         {"MSB": 114},
-                    "Volume":       {"MSB": 119},
-                    "Ratio":        {"MSB": 115},
-                    "Source":       {"MSB": 116},
-                    "Filter":       {"MSB": 117},
-                    "Mix":          {"MSB": 118}
+                    "Threshold":    {"NUMBER": 111},
+                    "Attack":       {"NUMBER": 112},
+                    "Release":      {"NUMBER": 113},
+                    "Gain":         {"NUMBER": 114},
+                    "Volume":       {"NUMBER": 119},
+                    "Ratio":        {"NUMBER": 115},
+                    "Source":       {"NUMBER": 116},
+                    "Filter":       {"NUMBER": 117},
+                    "Mix":          {"NUMBER": 118}
                 },
                 "MIXER": {
-                    "Level L":      {"MSB": 102},
-                    "Pan L":        {"MSB": 103},
-                    "Level R":      {"MSB": 104},
-                    "Pan R":        {"MSB": 105},
-                    "Delay L":      {"MSB": 106},
-                    "Delay R":      {"MSB": 107},
-                    "Reverb L":     {"MSB": 108},
-                    "Reverb R":     {"MSB": 109},
-                    "Stereo":       {"MSB": 84},
-                    "LR Level":     {"MSB": 102},
-                    "LR Balance":   {"MSB": 103},
-                    "LR Delay":     {"MSB": 106},
-                    "LR Reverb":    {"MSB": 108}
+                    "Level L":      {"NUMBER": 102},
+                    "Pan L":        {"NUMBER": 103},
+                    "Level R":      {"NUMBER": 104},
+                    "Pan R":        {"NUMBER": 105},
+                    "Delay L":      {"NUMBER": 106},
+                    "Delay R":      {"NUMBER": 107},
+                    "Reverb L":     {"NUMBER": 108},
+                    "Reverb R":     {"NUMBER": 109},
+                    "Stereo":       {"NUMBER": 84},
+                    "LR Level":     {"NUMBER": 102},
+                    "LR Balance":   {"NUMBER": 103},
+                    "LR Delay":     {"NUMBER": 106},
+                    "LR Reverb":    {"NUMBER": 108}
                 },
                 "PATTERN": {
-                    "Mute":         {"MSB": 110}
+                    "Mute":         {"NUMBER": 110}
                 }
             }
 
