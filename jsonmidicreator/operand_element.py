@@ -3931,7 +3931,7 @@ class ControlChangePair(ControlChange):
             return []
         
         self_midilist: list[dict] = super().getMidilist(position_beats)
-        # The second playlist to set it as LSB
+        # The second midilist to set it as LSB
         self_midilist_lsb: list[dict] = super().getMidilist(position_beats)
         self_midilist_lsb[0]["number"]      = self._number_lsb
         self_midilist_lsb[0]["value"]       = clamp_value_128(self._value_lsb)
