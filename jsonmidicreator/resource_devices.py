@@ -35,7 +35,7 @@ from . import operand_container as oc
 from . import operand_chaos as ch
 
 
-class RD_Instrument:
+class RD_Devices:
 
     @classmethod
     def Clip_instrument_change(cls, sound: int, bank: str | int = "A") -> 'oc.Clip':
@@ -57,7 +57,7 @@ class RD_Instrument:
     
 
 
-class RD_Blofeld(RD_Instrument):
+class RD_Blofeld(RD_Devices):
 
     device          = od.Device("Blofeld")
 
@@ -268,7 +268,7 @@ class RD_Blofeld(RD_Instrument):
             }
 
 
-class RD_Digitakt(RD_Instrument):
+class RD_Digitakt(RD_Devices):
 
     device          = od.Device("Digitakt")
 
@@ -576,7 +576,7 @@ class RD_Digitakt(RD_Instrument):
             }
 
 
-class RD_UnoSynth(RD_Instrument):
+class RD_UnoSynth(RD_Devices):
 
     device          = od.Device("UNO")
 
@@ -731,7 +731,7 @@ class RD_UnoSynth(RD_Instrument):
 
 
 
-class RD_Hybrid(RD_Instrument):
+class RD_Hybrid(RD_Devices):
 
     device          = od.Device("loop")
 
