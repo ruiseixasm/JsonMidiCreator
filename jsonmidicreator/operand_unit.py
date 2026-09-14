@@ -301,7 +301,7 @@ class Tempo(Unit):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["position_beats"] = self.serialize( self._position_beats )
+        serialization["parameters"]["position_beats"] = o.serialize( self._position_beats )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -645,8 +645,8 @@ class Key(PitchParameter):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["flattened"]    = self.serialize( self._flattened )
-        serialization["parameters"]["enharmonic"]   = self.serialize( self._enharmonic )
+        serialization["parameters"]["flattened"]    = o.serialize( self._flattened )
+        serialization["parameters"]["enharmonic"]   = o.serialize( self._enharmonic )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -891,7 +891,7 @@ class Degree(PitchParameter):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["accidental"] = self.serialize( self._accidental )
+        serialization["parameters"]["accidental"] = o.serialize( self._accidental )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -1232,7 +1232,7 @@ class DrumKit(Unit):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["channel_0"] = self.serialize(self._channel_0)
+        serialization["parameters"]["channel_0"] = o.serialize(self._channel_0)
         return serialization
 
     # CHAINABLE OPERATIONS

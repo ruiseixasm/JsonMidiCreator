@@ -39,10 +39,6 @@ T = TypeVar('T')
 TypeNumeral = TypeVar('TypeNumeral', 'Operand', int, float, Fraction)   # TypeNumeral represents any class similar to a number
 
 
-
-
-# GLOBAL CLASSES
-
 class Operand:
     """`Operand`
 
@@ -236,7 +232,7 @@ class Operand:
                     self._index = operand._index
                     self._set = False   # by default a new copy of data unsets the Operand
                     # COPY THE SELF OPERANDS RECURSIVELY
-                    self._chained_operand = self.deep_copy(operand._chained_operand)
+                    self._chained_operand = deep_copy(operand._chained_operand)
             case tuple():
                 for single_parameter in operand:
                     self.__lshift__(single_parameter)
@@ -441,7 +437,7 @@ class Operand:
         if operand is not None:
             self << operand
         # Makes sure the next_operand is set and remains set
-        self._chained_operand = Operand.deep_copy(operand)
+        self._chained_operand = deep_copy(operand)
         return self
     
 
@@ -459,179 +455,6 @@ class Operand:
             # Apply << operation between current next_operand and the result
             return self._chained_operand << next_result 
         return source  # Return source if there is no next operand in the chain
-
-
-    # STATIC METHODS
-    # @staticmethod decorator is needed in order to be possible to call it with self !!
-
-    @staticmethod
-    def convert_to_int(number: any) -> int:
-        from . import operand_unit as ou
-        from . import operand_rational as ra
-        match number:
-            case int():         return number
-            case float():       return int(number)
-            case Fraction():    return int(number)
-            case ou.Unit():     return number._unit
-            case ra.Rational(): return int(number._rational)
-            case _:             return 0
-
-    @staticmethod
-    def serialize(data: any) -> any:
-        match data:
-            case Operand():
-                return data.getSerialization()
-            case dict():
-                serialized_dict: dict = {}
-                for key, value in data.items():
-                    # Recursively copy each serialized value
-                    serialized_dict[key] = __class__.serialize(value)
-                return serialized_dict
-            case list():
-                serialized_list: list[any] = []
-                for single_data in data:
-                    serialized_list.append(__class__.serialize(single_data))
-                return serialized_list
-            case tuple():
-                serialized_list: list = __class__.serialize(list(data))
-                return tuple(serialized_list)
-            case Fraction():
-                fraction_string: str = str(data)
-                if '/' in fraction_string:
-                    return fraction_string
-                return fraction_string + '/1'
-            case _:
-                if callable(data):
-                    serialized_dict: dict = {
-                        "type": "function",
-                        "name": data.__name__
-                    }
-                    return serialized_dict
-                return data
-
-    @staticmethod
-    def deserialize(data: any) -> any:
-        match data:
-            case dict():
-                if "type" in data and "name" in data and data["type"] == "function":
-                    try:
-                        func = globals()[data["name"]]
-                        return func
-                    except KeyError:
-                        print("Unknown function:", data["name"])
-                    except TypeError:
-                        print("Object is not callable:", data["name"]) 
-                    return None
-                else:
-                    if "class" in data:
-
-                        operand_name = data["class"]
-                        operand_class: type[Operand] = find_class_by_name(Operand, operand_name)   # Heavy duty call
-                        if operand_class:
-                            # Now able to load from the Operand perspective
-                            return operand_class().loadSerialization(data)
-                        elif logging.getLogger().getEffectiveLevel() <= logging.DEBUG:
-                            logging.warning("Find class didn't found any class!")
-                        return None
-                    
-                    deserialized_dict: dict = {}
-                    for key, value in data.items(): # Makes sure it processes Operands in dict
-                        # Recursively copy each deserialized value
-                        deserialized_dict[key] = Operand.deserialize(value)
-                    return deserialized_dict
-            case Operand(): # just a fail safe
-                return data
-            case list():
-                data_list: list[any] = []
-                for single_serialization in data:
-                    data_list.append(Operand.deserialize(single_serialization))
-                return data_list
-            case tuple():   # JSON DOESN'T KEEP tuple() DATA TYPE !!!
-                data_list: list = Operand.deserialize(list(data))
-                return tuple(data_list)
-            case str():
-                if '/' in data:
-                    try:
-                        return Fraction(data)
-                    except ValueError:
-                        pass
-                return data
-            case _:
-                return data
-
-    @staticmethod
-    def deep_copy(data: T) -> T:
-        match data:
-            case Operand():
-                return data.copy() # Only Operand has copy method
-            case dict():
-                many_dict: dict = {}
-                for key, value in data.items():
-                    many_dict[key] = __class__.deep_copy(value)
-                return many_dict
-            case list():
-                many_list: list[any] = []
-                for single_data in data:
-                    many_list.append(__class__.deep_copy(single_data))
-                return many_list
-            case tuple():
-                many_list: list = __class__.deep_copy(list(data))
-                return tuple(many_list)
-            case _:
-                return data
-
-    @staticmethod
-    def deep_copy_dict(data: dict) -> dict:
-        """
-        Recursively creates a deep copy of a dictionary that may contain lists and other dictionaries.
-
-        Args:
-            data (dict): The dictionary to copy.
-
-        Returns:
-            dict: A deep copy of the original dictionary.
-        """
-        if isinstance(data, dict):
-            # Create a new dictionary
-            copy_dict = {}
-            for key, value in data.items():
-                # Recursively copy each value
-                copy_dict[key] = __class__.deep_copy_dict(value)
-            return copy_dict
-        elif isinstance(data, list):
-            # Create a new list and recursively copy each element
-            return [__class__.deep_copy_dict(element) for element in data]
-        else:
-            # Base case: return the value directly if it's neither a list nor a dictionary
-            return data
-
-    @staticmethod
-    def deep_reset(data: any):
-        match data:
-            case Operand():
-                return data.reset() # Only Operand has reset method
-            case dict():
-                for _, value in data.items():
-                    Operand.deep_reset(value)
-            case list():
-                for single_data in data:
-                    Operand.deep_reset(single_data)
-            case tuple():
-                Operand.deep_reset(list(data))
-
-    @staticmethod
-    def deep_clear(data: any):
-        match data:
-            case Operand():
-                return data.clear() # Only Operand has clear method
-            case dict():
-                for _, value in data.items():
-                    __class__.deep_clear(value)
-            case list():
-                for single_data in data:
-                    __class__.deep_clear(single_data)
-            case tuple():
-                __class__.deep_clear(list(data))
 
 
 
@@ -690,6 +513,174 @@ def get_root_classes_list(root_class: type) -> list:
         root_classes_list.extend( get_root_classes_list(subclass) )
 
     return root_classes_list
+
+
+def convert_to_int(number: any) -> int:
+    from . import operand_unit as ou
+    from . import operand_rational as ra
+    match number:
+        case int():         return number
+        case float():       return int(number)
+        case Fraction():    return int(number)
+        case ou.Unit():     return number._unit
+        case ra.Rational(): return int(number._rational)
+        case _:             return 0
+
+
+def serialize(data: any) -> any:
+    match data:
+        case Operand():
+            return data.getSerialization()
+        case dict():
+            serialized_dict: dict = {}
+            for key, value in data.items():
+                # Recursively copy each serialized value
+                serialized_dict[key] = serialize(value)
+            return serialized_dict
+        case list():
+            serialized_list: list[any] = []
+            for single_data in data:
+                serialized_list.append(serialize(single_data))
+            return serialized_list
+        case tuple():
+            serialized_list: list = serialize(list(data))
+            return tuple(serialized_list)
+        case Fraction():
+            fraction_string: str = str(data)
+            if '/' in fraction_string:
+                return fraction_string
+            return fraction_string + '/1'
+        case _:
+            if callable(data):
+                serialized_dict: dict = {
+                    "type": "function",
+                    "name": data.__name__
+                }
+                return serialized_dict
+            return data
+
+
+def deserialize(data: any) -> any:
+    match data:
+        case dict():
+            if "type" in data and "name" in data and data["type"] == "function":
+                try:
+                    func = globals()[data["name"]]
+                    return func
+                except KeyError:
+                    print("Unknown function:", data["name"])
+                except TypeError:
+                    print("Object is not callable:", data["name"]) 
+                return None
+            else:
+                if "class" in data:
+
+                    operand_name = data["class"]
+                    operand_class: type[Operand] = find_class_by_name(Operand, operand_name)   # Heavy duty call
+                    if operand_class:
+                        # Now able to load from the Operand perspective
+                        return operand_class().loadSerialization(data)
+                    elif logging.getLogger().getEffectiveLevel() <= logging.DEBUG:
+                        logging.warning("Find class didn't found any class!")
+                    return None
+                
+                deserialized_dict: dict = {}
+                for key, value in data.items(): # Makes sure it processes Operands in dict
+                    # Recursively copy each deserialized value
+                    deserialized_dict[key] = Operand.deserialize(value)
+                return deserialized_dict
+        case Operand(): # just a fail safe
+            return data
+        case list():
+            data_list: list[any] = []
+            for single_serialization in data:
+                data_list.append(Operand.deserialize(single_serialization))
+            return data_list
+        case tuple():   # JSON DOESN'T KEEP tuple() DATA TYPE !!!
+            data_list: list = Operand.deserialize(list(data))
+            return tuple(data_list)
+        case str():
+            if '/' in data:
+                try:
+                    return Fraction(data)
+                except ValueError:
+                    pass
+            return data
+        case _:
+            return data
+
+
+def deep_copy(data: T) -> T:
+    match data:
+        case Operand():
+            return data.copy() # Only Operand has copy method
+        case dict():
+            many_dict: dict = {}
+            for key, value in data.items():
+                many_dict[key] = deep_copy(value)
+            return many_dict
+        case list():
+            many_list: list[any] = []
+            for single_data in data:
+                many_list.append(deep_copy(single_data))
+            return many_list
+        case tuple():
+            many_list: list = deep_copy(list(data))
+            return tuple(many_list)
+        case _:
+            return data
+
+
+def deep_copy_dict(data: dict) -> dict:
+    """
+    Recursively creates a deep copy of a dictionary that may contain lists and other dictionaries.
+
+    Args:
+        data (dict): The dictionary to copy.
+
+    Returns:
+        dict: A deep copy of the original dictionary.
+    """
+    if isinstance(data, dict):
+        # Create a new dictionary
+        copy_dict = {}
+        for key, value in data.items():
+            # Recursively copy each value
+            copy_dict[key] = deep_copy_dict(value)
+        return copy_dict
+    elif isinstance(data, list):
+        # Create a new list and recursively copy each element
+        return [deep_copy_dict(element) for element in data]
+    else:
+        # Base case: return the value directly if it's neither a list nor a dictionary
+        return data
+
+
+def deep_reset(data: any):
+    match data:
+        case Operand():
+            return data.reset() # Only Operand has reset method
+        case dict():
+            for _, value in data.items():
+                deep_reset(value)
+        case list():
+            for single_data in data:
+                deep_reset(single_data)
+        case tuple():
+            deep_reset(list(data))
+
+def deep_clear(data: any):
+    match data:
+        case Operand():
+            return data.clear() # Only Operand has clear method
+        case dict():
+            for _, value in data.items():
+                deep_clear(value)
+        case list():
+            for single_data in data:
+                deep_clear(single_data)
+        case tuple():
+            deep_clear(list(data))
 
 
 
@@ -845,7 +836,7 @@ def list_increment(size: int = 4) -> list[int]:
     return [i for i in range(size)]
 
 def list_spread(content: any, size: int) -> list:
-    return [Operand.deep_copy(content) for _ in range(size)]
+    return [deep_copy(content) for _ in range(size)]
 
 def list_wrap(list_in: list, wrapper: 'Operand') -> list['Operand']:
     return [wrapper.copy(value) for value in list_in]
@@ -870,11 +861,11 @@ def list_div(list_in: list, div: any = 1) -> list:
     return [item / div for item in list_in]
 
 def list_max(list_in: list, max: any = 15) -> list:
-    return [Operand.deep_copy(max) if item > max else Operand.deep_copy(item)
+    return [deep_copy(max) if item > max else deep_copy(item)
             for item in list_in]
 
 def list_min(list_in: list, min: any = 0) -> list:
-    return [Operand.deep_copy(min) if item < min else Operand.deep_copy(item)
+    return [deep_copy(min) if item < min else deep_copy(item)
             for item in list_in]
 
 def list_int(list_in: list) -> list:
@@ -939,12 +930,12 @@ def list_choose(items: list, indexes: list[int]) -> list:
     list_out: list = []
     total_items: int = len(items)
     for single_index in indexes:
-        list_out.append(Operand.deep_copy(items[single_index % total_items]))
+        list_out.append(deep_copy(items[single_index % total_items]))
     return list_out
 
 def list_pick(items: list, indexes: list[int]) -> list:
     list_out: list = []
-    available_items: list = Operand.deep_copy(items)
+    available_items: list = deep_copy(items)
     total_items: int = len(items)
     for picked_items, single_index in enumerate(indexes):
         remaining_items: int = total_items - picked_items
@@ -957,8 +948,8 @@ def list_pick(items: list, indexes: list[int]) -> list:
 
 def list_deplete(items: list, amount: list[int], indexes: list[int]) -> list:
     list_out: list = []
-    available_items: list = Operand.deep_copy(items)
-    available_amounts: list = Operand.deep_copy(amount)
+    available_items: list = deep_copy(items)
+    available_amounts: list = deep_copy(amount)
     for single_index in indexes:
         if available_items and available_amounts:
             if available_amounts[single_index % len(available_amounts)] > 1:
@@ -981,7 +972,7 @@ def list_trim(items: list, at: any) -> list:
     if total_items > 0 and at > 0:
         next_position: any = items[0] * 0
         for item_index in range(total_items):
-            list_out.append(Operand.deep_copy(items[item_index]))
+            list_out.append(deep_copy(items[item_index]))
             next_position += list_out[item_index]
             if not next_position < at:
                 list_out[item_index] -= next_position - at
@@ -989,7 +980,7 @@ def list_trim(items: list, at: any) -> list:
     return list_out
 
 def list_extend(items: list, to: any) -> list:
-    list_out: list = Operand.deep_copy(items)
+    list_out: list = deep_copy(items)
     total_items: int = len(items)
     if total_items > 0 and to > 0:
         total_extent: any = items[0] * 0
@@ -1023,7 +1014,7 @@ def list_get(operands: list['Operand'], parameters: any) -> list:
     return list_parameters
 
 def list_set(operands: list['Operand'], parameters: any) -> list:
-    list_set_operands: list = Operand.deep_copy(operands)
+    list_set_operands: list = deep_copy(operands)
     if isinstance(parameters, list):
         total_parameters: int = len(parameters)
         for index, single_operand in enumerate(list_set_operands):

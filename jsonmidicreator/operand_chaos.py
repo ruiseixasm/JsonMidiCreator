@@ -171,9 +171,9 @@ class Chaos(o.Operand):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["tamer"] = self.serialize( self._tamer )
-        serialization["parameters"]["xn"] = self.serialize( self._xn )
-        serialization["parameters"]["x0"] = self.serialize( self._x0 )
+        serialization["parameters"]["tamer"] = o.serialize( self._tamer )
+        serialization["parameters"]["xn"] = o.serialize( self._xn )
+        serialization["parameters"]["x0"] = o.serialize( self._x0 )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -228,7 +228,7 @@ class Chaos(o.Operand):
         '''The tail is just an attachment, it represents outputted value and not input one
         '''
         # Makes sure the next_operand is set and remains set
-        self._chained_operand = o.Operand.deep_copy(operand)
+        self._chained_operand = o.deep_copy(operand)
         return self
     
 
@@ -327,7 +327,7 @@ class Sequence(Chaos):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["steps"]    = self.serialize( self._steps )
+        serialization["parameters"]["steps"]    = o.serialize( self._steps )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -395,7 +395,7 @@ class Cycle(Sequence):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["modulus"]  = self.serialize( self._modulus )
+        serialization["parameters"]["modulus"]  = o.serialize( self._modulus )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -535,7 +535,7 @@ class SinX(Chaos):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["lambda"] = self.serialize( self._lambda )
+        serialization["parameters"]["lambda"] = o.serialize( self._lambda )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -634,14 +634,14 @@ class Bouncer(Chaos):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["width"]    = self.serialize( self._width )
-        serialization["parameters"]["height"]   = self.serialize( self._height )
-        serialization["parameters"]["dx"]       = self.serialize( self._dx )
-        serialization["parameters"]["dy"]       = self.serialize( self._dy )
-        serialization["parameters"]["xn"]       = self.serialize( self._xn )
-        serialization["parameters"]["x0"]       = self.serialize( self._x0 )
-        serialization["parameters"]["yn"]       = self.serialize( self._yn )
-        serialization["parameters"]["y0"]       = self.serialize( self._y0 )
+        serialization["parameters"]["width"]    = o.serialize( self._width )
+        serialization["parameters"]["height"]   = o.serialize( self._height )
+        serialization["parameters"]["dx"]       = o.serialize( self._dx )
+        serialization["parameters"]["dy"]       = o.serialize( self._dy )
+        serialization["parameters"]["xn"]       = o.serialize( self._xn )
+        serialization["parameters"]["x0"]       = o.serialize( self._x0 )
+        serialization["parameters"]["yn"]       = o.serialize( self._yn )
+        serialization["parameters"]["y0"]       = o.serialize( self._y0 )
         return serialization
 
     # CHAINABLE OPERATIONS

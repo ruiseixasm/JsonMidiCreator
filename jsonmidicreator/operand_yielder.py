@@ -112,9 +112,9 @@ class Sequencer(Yielder):
             
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["trigger_steps"]    = self.serialize(self._trigger_steps)
-        serialization["parameters"]["swing"]            = self.serialize( self._swing )
-        serialization["parameters"]["length_beats"]     = self.serialize(self._length_beats)
+        serialization["parameters"]["trigger_steps"]    = o.serialize(self._trigger_steps)
+        serialization["parameters"]["swing"]            = o.serialize( self._swing )
+        serialization["parameters"]["length_beats"]     = o.serialize(self._length_beats)
         return serialization
 
     # CHAINABLE OPERATIONS

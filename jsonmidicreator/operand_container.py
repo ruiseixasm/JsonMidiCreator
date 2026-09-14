@@ -413,7 +413,7 @@ class Container(o.Operand):
                         else:
                             parameters.append( ol.Null() )
                     return parameters
-                return self.deep_copy(self._items)
+                return o.deep_copy(self._items)
             case int():
                 return self.len()
             case bool():
@@ -443,7 +443,7 @@ class Container(o.Operand):
         """
         serialization = super().getSerialization()
 
-        serialization["parameters"]["items"] = self.serialize(self._items)
+        serialization["parameters"]["items"] = o.serialize(self._items)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -469,7 +469,7 @@ class Container(o.Operand):
         match operand:
             case Container():
                 super().__lshift__(operand)
-                self._items = self.deep_copy(operand._items)
+                self._items = o.deep_copy(operand._items)
 
             case od.Pipe():
                 match operand._data:
@@ -503,11 +503,11 @@ class Container(o.Operand):
                 # Remove previous Elements from the Container stack
                 self._delete() # deletes all
                 # Finally adds the decomposed elements to the Container stack
-                self._extend( [self.deep_copy(item) for item in operand] )
+                self._extend( [o.deep_copy(item) for item in operand] )
             case dict():
                 for index, item in operand.items():
                     if isinstance(index, int) and index >= 0 and index < len(self.items_unmasked()):
-                        self.items_unmasked()[index] = self.deep_copy(item)
+                        self.items_unmasked()[index] = o.deep_copy(item)
             case od.Select():
                 self.select(operand._data)
             case od.Mask():
@@ -560,12 +560,12 @@ class Container(o.Operand):
         match operand:
             case Container():
                 operand_items = [
-                    self.deep_copy(single_item) for single_item in operand._items
+                    o.deep_copy(single_item) for single_item in operand._items
                 ]
                 return self._extend(operand_items)
             case list():
                 operand_items = [
-                    self.deep_copy(single_item) for single_item in operand
+                    o.deep_copy(single_item) for single_item in operand
                 ]
                 return self._extend(operand_items)
             
@@ -587,7 +587,7 @@ class Container(o.Operand):
 
     def __radd__(self, operand: any) -> Self:
         self_copy: Container = self.copy()
-        self_copy._insert([ self.deep_copy( operand ) ])
+        self_copy._insert([ o.deep_copy( operand ) ])
         return self_copy
 
     def __isub__(self, operand: any) -> Self:
@@ -628,11 +628,11 @@ class Container(o.Operand):
             case int(): # repeat n times the self content if any
                 if operand > 1:
                     items_copy: list = [
-                        self.deep_copy( data ) for data in self._items
+                        o.deep_copy( data ) for data in self._items
                     ]
                     while operand > 2:
                         new_items: list = [
-                            self.deep_copy( data ) for data in items_copy
+                            o.deep_copy( data ) for data in items_copy
                         ]
                         self._extend(new_items)  # Propagates upwards in the stack
                         operand -= 1
@@ -712,7 +712,7 @@ class Container(o.Operand):
         new_container._index = self._index
         new_container._set = False   # by default a new copy of data unsets the Operand
         # COPY THE SELF OPERANDS RECURSIVELY
-        new_container._chained_operand = new_container.deep_copy(self._chained_operand)
+        new_container._chained_operand = o.deep_copy(self._chained_operand)
         return new_container << parameters
 
 
@@ -2040,7 +2040,7 @@ class Clip(Composition):  # Just a container of Elements
         serialization = super().getSerialization()
 
         if self._time_signature._top != 4 or self._time_signature._bottom != 4:
-            serialization["parameters"]["time_signature"]   = self.serialize(self._time_signature)
+            serialization["parameters"]["time_signature"]   = o.serialize(self._time_signature)
         serialization["parameters"]["track_number"] = self._track_number
         serialization["parameters"]["enabled"]      = self._enabled
         # Useful for json interpretation and bottom placement
@@ -2176,7 +2176,7 @@ class Clip(Composition):  # Just a container of Elements
                     # Remove previous Elements from the Container stack
                     self._delete(self.elements_unmasked(), True) # deletes by id, safer
                     # Finally adds the decomposed elements to the Container stack
-                    self._extend(self.deep_copy(operand))
+                    self._extend(o.deep_copy(operand))
                     self._set_owner_clip()
                 elif all(isinstance(item, og.Locus) for item in operand):
                     for single_element, locus in zip(self, operand):
@@ -4054,7 +4054,7 @@ class Section(Composition):
         """
         serialization = super().getSerialization()
 
-        serialization["parameters"]["position_beats"]   = self.serialize(self._position_beats)
+        serialization["parameters"]["position_beats"]   = o.serialize(self._position_beats)
         # Useful for json interpretation and bottom placement
         serialization["parameters"]["clips"] = serialization["parameters"].pop("items")
         return serialization
@@ -4157,7 +4157,7 @@ class Section(Composition):
             case ra.Position() | ra.TimeValue() | ra.TimeUnit():
                 self << self % ra.Position() + operand
             case list():
-                self._extend(self.deep_copy(operand))
+                self._extend(o.deep_copy(operand))
             case _:
                 super().__iadd__(operand)
         return self

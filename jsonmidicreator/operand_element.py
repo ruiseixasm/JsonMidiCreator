@@ -332,9 +332,9 @@ class Element(o.Operand):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         if self._masked:    # Cleans up the saved json from non musical tags
-            serialization["parameters"]["masked"]           = self.serialize(self._masked)
-        serialization["parameters"]["position_beats"]   = self.serialize(self._position_beats)
-        serialization["parameters"]["duration_beats"]   = self.serialize(self._duration_beats)
+            serialization["parameters"]["masked"]           = o.serialize(self._masked)
+        serialization["parameters"]["position_beats"]   = o.serialize(self._position_beats)
+        serialization["parameters"]["duration_beats"]   = o.serialize(self._duration_beats)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -1087,7 +1087,7 @@ class Subclip(Element):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["subclip"] = self.serialize( self._subclip )
+        serialization["parameters"]["subclip"] = o.serialize( self._subclip )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -1277,7 +1277,7 @@ class Unison(Element):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["elements"] = self.serialize( self._elements )
+        serialization["parameters"]["elements"] = o.serialize( self._elements )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -1295,7 +1295,7 @@ class Unison(Element):
         match operand:
             case Unison():
                 super().__lshift__(operand)
-                self._elements = self.deep_copy( operand._elements )
+                self._elements = o.deep_copy( operand._elements )
             case od.Pipe():
                 match operand._data:
                     case od.Elements():
@@ -1305,7 +1305,7 @@ class Unison(Element):
                         super().__lshift__(operand)
             case od.Elements():
                 if all(isinstance(single_element, Element) for single_element in operand._data):
-                    self._elements = self.deep_copy(list(operand._data))
+                    self._elements = o.deep_copy(list(operand._data))
             case dict():
                 if all(isinstance(item, Element) for item in operand.values()):
                     for index, single_element in operand.items():
@@ -1471,9 +1471,9 @@ class Talkie(Element):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["port"]         = self.serialize(self._port)
-        serialization["parameters"]["to"]           = self.serialize(self._to)
-        serialization["parameters"]["channel"]      = self.serialize(self._channel_0)
+        serialization["parameters"]["port"]         = o.serialize(self._port)
+        serialization["parameters"]["to"]           = o.serialize(self._to)
+        serialization["parameters"]["channel"]      = o.serialize(self._channel_0)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -1565,7 +1565,7 @@ class TalkieRun(Talkie):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["name"]           = self.serialize(self._name)
+        serialization["parameters"]["name"]           = o.serialize(self._name)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -1678,7 +1678,7 @@ class TalkieSet(TalkieGet):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["value"]            = self.serialize(self._value)
+        serialization["parameters"]["value"]            = o.serialize(self._value)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -1893,7 +1893,7 @@ class ChannelElement(DeviceElement):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["channel_0"]    = self.serialize(self._channel_0)
+        serialization["parameters"]["channel_0"]    = o.serialize(self._channel_0)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -2133,7 +2133,7 @@ class Note(ChannelElement):
             case og.Pitch():        return self._pitch.copy()
             case og.KeySignature() | ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale() | ou.Mode():
                                     return self._pitch % operand
-            case og.NoteEffect():   return o.Operand.deep_copy(self._note_effect)
+            case og.NoteEffect():   return o.deep_copy(self._note_effect)
             case ou.Order() | ra.Swing() | ch.Chaos():
                 if isinstance(self._note_effect, og.NoteEffect):
                     return self._note_effect % operand
@@ -2291,11 +2291,11 @@ class Note(ChannelElement):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["velocity"] = self.serialize( self._velocity )
-        serialization["parameters"]["gate"]     = self.serialize( self._gate )
-        serialization["parameters"]["tied_to_previous"]     = self.serialize( self._tied )
-        serialization["parameters"]["pitch"]    = self.serialize( self._pitch )
-        serialization["parameters"]["note_effect"] = self.serialize( self._note_effect )
+        serialization["parameters"]["velocity"] = o.serialize( self._velocity )
+        serialization["parameters"]["gate"]     = o.serialize( self._gate )
+        serialization["parameters"]["tied_to_previous"]     = o.serialize( self._tied )
+        serialization["parameters"]["pitch"]    = o.serialize( self._pitch )
+        serialization["parameters"]["note_effect"] = o.serialize( self._note_effect )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -2323,7 +2323,7 @@ class Note(ChannelElement):
                 self._gate          = operand._gate
                 self._tied          = operand._tied
                 self._pitch         << operand._pitch
-                self._note_effect   = o.Operand.deep_copy(operand._note_effect)
+                self._note_effect   = o.deep_copy(operand._note_effect)
             case od.Pipe():
                 match operand._data:
                     case ou.Velocity():     self._velocity  = operand._data._unit
@@ -2346,7 +2346,7 @@ class Note(ChannelElement):
             case og.Pitch() | og.KeySignature() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale() | ou.Mode():
                 self._pitch << operand
             case og.NoteEffect():
-                self._note_effect = o.Operand.deep_copy(operand)
+                self._note_effect = o.deep_copy(operand)
             case ou.Order() | ra.Swing() | ch.Chaos():
                 if isinstance(self._note_effect, og.NoteEffect):
                     self._note_effect << operand
@@ -2804,7 +2804,7 @@ class KeyScale(Note):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["inversion"]    = self.serialize( self._inversion )
+        serialization["parameters"]["inversion"]    = o.serialize( self._inversion )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -2920,7 +2920,7 @@ class Cluster(KeyScale):
                 match operand._data:
                     case list():            return self._pitches
                     case _:                 return super().__mod__(operand)
-            case list():            return self.deep_copy(self._pitches)
+            case list():            return o.deep_copy(self._pitches)
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -2935,7 +2935,7 @@ class Cluster(KeyScale):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["pitches"] = self.serialize( self._pitches )
+        serialization["parameters"]["pitches"] = o.serialize( self._pitches )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -2953,7 +2953,7 @@ class Cluster(KeyScale):
         match operand:
             case Cluster():
                 super().__lshift__(operand)
-                self._pitches = self.deep_copy( operand._pitches )
+                self._pitches = o.deep_copy( operand._pitches )
             case od.Pipe():
                 match operand._data:
                     case list():
@@ -2965,14 +2965,14 @@ class Cluster(KeyScale):
                         super().__lshift__(operand)
             case list():
                 if all(not isinstance(item, Element) for item in operand):
-                    self._pitches = self.deep_copy( operand )
+                    self._pitches = o.deep_copy( operand )
                 else:
                     super().__lshift__(operand)
             case dict():
                 if all(isinstance(key, int) for key in operand.keys()):
                     for index, offset in operand.items():
                         if index >= 0 and index < len(self._pitches):
-                            self._pitches[index] = self.deep_copy(offset)
+                            self._pitches[index] = o.deep_copy(offset)
                 else:   # Not for me
                     self._pitch << operand
             case _:
@@ -3159,12 +3159,12 @@ class Chord(KeyScale):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["size"]         = self.serialize( self._size )
-        serialization["parameters"]["dominant"]     = self.serialize( self._dominant )
-        serialization["parameters"]["diminished"]   = self.serialize( self._diminished )
-        serialization["parameters"]["augmented"]    = self.serialize( self._augmented )
-        serialization["parameters"]["sus2"]         = self.serialize( self._sus2 )
-        serialization["parameters"]["sus4"]         = self.serialize( self._sus4 )
+        serialization["parameters"]["size"]         = o.serialize( self._size )
+        serialization["parameters"]["dominant"]     = o.serialize( self._dominant )
+        serialization["parameters"]["diminished"]   = o.serialize( self._diminished )
+        serialization["parameters"]["augmented"]    = o.serialize( self._augmented )
+        serialization["parameters"]["sus2"]         = o.serialize( self._sus2 )
+        serialization["parameters"]["sus4"]         = o.serialize( self._sus4 )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -3371,8 +3371,8 @@ class Tuplet(Note):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["count"]    = self.serialize( self._count )
-        serialization["parameters"]["swing"]    = self.serialize( self._swing )
+        serialization["parameters"]["count"]    = o.serialize( self._count )
+        serialization["parameters"]["swing"]    = o.serialize( self._swing )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -3667,8 +3667,8 @@ class ControlChange(Automatable):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["number"]   = self.serialize( self._number )
-        serialization["parameters"]["value"]    = self.serialize( self._value )
+        serialization["parameters"]["number"]   = o.serialize( self._number )
+        serialization["parameters"]["value"]    = o.serialize( self._value )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -3888,7 +3888,7 @@ class ControlChangePair(ControlChange):
         
         self_playlist: list[dict] = super().getPlaylist(position_beats)
         if self_playlist:   # The second list to set it as LSB
-            self_playlist_lsb: list[dict] = o.Operand.deep_copy(self_playlist)
+            self_playlist_lsb: list[dict] = o.deep_copy(self_playlist)
             self_playlist_lsb["midi_message"]["data_byte_1"] = self._number_lsb
             self_playlist_lsb["midi_message"]["data_byte_2"] = clamp_value_128(self._value_lsb)
             self_playlist.extend(self_playlist_lsb)
@@ -3899,7 +3899,7 @@ class ControlChangePair(ControlChange):
         
         self_midilist: list[dict] = super().getMidilist(position_beats)
         if self_midilist:   # The second list to set it as LSB
-            self_midilist_lsb: list[dict] = o.Operand.deep_copy(self_midilist)
+            self_midilist_lsb: list[dict] = o.deep_copy(self_midilist)
             self_midilist_lsb[0]["number"]  = self._number_lsb
             self_midilist_lsb[0]["value"]   = clamp_value_128(self._value_lsb)
             self_midilist.extend(self_midilist_lsb)
@@ -3909,8 +3909,8 @@ class ControlChangePair(ControlChange):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["number_lsb"]   = self.serialize( self._number_lsb )
-        serialization["parameters"]["value_lsb"]    = self.serialize( self._value_lsb )
+        serialization["parameters"]["number_lsb"]   = o.serialize( self._number_lsb )
+        serialization["parameters"]["value_lsb"]    = o.serialize( self._value_lsb )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -4515,7 +4515,7 @@ class Aftertouch(Automatable):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["pressure"] = self.serialize( self._pressure )
+        serialization["parameters"]["pressure"] = o.serialize( self._pressure )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -4669,7 +4669,7 @@ class PolyAftertouch(Aftertouch):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["pitch"] = self.serialize( self._pitch )
+        serialization["parameters"]["pitch"] = o.serialize( self._pitch )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -4895,8 +4895,8 @@ class PitchBend(Automatable):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["msb"] = self.serialize(self._msb)
-        serialization["parameters"]["lsb"] = self.serialize(self._lsb)
+        serialization["parameters"]["msb"] = o.serialize(self._msb)
+        serialization["parameters"]["lsb"] = o.serialize(self._lsb)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -5171,7 +5171,7 @@ class Automation(Element):
                     case _:                 return super().__mod__(operand)
             case int():             return self._parameter
             case od.Parameter():    return od.Parameter(self._parameter)
-            case list():            return o.Operand.deep_copy(self._list)
+            case list():            return o.deep_copy(self._list)
             case og.Dots():         return og.Dots(self._dots) # Read only operand, no need for copies
             case og.Dot():
                 dots = og.Dots(self._dots)
@@ -5214,9 +5214,9 @@ class Automation(Element):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["parameter"]    = self.serialize( self._parameter )
-        serialization["parameters"]["dots"]         = self.serialize( self._dots )
-        serialization["parameters"]["linear"]       = self.serialize( self._linear )
+        serialization["parameters"]["parameter"]    = o.serialize( self._parameter )
+        serialization["parameters"]["dots"]         = o.serialize( self._dots )
+        serialization["parameters"]["linear"]       = o.serialize( self._linear )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -5238,7 +5238,7 @@ class Automation(Element):
             case Automation():
                 super().__lshift__(operand)
                 self._parameter = operand._parameter.copy()
-                self._dots = o.Operand.deep_copy(operand._dots)
+                self._dots = o.deep_copy(operand._dots)
                 self._linear = operand._linear
             case od.Pipe():
                 match operand._data:
@@ -5258,7 +5258,7 @@ class Automation(Element):
                     self._parameter = operand._data.copy()
             case list():
                 if all(isinstance(d, og.Dot) for d in operand):
-                    self._dots = o.Operand.deep_copy(operand)
+                    self._dots = o.deep_copy(operand)
             case og.Dots():
                 self._dots = operand.copy()._dots
             case og.Dot():
@@ -5399,7 +5399,7 @@ class ProgramChange(ChannelElement):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["program_0"]    = self.serialize( self._program_0 )
+        serialization["parameters"]["program_0"]    = o.serialize( self._program_0 )
         return serialization
 
     # CHAINABLE OPERATIONS

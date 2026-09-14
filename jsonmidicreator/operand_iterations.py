@@ -146,14 +146,14 @@ class Iterations(o.Operand):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["seed"]             = self.serialize( self._seed )
-        serialization["parameters"]["iterations"]       = self.serialize( self._iterations )
-        serialization["parameters"]["chaos"]            = self.serialize( self._chaos )
-        serialization["parameters"]["pre_filter"]       = self.serialize( self._pre_filter )
-        serialization["parameters"]["post_process"]     = self.serialize( self._post_process )
-        serialization["parameters"]["max_tries"]        = self.serialize( self._max_tries )
-        serialization["parameters"]["no_repetitions"]   = self.serialize( self._no_repetitions )
-        serialization["parameters"]["freeze_at"]        = self.serialize( self._freeze_at )
+        serialization["parameters"]["seed"]             = o.serialize( self._seed )
+        serialization["parameters"]["iterations"]       = o.serialize( self._iterations )
+        serialization["parameters"]["chaos"]            = o.serialize( self._chaos )
+        serialization["parameters"]["pre_filter"]       = o.serialize( self._pre_filter )
+        serialization["parameters"]["post_process"]     = o.serialize( self._post_process )
+        serialization["parameters"]["max_tries"]        = o.serialize( self._max_tries )
+        serialization["parameters"]["no_repetitions"]   = o.serialize( self._no_repetitions )
+        serialization["parameters"]["freeze_at"]        = o.serialize( self._freeze_at )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -421,7 +421,7 @@ class I_ChooseParameter(Iterations):
             for element in seed_copy.elements_unmasked():
                 index_choice: int = self._chaos % int()
                 chosen_parameter = self._parameters[index_choice % total_parameters]
-                element << o.Operand.deep_copy(chosen_parameter)    # copy guarantees parameter decoupling
+                element << o.deep_copy(chosen_parameter)    # copy guarantees parameter decoupling
         return seed_copy._sort_items()
 
 

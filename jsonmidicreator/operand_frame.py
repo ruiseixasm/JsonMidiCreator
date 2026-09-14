@@ -74,7 +74,7 @@ class Frame(o.Operand):
 
     def reset(self, *parameters) -> Self:
         super().reset()
-        self.deep_reset(self._named_parameters)
+        o.deep_reset(self._named_parameters)
         return self << parameters
     
     def clear(self, *parameters) -> Self:
@@ -140,7 +140,7 @@ class Frame(o.Operand):
     def getSerialization(self) -> dict:
         # serialization = {'class': "some", "parameters": {}}
         serialization = super().getSerialization()
-        serialization["parameters"]["multi_data"] = self.serialize(self._named_parameters)
+        serialization["parameters"]["multi_data"] = o.serialize(self._named_parameters)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -540,7 +540,7 @@ class Iterate(LeftToRight):
             input *= self._named_parameters['iterator']['step']
         else:
             self_operand = super().frame(
-                self.deep_copy(self._named_parameters['iterator']['current'])
+                o.deep_copy(self._named_parameters['iterator']['current'])
             )
         # iterates whenever called
         self._named_parameters['iterator']['current'] += self._named_parameters['iterator']['step']
@@ -1230,7 +1230,7 @@ class DeepCopy(LeftToRight):
     None : This `Frame` has no parameters.
     """
     def frame(self, input: o.T) -> o.T:
-        input_duplication = self.deep_copy(input)
+        input_duplication = o.deep_copy(input)
         return super().frame(input_duplication)
 
 class Inject(LeftToRight):

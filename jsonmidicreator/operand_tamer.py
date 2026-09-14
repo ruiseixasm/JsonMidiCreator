@@ -142,14 +142,14 @@ class Parallel(Tamer):
                     case _:                     return super().__mod__(operand)
             case list():
                 if all(isinstance(item, Tamer) for item in operand):
-                    return self.deep_copy(self._tamers)
+                    return o.deep_copy(self._tamers)
                 else:   # Not for me
                     return super().__mod__(operand)
             case _:                     return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["tamers"] = self.serialize( self._tamers )
+        serialization["parameters"]["tamers"] = o.serialize( self._tamers )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -166,7 +166,7 @@ class Parallel(Tamer):
         match operand:
             case Tamer():
                 super().__lshift__(operand)
-                self._tamers = self.deep_copy(operand._tamers)
+                self._tamers = o.deep_copy(operand._tamers)
             case od.Pipe():
                 match operand._data:
                     case list():
@@ -176,7 +176,7 @@ class Parallel(Tamer):
                             super().__lshift__(operand)
             case list():
                 if all(isinstance(item, Tamer) for item in operand):
-                    self._tamers = self.deep_copy(operand)
+                    self._tamers = o.deep_copy(operand)
                 else:   # Not for me
                     super().__lshift__(operand)
             case _:
@@ -228,7 +228,7 @@ class Validator(Tamer):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["strictness"] = self.serialize( self._strictness )
+        serialization["parameters"]["strictness"] = o.serialize( self._strictness )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -349,7 +349,7 @@ class Boundary(Validator):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["boundary"] = self.serialize( self._boundary )
+        serialization["parameters"]["boundary"] = o.serialize( self._boundary )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -449,7 +449,7 @@ class Prior(Validator):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["prior"] = self.serialize( self._prior_numeral )
+        serialization["parameters"]["prior"] = o.serialize( self._prior_numeral )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -585,7 +585,7 @@ class Motion(Validator):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["last_integer"] = self.serialize( self._last_integer )
+        serialization["parameters"]["last_integer"] = o.serialize( self._last_integer )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -676,8 +676,8 @@ class Pattern(Motion):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["pattern"]  = self.serialize( self._pattern )
-        serialization["parameters"]["limit"]    = self.serialize( self._pattern )
+        serialization["parameters"]["pattern"]  = o.serialize( self._pattern )
+        serialization["parameters"]["limit"]    = o.serialize( self._pattern )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -911,7 +911,7 @@ class Manipulator(Tamer):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["parameter"] = self.serialize( self._parameter )
+        serialization["parameters"]["parameter"] = o.serialize( self._parameter )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -928,7 +928,7 @@ class Manipulator(Tamer):
         match operand:
             case self.__class__():
                 super().__lshift__(operand)
-                self._parameter = o.Operand.deep_copy(operand._parameter)
+                self._parameter = o.deep_copy(operand._parameter)
             case od.Pipe():
                 match operand._data:
                     case od.Parameter():            self._parameter = operand._data._data
@@ -936,7 +936,7 @@ class Manipulator(Tamer):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case od.Parameter():
-                self._parameter = o.Operand.deep_copy(operand._data)
+                self._parameter = o.deep_copy(operand._data)
             case Fraction() | float() | int():
                 self._parameter = ra.Numeral(operand)._rational
             case _:
@@ -1000,7 +1000,7 @@ class Interval(Manipulator):
                 match operand._data:
                     case list():                return self._parameter
                     case _:                     return super().__mod__(operand)
-            case list():                return o.Operand.deep_copy(self._parameter)
+            case list():                return o.deep_copy(self._parameter)
             case _:                     return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS
@@ -1012,7 +1012,7 @@ class Interval(Manipulator):
                     case list():                    self._parameter = operand._data
                     case _:                         super().__lshift__(operand)
             case list():
-                self._parameter = o.Operand.deep_copy(operand)
+                self._parameter = o.deep_copy(operand)
             case _:
                 super().__lshift__(operand)
         return self

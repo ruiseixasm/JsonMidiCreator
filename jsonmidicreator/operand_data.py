@@ -73,7 +73,7 @@ class Data(o.Operand):
     """
     def __init__(self, data = None):
         super().__init__()
-        self._data = self.deep_copy(data)
+        self._data = o.deep_copy(data)
 
     def __eq__(self, other: o.Operand) -> bool:
         if isinstance(other, Data):
@@ -124,7 +124,7 @@ class Data(o.Operand):
                 return serialization
             case Data():
                 return operand.copy(self)
-            case _:                         return self.deep_copy(self._data)
+            case _:                         return o.deep_copy(self._data)
             
     def __rmod__(self, operand: any) -> any:
         match operand:
@@ -136,7 +136,7 @@ class Data(o.Operand):
             
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["data"] = self.serialize(self._data)
+        serialization["parameters"]["data"] = o.serialize(self._data)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -154,7 +154,7 @@ class Data(o.Operand):
         match operand:
             case self.__class__():  # Particular case Data restrict self copy to self, no wrapping possible!
                 super().__lshift__(operand)
-                self._data = self.deep_copy(operand._data)
+                self._data = o.deep_copy(operand._data)
             case Pipe():
                 self._data = operand._data
             # Data doesn't load serialization, just processed data!!
@@ -162,9 +162,9 @@ class Data(o.Operand):
                 self.loadSerialization(operand % Pipe( dict() ))
             case Data():    # Not exactly the same as `case self.__class__()` above!!
                 super().__lshift__(operand)
-                self._data = self.deep_copy(operand._data)
+                self._data = o.deep_copy(operand._data)
             case _:
-                self._data = self.deep_copy(operand)
+                self._data = o.deep_copy(operand)
         return self
 
 
@@ -638,7 +638,7 @@ class Inline(Data):
             case _:
                 if isinstance(self._data, o.Operand):
                     return self._data % operand
-                return self.deep_copy(operand)
+                return o.deep_copy(operand)
     
     # CHAINABLE OPERATIONS
 
@@ -646,9 +646,9 @@ class Inline(Data):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Inline():
-                self._data = self.deep_copy(operand._data)
+                self._data = o.deep_copy(operand._data)
             case Pipe():
-                self._data = self.deep_copy(operand._data)
+                self._data = o.deep_copy(operand._data)
             case tuple():
                 if isinstance(self._data, o.Operand):
                     for single_operand in operand:

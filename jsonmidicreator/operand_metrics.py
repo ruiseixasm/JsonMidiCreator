@@ -125,7 +125,7 @@ class Vector(Metrics):
             
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["vectordict"] = self.serialize( self._vectordict )
+        serialization["parameters"]["vectordict"] = o.serialize( self._vectordict )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -231,7 +231,7 @@ class Vectors(Metrics):
                     case _:
                         return super().__mod__(operand)
             case list():
-                return o.Operand.deep_copy(self._vectors)
+                return o.deep_copy(self._vectors)
             case int():
                 return self.distance()
             case ou.Total():
@@ -247,7 +247,7 @@ class Vectors(Metrics):
             
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["vectors"] = self.serialize( self._vectors )
+        serialization["parameters"]["vectors"] = o.serialize( self._vectors )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -265,7 +265,7 @@ class Vectors(Metrics):
         match operand:
             case Vectors():  # Particular case Data restrict self copy to self, no wrapping possible!
                 super().__lshift__(operand)
-                self._vectors = o.Operand.deep_copy(operand._vectors)
+                self._vectors = o.deep_copy(operand._vectors)
             case od.Pipe():
                 match operand._data:
                     case list():
@@ -273,7 +273,7 @@ class Vectors(Metrics):
                     case _:
                         super().__lshift__(operand)
             case list():
-                self._vectors = o.Operand.deep_copy(operand)
+                self._vectors = o.deep_copy(operand)
             case oc.Clip():
                 self._vectors = operand.getVectorslist()
             case _:
