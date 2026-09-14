@@ -3791,13 +3791,13 @@ class ControlChange(Automatable):
 class ControlChangePair(ControlChange):
     """`Element -> DeviceElement -> ChannelElement -> ControlChange -> ControlChangePair`
 
-    A `ControlChangePair` represents a high definition value split in MSB and LSB.
+    A `ControlChangePair` represents a high resolution value split in MSB and LSB from 0 to 16,383.
 
     Parameters
     ----------
     MSB(0), Number : Selects the Most Significant Byte.
     LSB(0) : Selects the Least Significant Byte.
-    Value(0), int : Sets the 14 bits value, high resolution.
+    Value(0), int : Sets the 14 bits value, high resolution, from 0 to 16,383.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(1) : The Midi channel where the midi message will be sent to.
