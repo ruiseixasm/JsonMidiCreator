@@ -3804,23 +3804,202 @@ class ControlChangePair(ControlChange):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        self._lsb: int = 0
+        self._number_lsb: int   = 0
+        self._value_lsb: int    = 0
         super().__init__(*parameters)
+
+    def get_value_14bits(self) -> int:
+        value: int = self._value << 7
+        value += self._value_lsb
+        return value & 128**2
+
+    def __eq__(self, other: Any) -> bool:
+        match other:
+            case self.__class__():
+                return super().__eq__(other) \
+                    and self._number == other._number \
+                    and self._value == other._value
+            case Element():
+                # Makes a playlist comparison
+                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
+            case _:
+                return super().__eq__(other)
+
+    def __lt__(self, other: 'o.Operand') -> bool:
+        match other:
+            case ControlChange():
+                # Adds predictability in sorting and consistency in clipping
+                if self._position_beats == other._position_beats:
+                    if self._value == other._value:
+                        return self._channel_0 < other._channel_0
+                    return self._value < other._value
+                return self._position_beats < other._position_beats
+            case Element():
+                return super().__lt__(other)
+            case _:
+                return self % other < other
+    
+    def __gt__(self, other: 'o.Operand') -> bool:
+        match other:
+            case ControlChange():
+                # Adds predictability in sorting and consistency in clipping
+                if self._position_beats == other._position_beats:
+                    if self._value == other._value:
+                        return self._channel_0 > other._channel_0
+                    return self._value > other._value
+                return self._position_beats > other._position_beats
+            case Element():
+                return super().__gt__(other)
+            case _:
+                return self % other > other
+
+    
+    def __mod__(self, operand: o.T) -> o.T:
+        """
+        The % symbol is used to extract a Parameter, in the case of a ControlChange,
+        those Parameters are the ones of the Element, like Position and Duration,
+        and the Controller Number and Value as Number and Value.
+
+        Examples
+        --------
+        >>> controller = Controller("Modulation")
+        >>> controller % Number() % int() >> Print()
+        1
+        """
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case ou.Number():           return operand._data << self._number
+                    case ou.Value():            return operand._data << self._value
+                    case _:                     return super().__mod__(operand)
+            case int():                 return self._value
+            case ou.Number():           return operand.copy() << self._number
+            case ou.Value():            return operand.copy() << self._value
+            case _:                     return super().__mod__(operand)
+
+
+    def getVectordict(self) -> dict[str, int]:
+        vectordict: dict[str, int] = super().getVectordict()
+        vectordict["value"] = self._value
+        return vectordict
+
+    def getPlotlist(self, position_beats: Fraction | None = None,
+            channels: dict[str, set[int]] = None, derived_element: 'Element' = None) -> list[dict]:
+        
+        if self.is_clipped():
+            return []
+        
+        if channels is not None:
+            channels["automation"].add(self._channel_0)
+
+        self_plotlist: list[dict] = []
+        
+        position_on: Fraction = Fraction(0)
+        if position_beats is not None:
+            position_on = position_beats + self._position_beats
+
+        # Midi validation is done in the JsonMidiPlayer program
+        self_plotlist.append(
+            {
+                "automation": {
+                    "position": position_on,
+                    "enabled": True if self._owner_clip is None else self._owner_clip._enabled,
+                    "value": clamp_value_128(self._value),
+                    "channel": self._channel_0,
+                    "masked": self._masked,
+                    "self": self
+                }
+            }
+        )
+
+        return self_plotlist
+
+
+    def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+        if self.is_clipped():
+            return []
+
+        absolute_position_beats: Fraction = Fraction(0)
+        if position_beats is not None:
+            absolute_position_beats = position_beats + self._position_beats
+
+        if absolute_position_beats >= 0:
+
+            # Midi validation is done in the JsonMidiPlayer program
+            self_playlist: list[dict] = []
+            
+            if devices_header:
+                devices: list[str] = og.settings._devices
+                if self._owner_clip is not None:
+                    devices = self._owner_clip._devices
+                self_playlist.append(
+                    {"devices": devices}
+                )
+
+            self_playlist.append(
+                {
+                    "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
+                    "midi_message": {
+                        "status_byte": 0xB0 | self._channel_0,
+                        "data_byte_1": self._number,
+                        "data_byte_2": clamp_value_128(self._value)
+                    }
+                }
+            )
+        return self_playlist
+    
+    def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
+        if self.is_clipped():
+            return []
+        if not isinstance(position_beats, Fraction):
+            position_beats = Fraction(0)
+        elif position_beats < 0:
+            return []
+        self_midilist: list[dict] = super().getMidilist(position_beats)
+        self_midilist[0]["event"] = "ControllerEvent"
+
+        # Validation is done by midiutil Midi Range Validation
+        self_midilist[0]["number"]      = self._number
+        self_midilist[0]["value"]       = clamp_value_128(self._value)
+        return self_midilist
 
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["lsb"] = self.serialize( self._lsb )
+        serialization["parameters"]["number_lsb"] = self.serialize( self._number_lsb )
+        serialization["parameters"]["value_lsb"] = self.serialize( self._value_lsb )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "lsb" in serialization["parameters"]):
+            "number_lsb" in serialization["parameters"] and "value_lsb" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._lsb = self.deserialize( serialization["parameters"]["lsb"] )
+            self._number_lsb = self.deserialize( serialization["parameters"]["number_lsb"] )
+            self._value_lsb = self.deserialize( serialization["parameters"]["value_lsb"] )
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case ControlChange():
+                super().__lshift__(operand)
+                self._number_lsb    = operand._number_lsb
+                self._value_lsb     = operand._value_lsb
+            case od.Pipe():
+                match operand._data:
+                    case ou.LSB():              self._number_lsb = operand._data._unit
+                    case _:                     super().__lshift__(operand)
+            case int():
+                self._value_lsb = operand
+            case ou.LSB():
+                self._number_lsb = operand._unit
+            case ou.Value():
+                self._value: int        = (operand._unit >> 7) & 127
+                self._value_lsb: int    = operand._unit & 127
+            case _: super().__lshift__(operand)
         return self
 
 

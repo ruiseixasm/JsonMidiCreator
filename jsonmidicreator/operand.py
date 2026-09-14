@@ -40,6 +40,17 @@ TypeNumeral = TypeVar('TypeNumeral', 'Operand', int, float, Fraction)   # TypeNu
 
 # GENERIC HANDY FUNCTIONS
 
+def convert_14_to_7_bits(value: int) -> tuple[int, int]:
+    value_msb: int  = (value >> 7) & 127
+    value_lsb: int  = value & 127
+    return (value_msb, value_lsb)
+
+def convert_7_to_14_bits(value_msb: int, value_lsb: int) -> int:
+    value_msb &= 127
+    value_lsb &= 127
+    return (value_msb << 7) | value_lsb
+
+
 def number_to_int(number: any) -> int:
     from . import operand_unit as ou
     from . import operand_rational as ra
