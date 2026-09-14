@@ -302,9 +302,9 @@ class RD_Digitakt(RD_Instrument):
         group = group.strip().upper()
         if nrpn:
             return og.Controller(RD_Digitakt.midi_nrpn[group][parameter])
-        return og.Controller(RD_Digitakt.midi_cc_high[group][parameter])
+        return og.Controller(RD_Digitakt.midi_cc[group][parameter])
 
-    midi_cc_high: dict[str,
+    midi_cc: dict[str,
                 dict[str,
                     dict[str, int]
                 ]

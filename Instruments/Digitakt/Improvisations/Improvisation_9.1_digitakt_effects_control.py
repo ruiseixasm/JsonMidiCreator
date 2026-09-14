@@ -29,14 +29,14 @@ settings << Tempo(120)
 
 print("1st LOOP")
 
-level_cc = ControlChange(RD_Digitakt.kick, RD_Digitakt.midi_cc_high["TRACK"]["Level"]) * 16 << Iterate(step=5)
+level_cc = ControlChange(RD_Digitakt.kick, RD_Digitakt.midi_cc["TRACK"]["Level"]) * 16 << Iterate(step=5)
 level_cc * 4 >> Play()
 
 
 print("2nd LOOP")
 
 variables_level_cc = ControlChange(
-        RD_Digitakt.kick, RD_Digitakt.midi_cc_high["TRACK"]["Level"]
+        RD_Digitakt.kick, RD_Digitakt.midi_cc["TRACK"]["Level"]
     ) * 16 << Iterate(100, -6) >> Reverse()
 variables_level_cc * 4 >> Play()
 
