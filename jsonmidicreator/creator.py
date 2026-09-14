@@ -187,7 +187,7 @@ def loadJsonMidiCreator(filename):
         print(f"Unable to Load the file: {filename}")
     return []
 
-def saveJsonMidiPlay(clocking: dict[str, list], playlist: list[dict], filename):
+def exportJsonMidiPlay(clocking: dict[str, list], playlist: list[dict], filename):
     json_file_dict = {
             "filetype": "Json Midi Player",
             "url": "https://github.com/ruiseixasm/JsonMidiPlayer",
@@ -197,17 +197,6 @@ def saveJsonMidiPlay(clocking: dict[str, list], playlist: list[dict], filename):
     with open(filename, "w") as outfile:
         json.dump(json_file_dict, outfile)
         
-def loadJsonMidiPlay(filename):
-    try:
-        with open(filename, "r") as infile:
-            json_file_dict = json.load(infile)
-        if "content" in json_file_dict and "filetype" in json_file_dict and \
-                json_file_dict["filetype"] == "Json Midi Player" and json_file_dict["url"] == "https://github.com/ruiseixasm/JsonMidiPlayer":
-            return json_file_dict["content"]
-    except Exception as e:
-        print(f"Unable to Import the file: {filename}")
-    return []
-
 
 # Function to run the DLL in a separate thread
 def run_dll(json_str, loop, verbose):
@@ -270,7 +259,7 @@ def jsonMidiPlay(clocking: dict[str, list], playlist: list[dict], loop: int = 1,
 
 
 
-def saveMidiFile(midi_list: list[dict], filename="output.mid"):
+def renderMidiFile(midi_list: list[dict], filename="output.mid"):
     
     # Define ANSI escape codes for colors
     RED = "\033[91m"

@@ -3328,7 +3328,7 @@ class Export(ReadOnly):
                     composition_length_beats: Fraction = composition_length._rational   # Implicit rounding
                     clocking: dict[str, list] = settings.getClocking(composition_length_beats)
                     playlist: list[dict] = self._get_playlist(operand)
-                    c.saveJsonMidiPlay(clocking, playlist, file_path)
+                    c.exportJsonMidiPlay(clocking, playlist, file_path)
                 else:
                     print(f"Warning: Trying to export an **empty** list!")
                 return operand
@@ -3339,7 +3339,7 @@ class Export(ReadOnly):
                 element_length_beats: Fraction = element_length.roundMeasures() % Fraction()
                 clocking: dict[str, list] = settings.getClocking(element_length_beats)
                 playlist: list[dict] = self._get_playlist(operand)
-                c.saveJsonMidiPlay(clocking, playlist, file_path)
+                c.exportJsonMidiPlay(clocking, playlist, file_path)
                 return operand
 
             case _:
@@ -3372,7 +3372,7 @@ class Render(ReadOnly):
         # Rendering of the midi file
         match operand:
             case oc.Composition() | oe.Element():
-                c.saveMidiFile(operand.getMidilist(), file_path)
+                c.renderMidiFile(operand.getMidilist(), file_path)
                 return operand
             case od.Line():
                 line_clip = oc.Clip(operand)
