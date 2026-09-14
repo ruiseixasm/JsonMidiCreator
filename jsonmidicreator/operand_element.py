@@ -3888,7 +3888,7 @@ class ControlChangePair(ControlChange):
         
         self_playlist: list[dict] = super().getPlaylist(position_beats)
         if self_playlist:   # The second list to set it as LSB
-            self_playlist_lsb: list[dict] = super().getPlaylist(position_beats)
+            self_playlist_lsb: list[dict] = o.Operand.deep_copy(self_playlist)
             self_playlist_lsb["midi_message"]["data_byte_1"] = self._number_lsb
             self_playlist_lsb["midi_message"]["data_byte_2"] = clamp_value_128(self._value_lsb)
             self_playlist.extend(self_playlist_lsb)
@@ -3899,7 +3899,7 @@ class ControlChangePair(ControlChange):
         
         self_midilist: list[dict] = super().getMidilist(position_beats)
         if self_midilist:   # The second list to set it as LSB
-            self_midilist_lsb: list[dict] = super().getMidilist(position_beats)
+            self_midilist_lsb: list[dict] = o.Operand.deep_copy(self_midilist)
             self_midilist_lsb[0]["number"]      = self._number_lsb
             self_midilist_lsb[0]["value"]       = clamp_value_128(self._value_lsb)
             self_midilist.extend(self_midilist_lsb)
