@@ -39,576 +39,6 @@ T = TypeVar('T')
 TypeNumeral = TypeVar('TypeNumeral', 'Operand', int, float, Fraction)   # TypeNumeral represents any class similar to a number
 
 
-# GENERIC HANDY FUNCTIONS
-
-
-# 14-bit value (0..16383)
-#   bits 13..7  ->  MSB (7 bits)
-#   bits  6..0  ->  LSB (7 bits)
-#
-# 0b1111111 == 0x7F == 127   (7-bit mask)
-
-MASK_7BIT = 0b01111111   # 127 — the 7 low bits
-
-def convert_14_to_7_bits(value: int) -> tuple[int, int]:
-    """Returns the tuple in the format (MSB, LSB)
-    """
-    value_msb: int  = (value >> 7) & MASK_7BIT
-    value_lsb: int  = value & MASK_7BIT
-    return (value_msb, value_lsb)
-
-def convert_7_to_14_bits(value_msb: int, value_lsb: int) -> int:
-    """Takes in the values MSB and LSB
-    """
-    return ((value_msb & MASK_7BIT) << 7) | (value_lsb & MASK_7BIT)
-
-
-def number_to_int(number: any) -> int:
-    from . import operand_unit as ou
-    from . import operand_rational as ra
-    match number:
-        case ou.Unit() | ra.Rational():
-            return number % int()
-        case int() | float() | Fraction():
-            return int(number)
-    return 0
-
-def string_or_number(string: str) -> int | float | str:
-    try:
-        return int(string)
-    except ValueError:
-        try:    # float is tokened as a fraction '1/8'
-            rational = Fraction(string)
-            return float(rational)
-        except ValueError:
-            return string
-        
-def string_to_number(string: str) -> int | float | None:
-    try:
-        return int(string)
-    except ValueError:
-        try:    # float is tokened as a fraction '1/8'
-            rational = Fraction(string)
-            return float(rational)
-        except ValueError:
-            return None
-        
-def checksum_to_string(checksum: int) -> str:
-    """4-char hex checksum (16-bit) as a string."""
-    return f"{checksum & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
-
-
-def string_eval(string: str) -> Any:
-    """Safely evaluate a string into int, float, Fraction, or list of them.
-       If the string cannot be parsed, return it unchanged.
-    """
-
-    def parse_item(item: any) -> Any:
-        """Recursively convert list items, numbers, or fraction strings."""
-        if isinstance(item, (int, float)):
-            return item
-        if isinstance(item, list):
-            return [parse_item(sub_item) for sub_item in item]
-        if isinstance(item, str):
-            item = item.strip()
-
-            # Leave quoted literals untouched ('1' or "1")
-            if item.startswith("'") and item.endswith("'") or item.startswith('"') and item.endswith('"'):
-                return item
-                # return stripped[1:-1]
-
-            # Try to evaluate nested literals first
-            try:
-                literal_value = ast.literal_eval(item)
-                return parse_item(literal_value)
-            except Exception:
-                pass
-            # Try converting to Fraction
-            if "/" in item:
-                try:
-                    numerator, denominator = item.split("/", 1)
-                    return Fraction(int(numerator.strip()), int(denominator.strip()))
-                except Exception:
-                    pass
-        # Return unchanged if nothing worked
-        return item
-
-    stripped = string.strip()
-
-    # --- Step 1: Try literal eval normally ---
-    try:
-        parsed_value = ast.literal_eval(stripped)
-        return parse_item(parsed_value) # It may be a list (with parsable strings)
-    except Exception:
-        pass
-
-    # --- Step 2: Try to manually interpret list-like strings ---
-    if stripped.startswith("[") and stripped.endswith("]"):
-        # Remove brackets and split by commas
-        inner_content = stripped[1:-1].strip()
-        if inner_content:
-            parts = [part.strip() for part in inner_content.split(",")]
-            return [parse_item(part) for part in parts]
-        return []
-
-    # --- Step 3: Try single fraction as fallback ---
-    if "/" in stripped:
-        try:
-            numerator, denominator = stripped.split("/", 1)
-            return Fraction(int(numerator.strip()), int(denominator.strip()))
-        except Exception:
-            pass
-
-    # --- Step 4: Nothing matched, return unchanged ---
-    return string
-
-
-def tag_to_int(tag: str) -> int:
-    tag_string: str = tag.strip().lower()
-    tag_int: int = -1
-    if len(tag_string) == 1:
-        ascii_value: int = ord(tag_string)
-        if 48 <= ascii_value <= 57:     # 0 to 9
-            tag_int = ascii_value - 48
-        elif 97 <= ascii_value <= 122:  # a to z
-            tag_int = ascii_value - 97
-    return tag_int
-
-
-def time_ms_to_minutes(time_ms: float | int) -> Fraction:
-    from . import operand_rational as ra
-    return ra.Minutes(time_ms / 60_000)._rational
-
-
-#                           C      C#    D      D#    E      F      F#    G      G#    A      A#    B
-_black_keys: tuple[bool] = (False, True, False, True, False, False, True, False, True, False, True, False)
-
-def is_black_key(midi_note: int) -> bool:
-    """Returns True if the given MIDI note is a black key."""
-    return _black_keys[midi_note % 12]
-
-def list_increment(size: int = 4) -> list[int]:
-    return [i for i in range(size)]
-
-def list_spread(content: any, size: int) -> list:
-    return [Operand.deep_copy(content) for _ in range(size)]
-
-def list_wrap(list_in: list, wrapper: 'Operand') -> list['Operand']:
-    return [wrapper.copy(value) for value in list_in]
-
-
-def list_mod(list_in: list, mod: any = 2) -> list:
-    return [item % mod for item in list_in]
-
-def list_floor(list_in: list, floor: any = 12) -> list:
-    return [item // floor for item in list_in]
-
-def list_add(list_in: list, add: any = 0) -> list:
-    return [item + add for item in list_in]
-
-def list_sub(list_in: list, sub: any = 0) -> list:
-    return [item - sub for item in list_in]
-
-def list_mul(list_in: list, mul: any = 1) -> list:
-    return [item * mul for item in list_in]
-
-def list_div(list_in: list, div: any = 1) -> list:
-    return [item / div for item in list_in]
-
-def list_max(list_in: list, max: any = 15) -> list:
-    return [Operand.deep_copy(max) if item > max else Operand.deep_copy(item)
-            for item in list_in]
-
-def list_min(list_in: list, min: any = 0) -> list:
-    return [Operand.deep_copy(min) if item < min else Operand.deep_copy(item)
-            for item in list_in]
-
-def list_int(list_in: list) -> list:
-    list_out: list[int] = []
-    for number in list_in:
-        if isinstance(number, (float, Fraction)):
-            list_out.append(int(number))
-        elif isinstance(number, Operand):
-            list_out.append(number % int())
-        else:   # Must be an integer
-            list_out.append(number)
-    return list_out
-
-def list_float(list_in: list) -> list:
-    list_out: list[float] = []
-    for number in list_in:
-        if isinstance(number, (int, Fraction)):
-            list_out.append(float(number))
-        elif isinstance(number, Operand):
-            list_out.append(number % float())
-        else:   # Must be a float
-            list_out.append(number)
-    return list_out
-
-def list_round(list_in: list, ndigits: int = 0) -> list:
-    list_out: list[float] = []
-    for number in list_in:
-        if isinstance(number, (int, float, Fraction)):
-            list_out.append(round(number, ndigits))
-        elif isinstance(number, Operand):
-            list_out.append(number.copy(round(number % Fraction(), ndigits)))
-        else:   # Must be a floatAppends whatever
-            list_out.append(number)
-    return list_out
-
-def list_chars(chars: str) -> list[str]:
-    list_out: list[str] = []
-    for single_char in chars:
-        list_out.append(single_char)
-    return list_out
-
-def list_swap(list_in: list, left: int, right: int) -> list:
-    list_out: list = list_in.copy() # Shallow copy
-    if list_in:
-        list_len: int = len(list_in)
-        list_out[left % list_len] = list_in[right % list_len]
-        list_out[right % list_len] = list_in[left % list_len]
-    return list_out
-
-def list_repeat(items: list, repeats: list[int]) -> list:
-    list_out: list = []
-    if len(items) > len(repeats):
-        repeats += [0] * (len(items) - len(repeats))
-    elif len(items) < len(repeats):
-        repeats = repeats[:len(items) - (len(repeats) - len(items))]
-    if len(items) == len(repeats):
-        for item, repeat in zip(items, repeats):
-            list_out.extend([item] * repeat)
-    return list_out
-
-def list_choose(items: list, indexes: list[int]) -> list:
-    list_out: list = []
-    total_items: int = len(items)
-    for single_index in indexes:
-        list_out.append(Operand.deep_copy(items[single_index % total_items]))
-    return list_out
-
-def list_pick(items: list, indexes: list[int]) -> list:
-    list_out: list = []
-    available_items: list = Operand.deep_copy(items)
-    total_items: int = len(items)
-    for picked_items, single_index in enumerate(indexes):
-        remaining_items: int = total_items - picked_items
-        if remaining_items > 0:
-            pick_index: int = single_index % remaining_items
-            list_out.append( available_items.pop(pick_index) )
-        else:
-            break
-    return list_out
-
-def list_deplete(items: list, amount: list[int], indexes: list[int]) -> list:
-    list_out: list = []
-    available_items: list = Operand.deep_copy(items)
-    available_amounts: list = Operand.deep_copy(amount)
-    for single_index in indexes:
-        if available_items and available_amounts:
-            if available_amounts[single_index % len(available_amounts)] > 1:
-                available_amounts[single_index % len(available_amounts)] -= 1
-                list_out.append( available_items[single_index % len(available_items)] )
-            elif available_amounts[single_index % len(available_amounts)] == 1:
-                available_amounts.pop(single_index % len(available_amounts))
-                list_out.append( available_items.pop(single_index % len(available_items)) )
-            else:
-                available_amounts.pop(single_index % len(available_amounts))
-                available_items.pop(single_index % len(available_items))
-        else:
-            break
-    return list_out
-
-
-def list_trim(items: list, at: any) -> list:
-    list_out: list = []
-    total_items: int = len(items)
-    if total_items > 0 and at > 0:
-        next_position: any = items[0] * 0
-        for item_index in range(total_items):
-            list_out.append(Operand.deep_copy(items[item_index]))
-            next_position += list_out[item_index]
-            if not next_position < at:
-                list_out[item_index] -= next_position - at
-                break
-    return list_out
-
-def list_extend(items: list, to: any) -> list:
-    list_out: list = Operand.deep_copy(items)
-    total_items: int = len(items)
-    if total_items > 0 and to > 0:
-        total_extent: any = items[0] * 0
-        for item_index in range(total_items):
-            total_extent += items[item_index]
-        if total_extent < to:
-            list_out[-1] += to - total_extent
-    return list_out
-
-def list_snap(items: list, on: any) -> list:
-    list_out: list = list_trim(items, on)
-    list_out = list_extend(list_out, on)
-    return list_out
-
-def list_rotate(items: list, left: int = 1) -> list:
-    """Rotate list left by given number of positions (positive for left, negative for right)."""
-    if not items:  # Handle empty list case
-        return []
-    left %= len(items)  # Normalize rotation amount
-    return items[left:] + items[:left]
-
-def list_get(operands: list['Operand'], parameters: any) -> list:
-    list_parameters: list = []
-    if isinstance(parameters, list):
-        total_parameters: int = len(parameters)
-        for index, single_operand in enumerate(operands):
-            list_parameters.append(single_operand % parameters[index % total_parameters])
-    else:
-        for single_operand in operands:
-            list_parameters.append(single_operand % parameters)
-    return list_parameters
-
-def list_set(operands: list['Operand'], parameters: any) -> list:
-    list_set_operands: list = Operand.deep_copy(operands)
-    if isinstance(parameters, list):
-        total_parameters: int = len(parameters)
-        for index, single_operand in enumerate(list_set_operands):
-            single_operand << parameters[index % total_parameters]
-    else:
-        for single_operand in list_set_operands:
-            single_operand << parameters
-    return list_set_operands
-
-def list_range(range_in: range) -> list:
-    return list(range_in)
-
-
-def string_to_list(pattern: str = "1... 1... 1... 1...") -> list[int]:
-    return [1 if char == '1' else 0 for char in pattern if char == '.' or char == '1']
-
-def list_to_string(places: list[int] = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0]) -> str:
-    pattern: str = ""
-    for index, value in enumerate(places):
-        if index > 0 and index % 4 == 0:
-            pattern += ' '
-        if value == 1:
-            pattern += '1'
-        else:
-            pattern += '.'
-    return pattern
-
-
-def list_and(left: list[int], right: list[int]) -> list[int]:
-    """Element-wise binary AND of two lists. Pads with 0s if lengths differ."""
-    max_len = max(len(left), len(right))
-    left_padded = left + [0] * (max_len - len(left))
-    right_padded = right + [0] * (max_len - len(right))
-    return [a & b for a, b in zip(left_padded, right_padded)]
-
-
-def list_or(left: list[int], right: list[int]) -> list[int]:
-    """Element-wise binary OR of two lists. Pads with 0s if lengths differ."""
-    max_len = max(len(left), len(right))
-    left_padded = left + [0] * (max_len - len(left))
-    right_padded = right + [0] * (max_len - len(right))
-    return [a | b for a, b in zip(left_padded, right_padded)]
-
-
-def list_xor(left: list[int], right: list[int]) -> list[int]:
-    """Element-wise binary XOR of two lists. Pads with 0s if lengths differ."""
-    max_len = max(len(left), len(right))
-    left_padded = left + [0] * (max_len - len(left))
-    right_padded = right + [0] * (max_len - len(right))
-    return [a ^ b for a, b in zip(left_padded, right_padded)]
-
-
-def list_nor(left: list[int], right: list[int]) -> list[int]:
-    """Element-wise binary NOR (NOT OR). Returns 1 only if both inputs are 0."""
-    max_len = max(len(left), len(right))
-    left_padded = left + [0] * (max_len - len(left))
-    right_padded = right + [0] * (max_len - len(right))
-    return [0 if a == 1 or b == 1 else 1 for a, b in zip(left_padded, right_padded)]
-
-
-def list_not(left: list[int]) -> list[int]:
-    """Element-wise binary NOT. Converts 1→0 and 0→1."""
-    return [0 if a == 1 else 1 for a in left]  # Or: [1 - a for a in left]
-
-
-def list_lshift(left: list[int], shift: int) -> list[int]:
-    """Element-wise binary `<<`. Converts 01→10."""
-    shift = max(min(shift, len(left)), 0)
-    return left[shift:] + [0] * shift
-
-
-def list_rshift(left: list[int], shift: int) -> list[int]:
-    """Element-wise binary `>>`. Converts 10→01."""
-    shift = max(min(shift, len(left)), 0)
-    return [0] * shift + left[:shift]
-
-
-def string_and(left: str, right: str) -> str:
-    """Element-wise binary AND of two strings. Pads with 0s if lengths differ."""
-    left_list: list[int] = string_to_list(left)
-    right_list: list[int] = string_to_list(right)
-    return list_to_string(list_and(left_list, right_list))
-
-
-def string_or(left: str, right: str) -> str:
-    """Element-wise binary OR of two strings. Pads with 0s if lengths differ."""
-    left_list: list[int] = string_to_list(left)
-    right_list: list[int] = string_to_list(right)
-    return list_to_string(list_or(left_list, right_list))
-
-
-def string_xor(left: str, right: str) -> str:
-    """Element-wise binary XOR of two strings. Pads with 0s if lengths differ."""
-    left_list: list[int] = string_to_list(left)
-    right_list: list[int] = string_to_list(right)
-    return list_to_string(list_xor(left_list, right_list))
-
-
-def string_nor(left: str, right: str) -> str:
-    """Element-wise binary NOR of two strings. Pads with 0s if lengths differ."""
-    left_list: list[int] = string_to_list(left)
-    right_list: list[int] = string_to_list(right)
-    return list_to_string(list_nor(left_list, right_list))
-
-
-def string_not(left: str) -> str:
-    """Element-wise binary NOT of two strings. Pads with 0s if lengths differ."""
-    left_list: list[int] = string_to_list(left)
-    return list_to_string(list_not(left_list))
-
-
-def string_lshift(left: str, shift: int) -> str:
-    """Element-wise binary `<<`. Converts 01→10."""
-    left_list: list[int] = string_to_list(left)
-    return list_to_string(list_lshift(left_list, shift))
-
-
-def string_rshift(left: str, shift: int) -> str:
-    """Element-wise binary `>>`. Converts 10→01."""
-    left_list: list[int] = string_to_list(left)
-    return list_to_string(list_rshift(left_list, shift))
-
-
-
-# GLOBAL FUNCTIONS
-
-@cache  # Important decorator to avoid repeated searches (class names are static, never change)
-def find_class_by_name(root_class: type, name: str) -> type:
-    """
-    Recursively searches for a class with a given name in the hierarchy 
-    starting from the root_class.
-
-    Args:
-        root_class: The starting class for the search.
-        name (str): The name of the class to search for.
-
-    Returns:
-        The class if found, otherwise None.
-    """
-    if not isinstance(root_class, type):
-        raise TypeError("root_class must be a class.")
-
-    # Check if the current class matches the name (class NOT an object)
-    if root_class.__name__ == name:
-        return root_class
-    
-    # Recursively search in all subclasses (classes NOT objects)
-    for subclass in root_class.__subclasses__():
-        result = find_class_by_name(subclass, name)
-        if result: return result
-    
-    # If no matching subclass is found, return None
-    return None
-
-
-def list_all_operand_classes(root_class: type, all_classes: list = None) -> list:
-    if not all_classes:
-        all_classes: list = []
-    if not isinstance(root_class, type):
-        return all_classes
-    
-    all_classes.append(root_class)
-    # Recursively search in all subclasses (classes NOT objects)
-    for subclass in root_class.__subclasses__():
-        list_all_operand_classes(subclass, all_classes) # No need to catch the returned list because classes are already being appended    
-
-    return all_classes
-
-
-def get_root_classes_list(root_class: type) -> list:
-    if not isinstance(root_class, type):
-        return []   # Empty list
-    
-    # Recursively fills up (extends) self subclasses list (classes NOT objects)
-    root_classes_list: list = [root_class]
-    for subclass in root_class.__subclasses__():
-        root_classes_list.extend( get_root_classes_list(subclass) )
-
-    return root_classes_list
-
-
-def found_dict_in_dict(dict_to_find: dict, in_dict: dict) -> bool:
-    if isinstance(dict_to_find, dict) and isinstance(in_dict, dict):
-
-        if dict_to_find == in_dict:
-            return True
-        
-        for _, value in in_dict.items():
-            result = found_dict_in_dict(dict_to_find, value)
-            if result: return True
-        
-    return False
-
-
-def get_dict_key_data(dict_key: str, in_dict: dict) -> any:
-    if isinstance(dict_key, str) and isinstance(in_dict, dict):
-
-        if dict_key in in_dict:
-            return in_dict[dict_key]
-
-        for _, value in in_dict.items():
-            key_data = get_dict_key_data(dict_key, value)
-            if key_data: return key_data       
-
-    return None
-
-
-def get_pair_key_data(pair_key: dict, in_dict: dict) -> any:
-    if isinstance(pair_key, dict) and len(pair_key) > 0 and isinstance(in_dict, dict):
-        # Get the first key-value pair
-        first_key, second_key = next(iter(pair_key.items()))
-
-        first_key_data: dict = get_dict_key_data(first_key, in_dict)
-        if isinstance(first_key_data, dict):
-            return get_dict_key_data(second_key, first_key_data)
-        return first_key_data
-
-    return None
-
-
-def filter_list(items: List[Any], condition: Callable[[Any], bool]) -> List[Any]:
-    """
-    Removes all items from a list that don't satisfy a given condition.
-
-    Args:
-        items (list): The list to filter.
-        condition (Callable): A function that takes an element and returns True if it should be kept.
-
-    Returns:
-        list: A new list containing only items that satisfy the condition.
-    """
-    return [item for item in items if condition(item)]
-
-
-def playlist_position_beats(playlist: list[dict]) -> list[dict]:
-    return [
-        single_dict for single_dict in playlist
-        if "position_beats" in single_dict
-    ]
 
 
 # GLOBAL CLASSES
@@ -1203,4 +633,576 @@ class Operand:
             case tuple():
                 __class__.deep_clear(list(data))
 
+
+
+# OPERAND FUNCTIONS
+
+@cache  # Important decorator to avoid repeated searches (class names are static, never change)
+def find_class_by_name(root_class: type, name: str) -> type:
+    """
+    Recursively searches for a class with a given name in the hierarchy 
+    starting from the root_class.
+
+    Args:
+        root_class: The starting class for the search.
+        name (str): The name of the class to search for.
+
+    Returns:
+        The class if found, otherwise None.
+    """
+    if not isinstance(root_class, type):
+        raise TypeError("root_class must be a class.")
+
+    # Check if the current class matches the name (class NOT an object)
+    if root_class.__name__ == name:
+        return root_class
+    
+    # Recursively search in all subclasses (classes NOT objects)
+    for subclass in root_class.__subclasses__():
+        result = find_class_by_name(subclass, name)
+        if result: return result
+    
+    # If no matching subclass is found, return None
+    return None
+
+
+def list_all_operand_classes(root_class: type, all_classes: list = None) -> list:
+    if not all_classes:
+        all_classes: list = []
+    if not isinstance(root_class, type):
+        return all_classes
+    
+    all_classes.append(root_class)
+    # Recursively search in all subclasses (classes NOT objects)
+    for subclass in root_class.__subclasses__():
+        list_all_operand_classes(subclass, all_classes) # No need to catch the returned list because classes are already being appended    
+
+    return all_classes
+
+
+def get_root_classes_list(root_class: type) -> list:
+    if not isinstance(root_class, type):
+        return []   # Empty list
+    
+    # Recursively fills up (extends) self subclasses list (classes NOT objects)
+    root_classes_list: list = [root_class]
+    for subclass in root_class.__subclasses__():
+        root_classes_list.extend( get_root_classes_list(subclass) )
+
+    return root_classes_list
+
+
+
+# GENERIC HANDY FUNCTIONS
+
+
+# 14-bit value (0..16383)
+#   bits 13..7  ->  MSB (7 bits)
+#   bits  6..0  ->  LSB (7 bits)
+#
+# 0b1111111 == 0x7F == 127   (7-bit mask)
+
+MASK_7BIT = 0b01111111   # 127 — the 7 low bits
+
+def convert_14_to_7_bits(value: int) -> tuple[int, int]:
+    """Returns the tuple in the format (MSB, LSB)
+    """
+    value_msb: int  = (value >> 7) & MASK_7BIT
+    value_lsb: int  = value & MASK_7BIT
+    return (value_msb, value_lsb)
+
+def convert_7_to_14_bits(value_msb: int, value_lsb: int) -> int:
+    """Takes in the values MSB and LSB
+    """
+    return ((value_msb & MASK_7BIT) << 7) | (value_lsb & MASK_7BIT)
+
+
+def number_to_int(number: any) -> int:
+    from . import operand_unit as ou
+    from . import operand_rational as ra
+    match number:
+        case ou.Unit() | ra.Rational():
+            return number % int()
+        case int() | float() | Fraction():
+            return int(number)
+    return 0
+
+def string_or_number(string: str) -> int | float | str:
+    try:
+        return int(string)
+    except ValueError:
+        try:    # float is tokened as a fraction '1/8'
+            rational = Fraction(string)
+            return float(rational)
+        except ValueError:
+            return string
+        
+def string_to_number(string: str) -> int | float | None:
+    try:
+        return int(string)
+    except ValueError:
+        try:    # float is tokened as a fraction '1/8'
+            rational = Fraction(string)
+            return float(rational)
+        except ValueError:
+            return None
+        
+def checksum_to_string(checksum: int) -> str:
+    """4-char hex checksum (16-bit) as a string."""
+    return f"{checksum & 0xFFFF:04x}" # 4 hexadecimal chars sized 16^4 = 65_536
+
+
+def string_eval(string: str) -> Any:
+    """Safely evaluate a string into int, float, Fraction, or list of them.
+       If the string cannot be parsed, return it unchanged.
+    """
+
+    def parse_item(item: any) -> Any:
+        """Recursively convert list items, numbers, or fraction strings."""
+        if isinstance(item, (int, float)):
+            return item
+        if isinstance(item, list):
+            return [parse_item(sub_item) for sub_item in item]
+        if isinstance(item, str):
+            item = item.strip()
+
+            # Leave quoted literals untouched ('1' or "1")
+            if item.startswith("'") and item.endswith("'") or item.startswith('"') and item.endswith('"'):
+                return item
+                # return stripped[1:-1]
+
+            # Try to evaluate nested literals first
+            try:
+                literal_value = ast.literal_eval(item)
+                return parse_item(literal_value)
+            except Exception:
+                pass
+            # Try converting to Fraction
+            if "/" in item:
+                try:
+                    numerator, denominator = item.split("/", 1)
+                    return Fraction(int(numerator.strip()), int(denominator.strip()))
+                except Exception:
+                    pass
+        # Return unchanged if nothing worked
+        return item
+
+    stripped = string.strip()
+
+    # --- Step 1: Try literal eval normally ---
+    try:
+        parsed_value = ast.literal_eval(stripped)
+        return parse_item(parsed_value) # It may be a list (with parsable strings)
+    except Exception:
+        pass
+
+    # --- Step 2: Try to manually interpret list-like strings ---
+    if stripped.startswith("[") and stripped.endswith("]"):
+        # Remove brackets and split by commas
+        inner_content = stripped[1:-1].strip()
+        if inner_content:
+            parts = [part.strip() for part in inner_content.split(",")]
+            return [parse_item(part) for part in parts]
+        return []
+
+    # --- Step 3: Try single fraction as fallback ---
+    if "/" in stripped:
+        try:
+            numerator, denominator = stripped.split("/", 1)
+            return Fraction(int(numerator.strip()), int(denominator.strip()))
+        except Exception:
+            pass
+
+    # --- Step 4: Nothing matched, return unchanged ---
+    return string
+
+
+def tag_to_int(tag: str) -> int:
+    tag_string: str = tag.strip().lower()
+    tag_int: int = -1
+    if len(tag_string) == 1:
+        ascii_value: int = ord(tag_string)
+        if 48 <= ascii_value <= 57:     # 0 to 9
+            tag_int = ascii_value - 48
+        elif 97 <= ascii_value <= 122:  # a to z
+            tag_int = ascii_value - 97
+    return tag_int
+
+
+def time_ms_to_minutes(time_ms: float | int) -> Fraction:
+    from . import operand_rational as ra
+    return ra.Minutes(time_ms / 60_000)._rational
+
+
+#                           C      C#    D      D#    E      F      F#    G      G#    A      A#    B
+_black_keys: tuple[bool] = (False, True, False, True, False, False, True, False, True, False, True, False)
+
+def is_black_key(midi_note: int) -> bool:
+    """Returns True if the given MIDI note is a black key."""
+    return _black_keys[midi_note % 12]
+
+def list_increment(size: int = 4) -> list[int]:
+    return [i for i in range(size)]
+
+def list_spread(content: any, size: int) -> list:
+    return [Operand.deep_copy(content) for _ in range(size)]
+
+def list_wrap(list_in: list, wrapper: 'Operand') -> list['Operand']:
+    return [wrapper.copy(value) for value in list_in]
+
+
+def list_mod(list_in: list, mod: any = 2) -> list:
+    return [item % mod for item in list_in]
+
+def list_floor(list_in: list, floor: any = 12) -> list:
+    return [item // floor for item in list_in]
+
+def list_add(list_in: list, add: any = 0) -> list:
+    return [item + add for item in list_in]
+
+def list_sub(list_in: list, sub: any = 0) -> list:
+    return [item - sub for item in list_in]
+
+def list_mul(list_in: list, mul: any = 1) -> list:
+    return [item * mul for item in list_in]
+
+def list_div(list_in: list, div: any = 1) -> list:
+    return [item / div for item in list_in]
+
+def list_max(list_in: list, max: any = 15) -> list:
+    return [Operand.deep_copy(max) if item > max else Operand.deep_copy(item)
+            for item in list_in]
+
+def list_min(list_in: list, min: any = 0) -> list:
+    return [Operand.deep_copy(min) if item < min else Operand.deep_copy(item)
+            for item in list_in]
+
+def list_int(list_in: list) -> list:
+    list_out: list[int] = []
+    for number in list_in:
+        if isinstance(number, (float, Fraction)):
+            list_out.append(int(number))
+        elif isinstance(number, Operand):
+            list_out.append(number % int())
+        else:   # Must be an integer
+            list_out.append(number)
+    return list_out
+
+def list_float(list_in: list) -> list:
+    list_out: list[float] = []
+    for number in list_in:
+        if isinstance(number, (int, Fraction)):
+            list_out.append(float(number))
+        elif isinstance(number, Operand):
+            list_out.append(number % float())
+        else:   # Must be a float
+            list_out.append(number)
+    return list_out
+
+def list_round(list_in: list, ndigits: int = 0) -> list:
+    list_out: list[float] = []
+    for number in list_in:
+        if isinstance(number, (int, float, Fraction)):
+            list_out.append(round(number, ndigits))
+        elif isinstance(number, Operand):
+            list_out.append(number.copy(round(number % Fraction(), ndigits)))
+        else:   # Must be a floatAppends whatever
+            list_out.append(number)
+    return list_out
+
+def list_chars(chars: str) -> list[str]:
+    list_out: list[str] = []
+    for single_char in chars:
+        list_out.append(single_char)
+    return list_out
+
+def list_swap(list_in: list, left: int, right: int) -> list:
+    list_out: list = list_in.copy() # Shallow copy
+    if list_in:
+        list_len: int = len(list_in)
+        list_out[left % list_len] = list_in[right % list_len]
+        list_out[right % list_len] = list_in[left % list_len]
+    return list_out
+
+def list_repeat(items: list, repeats: list[int]) -> list:
+    list_out: list = []
+    if len(items) > len(repeats):
+        repeats += [0] * (len(items) - len(repeats))
+    elif len(items) < len(repeats):
+        repeats = repeats[:len(items) - (len(repeats) - len(items))]
+    if len(items) == len(repeats):
+        for item, repeat in zip(items, repeats):
+            list_out.extend([item] * repeat)
+    return list_out
+
+def list_choose(items: list, indexes: list[int]) -> list:
+    list_out: list = []
+    total_items: int = len(items)
+    for single_index in indexes:
+        list_out.append(Operand.deep_copy(items[single_index % total_items]))
+    return list_out
+
+def list_pick(items: list, indexes: list[int]) -> list:
+    list_out: list = []
+    available_items: list = Operand.deep_copy(items)
+    total_items: int = len(items)
+    for picked_items, single_index in enumerate(indexes):
+        remaining_items: int = total_items - picked_items
+        if remaining_items > 0:
+            pick_index: int = single_index % remaining_items
+            list_out.append( available_items.pop(pick_index) )
+        else:
+            break
+    return list_out
+
+def list_deplete(items: list, amount: list[int], indexes: list[int]) -> list:
+    list_out: list = []
+    available_items: list = Operand.deep_copy(items)
+    available_amounts: list = Operand.deep_copy(amount)
+    for single_index in indexes:
+        if available_items and available_amounts:
+            if available_amounts[single_index % len(available_amounts)] > 1:
+                available_amounts[single_index % len(available_amounts)] -= 1
+                list_out.append( available_items[single_index % len(available_items)] )
+            elif available_amounts[single_index % len(available_amounts)] == 1:
+                available_amounts.pop(single_index % len(available_amounts))
+                list_out.append( available_items.pop(single_index % len(available_items)) )
+            else:
+                available_amounts.pop(single_index % len(available_amounts))
+                available_items.pop(single_index % len(available_items))
+        else:
+            break
+    return list_out
+
+
+def list_trim(items: list, at: any) -> list:
+    list_out: list = []
+    total_items: int = len(items)
+    if total_items > 0 and at > 0:
+        next_position: any = items[0] * 0
+        for item_index in range(total_items):
+            list_out.append(Operand.deep_copy(items[item_index]))
+            next_position += list_out[item_index]
+            if not next_position < at:
+                list_out[item_index] -= next_position - at
+                break
+    return list_out
+
+def list_extend(items: list, to: any) -> list:
+    list_out: list = Operand.deep_copy(items)
+    total_items: int = len(items)
+    if total_items > 0 and to > 0:
+        total_extent: any = items[0] * 0
+        for item_index in range(total_items):
+            total_extent += items[item_index]
+        if total_extent < to:
+            list_out[-1] += to - total_extent
+    return list_out
+
+def list_snap(items: list, on: any) -> list:
+    list_out: list = list_trim(items, on)
+    list_out = list_extend(list_out, on)
+    return list_out
+
+def list_rotate(items: list, left: int = 1) -> list:
+    """Rotate list left by given number of positions (positive for left, negative for right)."""
+    if not items:  # Handle empty list case
+        return []
+    left %= len(items)  # Normalize rotation amount
+    return items[left:] + items[:left]
+
+def list_get(operands: list['Operand'], parameters: any) -> list:
+    list_parameters: list = []
+    if isinstance(parameters, list):
+        total_parameters: int = len(parameters)
+        for index, single_operand in enumerate(operands):
+            list_parameters.append(single_operand % parameters[index % total_parameters])
+    else:
+        for single_operand in operands:
+            list_parameters.append(single_operand % parameters)
+    return list_parameters
+
+def list_set(operands: list['Operand'], parameters: any) -> list:
+    list_set_operands: list = Operand.deep_copy(operands)
+    if isinstance(parameters, list):
+        total_parameters: int = len(parameters)
+        for index, single_operand in enumerate(list_set_operands):
+            single_operand << parameters[index % total_parameters]
+    else:
+        for single_operand in list_set_operands:
+            single_operand << parameters
+    return list_set_operands
+
+def list_range(range_in: range) -> list:
+    return list(range_in)
+
+
+def string_to_list(pattern: str = "1... 1... 1... 1...") -> list[int]:
+    return [1 if char == '1' else 0 for char in pattern if char == '.' or char == '1']
+
+def list_to_string(places: list[int] = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0]) -> str:
+    pattern: str = ""
+    for index, value in enumerate(places):
+        if index > 0 and index % 4 == 0:
+            pattern += ' '
+        if value == 1:
+            pattern += '1'
+        else:
+            pattern += '.'
+    return pattern
+
+
+def list_and(left: list[int], right: list[int]) -> list[int]:
+    """Element-wise binary AND of two lists. Pads with 0s if lengths differ."""
+    max_len = max(len(left), len(right))
+    left_padded = left + [0] * (max_len - len(left))
+    right_padded = right + [0] * (max_len - len(right))
+    return [a & b for a, b in zip(left_padded, right_padded)]
+
+
+def list_or(left: list[int], right: list[int]) -> list[int]:
+    """Element-wise binary OR of two lists. Pads with 0s if lengths differ."""
+    max_len = max(len(left), len(right))
+    left_padded = left + [0] * (max_len - len(left))
+    right_padded = right + [0] * (max_len - len(right))
+    return [a | b for a, b in zip(left_padded, right_padded)]
+
+
+def list_xor(left: list[int], right: list[int]) -> list[int]:
+    """Element-wise binary XOR of two lists. Pads with 0s if lengths differ."""
+    max_len = max(len(left), len(right))
+    left_padded = left + [0] * (max_len - len(left))
+    right_padded = right + [0] * (max_len - len(right))
+    return [a ^ b for a, b in zip(left_padded, right_padded)]
+
+
+def list_nor(left: list[int], right: list[int]) -> list[int]:
+    """Element-wise binary NOR (NOT OR). Returns 1 only if both inputs are 0."""
+    max_len = max(len(left), len(right))
+    left_padded = left + [0] * (max_len - len(left))
+    right_padded = right + [0] * (max_len - len(right))
+    return [0 if a == 1 or b == 1 else 1 for a, b in zip(left_padded, right_padded)]
+
+
+def list_not(left: list[int]) -> list[int]:
+    """Element-wise binary NOT. Converts 1→0 and 0→1."""
+    return [0 if a == 1 else 1 for a in left]  # Or: [1 - a for a in left]
+
+
+def list_lshift(left: list[int], shift: int) -> list[int]:
+    """Element-wise binary `<<`. Converts 01→10."""
+    shift = max(min(shift, len(left)), 0)
+    return left[shift:] + [0] * shift
+
+
+def list_rshift(left: list[int], shift: int) -> list[int]:
+    """Element-wise binary `>>`. Converts 10→01."""
+    shift = max(min(shift, len(left)), 0)
+    return [0] * shift + left[:shift]
+
+
+def string_and(left: str, right: str) -> str:
+    """Element-wise binary AND of two strings. Pads with 0s if lengths differ."""
+    left_list: list[int] = string_to_list(left)
+    right_list: list[int] = string_to_list(right)
+    return list_to_string(list_and(left_list, right_list))
+
+
+def string_or(left: str, right: str) -> str:
+    """Element-wise binary OR of two strings. Pads with 0s if lengths differ."""
+    left_list: list[int] = string_to_list(left)
+    right_list: list[int] = string_to_list(right)
+    return list_to_string(list_or(left_list, right_list))
+
+
+def string_xor(left: str, right: str) -> str:
+    """Element-wise binary XOR of two strings. Pads with 0s if lengths differ."""
+    left_list: list[int] = string_to_list(left)
+    right_list: list[int] = string_to_list(right)
+    return list_to_string(list_xor(left_list, right_list))
+
+
+def string_nor(left: str, right: str) -> str:
+    """Element-wise binary NOR of two strings. Pads with 0s if lengths differ."""
+    left_list: list[int] = string_to_list(left)
+    right_list: list[int] = string_to_list(right)
+    return list_to_string(list_nor(left_list, right_list))
+
+
+def string_not(left: str) -> str:
+    """Element-wise binary NOT of two strings. Pads with 0s if lengths differ."""
+    left_list: list[int] = string_to_list(left)
+    return list_to_string(list_not(left_list))
+
+
+def string_lshift(left: str, shift: int) -> str:
+    """Element-wise binary `<<`. Converts 01→10."""
+    left_list: list[int] = string_to_list(left)
+    return list_to_string(list_lshift(left_list, shift))
+
+
+def string_rshift(left: str, shift: int) -> str:
+    """Element-wise binary `>>`. Converts 10→01."""
+    left_list: list[int] = string_to_list(left)
+    return list_to_string(list_rshift(left_list, shift))
+
+
+def found_dict_in_dict(dict_to_find: dict, in_dict: dict) -> bool:
+    if isinstance(dict_to_find, dict) and isinstance(in_dict, dict):
+
+        if dict_to_find == in_dict:
+            return True
+        
+        for _, value in in_dict.items():
+            result = found_dict_in_dict(dict_to_find, value)
+            if result: return True
+        
+    return False
+
+
+def get_dict_key_data(dict_key: str, in_dict: dict) -> any:
+    if isinstance(dict_key, str) and isinstance(in_dict, dict):
+
+        if dict_key in in_dict:
+            return in_dict[dict_key]
+
+        for _, value in in_dict.items():
+            key_data = get_dict_key_data(dict_key, value)
+            if key_data: return key_data       
+
+    return None
+
+
+def get_pair_key_data(pair_key: dict, in_dict: dict) -> any:
+    if isinstance(pair_key, dict) and len(pair_key) > 0 and isinstance(in_dict, dict):
+        # Get the first key-value pair
+        first_key, second_key = next(iter(pair_key.items()))
+
+        first_key_data: dict = get_dict_key_data(first_key, in_dict)
+        if isinstance(first_key_data, dict):
+            return get_dict_key_data(second_key, first_key_data)
+        return first_key_data
+
+    return None
+
+
+def filter_list(items: List[Any], condition: Callable[[Any], bool]) -> List[Any]:
+    """
+    Removes all items from a list that don't satisfy a given condition.
+
+    Args:
+        items (list): The list to filter.
+        condition (Callable): A function that takes an element and returns True if it should be kept.
+
+    Returns:
+        list: A new list containing only items that satisfy the condition.
+    """
+    return [item for item in items if condition(item)]
+
+
+def playlist_position_beats(playlist: list[dict]) -> list[dict]:
+    return [
+        single_dict for single_dict in playlist
+        if "position_beats" in single_dict
+    ]
 
