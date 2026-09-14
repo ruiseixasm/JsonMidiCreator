@@ -21,3 +21,12 @@ def test_device_pc():
     blofeld_PC = RD_Blofeld.Clip_program_change(4, "B")
     assert blofeld_PC.len() == 2    # BankSelect + Program Change
 
+
+def test_device_cc():
+
+    digitiakt_CC = RD_Digitakt.Clip_control_change("Frequency", "FILTER")
+    assert digitiakt_CC.len() == 1  # A simple Control Change
+
+    digitiakt_CC_14bit = RD_Digitakt.Clip_control_change("Depth", "LFO 1")
+    assert digitiakt_CC_14bit.len() == 1  # A simple Control Change
+
