@@ -38,7 +38,8 @@ from . import operand_chaos as ch
 class RD_Devices:
 
     @classmethod
-    def Clip_instrument_change(cls, sound: int, bank: str | int = "A") -> 'oc.Clip':
+    def Clip_program_change(cls, sound: int, bank: str | int = "A") -> 'oc.Clip':
+        """Finds Program Change based on the Bank given"""
         clip = oc.Clip()
         if isinstance(bank, str):
             clip += oe.BankSelectMSB(cls.banks[bank.strip().upper()])
@@ -52,8 +53,16 @@ class RD_Devices:
         clip = oc.Clip()
         parameter = parameter.strip()
         group = group.strip().upper()
-        if group in cls.midi_cc
-        clip += oe.ControlChange(cls.midi_cc[group][parameter])
+        if group in cls.midi_cc and parameter in cls.midi_cc[group]:
+            cc = cls.midi_cc[group][parameter]
+            if "NUMBER" in cc:
+                clip += oe.ControlChange(
+                        ou.Number(cc["NUMBER"])
+                    )
+            elif "MSB" in cc and "LSB" in cc:
+                clip += oe.ControlChangePair(
+                    ou.MSB(cc["MSB"]), ou.LSB(cc["LSB"])
+                )
         return clip
 
     

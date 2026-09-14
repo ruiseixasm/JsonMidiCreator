@@ -19,18 +19,18 @@ from jsonmidicreator import *
 settings << RD_Blofeld.device << ClockedDevices(RD_Blofeld.device) << Tempo(110)
 
 # Set a sound of a given Bank
-RD_Blofeld.Clip_instrument_change(95, "B") + Chord(2/1) >> Play(True)
+RD_Blofeld.Clip_program_change(95, "B") + Chord(2/1) >> Play(True)
 AllNotesOff() >> Play(True)
 
 # Plays a Major chord for each Bank first Sound
 for bank in range(8):
-    program_change = RD_Blofeld.Clip_instrument_change(1, bank + 1)      # + 1 because programs start at 1 (Programs are 1 based)
+    program_change = RD_Blofeld.Clip_program_change(1, bank + 1)      # + 1 because programs start at 1 (Programs are 1 based)
     program_change + Chord() >> Play()
     AllNotesOff() >> Play()
 
 # Plays a two measures Major chord for all Sounds od the first Bank ("A")
 for sound in range(128):
-    program_change = RD_Blofeld.Clip_instrument_change(sound + 1, "A")   # + 1 because programs start at 1 (Programs are 1 based)
+    program_change = RD_Blofeld.Clip_program_change(sound + 1, "A")   # + 1 because programs start at 1 (Programs are 1 based)
     program_change + Chord(2/1) >> Play()
     AllNotesOff() >> Play()
 

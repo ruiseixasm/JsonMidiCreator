@@ -13,27 +13,11 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
+
 from jsonmidicreator import *
 
+def test_device_pc():
 
-
-settings += Device("Blofeld")
-start_program = RD_Blofeld.Clip_program_change(4, "A") >> Play()
-# Devices to sync that also guarantee the total playing up to the end of Measures
-# Note that Rest has no impact im prolonging the playing time without the global Clock on
-settings << ClockedDevices("Blofeld")
-
-two_notes = Note() / 2 << Iterate(step=2)**Beats()
-possibilities = Foreach(1, 2, 3, 4, 5, 6, 7)**Degree()
-
-
-for degree in range(1, 8):  # 7 degrees in total
-    degree >> Print()
-    two_notes >> Nth(2) << degree
-    try_clip = two_notes * 2 * Rest()
-    try_clip >> Play()
-    
-
-
-reset_program = RD_Blofeld.Clip_program_change(1, "B") > Play()
+    blofeld_PC = RD_Blofeld.Clip_program_change(4, "B")
+    assert blofeld_PC.len() == 2    # BankSelect + Program Change
 

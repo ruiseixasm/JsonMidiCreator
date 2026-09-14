@@ -18,7 +18,7 @@ from jsonmidicreator import *
 
 
 settings += Device("Blofeld")
-RD_Blofeld.Clip_instrument_change(4, "A") >> Play()
+RD_Blofeld.Clip_program_change(4, "A") >> Play()
 # Devices to sync that also guarantee the total playing up to the end of Measures
 # Note that Rest has no impact im prolonging the playing time without the global Clock on
 settings << ClockedDevices("Blofeld")
@@ -52,5 +52,5 @@ layer += 1
 part >> Play(True)
 
 settings << ClockedDevices()
-RD_Blofeld.Clip_instrument_change(1, "A") + AllNotesOff() >> Play()
+RD_Blofeld.Clip_program_change(1, "A") + AllNotesOff() >> Play()
 
