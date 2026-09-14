@@ -2120,8 +2120,8 @@ class Number(Midi):
         {   "midi_number": 127, "default_value": 0,     "names": ["Poly On", "Polyphonic"]    }
     ]
 
-class MSB(Midi):
-    """`Unit -> Midi -> MSB`
+class MSB(Number):
+    """`Unit -> Midi -> Number -> MSB`
     """
     pass
 
