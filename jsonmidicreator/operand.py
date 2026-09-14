@@ -38,17 +38,25 @@ if TYPE_CHECKING:
 T = TypeVar('T')
 TypeNumeral = TypeVar('TypeNumeral', 'Operand', int, float, Fraction)   # TypeNumeral represents any class similar to a number
 
+
 # GENERIC HANDY FUNCTIONS
 
+
+# 14-bit value (0..16383)
+#   bits 13..7  ->  MSB (7 bits)
+#   bits  6..0  ->  LSB (7 bits)
+#
+# 0b1111111 == 0x7F == 127   (7-bit mask)
+
+MASK_7BIT = 0b1111111   # 127 — the 7 low bits
+
 def convert_14_to_7_bits(value: int) -> tuple[int, int]:
-    value_msb: int  = (value >> 7) & 127
-    value_lsb: int  = value & 127
+    value_msb: int  = (value >> 7) & MASK_7BIT
+    value_lsb: int  = value & MASK_7BIT
     return (value_msb, value_lsb)
 
 def convert_7_to_14_bits(value_msb: int, value_lsb: int) -> int:
-    value_msb &= 127
-    value_lsb &= 127
-    return (value_msb << 7) | value_lsb
+    return ((value_msb & MASK_7BIT) << 7) | (value_lsb & MASK_7BIT)
 
 
 def number_to_int(number: any) -> int:

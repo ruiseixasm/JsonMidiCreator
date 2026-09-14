@@ -3997,8 +3997,7 @@ class ControlChangePair(ControlChange):
             case ou.LSB():
                 self._number_lsb = operand._unit
             case ou.Value():
-                self._value: int        = (operand._unit >> 7) & 127
-                self._value_lsb: int    = operand._unit & 127
+                self._value, self._value_lsb = o.convert_14_to_7_bits(operand._unit)
             case _: super().__lshift__(operand)
         return self
 
