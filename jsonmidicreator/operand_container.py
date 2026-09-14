@@ -462,7 +462,7 @@ class Container(o.Operand):
             "items" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._items = self.deserialize(serialization["parameters"]["items"])
+            self._items = o.deserialize(serialization["parameters"]["items"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -2066,7 +2066,7 @@ class Clip(Composition):  # Just a container of Elements
 
                 super().loadSerialization(serialization)
                 if "time_signature" in serialization["parameters"]:
-                    self._time_signature << self.deserialize(serialization["parameters"]["time_signature"])
+                    self._time_signature << o.deserialize(serialization["parameters"]["time_signature"])
                 else:
                     self._time_signature << og.TimeSignature()
                 self._track_number  = serialization["parameters"]["track_number"]
@@ -4077,7 +4077,7 @@ class Section(Composition):
                 "position_beats" in serialization["parameters"]):
 
                 super().loadSerialization(serialization)
-                self._position_beats    = self.deserialize(serialization["parameters"]["position_beats"])
+                self._position_beats    = o.deserialize(serialization["parameters"]["position_beats"])
         return self
 
     def __lshift__(self, operand: any) -> Self:

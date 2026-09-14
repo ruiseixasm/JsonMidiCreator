@@ -202,9 +202,9 @@ class Operand:
 
     def loadSerialization(self, serialization: dict) -> Self:
         if "chained_operand" in serialization:
-            self._chained_operand = self.deserialize(serialization["chained_operand"])
+            self._chained_operand = deserialize(serialization["chained_operand"])
         if "index" in serialization:
-            self._index = self.deserialize(serialization["index"])
+            self._index = deserialize(serialization["index"])
         else:
             self._index = -1
         return self

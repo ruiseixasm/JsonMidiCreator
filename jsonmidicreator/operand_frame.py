@@ -150,7 +150,7 @@ class Frame(o.Operand):
             "multi_data" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._named_parameters = self.deserialize(serialization["parameters"]["multi_data"])
+            self._named_parameters = o.deserialize(serialization["parameters"]["multi_data"])
         return self
     
     def __lshift__(self, operand: any) -> Self:

@@ -146,7 +146,7 @@ class Data(o.Operand):
             "data" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._data = self.deserialize(serialization["parameters"]["data"])
+            self._data = o.deserialize(serialization["parameters"]["data"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -817,7 +817,7 @@ class Serialization(Data):
             case o.Operand():
                 self._data = serialization.copy()
             case dict():
-                self._data = self.deserialize(serialization)
+                self._data = o.deserialize(serialization)
             case _:
                 self._data = ol.Null()  # Contrary to None, ol.Null allows .copy() of itself
 
@@ -897,7 +897,7 @@ class Serialization(Data):
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Serialization':
-        self._data = self.deserialize(serialization)
+        self._data = o.deserialize(serialization)
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -911,11 +911,11 @@ class Serialization(Data):
                     case o.Operand():
                         self._data = operand._data
                     case dict():
-                        self._data = self.deserialize(operand._data)
+                        self._data = o.deserialize(operand._data)
             case o.Operand():   # DON'T REMOVE THIS STEP !!
                 self._data = operand.copy()
             case dict():
-                self._data = self.deserialize(operand)
+                self._data = o.deserialize(operand)
         return self
 
     def __rrshift__(self, operand: o.T) -> o.T:
@@ -950,7 +950,7 @@ class Deserialize(Serialization):
         if "content" in serialization and "filetype" in serialization and \
                 serialization["filetype"] == "Json Midi Creator" and serialization["url"] == "https://github.com/ruiseixasm/JsonMidiCreator":
             operand_serialization: dict = serialization["content"]
-            return self.deserialize(operand_serialization)  # Must convert to an Operand
+            return o.deserialize(operand_serialization)  # Must convert to an Operand
         return None
 
 
@@ -967,7 +967,7 @@ class Load(Serialization):
         if isinstance(filename, str):
             operand_data = self.load_operand_data(filename)
             if operand_data:
-                return self.deserialize(operand_data)   # Must convert to an Operand
+                return o.deserialize(operand_data)   # Must convert to an Operand
             return None
 
     @staticmethod

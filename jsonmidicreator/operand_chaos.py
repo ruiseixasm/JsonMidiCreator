@@ -183,9 +183,9 @@ class Chaos(o.Operand):
             "tamer" in serialization["parameters"] and "xn" in serialization["parameters"] and "x0" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._tamer = self.deserialize( serialization["parameters"]["tamer"] )
-            self._xn = self.deserialize( serialization["parameters"]["xn"] )
-            self._x0 = self.deserialize( serialization["parameters"]["x0"] )
+            self._tamer = o.deserialize( serialization["parameters"]["tamer"] )
+            self._xn = o.deserialize( serialization["parameters"]["xn"] )
+            self._x0 = o.deserialize( serialization["parameters"]["x0"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -337,7 +337,7 @@ class Sequence(Chaos):
             "steps" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._steps     = self.deserialize( serialization["parameters"]["steps"] )
+            self._steps     = o.deserialize( serialization["parameters"]["steps"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -405,7 +405,7 @@ class Cycle(Sequence):
             "modulus" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._modulus   = self.deserialize( serialization["parameters"]["modulus"] )
+            self._modulus   = o.deserialize( serialization["parameters"]["modulus"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -545,7 +545,7 @@ class SinX(Chaos):
             "lambda" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._lambda = self.deserialize( serialization["parameters"]["lambda"] )
+            self._lambda = o.deserialize( serialization["parameters"]["lambda"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -653,14 +653,14 @@ class Bouncer(Chaos):
             "yn" in serialization["parameters"] and "y0" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._width     = self.deserialize( serialization["parameters"]["width"] )
-            self._height    = self.deserialize( serialization["parameters"]["height"] )
-            self._dx        = self.deserialize( serialization["parameters"]["dx"] )
-            self._dy        = self.deserialize( serialization["parameters"]["dy"] )
-            self._xn        = self.deserialize( serialization["parameters"]["xn"] )
-            self._x0        = self.deserialize( serialization["parameters"]["x0"] )
-            self._yn        = self.deserialize( serialization["parameters"]["yn"] )
-            self._y0        = self.deserialize( serialization["parameters"]["y0"] )
+            self._width     = o.deserialize( serialization["parameters"]["width"] )
+            self._height    = o.deserialize( serialization["parameters"]["height"] )
+            self._dx        = o.deserialize( serialization["parameters"]["dx"] )
+            self._dy        = o.deserialize( serialization["parameters"]["dy"] )
+            self._xn        = o.deserialize( serialization["parameters"]["xn"] )
+            self._x0        = o.deserialize( serialization["parameters"]["x0"] )
+            self._yn        = o.deserialize( serialization["parameters"]["yn"] )
+            self._y0        = o.deserialize( serialization["parameters"]["y0"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:

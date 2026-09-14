@@ -165,14 +165,14 @@ class Iterations(o.Operand):
             "freeze_at" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._seed              = self.deserialize( serialization["parameters"]["seed"] )
-            self._iterations        = self.deserialize( serialization["parameters"]["iterations"] )
-            self._chaos             = self.deserialize( serialization["parameters"]["chaos"] )
-            self._pre_filter        = self.deserialize( serialization["parameters"]["pre_filter"] )
-            self._post_process   = self.deserialize( serialization["parameters"]["post_process"] )
-            self._max_tries         = self.deserialize( serialization["parameters"]["max_tries"] )
-            self._no_repetitions    = self.deserialize( serialization["parameters"]["no_repetitions"] )
-            self._freeze_at         = self.deserialize( serialization["parameters"]["freeze_at"] )
+            self._seed              = o.deserialize( serialization["parameters"]["seed"] )
+            self._iterations        = o.deserialize( serialization["parameters"]["iterations"] )
+            self._chaos             = o.deserialize( serialization["parameters"]["chaos"] )
+            self._pre_filter        = o.deserialize( serialization["parameters"]["pre_filter"] )
+            self._post_process   = o.deserialize( serialization["parameters"]["post_process"] )
+            self._max_tries         = o.deserialize( serialization["parameters"]["max_tries"] )
+            self._no_repetitions    = o.deserialize( serialization["parameters"]["no_repetitions"] )
+            self._freeze_at         = o.deserialize( serialization["parameters"]["freeze_at"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:

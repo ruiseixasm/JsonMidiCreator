@@ -124,9 +124,9 @@ class Sequencer(Yielder):
             "trigger_steps" in serialization["parameters"] and "swing" in serialization["parameters"] and "length_beats" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._trigger_steps = self.deserialize(serialization["parameters"]["trigger_steps"])
-            self._swing         = self.deserialize( serialization["parameters"]["swing"] )
-            self._length_beats  = self.deserialize(serialization["parameters"]["length_beats"])
+            self._trigger_steps = o.deserialize(serialization["parameters"]["trigger_steps"])
+            self._swing         = o.deserialize( serialization["parameters"]["swing"] )
+            self._length_beats  = o.deserialize(serialization["parameters"]["length_beats"])
         return self
 
     def __lshift__(self, operand: any) -> Self:

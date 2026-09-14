@@ -191,8 +191,8 @@ class Locus(Generic):
             "position" in serialization["parameters"] and "duration" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._position_beats    = self.deserialize(serialization["parameters"]["position"])
-            self._duration_beats    = self.deserialize(serialization["parameters"]["duration"])
+            self._position_beats    = o.deserialize(serialization["parameters"]["position"])
+            self._duration_beats    = o.deserialize(serialization["parameters"]["duration"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -386,8 +386,8 @@ class TimeSignature(Generic):
             "top" in serialization["parameters"] and "bottom" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._top           = self.deserialize( serialization["parameters"]["top"] )
-            self._bottom        = self.deserialize( serialization["parameters"]["bottom"] )
+            self._top           = o.deserialize( serialization["parameters"]["top"] )
+            self._bottom        = o.deserialize( serialization["parameters"]["bottom"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -474,8 +474,8 @@ class Dot(Generic):
             "value" in serialization["parameters"] and "position" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._value             = self.deserialize( serialization["parameters"]["value"] )
-            self._position_beats    = self.deserialize( serialization["parameters"]["position"] )
+            self._value             = o.deserialize( serialization["parameters"]["value"] )
+            self._position_beats    = o.deserialize( serialization["parameters"]["position"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -579,7 +579,7 @@ class Dots(Generic):
             "dots" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._dots = self.deserialize( serialization["parameters"]["dots"] )
+            self._dots = o.deserialize( serialization["parameters"]["dots"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -724,7 +724,7 @@ class KeySignature(Generic):
             "sharps" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._sharps = self.deserialize( serialization["parameters"]["sharps"] )
+            self._sharps = o.deserialize( serialization["parameters"]["sharps"] )
         return self
       
     def __lshift__(self, operand: any) -> Self:
@@ -1191,17 +1191,17 @@ class Pitch(Generic):
             "octave_0" in serialization["parameters"] and "degree_0" in serialization["parameters"] and "accidental" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._diatonic_mode_0 = self.deserialize( serialization["parameters"]["diatonic_mode_0"] )
-            self._tonic_key     = self.deserialize( serialization["parameters"]["tonic_key_0"] )
-            self._octave_0      = self.deserialize( serialization["parameters"]["octave_0"] )
-            self._degree_0      = self.deserialize( serialization["parameters"]["degree_0"] )
-            self._accidental    = self.deserialize( serialization["parameters"]["accidental"] )
+            self._diatonic_mode_0 = o.deserialize( serialization["parameters"]["diatonic_mode_0"] )
+            self._tonic_key     = o.deserialize( serialization["parameters"]["tonic_key_0"] )
+            self._octave_0      = o.deserialize( serialization["parameters"]["octave_0"] )
+            self._degree_0      = o.deserialize( serialization["parameters"]["degree_0"] )
+            self._accidental    = o.deserialize( serialization["parameters"]["accidental"] )
             if "transposition" in serialization["parameters"]:
-                self._transposition = self.deserialize( serialization["parameters"]["transposition"] )
+                self._transposition = o.deserialize( serialization["parameters"]["transposition"] )
             else:
                 self._transposition = 0
             if "scale" in serialization["parameters"]:
-                self._scale         = self.deserialize( serialization["parameters"]["scale"] )
+                self._scale         = o.deserialize( serialization["parameters"]["scale"] )
             else:
                 self._scale = []
         return self
@@ -1613,10 +1613,10 @@ class Controller(Generic):
             "nrpn" in serialization["parameters"] and "high" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._number_msb    = self.deserialize( serialization["parameters"]["number_msb"] )
-            self._lsb           = self.deserialize( serialization["parameters"]["lsb"] )
-            self._nrpn          = self.deserialize( serialization["parameters"]["nrpn"] )
-            self._high          = self.deserialize( serialization["parameters"]["high"] )
+            self._number_msb    = o.deserialize( serialization["parameters"]["number_msb"] )
+            self._lsb           = o.deserialize( serialization["parameters"]["lsb"] )
+            self._nrpn          = o.deserialize( serialization["parameters"]["nrpn"] )
+            self._high          = o.deserialize( serialization["parameters"]["high"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -1953,7 +1953,7 @@ class Scale(Generic):
             "scale" in serialization["parameters"]):
             
             super().loadSerialization(serialization)
-            self._scale    = self.deserialize( serialization["parameters"]["scale"] )
+            self._scale    = o.deserialize( serialization["parameters"]["scale"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -2197,8 +2197,8 @@ class PitchTransitions(Generic):
             "sum" in serialization["parameters"] and "max" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._sum = self.deserialize(serialization["parameters"]["sum"])
-            self._max = self.deserialize(serialization["parameters"]["max"])
+            self._sum = o.deserialize(serialization["parameters"]["sum"])
+            self._max = o.deserialize(serialization["parameters"]["max"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -2411,10 +2411,10 @@ class Arpeggio(NoteEffect):
             "swing" in serialization["parameters"] and "chaos" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._order                 = self.deserialize( serialization["parameters"]["order"] )
-            self._duration_beats        = self.deserialize( serialization["parameters"]["duration"] )
-            self._swing                 = self.deserialize( serialization["parameters"]["swing"] )
-            self._chaos                 = self.deserialize( serialization["parameters"]["chaos"] )
+            self._order                 = o.deserialize( serialization["parameters"]["order"] )
+            self._duration_beats        = o.deserialize( serialization["parameters"]["duration"] )
+            self._swing                 = o.deserialize( serialization["parameters"]["swing"] )
+            self._chaos                 = o.deserialize( serialization["parameters"]["chaos"] )
         return self
     
     def __lshift__(self, operand: any) -> Self:
@@ -2544,9 +2544,9 @@ class Repeat(NoteEffect):
             "duration" in serialization["parameters"] and "swing" in serialization["parameters"] and "chaos" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._duration_beats    = self.deserialize( serialization["parameters"]["duration"] )
-            self._swing             = self.deserialize( serialization["parameters"]["swing"] )
-            self._chaos             = self.deserialize( serialization["parameters"]["chaos"] )
+            self._duration_beats    = o.deserialize( serialization["parameters"]["duration"] )
+            self._swing             = o.deserialize( serialization["parameters"]["swing"] )
+            self._chaos             = o.deserialize( serialization["parameters"]["chaos"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -2682,7 +2682,7 @@ class Coupler(NoteEffect):
             "notes" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._notes = self.deserialize( serialization["parameters"]["notes"] )
+            self._notes = o.deserialize( serialization["parameters"]["notes"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -2750,7 +2750,7 @@ class OctaveExpansion(NoteEffect):
             "octaves" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._octaves = self.deserialize( serialization["parameters"]["octaves"] )
+            self._octaves = o.deserialize( serialization["parameters"]["octaves"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -2918,7 +2918,7 @@ class Segment(Generic):
             "segment" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._segment = self.deserialize( serialization["parameters"]["segment"] )
+            self._segment = o.deserialize( serialization["parameters"]["segment"] )
         return self
     
     def __lshift__(self, operand: any) -> Self:
@@ -5721,13 +5721,13 @@ class Settings(Generic):
             "tonic_key_0" in serialization["parameters"] and "devices" in serialization["parameters"] and "clocked_devices" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._tempos                = self.deserialize( serialization["parameters"]["tempos"] )
-            self._quantization          = self.deserialize( serialization["parameters"]["quantization"] )
-            self._time_signature        = self.deserialize( serialization["parameters"]["time_signature"] )
-            self._diatonic_mode_0       = self.deserialize( serialization["parameters"]["diatonic_mode_0"] )
-            self._tonic_key             = self.deserialize( serialization["parameters"]["tonic_key_0"] )
-            self._devices               = self.deserialize( serialization["parameters"]["devices"] )
-            self._clocked_devices       = self.deserialize( serialization["parameters"]["clocked_devices"] )
+            self._tempos                = o.deserialize( serialization["parameters"]["tempos"] )
+            self._quantization          = o.deserialize( serialization["parameters"]["quantization"] )
+            self._time_signature        = o.deserialize( serialization["parameters"]["time_signature"] )
+            self._diatonic_mode_0       = o.deserialize( serialization["parameters"]["diatonic_mode_0"] )
+            self._tonic_key             = o.deserialize( serialization["parameters"]["tonic_key_0"] )
+            self._devices               = o.deserialize( serialization["parameters"]["devices"] )
+            self._clocked_devices       = o.deserialize( serialization["parameters"]["clocked_devices"] )
         return self
     
     def __lshift__(self, operand: any) -> Self:

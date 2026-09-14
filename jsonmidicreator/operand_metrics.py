@@ -135,7 +135,7 @@ class Vector(Metrics):
             "vectordict" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._vectordict = self.deserialize( serialization["parameters"]["vectordict"] )
+            self._vectordict = o.deserialize( serialization["parameters"]["vectordict"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -257,7 +257,7 @@ class Vectors(Metrics):
             "vectors" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._vectors = self.deserialize( serialization["parameters"]["vectors"] )
+            self._vectors = o.deserialize( serialization["parameters"]["vectors"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:

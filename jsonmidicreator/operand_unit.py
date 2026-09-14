@@ -311,7 +311,7 @@ class Tempo(Unit):
             "position_beats" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._position_beats = self.deserialize( serialization["parameters"]["position_beats"] )
+            self._position_beats = o.deserialize( serialization["parameters"]["position_beats"] )
         return self
       
     def __lshift__(self, operand: any) -> Self:
@@ -656,8 +656,8 @@ class Key(PitchParameter):
             "flattened" in serialization["parameters"] and "enharmonic" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._flattened     = self.deserialize( serialization["parameters"]["flattened"] )
-            self._enharmonic    = self.deserialize( serialization["parameters"]["enharmonic"] )
+            self._flattened     = o.deserialize( serialization["parameters"]["flattened"] )
+            self._enharmonic    = o.deserialize( serialization["parameters"]["enharmonic"] )
         return self
       
     def __lshift__(self, operand: any) -> Self:
@@ -901,7 +901,7 @@ class Degree(PitchParameter):
             "accidental" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._accidental = self.deserialize( serialization["parameters"]["accidental"] )
+            self._accidental = o.deserialize( serialization["parameters"]["accidental"] )
         return self
       
     def __lshift__(self, operand: any) -> Self:
@@ -1242,7 +1242,7 @@ class DrumKit(Unit):
             "channel_0" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._channel_0 = self.deserialize(serialization["parameters"]["channel_0"])
+            self._channel_0 = o.deserialize(serialization["parameters"]["channel_0"])
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -2001,6 +2001,18 @@ class ValueLSB(Midi):
     """`Unit -> Midi -> ValueLSB`
 
     Represents the specific LSB value
+    
+    Parameters
+    ----------
+    int(0) : The Value shall be set from 0 to 127
+        accordingly to the range of CC Midi values for 7 and 14 bits respectively
+    """
+    pass
+
+class Value14bit(Midi):
+    """`Unit -> Midi -> Value14bit`
+
+    Represents a Control Change value from 0 to 
     
     Parameters
     ----------

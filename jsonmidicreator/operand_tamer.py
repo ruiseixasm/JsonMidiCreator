@@ -159,7 +159,7 @@ class Parallel(Tamer):
             "tamers" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._tamers = self.deserialize( serialization["parameters"]["tamers"] )
+            self._tamers = o.deserialize( serialization["parameters"]["tamers"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -238,7 +238,7 @@ class Validator(Tamer):
             "strictness" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._strictness = self.deserialize( serialization["parameters"]["strictness"] )
+            self._strictness = o.deserialize( serialization["parameters"]["strictness"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -359,7 +359,7 @@ class Boundary(Validator):
             "boundary" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._boundary = self.deserialize( serialization["parameters"]["boundary"] )
+            self._boundary = o.deserialize( serialization["parameters"]["boundary"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -459,7 +459,7 @@ class Prior(Validator):
             "prior" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._prior_numeral = self.deserialize( serialization["parameters"]["prior"] )
+            self._prior_numeral = o.deserialize( serialization["parameters"]["prior"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -595,7 +595,7 @@ class Motion(Validator):
             "last_integer" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._last_integer = self.deserialize( serialization["parameters"]["last_integer"] )
+            self._last_integer = o.deserialize( serialization["parameters"]["last_integer"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -687,8 +687,8 @@ class Pattern(Motion):
             "pattern" in serialization["parameters"] and "limit" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._pattern   = self.deserialize( serialization["parameters"]["pattern"] )
-            self._limit     = self.deserialize( serialization["parameters"]["limit"] )
+            self._pattern   = o.deserialize( serialization["parameters"]["pattern"] )
+            self._limit     = o.deserialize( serialization["parameters"]["limit"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -921,7 +921,7 @@ class Manipulator(Tamer):
             "parameter" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._parameter = self.deserialize( serialization["parameters"]["parameter"] )
+            self._parameter = o.deserialize( serialization["parameters"]["parameter"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:

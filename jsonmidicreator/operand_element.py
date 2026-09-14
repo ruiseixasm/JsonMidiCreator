@@ -345,11 +345,11 @@ class Element(o.Operand):
 
             super().loadSerialization(serialization)
             if "masked" in serialization["parameters"]:
-                self._masked            = self.deserialize(serialization["parameters"]["masked"])
+                self._masked            = o.deserialize(serialization["parameters"]["masked"])
             else:
                 self._masked = False
-            self._position_beats    = self.deserialize(serialization["parameters"]["position_beats"])
-            self._duration_beats    = self.deserialize(serialization["parameters"]["duration_beats"])
+            self._position_beats    = o.deserialize(serialization["parameters"]["position_beats"])
+            self._duration_beats    = o.deserialize(serialization["parameters"]["duration_beats"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -1097,7 +1097,7 @@ class Subclip(Element):
             "subclip" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._subclip = self.deserialize( serialization["parameters"]["subclip"] )
+            self._subclip = o.deserialize( serialization["parameters"]["subclip"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -1287,7 +1287,7 @@ class Unison(Element):
             "elements" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._elements = self.deserialize( serialization["parameters"]["elements"] )
+            self._elements = o.deserialize( serialization["parameters"]["elements"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -1483,9 +1483,9 @@ class Talkie(Element):
             "port" in serialization["parameters"] and "to" in serialization["parameters"] and "channel" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._port      = self.deserialize(serialization["parameters"]["port"])
-            self._to        = self.deserialize(serialization["parameters"]["to"])
-            self._channel_0 = self.deserialize(serialization["parameters"]["channel"])
+            self._port      = o.deserialize(serialization["parameters"]["port"])
+            self._to        = o.deserialize(serialization["parameters"]["to"])
+            self._channel_0 = o.deserialize(serialization["parameters"]["channel"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -1575,7 +1575,7 @@ class TalkieRun(Talkie):
             "name" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._name        = self.deserialize(serialization["parameters"]["name"])
+            self._name        = o.deserialize(serialization["parameters"]["name"])
         return self
 
 
@@ -1688,7 +1688,7 @@ class TalkieSet(TalkieGet):
             "value" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._value         = self.deserialize(serialization["parameters"]["value"])
+            self._value         = o.deserialize(serialization["parameters"]["value"])
         return self
 
 
@@ -1903,7 +1903,7 @@ class ChannelElement(DeviceElement):
             "channel_0" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._channel_0 = self.deserialize(serialization["parameters"]["channel_0"])
+            self._channel_0 = o.deserialize(serialization["parameters"]["channel_0"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -2306,11 +2306,11 @@ class Note(ChannelElement):
             "pitch" in serialization["parameters"] and "note_effect" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._velocity  = self.deserialize( serialization["parameters"]["velocity"] )
-            self._gate      = self.deserialize( serialization["parameters"]["gate"] )
-            self._tied      = self.deserialize( serialization["parameters"]["tied_to_previous"] )
-            self._pitch     = self.deserialize( serialization["parameters"]["pitch"] )
-            self._note_effect = self.deserialize( serialization["parameters"]["note_effect"] )
+            self._velocity  = o.deserialize( serialization["parameters"]["velocity"] )
+            self._gate      = o.deserialize( serialization["parameters"]["gate"] )
+            self._tied      = o.deserialize( serialization["parameters"]["tied_to_previous"] )
+            self._pitch     = o.deserialize( serialization["parameters"]["pitch"] )
+            self._note_effect = o.deserialize( serialization["parameters"]["note_effect"] )
         return self
 
 
@@ -2814,7 +2814,7 @@ class KeyScale(Note):
             "inversion" in serialization["parameters"]):
             
             super().loadSerialization(serialization)
-            self._inversion = self.deserialize( serialization["parameters"]["inversion"] )
+            self._inversion = o.deserialize( serialization["parameters"]["inversion"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -2945,7 +2945,7 @@ class Cluster(KeyScale):
             "pitches" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._pitches = self.deserialize( serialization["parameters"]["pitches"] )
+            self._pitches = o.deserialize( serialization["parameters"]["pitches"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -3175,12 +3175,12 @@ class Chord(KeyScale):
             "augmented" in serialization["parameters"] and "sus2" in serialization["parameters"] and "sus4" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._size          = self.deserialize( serialization["parameters"]["size"] )
-            self._dominant      = self.deserialize( serialization["parameters"]["dominant"] )
-            self._diminished    = self.deserialize( serialization["parameters"]["diminished"] )
-            self._augmented     = self.deserialize( serialization["parameters"]["augmented"] )
-            self._sus2          = self.deserialize( serialization["parameters"]["sus2"] )
-            self._sus4          = self.deserialize( serialization["parameters"]["sus4"] )
+            self._size          = o.deserialize( serialization["parameters"]["size"] )
+            self._dominant      = o.deserialize( serialization["parameters"]["dominant"] )
+            self._diminished    = o.deserialize( serialization["parameters"]["diminished"] )
+            self._augmented     = o.deserialize( serialization["parameters"]["augmented"] )
+            self._sus2          = o.deserialize( serialization["parameters"]["sus2"] )
+            self._sus4          = o.deserialize( serialization["parameters"]["sus4"] )
         return self
       
     def __lshift__(self, operand: any) -> Self:
@@ -3382,8 +3382,8 @@ class Tuplet(Note):
             "count" in serialization["parameters"] and "swing" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._count     = self.deserialize( serialization["parameters"]["count"] )
-            self._swing     = self.deserialize( serialization["parameters"]["swing"] )
+            self._count     = o.deserialize( serialization["parameters"]["count"] )
+            self._swing     = o.deserialize( serialization["parameters"]["swing"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -3678,8 +3678,8 @@ class ControlChange(Automatable):
             "value" in serialization["parameters"] and "number" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._value     = self.deserialize( serialization["parameters"]["value"] )
-            self._number    = self.deserialize( serialization["parameters"]["number"] )
+            self._value     = o.deserialize( serialization["parameters"]["value"] )
+            self._number    = o.deserialize( serialization["parameters"]["number"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -3920,8 +3920,8 @@ class ControlChangePair(ControlChange):
             "number_lsb" in serialization["parameters"] and "value_lsb" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._number_lsb    = self.deserialize( serialization["parameters"]["number_lsb"] )
-            self._value_lsb     = self.deserialize( serialization["parameters"]["value_lsb"] )
+            self._number_lsb    = o.deserialize( serialization["parameters"]["number_lsb"] )
+            self._value_lsb     = o.deserialize( serialization["parameters"]["value_lsb"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -4525,7 +4525,7 @@ class Aftertouch(Automatable):
             "pressure" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._pressure = self.deserialize( serialization["parameters"]["pressure"] )
+            self._pressure = o.deserialize( serialization["parameters"]["pressure"] )
         return self
       
 
@@ -4679,7 +4679,7 @@ class PolyAftertouch(Aftertouch):
             "pitch" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._pitch = self.deserialize( serialization["parameters"]["pitch"] )
+            self._pitch = o.deserialize( serialization["parameters"]["pitch"] )
         return self
       
     def __lshift__(self, operand: any) -> Self:
@@ -4906,8 +4906,8 @@ class PitchBend(Automatable):
             "msb" in serialization["parameters"] and "lsb" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._msb = self.deserialize( serialization["parameters"]["msb"] )
-            self._lsb = self.deserialize( serialization["parameters"]["lsb"] )
+            self._msb = o.deserialize( serialization["parameters"]["msb"] )
+            self._lsb = o.deserialize( serialization["parameters"]["lsb"] )
         return self
       
     def __lshift__(self, operand: any) -> Self:
@@ -5226,9 +5226,9 @@ class Automation(Element):
             "parameter" in serialization["parameters"] and "dots" in serialization["parameters"] and "linear" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._parameter = self.deserialize( serialization["parameters"]["parameter"] )
-            self._dots      = self.deserialize( serialization["parameters"]["dots"] )
-            self._linear    = self.deserialize( serialization["parameters"]["linear"] )
+            self._parameter = o.deserialize( serialization["parameters"]["parameter"] )
+            self._dots      = o.deserialize( serialization["parameters"]["dots"] )
+            self._linear    = o.deserialize( serialization["parameters"]["linear"] )
         return self
       
 
@@ -5409,7 +5409,7 @@ class ProgramChange(ChannelElement):
             "program_0" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._program_0 = self.deserialize( serialization["parameters"]["program_0"] )
+            self._program_0 = o.deserialize( serialization["parameters"]["program_0"] )
         return self
       
     def __lshift__(self, operand: any) -> Self:
