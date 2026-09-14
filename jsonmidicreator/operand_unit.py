@@ -1985,6 +1985,30 @@ class Value(Midi):
     """
     pass
 
+class ValueLSB(Value):
+    """`Unit -> Midi -> Value -> ValueLSB`
+
+    Represents the specific LSB value
+    
+    Parameters
+    ----------
+    int(0) : The Value shall be set from 0 to 127
+        accordingly to the range of CC Midi values for 7 and 14 bits respectively
+    """
+    pass
+
+class ValueMSB(Value):
+    """`Unit -> Midi -> Value -> ValueMSB`
+
+    Represents the specific LSB value
+    
+    Parameters
+    ----------
+    int(0) : The Value shall be set from 0 to 127
+        accordingly to the range of CC Midi values for 7 and 14 bits respectively
+    """
+    pass
+
 class Pressure(Value):
     """`Unit -> Midi -> Value -> Pressure`
 

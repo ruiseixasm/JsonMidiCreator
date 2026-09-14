@@ -3869,13 +3869,20 @@ class ControlChangePair(ControlChange):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case ou.Number():           return operand._data << self._number
-                    case ou.Value():            return operand._data << self._value
+                    case ou.LSB():              return operand._data << self._number_lsb
+                    case ou.ValueLSB():         return operand._data << self._value_lsb
                     case _:                     return super().__mod__(operand)
             case int():                 return self._value
             case ou.Number():           return operand.copy() << self._number
-            case ou.Value():            return operand.copy() << self._value
-            case _:                     return super().__mod__(operand)
+            case ou.ValueMSB():
+                return operand.copy() << self._value
+            case ou.ValueLSB():
+                return operand.copy() << self._value_lsb
+            case ou.Value():
+                full_value: int = o.convert_7_to_14_bits(self._value, self._value_lsb)
+                return operand.copy(full_value)
+            case _:
+                return super().__mod__(operand)
 
 
     def getVectordict(self) -> dict[str, int]:
