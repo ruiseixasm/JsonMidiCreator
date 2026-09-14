@@ -615,17 +615,17 @@ def deep_copy(data: T) -> T:
         case Operand():
             return data.copy() # Only Operand has copy method
         case dict():
-            many_dict: dict = {}
+            data_dict: dict = {}
             for key, value in data.items():
-                many_dict[key] = deep_copy(value)
-            return many_dict
+                data_dict[key] = deep_copy(value)
+            return data_dict
         case list():
             return [
                 deep_copy(single_item) for single_item in data
             ]
         case tuple():
-            many_list: list = deep_copy(list(data))
-            return tuple(many_list)
+            data_list: list = deep_copy(list(data))
+            return tuple(data_list)
         case _:
             return data
 
