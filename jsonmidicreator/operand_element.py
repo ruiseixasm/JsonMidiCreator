@@ -3803,6 +3803,15 @@ class BankSelect_MSB(ControlChange):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
 
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case ou.Number():           return operand._data << 0
+                    case _:                     return super().__mod__(operand)
+            case ou.Number():           return operand.copy() << 0
+            case _:                     return super().__mod__(operand)
+
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         if self.is_clipped():
             return []
@@ -3865,6 +3874,15 @@ class BankSelect_LSB(ControlChange):
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case ou.Number():           return operand._data << 32
+                    case _:                     return super().__mod__(operand)
+            case ou.Number():           return operand.copy() << 32
+            case _:                     return super().__mod__(operand)
 
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         if self.is_clipped():
