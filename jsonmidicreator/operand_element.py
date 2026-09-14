@@ -3885,43 +3885,6 @@ class ControlChangePair(ControlChange):
                 return super().__mod__(operand)
 
 
-    def getVectordict(self) -> dict[str, int]:
-        vectordict: dict[str, int] = super().getVectordict()
-        vectordict["value"] = self._value
-        return vectordict
-
-    def getPlotlist(self, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None, derived_element: 'Element' = None) -> list[dict]:
-        
-        if self.is_clipped():
-            return []
-        
-        if channels is not None:
-            channels["automation"].add(self._channel_0)
-
-        self_plotlist: list[dict] = []
-        
-        position_on: Fraction = Fraction(0)
-        if position_beats is not None:
-            position_on = position_beats + self._position_beats
-
-        # Midi validation is done in the JsonMidiPlayer program
-        self_plotlist.append(
-            {
-                "automation": {
-                    "position": position_on,
-                    "enabled": True if self._owner_clip is None else self._owner_clip._enabled,
-                    "value": clamp_value_128(self._value),
-                    "channel": self._channel_0,
-                    "masked": self._masked,
-                    "self": self
-                }
-            }
-        )
-
-        return self_plotlist
-
-
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         if self.is_clipped():
             return []
@@ -3950,6 +3913,16 @@ class ControlChangePair(ControlChange):
                         "status_byte": 0xB0 | self._channel_0,
                         "data_byte_1": self._number,
                         "data_byte_2": clamp_value_128(self._value)
+                    }
+                }
+            )
+            self_playlist.append(
+                {
+                    "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
+                    "midi_message": {
+                        "status_byte": 0xB0 | self._channel_0,
+                        "data_byte_1": self._number_lsb,
+                        "data_byte_2": clamp_value_128(self._value_lsb)
                     }
                 }
             )
