@@ -3808,11 +3808,6 @@ class ControlChangePair(ControlChange):
         self._value_lsb: int    = 0
         super().__init__(*parameters)
 
-    def get_value_14bits(self) -> int:
-        value: int = self._value << 7
-        value += self._value_lsb
-        return value & 128**2
-
     def __eq__(self, other: Any) -> bool:
         match other:
             case self.__class__():
@@ -3830,9 +3825,9 @@ class ControlChangePair(ControlChange):
             case self.__class__():
                 # Adds predictability in sorting and consistency in clipping
                 if self._position_beats == other._position_beats:
-                    if self._value == other._value:
+                    if self % int() == other % int():
                         return self._channel_0 < other._channel_0
-                    return self._value < other._value
+                    return self % int() < other % int()
                 return self._position_beats < other._position_beats
             case Element():
                 return super().__lt__(other)
@@ -3844,9 +3839,9 @@ class ControlChangePair(ControlChange):
             case self.__class__():
                 # Adds predictability in sorting and consistency in clipping
                 if self._position_beats == other._position_beats:
-                    if self._value == other._value:
+                    if self % int() == other % int():
                         return self._channel_0 > other._channel_0
-                    return self._value > other._value
+                    return self % int() > other % int()
                 return self._position_beats > other._position_beats
             case Element():
                 return super().__gt__(other)
