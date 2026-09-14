@@ -134,7 +134,7 @@ class Sequencer(Yielder):
         match operand:
             case Sequencer():  # Particular case Data restrict self copy to self, no wrapping possible!
                 super().__lshift__(operand)
-                self._trigger_steps = self.deep_copy(operand._trigger_steps)
+                self._trigger_steps = o.deep_copy(operand._trigger_steps)
                 self._swing         = operand._swing
                 self._length_beats  = operand._length_beats
             case od.Pipe():

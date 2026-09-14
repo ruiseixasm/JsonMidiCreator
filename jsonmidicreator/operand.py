@@ -587,17 +587,17 @@ def deserialize(data: any) -> any:
                 deserialized_dict: dict = {}
                 for key, value in data.items(): # Makes sure it processes Operands in dict
                     # Recursively copy each deserialized value
-                    deserialized_dict[key] = Operand.deserialize(value)
+                    deserialized_dict[key] = deserialize(value)
                 return deserialized_dict
         case Operand(): # just a fail safe
             return data
         case list():
             data_list: list[any] = []
             for single_serialization in data:
-                data_list.append(Operand.deserialize(single_serialization))
+                data_list.append(deserialize(single_serialization))
             return data_list
         case tuple():   # JSON DOESN'T KEEP tuple() DATA TYPE !!!
-            data_list: list = Operand.deserialize(list(data))
+            data_list: list = deserialize(list(data))
             return tuple(data_list)
         case str():
             if '/' in data:
