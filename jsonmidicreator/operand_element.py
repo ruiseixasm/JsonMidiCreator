@@ -3931,17 +3931,10 @@ class ControlChangePair(ControlChange):
             return []
         
         self_midilist: list[dict] = super().getMidilist(position_beats)
-        self_midilist[0]["event"] = "ControllerEvent"
-        # Validation is done by midiutil Midi Range Validation
-        self_midilist[0]["number"]      = self._number
-        self_midilist[0]["value"]       = clamp_value_128(self._value)
-
+        # The second playlist to set it as LSB
         self_midilist_lsb: list[dict] = super().getMidilist(position_beats)
-        self_midilist_lsb[0]["event"] = "ControllerEvent"
-        # Validation is done by midiutil Midi Range Validation
         self_midilist_lsb[0]["number"]      = self._number_lsb
         self_midilist_lsb[0]["value"]       = clamp_value_128(self._value_lsb)
-
         self_midilist.extend(self_midilist_lsb)
 
         return self_midilist
