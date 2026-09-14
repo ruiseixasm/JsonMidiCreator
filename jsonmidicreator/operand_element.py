@@ -3900,8 +3900,8 @@ class ControlChangePair(ControlChange):
         self_midilist: list[dict] = super().getMidilist(position_beats)
         if self_midilist:   # The second list to set it as LSB
             self_midilist_lsb: list[dict] = o.Operand.deep_copy(self_midilist)
-            self_midilist_lsb[0]["number"]      = self._number_lsb
-            self_midilist_lsb[0]["value"]       = clamp_value_128(self._value_lsb)
+            self_midilist_lsb[0]["number"]  = self._number_lsb
+            self_midilist_lsb[0]["value"]   = clamp_value_128(self._value_lsb)
             self_midilist.extend(self_midilist_lsb)
 
         return self_midilist
