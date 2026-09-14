@@ -3888,29 +3888,10 @@ class ControlChangePair(ControlChange):
             absolute_position_beats = position_beats + self._position_beats
 
         # Midi validation is done in the JsonMidiPlayer program
-        self_playlist: list[dict] = []
+        self_playlist: list[dict] = super().getPlaylist(position_beats)
             
         if absolute_position_beats >= 0:
-
-            if devices_header:
-                devices: list[str] = og.settings._devices
-                if self._owner_clip is not None:
-                    devices = self._owner_clip._devices
-                self_playlist.append(
-                    {"devices": devices}
-                )
-
-            self_playlist.append(
-                {
-                    "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
-                    "midi_message": {
-                        "status_byte": 0xB0 | self._channel_0,
-                        "data_byte_1": self._number,
-                        "data_byte_2": clamp_value_128(self._value)
-                    }
-                }
-            )
-            self_playlist.append(
+            self_playlist.extend([
                 {
                     "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
                     "midi_message": {
@@ -3919,7 +3900,7 @@ class ControlChangePair(ControlChange):
                         "data_byte_2": clamp_value_128(self._value_lsb)
                     }
                 }
-            )
+            ])
         return self_playlist
     
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
