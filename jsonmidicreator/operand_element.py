@@ -3877,11 +3877,10 @@ class ControlChangePair(ControlChange):
                 return operand.copy() << self._value
             case ou.ValueLSB():
                 return operand.copy() << self._value_lsb
-            case ou.Value():
-                full_value: int = o.convert_7_to_14_bits(self._value, self._value_lsb)
-                return operand.copy(full_value)
             case int():
                 return o.convert_7_to_14_bits(self._value, self._value_lsb)
+            case ou.Value():
+                return operand.copy(self % int())
             case _:
                 return super().__mod__(operand)
 
