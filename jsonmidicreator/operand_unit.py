@@ -2012,12 +2012,11 @@ class ValueLSB(Midi):
 class Value14bit(Midi):
     """`Unit -> Midi -> Value14bit`
 
-    Represents a Control Change value from 0 to 
+    Represents a Control Change value from 0 to 16383.
     
     Parameters
     ----------
-    int(0) : The Value shall be set from 0 to 127
-        accordingly to the range of CC Midi values for 7 and 14 bits respectively
+    int(0) : The Value shall be set from 0 to 16383.
     """
     pass
 

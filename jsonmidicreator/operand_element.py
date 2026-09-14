@@ -3871,15 +3871,12 @@ class ControlChangePair(ControlChange):
                     case ou.LSB():              return operand._data << self._number_lsb
                     case ou.ValueLSB():         return operand._data << self._value_lsb
                     case _:                     return super().__mod__(operand)
-            case ou.Number():           return operand.copy() << self._number
-            case ou.ValueMSB():
-                return operand.copy() << self._value
+            case ou.LSB():
+                return operand.copy() << self._number_lsb
             case ou.ValueLSB():
                 return operand.copy() << self._value_lsb
-            case int():
-                return o.convert_7_to_14_bits(self._value, self._value_lsb)
-            case ou.Value():
-                return operand.copy(self % int())
+            case ou.Value14bit():
+                return operand.copy(o.convert_7_to_14_bits(self._value, self._value_lsb))
             case _:
                 return super().__mod__(operand)
 
@@ -3937,10 +3934,8 @@ class ControlChangePair(ControlChange):
                     case _:                     super().__lshift__(operand)
             case ou.LSB():
                 self._number_lsb = operand._unit
-            case int():
-                self._value, self._value_lsb = o.convert_14_to_7_bits(operand)
-            case ou.Value():
-                self << operand._unit
+            case ou.Value14bit():
+                self._value, self._value_lsb = o.convert_14_to_7_bits(operand._unit)
             case _:
                 super().__lshift__(operand)
         return self
@@ -3948,12 +3943,8 @@ class ControlChangePair(ControlChange):
     def __iadd__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case int():
-                self_value: int = self % int()
-                self_value += operand
-                self << self_value
-            case ou.Value():
-                self += operand._unit
+            case ou.Value14bit():
+                self << self % ou.Value14bit() + operand
             case _:
                 super().__iadd__(operand)
         return self
@@ -3961,12 +3952,8 @@ class ControlChangePair(ControlChange):
     def __isub__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case int():
-                self_value: int = self % int()
-                self_value -= operand
-                self << self_value
-            case ou.Value():
-                self -= operand._unit
+            case ou.Value14bit():
+                self << self % ou.Value14bit() - operand
             case _:
                 super().__iadd__(operand)
         return self
