@@ -3885,42 +3885,25 @@ class ControlChangePair(ControlChange):
 
 
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
-        if self.is_clipped():
-            return []
-        absolute_position_beats: Fraction = Fraction(0)
-        if position_beats is not None:
-            absolute_position_beats = position_beats + self._position_beats
-
-        # Midi validation is done in the JsonMidiPlayer program
+        
         self_playlist: list[dict] = super().getPlaylist(position_beats)
-            
-        if absolute_position_beats >= 0:
-            self_playlist.extend([
-                {
-                    "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
-                    "midi_message": {
-                        "status_byte": 0xB0 | self._channel_0,
-                        "data_byte_1": self._number_lsb,
-                        "data_byte_2": clamp_value_128(self._value_lsb)
-                    }
-                }
-            ])
+        if self_playlist:
+            self_playlist_lsb: list[dict] = super().getPlaylist(position_beats)
+            self_playlist_lsb["midi_message"]["data_byte_1"] = self._number_lsb
+            self_playlist_lsb["midi_message"]["data_byte_2"] = clamp_value_128(self._value_lsb)
+            self_playlist.extend(self_playlist_lsb)
+
         return self_playlist
     
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
-        if self.is_clipped():
-            return []
-        if not isinstance(position_beats, Fraction):
-            position_beats = Fraction(0)
-        elif position_beats < 0:
-            return []
         
         self_midilist: list[dict] = super().getMidilist(position_beats)
-        # The second midilist to set it as LSB
-        self_midilist_lsb: list[dict] = super().getMidilist(position_beats)
-        self_midilist_lsb[0]["number"]      = self._number_lsb
-        self_midilist_lsb[0]["value"]       = clamp_value_128(self._value_lsb)
-        self_midilist.extend(self_midilist_lsb)
+        if self_midilist:
+            # The second midilist to set it as LSB
+            self_midilist_lsb: list[dict] = super().getMidilist(position_beats)
+            self_midilist_lsb[0]["number"]      = self._number_lsb
+            self_midilist_lsb[0]["value"]       = clamp_value_128(self._value_lsb)
+            self_midilist.extend(self_midilist_lsb)
 
         return self_midilist
 
