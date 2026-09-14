@@ -3808,6 +3808,10 @@ class ControlChangePair(ControlChange):
         self._value_lsb: int    = 0
         super().__init__(*parameters)
 
+    def is_clipped(self) -> bool:
+        return super().is_clipped() \
+            or self._number_lsb < 0 or self._number_lsb > 128
+
     def __eq__(self, other: Any) -> bool:
         match other:
             case self.__class__():
