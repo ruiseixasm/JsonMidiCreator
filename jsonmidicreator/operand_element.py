@@ -3624,11 +3624,11 @@ class ControlChange(Automatable):
         if position_beats is not None:
             absolute_position_beats = position_beats + self._position_beats
 
+        # Midi validation is done in the JsonMidiPlayer program
+        self_playlist: list[dict] = []
+            
         if absolute_position_beats >= 0:
 
-            # Midi validation is done in the JsonMidiPlayer program
-            self_playlist: list[dict] = []
-            
             if devices_header:
                 devices: list[str] = og.settings._devices
                 if self._owner_clip is not None:
@@ -3817,8 +3817,8 @@ class ControlChangePair(ControlChange):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._number == other._number \
-                    and self._value == other._value
+                    and self._number_lsb == other._number_lsb \
+                    and self._value_lsb == other._value_lsb
             case Element():
                 # Makes a playlist comparison
                 return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
@@ -3827,7 +3827,7 @@ class ControlChangePair(ControlChange):
 
     def __lt__(self, other: 'o.Operand') -> bool:
         match other:
-            case ControlChange():
+            case self.__class__():
                 # Adds predictability in sorting and consistency in clipping
                 if self._position_beats == other._position_beats:
                     if self._value == other._value:
@@ -3841,7 +3841,7 @@ class ControlChangePair(ControlChange):
     
     def __gt__(self, other: 'o.Operand') -> bool:
         match other:
-            case ControlChange():
+            case self.__class__():
                 # Adds predictability in sorting and consistency in clipping
                 if self._position_beats == other._position_beats:
                     if self._value == other._value:
@@ -3888,16 +3888,15 @@ class ControlChangePair(ControlChange):
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         if self.is_clipped():
             return []
-
         absolute_position_beats: Fraction = Fraction(0)
         if position_beats is not None:
             absolute_position_beats = position_beats + self._position_beats
 
+        # Midi validation is done in the JsonMidiPlayer program
+        self_playlist: list[dict] = []
+            
         if absolute_position_beats >= 0:
 
-            # Midi validation is done in the JsonMidiPlayer program
-            self_playlist: list[dict] = []
-            
             if devices_header:
                 devices: list[str] = og.settings._devices
                 if self._owner_clip is not None:
@@ -3935,12 +3934,21 @@ class ControlChangePair(ControlChange):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
+        
         self_midilist: list[dict] = super().getMidilist(position_beats)
         self_midilist[0]["event"] = "ControllerEvent"
-
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["number"]      = self._number
         self_midilist[0]["value"]       = clamp_value_128(self._value)
+
+        self_midilist_lsb: list[dict] = super().getMidilist(position_beats)
+        self_midilist_lsb[0]["event"] = "ControllerEvent"
+        # Validation is done by midiutil Midi Range Validation
+        self_midilist_lsb[0]["number"]      = self._number_lsb
+        self_midilist_lsb[0]["value"]       = clamp_value_128(self._value_lsb)
+
+        self_midilist.extend(self_midilist_lsb)
+
         return self_midilist
 
     
@@ -3952,7 +3960,7 @@ class ControlChangePair(ControlChange):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict):
+    def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "number_lsb" in serialization["parameters"] and "value_lsb" in serialization["parameters"]):
 
@@ -3964,7 +3972,7 @@ class ControlChangePair(ControlChange):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case ControlChange():
+            case self.__class__():
                 super().__lshift__(operand)
                 self._number_lsb    = operand._number_lsb
                 self._value_lsb     = operand._value_lsb
