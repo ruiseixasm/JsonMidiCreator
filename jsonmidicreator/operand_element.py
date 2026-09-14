@@ -3536,6 +3536,8 @@ class ControlChange(Automatable):
             case int():                 return self._value
             case ou.Number():           return operand.copy() << self._number
             case ou.Value():            return operand.copy() << self._value
+            case ou.Value14bit():
+                return operand.copy(o.convert_7_to_14_bits(self._value, 0))
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: Any) -> bool:
@@ -3700,6 +3702,8 @@ class ControlChange(Automatable):
                 self._number = operand._unit
             case ou.Value():
                 self._value = operand._unit
+            case ou.Value14bit():
+                self._value = o.convert_14_to_7_bits(operand._unit)[0]
             case _: super().__lshift__(operand)
         return self
 
