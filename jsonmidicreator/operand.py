@@ -620,10 +620,9 @@ def deep_copy(data: T) -> T:
                 many_dict[key] = deep_copy(value)
             return many_dict
         case list():
-            many_list: list[any] = []
-            for single_data in data:
-                many_list.append(deep_copy(single_data))
-            return many_list
+            return [
+                deep_copy(single_item) for single_item in data
+            ]
         case tuple():
             many_list: list = deep_copy(list(data))
             return tuple(many_list)
