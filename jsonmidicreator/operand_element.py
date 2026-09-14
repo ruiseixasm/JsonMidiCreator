@@ -3963,10 +3963,10 @@ class ControlChangePair(ControlChange):
         return self
 
 
-class BankSelect_MSB(ControlChange):
-    """`Element -> DeviceElement -> ChannelElement -> ControlChange -> BankSelect_MSB`
+class BankSelectMSB(ControlChange):
+    """`Element -> DeviceElement -> ChannelElement -> ControlChange -> BankSelectMSB`
 
-    A `BankSelect_MSB` is a specific CC message that is used to select a Bank of presents.
+    A `BankSelectMSB` is a specific CC message that is used to select a Bank of presents.
 
     Parameters
     ----------
@@ -4035,10 +4035,10 @@ class BankSelect_MSB(ControlChange):
         return self_midilist
 
 
-class BankSelect_LSB(ControlChange):
-    """`Element -> DeviceElement -> ChannelElement -> ControlChange -> BankSelect_LSB`
+class BankSelectLSB(ControlChange):
+    """`Element -> DeviceElement -> ChannelElement -> ControlChange -> BankSelectLSB`
 
-    A `BankSelect_LSB` is a specific CC message that is used to select a Bank of presents.
+    A `BankSelectLSB` is a specific CC message that is used to select a Bank of presents.
 
     Parameters
     ----------

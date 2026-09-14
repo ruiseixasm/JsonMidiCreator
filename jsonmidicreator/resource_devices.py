@@ -41,9 +41,9 @@ class RD_Instrument:
     def Clip_instrument_change(cls, sound: int, bank: str | int = "A") -> 'oc.Clip':
         clip = oc.Clip()
         if isinstance(bank, str):
-            clip += oe.BankSelect_MSB(cls.banks[bank.strip().upper()])
+            clip += oe.BankSelectMSB(cls.banks[bank.strip().upper()])
         else:
-            clip += oe.BankSelect_MSB(bank)
+            clip += oe.BankSelectMSB(bank)
         clip += oe.ProgramChange(sound)
         return clip
     
