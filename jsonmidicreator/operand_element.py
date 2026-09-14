@@ -3788,6 +3788,41 @@ class ControlChange(Automatable):
 # ** if value = 0 then the number of channels used is determined by the receiver;
 #   all other values set a specific number of channels, beginning with the current basic channel.
 
+class ControlChangePair(ControlChange):
+    """`Element -> DeviceElement -> ChannelElement -> ControlChange -> ControlChangePair`
+
+    A `ControlChangePair` represents a high definition value split in MSB and LSB.
+
+    Parameters
+    ----------
+    MSB(0), Number : Selects the Most Significant Byte.
+    LSB(0) : Selects the Least Significant Byte.
+    Value(0), int : Sets the 14 bits value, high resolution.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(1) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        self._lsb: int = 0
+        super().__init__(*parameters)
+
+    
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["lsb"] = self.serialize( self._lsb )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "lsb" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._lsb = self.deserialize( serialization["parameters"]["lsb"] )
+        return self
+
 
 class BankSelect_MSB(ControlChange):
     """`Element -> DeviceElement -> ChannelElement -> ControlChange -> BankSelect_MSB`
