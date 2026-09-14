@@ -3872,7 +3872,6 @@ class ControlChangePair(ControlChange):
                     case ou.LSB():              return operand._data << self._number_lsb
                     case ou.ValueLSB():         return operand._data << self._value_lsb
                     case _:                     return super().__mod__(operand)
-            case int():                 return self._value
             case ou.Number():           return operand.copy() << self._number
             case ou.ValueMSB():
                 return operand.copy() << self._value
@@ -3881,6 +3880,8 @@ class ControlChangePair(ControlChange):
             case ou.Value():
                 full_value: int = o.convert_7_to_14_bits(self._value, self._value_lsb)
                 return operand.copy(full_value)
+            case int():
+                return o.convert_7_to_14_bits(self._value, self._value_lsb)
             case _:
                 return super().__mod__(operand)
 
@@ -3973,8 +3974,8 @@ class ControlChangePair(ControlChange):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["number_lsb"] = self.serialize( self._number_lsb )
-        serialization["parameters"]["value_lsb"] = self.serialize( self._value_lsb )
+        serialization["parameters"]["number_lsb"]   = self.serialize( self._number_lsb )
+        serialization["parameters"]["value_lsb"]    = self.serialize( self._value_lsb )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -3984,8 +3985,8 @@ class ControlChangePair(ControlChange):
             "number_lsb" in serialization["parameters"] and "value_lsb" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._number_lsb = self.deserialize( serialization["parameters"]["number_lsb"] )
-            self._value_lsb = self.deserialize( serialization["parameters"]["value_lsb"] )
+            self._number_lsb    = self.deserialize( serialization["parameters"]["number_lsb"] )
+            self._value_lsb     = self.deserialize( serialization["parameters"]["value_lsb"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -3999,13 +4000,40 @@ class ControlChangePair(ControlChange):
                 match operand._data:
                     case ou.LSB():              self._number_lsb = operand._data._unit
                     case _:                     super().__lshift__(operand)
-            case int():
-                self._value_lsb = operand
             case ou.LSB():
                 self._number_lsb = operand._unit
+            case int():
+                self._value, self._value_lsb = o.convert_14_to_7_bits(operand)
             case ou.Value():
-                self._value, self._value_lsb = o.convert_14_to_7_bits(operand._unit)
-            case _: super().__lshift__(operand)
+                self << operand._unit
+            case _:
+                super().__lshift__(operand)
+        return self
+
+    def __iadd__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case int():
+                self_value: int = self % int()
+                self_value += operand
+                self << self_value
+            case ou.Value():
+                self += operand._unit
+            case _:
+                super().__iadd__(operand)
+        return self
+
+    def __isub__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case int():
+                self_value: int = self % int()
+                self_value -= operand
+                self << self_value
+            case ou.Value():
+                self -= operand._unit
+            case _:
+                super().__iadd__(operand)
         return self
 
 
