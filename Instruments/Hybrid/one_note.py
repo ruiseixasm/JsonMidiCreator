@@ -8,5 +8,5 @@ settings << [
 ]
 
 one_note = Note() * 4
-one_note >> Play(loop=1, verbose=True)
+one_note >> Export("one_note.json") >> Play(loop=1, verbose=True)
 
