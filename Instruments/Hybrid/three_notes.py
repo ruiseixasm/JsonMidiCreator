@@ -9,8 +9,9 @@ three_notes = Clip(TimeSignature(7, 4), Name("Riffle"), Line(
 three_notes += RD_Devices.Clip_program_change(27, 1)   # Sets the instrument to 27. Steel Galloper
 
 settings << [
-    Tempo(30),
-    Tempo(90, three_notes * 4 % Length())
+    Tempo(100),
+    Tempo(100, three_notes * 2 % Length()),
+    Tempo(200, three_notes * 2 % Length())
 ]
 
 
