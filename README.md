@@ -47,11 +47,13 @@ source .venv/bin/activate
 pip install -e .
 ```
 
-## How to install matplotlib
+## Installation of used libraries
 Go to your command line and type:
 ```sh
 python -m pip install -U pip
-python -m pip install -U matplotlib
+pip install matplotlib
+pip install keyboard
+pip install numpy
 ```
 
 ## How to get the JsonMidiPlayer files
