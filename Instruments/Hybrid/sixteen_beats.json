@@ -61,6 +61,72 @@
         },
         {
             "position_beats": [
+                1,
+                1
+            ],
+            "midi_message": {
+                "status_byte": 144,
+                "data_byte_1": 60,
+                "data_byte_2": 100
+            }
+        },
+        {
+            "position_beats": [
+                2,
+                1
+            ],
+            "midi_message": {
+                "status_byte": 128,
+                "data_byte_1": 60,
+                "data_byte_2": 0
+            }
+        },
+        {
+            "position_beats": [
+                2,
+                1
+            ],
+            "midi_message": {
+                "status_byte": 144,
+                "data_byte_1": 60,
+                "data_byte_2": 100
+            }
+        },
+        {
+            "position_beats": [
+                3,
+                1
+            ],
+            "midi_message": {
+                "status_byte": 128,
+                "data_byte_1": 60,
+                "data_byte_2": 0
+            }
+        },
+        {
+            "position_beats": [
+                3,
+                1
+            ],
+            "midi_message": {
+                "status_byte": 144,
+                "data_byte_1": 60,
+                "data_byte_2": 100
+            }
+        },
+        {
+            "position_beats": [
+                4,
+                1
+            ],
+            "midi_message": {
+                "status_byte": 128,
+                "data_byte_1": 60,
+                "data_byte_2": 0
+            }
+        },
+        {
+            "position_beats": [
                 4,
                 1
             ],
@@ -73,6 +139,72 @@
         {
             "position_beats": [
                 5,
+                1
+            ],
+            "midi_message": {
+                "status_byte": 128,
+                "data_byte_1": 60,
+                "data_byte_2": 0
+            }
+        },
+        {
+            "position_beats": [
+                5,
+                1
+            ],
+            "midi_message": {
+                "status_byte": 144,
+                "data_byte_1": 60,
+                "data_byte_2": 100
+            }
+        },
+        {
+            "position_beats": [
+                6,
+                1
+            ],
+            "midi_message": {
+                "status_byte": 128,
+                "data_byte_1": 60,
+                "data_byte_2": 0
+            }
+        },
+        {
+            "position_beats": [
+                6,
+                1
+            ],
+            "midi_message": {
+                "status_byte": 144,
+                "data_byte_1": 60,
+                "data_byte_2": 100
+            }
+        },
+        {
+            "position_beats": [
+                7,
+                1
+            ],
+            "midi_message": {
+                "status_byte": 128,
+                "data_byte_1": 60,
+                "data_byte_2": 0
+            }
+        },
+        {
+            "position_beats": [
+                7,
+                1
+            ],
+            "midi_message": {
+                "status_byte": 144,
+                "data_byte_1": 60,
+                "data_byte_2": 100
+            }
+        },
+        {
+            "position_beats": [
+                8,
                 1
             ],
             "midi_message": {
@@ -105,6 +237,72 @@
         },
         {
             "position_beats": [
+                9,
+                1
+            ],
+            "midi_message": {
+                "status_byte": 144,
+                "data_byte_1": 60,
+                "data_byte_2": 100
+            }
+        },
+        {
+            "position_beats": [
+                10,
+                1
+            ],
+            "midi_message": {
+                "status_byte": 128,
+                "data_byte_1": 60,
+                "data_byte_2": 0
+            }
+        },
+        {
+            "position_beats": [
+                10,
+                1
+            ],
+            "midi_message": {
+                "status_byte": 144,
+                "data_byte_1": 60,
+                "data_byte_2": 100
+            }
+        },
+        {
+            "position_beats": [
+                11,
+                1
+            ],
+            "midi_message": {
+                "status_byte": 128,
+                "data_byte_1": 60,
+                "data_byte_2": 0
+            }
+        },
+        {
+            "position_beats": [
+                11,
+                1
+            ],
+            "midi_message": {
+                "status_byte": 144,
+                "data_byte_1": 60,
+                "data_byte_2": 100
+            }
+        },
+        {
+            "position_beats": [
+                12,
+                1
+            ],
+            "midi_message": {
+                "status_byte": 128,
+                "data_byte_1": 60,
+                "data_byte_2": 0
+            }
+        },
+        {
+            "position_beats": [
                 12,
                 1
             ],
@@ -117,6 +315,72 @@
         {
             "position_beats": [
                 13,
+                1
+            ],
+            "midi_message": {
+                "status_byte": 128,
+                "data_byte_1": 60,
+                "data_byte_2": 0
+            }
+        },
+        {
+            "position_beats": [
+                13,
+                1
+            ],
+            "midi_message": {
+                "status_byte": 144,
+                "data_byte_1": 60,
+                "data_byte_2": 100
+            }
+        },
+        {
+            "position_beats": [
+                14,
+                1
+            ],
+            "midi_message": {
+                "status_byte": 128,
+                "data_byte_1": 60,
+                "data_byte_2": 0
+            }
+        },
+        {
+            "position_beats": [
+                14,
+                1
+            ],
+            "midi_message": {
+                "status_byte": 144,
+                "data_byte_1": 60,
+                "data_byte_2": 100
+            }
+        },
+        {
+            "position_beats": [
+                15,
+                1
+            ],
+            "midi_message": {
+                "status_byte": 128,
+                "data_byte_1": 60,
+                "data_byte_2": 0
+            }
+        },
+        {
+            "position_beats": [
+                15,
+                1
+            ],
+            "midi_message": {
+                "status_byte": 144,
+                "data_byte_1": 60,
+                "data_byte_2": 100
+            }
+        },
+        {
+            "position_beats": [
+                16,
                 1
             ],
             "midi_message": {
