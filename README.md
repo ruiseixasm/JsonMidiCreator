@@ -28,7 +28,8 @@ python -m pip install --upgrade pip
 ```
 
 ## How to enable jsonmidicreator
-Go to your command line and navigate to the root directory where you have the folder `jsonmidicreator` and type:
+Go to your command line and navigate to the root directory where you have the folder `jsonmidicreator`,
+then run the command to install Python packages and their dependencies in editable mode:
 ```sh
 pip install -e .
 ```
@@ -40,9 +41,10 @@ After that create a virtual environment inside your project root, like so
 ```sh
 python3 -m venv .venv
 ```
-Finally, activate the created environment
+Finally, activate the created environment and run the subsequent packages install command
 ```sh
 source .venv/bin/activate
+pip install -e .
 ```
 
 ## How to install matplotlib
