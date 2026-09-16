@@ -29,13 +29,13 @@ python -m pip install --upgrade pip
 
 ## How to install jsonmidicreator
 Go to your command line and navigate to the root directory where you have the folder `jsonmidicreator` and type:
-```
+```sh
 pip install -e .
 ```
 
 ## How to install matplotlib
 Go to your command line and type:
-```
+```sh
 python -m pip install -U pip
 python -m pip install -U matplotlib
 ```
@@ -47,20 +47,20 @@ Go to [/lib](https://github.com/ruiseixasm/JsonMidiCreator/tree/main/lib) to see
 
 ## How to install the MIDIUtil library
 Go to your command line and type:
-```
+```sh
 pip install MIDIUtil
 ```
 
 ## How to install and use Jupyter
 ### Installation
 Go to your command line and type:
-```
+```sh
 python3 -m pip install jupyterlab
 ```
 ### Usage
 Open the command line in the [JsonMidiCreator](https://github.com/ruiseixasm/JsonMidiCreator) folder, and type:
 
-```
+```sh
 jupyter notebook --no-browser
 ```
 Then open you favorite browser and copy and paste one of the given URLs as instructed in the output of the previous command.
