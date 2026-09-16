@@ -5598,7 +5598,7 @@ class Settings(Generic):
     Quantization(1/16) : This sets the Duration of a single `Step`, so, it works like a finer resolution than the `Beat`.
     TimeSignature(4, 4) : Represents the typical Time Signature of a staff.
     KeySignature() : Follows the Circle of Fifths with the setting of the amount of `Sharps` or `Flats`.
-    Devices(["VMPK", "FLUID", "loopMIDI", "Microsoft", "IAC Bus", "Apple"]) : Devices that are used by default in order of trying to connect by the `JsonMidiPlayer`.
+    Devices(["VMPK", "FLUID", "MIDI", "Microsoft", "IAC Bus", "Apple"]) : Devices that are used by default in order of trying to connect by the `JsonMidiPlayer`.
     ClockedDevices([]) : By default no devices are set to receive clocking messages.
     """
     def __init__(self, *parameters):
@@ -5608,7 +5608,7 @@ class Settings(Generic):
         self._time_signature: TimeSignature         = TimeSignature(4, 4)
         self._diatonic_mode_0: int                  = 0
         self._tonic_key: int                        = 0
-        self._devices: list[str]                    = ["VMPK", "FLUID", "loopMIDI", "Microsoft", "IAC Bus", "Apple"]
+        self._devices: list[str]                    = ["VMPK", "FLUID", "MIDI", "Microsoft", "IAC Bus", "Apple"]
         self._clocked_devices: list[str]            = []
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
