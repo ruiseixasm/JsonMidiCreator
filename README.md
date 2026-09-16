@@ -3,6 +3,7 @@ Program that creates files for the JsonMidiPlayer program: https://github.com/ru
 
 # Pre requisites and installations
 1. Python version 3.11 or above due to the new `Self` type;
+1. **pip** package manager;
 1. Install the library `jsonmidicreator`;
 1. Library `matplotlib` for plotting in order to do `>> Plot()`;
 1. [JsonMidiPlayer](https://github.com/ruiseixasm/JsonMidiPlayer) shared library in order to do `>> Play()`;
@@ -10,9 +11,19 @@ Program that creates files for the JsonMidiPlayer program: https://github.com/ru
 1. Library [MIDIUtil](https://pypi.org/project/MIDIUtil/) to export Midi files with `>> Render("midi_file.mid")`;
 1. [Jupyter](https://jupyter.org/) library if you intend to use Notebooks. Highly recommended.
 
-## Upgrade pip installation (python package manager)
-Start by upgrading your pip installation with this command:
+## Install and upgrade pip installation (python package manager)
+### Linux
+Check if you have pip installed
+```sh
+which pip
 ```
+If isn't installed run
+```sh
+sudo apt update
+sudo apt install python3-pip
+```
+If already installed, upgrade your pip installation with this command:
+```sh
 python -m pip install --upgrade pip
 ```
 
