@@ -4628,10 +4628,10 @@ class Play(ReadOnly):
         plot (bool): Plots a chart before playing it.
         block (bool): Blocks the Plot until is closed and then plays the plotted content.
     """
-    def __init__(self, loop: int = 1, verbose: bool = False, plot: bool = False, block: bool = False, talkie_delay_ms: int = 500):
-        super().__init__([loop, verbose, plot, block, talkie_delay_ms])
+    def __init__(self, loops: int = 1, verbose: bool = False, plot: bool = False, block: bool = False, talkie_delay_ms: int = 500):
+        super().__init__([loops, verbose, plot, block, talkie_delay_ms])
         self._indexes = {
-            'loop': 0, 'verbose': 1, 'plot': 2, 'block': 3, 'talkie_delay_ms': 4
+            'loops': 0, 'verbose': 1, 'plot': 2, 'block': 3, 'talkie_delay_ms': 4
         }
 
     def _direct_process(self, operand: o.T) -> o.T:
@@ -4649,7 +4649,7 @@ class Play(ReadOnly):
                         # Start the function in a new process
                         process = threading.Thread(target=c.playJsonMidiPlay,
                                                    args=(clocking, playlist,
-                                                         self._parameters[self._indexes["loop"]],
+                                                         self._parameters[self._indexes["loops"]],
                                                          self._parameters[self._indexes["verbose"]],
                                                          self._parameters[self._indexes["talkie_delay_ms"]]))
                         process.start()
@@ -4658,7 +4658,7 @@ class Play(ReadOnly):
                         if self._parameters[self._indexes["plot"]] and not self._parameters[self._indexes["block"]]:
                             operand >> Plot(self._parameters[self._indexes["block"]])
                         c.playJsonMidiPlay(clocking, playlist,
-                                            self._parameters[self._indexes["loop"]],
+                                            self._parameters[self._indexes["loops"]],
                                             self._parameters[self._indexes["verbose"]],
                                             self._parameters[self._indexes["talkie_delay_ms"]])
                 else:
@@ -4673,7 +4673,7 @@ class Play(ReadOnly):
                     # Start the function in a new process
                     process = threading.Thread(target=c.playJsonMidiPlay,
                                                args=(clocking, playlist,
-                                                         self._parameters[self._indexes["loop"]],
+                                                         self._parameters[self._indexes["loops"]],
                                                          self._parameters[self._indexes["verbose"]],
                                                          self._parameters[self._indexes["talkie_delay_ms"]]))
                     process.start()
@@ -4682,7 +4682,7 @@ class Play(ReadOnly):
                     if self._parameters[self._indexes["plot"]] and not self._parameters[self._indexes["block"]]:
                         operand >> Plot(self._parameters[self._indexes["block"]])
                     c.playJsonMidiPlay(clocking, playlist,
-                                            self._parameters[self._indexes["loop"]],
+                                            self._parameters[self._indexes["loops"]],
                                             self._parameters[self._indexes["verbose"]],
                                             self._parameters[self._indexes["talkie_delay_ms"]])
                 return operand
