@@ -3572,7 +3572,7 @@ class Plot(ReadOnly):
 
         # Horizontal X-Axis, Time related (COMMON)
 
-        composition_tempo: float = float(plotlist[0]["tempo_10"])
+        composition_tempo: float = float(120)   # JUST TO MAKE IT WORK FOR NOW
         # # 1. Disable autoscaling and force limits
         # self._ax.set_autoscalex_on(False)
         # current_min, current_max = self._ax.get_xlim()
