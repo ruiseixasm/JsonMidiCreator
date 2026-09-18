@@ -168,7 +168,7 @@ def test_element_replacement():
     four_notes << Odd()**triplet
     print(f"four_notes.len(): {four_notes.len()}")
     assert four_notes.len() == 2 + 2*3
-    four_notes >> Plot()
+    four_notes >> Plot(block=False)
 
 # test_element_replacement()
 
