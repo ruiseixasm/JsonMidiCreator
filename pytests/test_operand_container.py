@@ -157,6 +157,21 @@ def test_owner_clip():
 # test_owner_clip()
 
 
+def test_element_replacement():
+
+    triplet = Note(Beats(1/3)) / 3
+    assert triplet.net_duration() == Beats(1)
+
+    four_notes = Note(1/4) / 4
+    assert four_notes.net_duration() == Beats(4)
+
+    four_notes << Odd()**triplet
+    print(f"four_notes.len(): {four_notes.len()}")
+    assert four_notes.len() == 2 + 2*3
+
+# test_element_replacement()
+
+
 def test_time_signature():
 
     four_notes: Note = Note() / 4

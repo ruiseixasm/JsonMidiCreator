@@ -425,30 +425,28 @@ class Element(o.Operand):
             case list():
                 if all(isinstance(single_element, Element) for single_element in operand):
                     if self._owner_clip is not None:
-                        if not self._owner_clip._set:
-                            if operand:
-                                position_offset: ra.Position = self.start() - operand[0].start()
-                                replacing_elements_list: list[Element] = [
-                                    element.copy()._set_owner_clip(self._owner_clip) for element in operand
-                                ]
-                                self._owner_clip._extend(replacing_elements_list)
-                            self._owner_clip._set = True
+                        if operand:
+                            self_position: ra.Position = self.start() - operand[0].start()
+                            replacing_elements_list: list[Element] = [
+                                element.copy()._set_owner_clip(self._owner_clip) for element in operand
+                            ]
+                            self._owner_clip._extend(replacing_elements_list)
+                        self._owner_clip._set = True
                         self._owner_clip._remove(self, True)
             
             case oc.Clip():
                 # Replace this element by the Clip elements
                 if self._owner_clip is not None:
-                    if not self._owner_clip._set:
-                        if operand.len() > 0:
-                            position_offset: ra.Position = self.start() - operand.start()
-                            replacing_elements_list: list[Element] = [
-                                # Implicit copy
-                                (element + position_offset)._set_owner_clip(self._owner_clip)
-                                for element in operand._items
-                            ]
-                            self._owner_clip._extend(replacing_elements_list)
-                        self._owner_clip._set = True
-                    self._owner_clip._remove(self, True)    # Ultimately, replaces it with nothing
+                    if operand.len() > 0:
+                        self_position: ra.Position = self.start()
+                        replacing_elements_list: list[Element] = [
+                            # Implicit copy
+                            (clip_element + self_position)._set_owner_clip(self._owner_clip)
+                            for clip_element in operand._items
+                        ]
+                        self._owner_clip._extend(replacing_elements_list)
+                    self._owner_clip._set = True
+                    self._owner_clip._remove(self, True)._sort_items()  # Ultimately, replaces it with nothing
 
             case ou.Masked():
                 self._masked                = operand._unit != 0
