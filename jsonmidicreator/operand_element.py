@@ -425,7 +425,7 @@ class Element(o.Operand):
             case list():
                 if all(isinstance(single_element, Element) for single_element in operand):
                     if self._owner_clip is not None:
-                        if not self._owner_clip._set:
+                        if not self._owner_clip._set:   # Makes sure only the first Element sets the position and replacement
                             if operand:
                                 self_position: ra.Position = self.start() - operand[0].start()
                                 replacing_elements_list: list[Element] = [
