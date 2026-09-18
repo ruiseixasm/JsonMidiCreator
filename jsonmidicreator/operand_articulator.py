@@ -44,7 +44,7 @@ if TYPE_CHECKING:
 class Articulator(o.Operand):
     """`Articulator`
 
-    An `Articulator` is intended to manipulate the `Clip``'s Element`s based on a given `Frame`.
+    An `Articulator` is intended to manipulate the `Clip`'s `Element`s based on a given `Frame`.
     This can deal with more complex changes than the ones given by simple Element wrapping.
     By including a `Frame` it doesn't require the typical masking associated with a `Process` that
     acts only on the entire Clip.
@@ -66,12 +66,54 @@ class Articulator(o.Operand):
             if single_element == self._frame.frame(single_element)
         ]
 
+    @staticmethod
+    def _add_new_elements(clip: 'oc.Clip', new_elements: list['oe.Element']) -> 'oc.Clip':
+        return clip._extend(new_elements)._set_owner_clip()._sort_items()
 
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case of.Frame():        return of.Frame() << self._frame
+                    case _:                 return super().__mod__(operand)
+            # Direct Values
+            case of.Frame():
+                return self._frame.copy()
+            case _:
+                return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["frame"] = o.serialize( self._frame )
+        return serialization
 
     # CHAINABLE OPERATIONS
 
-    # NOT imul because it returns something different than a `Sequencer`
-    def __mul__(self, element: 'Element') -> 'Clip':    # Mandatory implementation
-        return oc.Clip(element)
-    
+    def loadSerialization(self, serialization: dict) -> 'Articulator':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "frame" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._frame = o.deserialize( serialization["parameters"]["frame"] )
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Articulator():
+                super().__lshift__(operand)
+                self._frame = operand._frame.copy()
+            case od.Pipe():
+                match operand._data:
+                    case of.Frame():
+                        self._frame           = operand._data % od.Pipe( int() )
+                    case _:
+                        super().__lshift__(operand)
+            case of.Frame():
+                self._frame               = int(max(1, operand % int()))
+            case _:
+                super().__lshift__(operand)
+        return self
+
 
