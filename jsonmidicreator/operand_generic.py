@@ -4331,7 +4331,7 @@ class Plot(ReadOnly):
                     for single_note in at_position_notes:
                         single_note._position_beats -= minimum_position
                     
-                threading.Thread(target=Play.play, args=(Clip( od.Pipe(at_position_notes) ),)).start()
+                threading.Thread(target=Play.play, args=(oc.Clip( od.Pipe(at_position_notes) ),)).start()
         return self
 
 

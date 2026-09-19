@@ -70,13 +70,13 @@ def test_locus_set():
 
 
 def test_edit_clip():
-    two_notes = Note() / 2 << Iterate(1)**Degree()
+    two_notes = Note() / 2 << Iterate(2)**Degree()
     assert two_notes % Duration() == Beats(2)
     replace = Replace("1B", two_notes)
     whole_note = Note(1/1) * 1
     assert whole_note.len() == 1
     replace.edit(whole_note)
-    # whole_note >> Plot()
+    whole_note >> Plot()
     assert whole_note.len() == 4
 
 test_edit_clip()

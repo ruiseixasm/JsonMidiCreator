@@ -259,10 +259,10 @@ def test_add_container():
     assert song.len() == 1
 
     empty_clip = Clip()
-    two_notes = Note() / 2 + Beat(1)
+    two_notes = Note() / 2 + Beat(1) << Iterate(2)**Degree()
     assert empty_clip.len() == 0
     empty_clip += two_notes
-    empty_clip >> Plot()
+    # empty_clip >> Plot()
     assert empty_clip.len() == 2
 
 
