@@ -668,10 +668,13 @@ class Convertible(Rational):
                     self._time_signature_reference = operand
             case str():
                 
-                dotted = True if 'd' in operand or 'D' in operand else False
-                measures = True if 'm' in operand or 'M' in operand else False
-                beats = True if 'b' in operand or 'B' in operand else False
-                steps = True if 's' in operand or 'S' in operand else False
+                dotted = True if 'd' in operand else False
+                measures = True if 'm' in operand else False
+                measure = True if 'M' in operand else False
+                beats = True if 'b' in operand else False
+                beat = True if 'B' in operand else False
+                steps = True if 's' in operand else False
+                step = True if 'S' in operand else False
                 # Cleans up
                 operand = operand.replace('d', '').replace('D', '')
                 operand = operand.replace('m', '').replace('M', '')
@@ -680,10 +683,16 @@ class Convertible(Rational):
                 duration = o.string_to_number(operand)
                 if measures:
                     self << Measures(duration)
+                if measure:
+                    self << Measure(duration)
                 elif beats:
                     self << Beats(duration)
+                elif beat:
+                    self << Beat(duration)
                 elif steps:
                     self << Steps(duration)
+                elif step:
+                    self << Step(duration)
                 elif dotted:
                     self << Dotted(duration)
                 else:
