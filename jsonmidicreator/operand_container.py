@@ -2279,6 +2279,15 @@ class Clip(Composition):  # Just a container of Elements
                         elements_to_delete.append(self[index])    # Shouldn't be copied
                 return self._delete(elements_to_delete, True)
             
+            case og.Locus():    # Cuts out the Locus are and trims any overlap
+                overlapping_elements: list[oe.Element] = [
+                    single_element for single_element in self._items
+                    if single_element.overlaps(operand)
+                ]
+                # Starts by removing the overlapping elements from the clip
+                self._delete(overlapping_elements, True)
+                
+
             case _:
                 super().__isub__(operand)
         return self._sort_items()  # Shall be sorted!
@@ -2424,7 +2433,7 @@ class Clip(Composition):  # Just a container of Elements
                         clip_elements.extend(locus_elements)
                         clip_start += locus._duration_beats
                     self._items = clip_elements
-                    
+
             case _:
                 super().__itruediv__(operand)
         return self._sort_items()  # Shall be sorted!
