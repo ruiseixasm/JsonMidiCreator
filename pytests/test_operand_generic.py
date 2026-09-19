@@ -45,6 +45,13 @@ def test_settings_reset():
 # test_settings_reset()
 
 
+def test_locus_length():
+    locus = Locus([0, "3b"])
+    assert locus % Length() == Beats(3)
+
+# test_locus_length()
+
+
 def test_timesignature_mod():
 
     # Perform the operation
