@@ -105,35 +105,15 @@ class Locus(Generic):
         self._duration_beats = ra.Duration(self._time_signature_reference, note_value)._rational
         return self
 
+    def start(self) -> ra.Position:
+        return ra.Position(self, self._position_beats)
 
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case ra.Duration():
-                        return operand._data << ra.Duration(self._time_signature_reference, self._duration_beats)
-                    case ra.Position():
-                        return operand._data << ra.Position(self._time_signature_reference, self._position_beats)
-                    case ra.Length():
-                        return operand._data << ra.Length(self._time_signature_reference, self._duration_beats)
-                    case Fraction():        return self._duration_beats
-                    case _:                 return super().__mod__(operand)
-            case ra.Position():
-                return operand.copy(self._time_signature_reference, self._position_beats)
-            case ra.TimeUnit():
-                # For TimeUnit only the `% operand` does the measure_module of it
-                return ra.Position(self._time_signature_reference, self._position_beats) % operand
-            case ra.Duration() | ra.Length():
-                return operand.copy(self._time_signature_reference, self._duration_beats)
-            case ra.TimeValue():
-                return operand.copy(ra.Beats(self._time_signature_reference, self._duration_beats))
-            case list():            return [self._position_beats, self._duration_beats]
-            case int():             return self % ra.Measure() % int()
-            case Segment():         return operand.copy(self % ra.Position())
-            case float():           return self % ra.NoteValue() % float()
-            case Fraction():        return self._duration_beats
-            case Locus():           return operand.copy(self)
-            case _:                 return super().__mod__(operand)
+    def net_finish(self) -> ra.Position:
+        return ra.Position(self, self._position_beats + self._duration_beats)
+
+    def overlaps(self, other: 'Locus') -> bool:
+        return other._position_beats + other._duration_beats > self._position_beats \
+            and other._position_beats < self._position_beats + self._duration_beats
 
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -167,15 +147,35 @@ class Locus(Generic):
             case _:
                 return self % other > other
     
-    def start(self) -> ra.Position:
-        return ra.Position(self, self._position_beats)
 
-    def net_finish(self) -> ra.Position:
-        return ra.Position(self, self._position_beats + self._duration_beats)
-
-    def overlaps(self, other: 'Locus') -> bool:
-        return other._position_beats + other._duration_beats > self._position_beats \
-            and other._position_beats < self._position_beats + self._duration_beats
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case ra.Duration():
+                        return operand._data << ra.Duration(self._time_signature_reference, self._duration_beats)
+                    case ra.Position():
+                        return operand._data << ra.Position(self._time_signature_reference, self._position_beats)
+                    case ra.Length():
+                        return operand._data << ra.Length(self._time_signature_reference, self._duration_beats)
+                    case Fraction():        return self._duration_beats
+                    case _:                 return super().__mod__(operand)
+            case ra.Position():
+                return operand.copy(self._time_signature_reference, self._position_beats)
+            case ra.TimeUnit():
+                # For TimeUnit only the `% operand` does the measure_module of it
+                return ra.Position(self._time_signature_reference, self._position_beats) % operand
+            case ra.Duration() | ra.Length():
+                return operand.copy(self._time_signature_reference, self._duration_beats)
+            case ra.TimeValue():
+                return operand.copy(ra.Beats(self._time_signature_reference, self._duration_beats))
+            case list():            return [self._position_beats, self._duration_beats]
+            case int():             return self % ra.Measure() % int()
+            case Segment():         return operand.copy(self % ra.Position())
+            case float():           return self % ra.NoteValue() % float()
+            case Fraction():        return self._duration_beats
+            case Locus():           return operand.copy(self)
+            case _:                 return super().__mod__(operand)
 
 
     def getSerialization(self) -> dict:
@@ -218,6 +218,9 @@ class Locus(Generic):
                     case Fraction():        self._duration_beats = operand._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
+            case oe.Element():
+                self._position_beats = operand._position_beats
+                self._duration_beats = operand._duration_beats
             case ra.Duration() | ra.Length():
                 self._duration_beats        = operand._rational
             case ra.TimeValue():

@@ -2320,6 +2320,7 @@ class Clip(Composition):  # Just a container of Elements
 
     def __rmul__(self, operand: any) -> Self:
         return self.__mul__(operand)
+
     
     def __itruediv__(self, operand: any) -> Self:
         match operand:
@@ -2370,16 +2371,27 @@ class Clip(Composition):  # Just a container of Elements
                         self += time_unit_clip
 
             case list():
-                segments_list: list[og.Segment] = [
-                    og.Segment(self, single_segment) for single_segment in operand
-                ]
-                clip_segments: Clip = Clip()
-                for single_segment in segments_list:
-                    clip_segments /= self.copy().filter(single_segment) # Stacked notes /
-                self._delete()
-                self /= clip_segments
-                self._set_owner_clip()
+                if all(isinstance(segment, (int, float, og.Segment)) for segment in operand):
+                    segments_list: list[og.Segment] = [
+                        og.Segment(self, single_segment) for single_segment in operand
+                    ]
+                    clip_segments: Clip = Clip()
+                    for single_segment in segments_list:
+                        clip_segments /= self.copy().filter(single_segment) # Stacked notes /
+                    self._delete()
+                    self /= clip_segments
+                    self._set_owner_clip()
+                else:   # Locus stacking
+                    clip_elements: list[oe.Element] = []
+                    for locus_data in operand:
+                        locus: og.Locus = og.Locus(self, locus_data)
+                        locus_elements: list[oe.Element] = []
+                        for single_element in self._items:
+                            start: ra.Position = single_element.start()
+                            finish: ra.Position = single_element.finish()
+                            
 
+                    ...
             case _:
                 super().__itruediv__(operand)
         return self._sort_items()  # Shall be sorted!
