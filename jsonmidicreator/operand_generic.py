@@ -199,14 +199,12 @@ class Locus(Generic):
         from . import operand_element as oe
         from . import operand_container as oc
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        if self._time_signature_reference is None:
+        if self._time_signature_reference is None:  # If a self containing TimeSignature is submitted
             match operand:
                 case ra.Convertible():
                     self._time_signature_reference = operand._time_signature_reference
                 case oe.Element() | oc.Composition():
                     self._time_signature_reference = operand._get_time_signature()
-                case TimeSignature():
-                    self._time_signature_reference = operand
         match operand:
             case Locus():
                 super().__lshift__(operand)
@@ -249,6 +247,8 @@ class Locus(Generic):
                 self << ra.NoteValue(self._time_signature_reference, operand)
             case Fraction():
                 self._duration_beats        = ra.Beats(operand)._rational
+            case TimeSignature():
+                self._time_signature_reference = operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
