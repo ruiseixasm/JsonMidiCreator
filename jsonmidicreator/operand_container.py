@@ -2392,7 +2392,7 @@ class Clip(Composition):  # Just a container of Elements
                                 locus_elements.append(single_element.copy())    # decoupling element copy
                         for single_element in locus_elements:   # Elements trimming
                             single_element.trim(locus)
-                            single_element -= clip_start - locus.start()   # Places each element
+                            single_element -= locus.start() - clip_start   # Places each element
                         clip_elements.extend(locus_elements)
                         clip_start += locus._duration_beats
                     self._items = clip_elements
