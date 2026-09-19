@@ -518,6 +518,12 @@ def test_sub_clip():
     assert (four_notes - notes_to_remove).len_unmasked() == four_notes.len_unmasked() - 2
     assert four_notes - notes_to_remove == remaining_notes
 
+    whole_note = Note(1/1) * 1
+    assert whole_note.len() == 1
+    whole_note -= Locus("b1")
+    assert whole_note.len() == 2
+
+
 # test_sub_clip()
 
 

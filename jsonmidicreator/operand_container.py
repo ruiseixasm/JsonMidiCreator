@@ -2292,8 +2292,8 @@ class Clip(Composition):  # Just a container of Elements
                 locus_start_beats = operand.start() % Fraction()
                 locus_finish_beats = operand.finish() % Fraction()
                 for single_element in overlapping_elements:
-                    element_start_beats = left_element._position_beats
-                    element_finish_beats = element_start_beats + left_element._duration_beats
+                    element_start_beats = single_element._position_beats
+                    element_finish_beats = element_start_beats + single_element._duration_beats
                     left_element = single_element
                     if element_start_beats < locus_start_beats:
                         left_element._duration_beats -= element_finish_beats - locus_start_beats
