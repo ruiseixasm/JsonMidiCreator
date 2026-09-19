@@ -50,6 +50,13 @@ except ImportError:
     print("Please install it by running 'pip install numpy'.")
 
 
+if TYPE_CHECKING:
+    from operand_element import Element, Note
+    from operand_chaos import Chaos
+    from operand_rational import Length
+    from operand_container import Container, Composition, Clip
+
+
 class Generic(o.Operand):
     """`Generic`
 
@@ -358,6 +365,11 @@ class Edit(Generic):
         self._source_clip: oc.Clip = oc.Clip()
         super().__init__(*parameters)
 
+
+    def edit(self, clip: 'Clip') -> 'Clip':
+        return clip
+    
+
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.Pipe():
@@ -474,7 +486,20 @@ class Edit(Generic):
 
 
 class Replace(Edit):
-    pass
+    """`Generic -> Edit -> Replace`
+
+    Allows the substitution on a target `Clip` section by the source `Clip` duration.
+        
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit, int : The position on the targeted `Clip` where the editions starts.
+    Clip() : The `Clip` to be used as the source of the edition.
+    """
+    
+    def edit(self, clip: 'Clip') -> 'Clip':
+        
+        return clip
+    
 
 
 class TimeSignature(Generic):
@@ -3066,13 +3091,6 @@ class Segment(Generic):
                         self -= ra.Step(round((operand - round(operand)) * 10))
         return self
 
-
-
-if TYPE_CHECKING:
-    from operand_element import Element, Note
-    from operand_chaos import Chaos
-    from operand_rational import Length
-    from operand_container import Container, Composition, Clip
 
 class Process(Generic):
     """`Generic -> Process`
