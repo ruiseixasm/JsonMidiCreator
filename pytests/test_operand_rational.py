@@ -433,6 +433,13 @@ def test_div_time():
 # test_div_time()
 
 
+def test_str_length():
+    length = Length("3b")
+    assert length == Beats(3)
+
+# test_str_length()
+
+
 def test_basic_conversions():
 
     position = Position(10.5)
