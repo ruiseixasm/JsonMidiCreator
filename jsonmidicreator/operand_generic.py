@@ -4028,18 +4028,18 @@ class Plot(ReadOnly):
         return None
 
 
-    def _run_play(self, even = None, times: int = 1) -> Self:
+    def _run_play(self, even = None, loops: int = 1) -> Self:
         import threading
-        iteration_self: Composition = self._compositions[self._iteration_index] * times
-        threading.Thread(target=Play.play, args=(iteration_self,)).start()
+        iteration_self: Composition = self._compositions[self._iteration_index]
+        threading.Thread(target=Play.play, args=(iteration_self, loops)).start()
         return self
 
-    def _run_composition(self, even = None, times: int = 1) -> Self:
+    def _run_composition(self, even = None, loops: int = 1) -> Self:
         import threading
         if isinstance(self._composition, Composition):
             iteration_self: Composition = self._compositions[self._iteration_index]
             iteration_composition: Composition = self._composition + iteration_self
-            threading.Thread(target=Play.play, args=(iteration_composition * times,)).start()
+            threading.Thread(target=Play.play, args=(iteration_composition, loops)).start()
         return self
 
     def _plot_filename(self, composition: 'Composition') -> str:
@@ -4587,8 +4587,8 @@ class Play(ReadOnly):
                 return super().__rrshift__(operand)
     
     @staticmethod
-    def play(operand: o.T) -> o.T:
-        return Play().__rrshift__(operand)
+    def play(operand: o.T, *parameters) -> o.T:
+        return Play(*parameters).__rrshift__(operand)
 
 
 class Print(ReadOnly):
