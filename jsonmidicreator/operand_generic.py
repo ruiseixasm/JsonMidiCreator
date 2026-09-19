@@ -3431,6 +3431,7 @@ class Plot(ReadOnly):
         # The plotting is managed by the single and original Composition.
         plotlist: list[dict] = self._plot_lists[self._iteration_index]
         composition: oc.Composition = self._compositions[self._iteration_index]
+        length_beats: int = composition % ra.Length() % ra.Beats() % int()
         time_signature = composition._get_time_signature()
         checksum_str: str = self._plot_checksums[self._iteration_index]
 
@@ -4007,10 +4008,10 @@ class Plot(ReadOnly):
         
         self._ax.set_xlabel(
             f"Measures played at {round(composition_tempo, 1)}bpm for "
-            f"{int(last_position / composition_tempo * 60 // 60)}'"
-            f"{int(last_position / composition_tempo * 60 % 60)}''"
-            f"{int(last_position / composition_tempo * 60_000 % 1000)}ms "
-            f"with a Length of {composition % ra.Length() % ra.Beats() % int()} Beats "
+            f"{int(length_beats / composition_tempo * 60 // 60)}'"
+            f"{int(length_beats / composition_tempo * 60 % 60)}''"
+            f"{int(length_beats / composition_tempo * 60_000 % 1000)}ms "
+            f"with a Length of {length_beats} Beats "
             f"a Time Signature of {time_signature._top}/{time_signature._bottom} "
             f"and a Quantization of {quantization_beats} Beat"
         )
