@@ -281,6 +281,15 @@ def test_new_container():
 # test_new_container()
 
 
+def test_locus_stacking():
+    eight_wholes = Note(1/1) / 8 + Iterate()**Degree()
+    locus_notes = eight_wholes / [[0], [1], [2], [0], [3], [5]]
+    assert locus_notes.len() == 6
+
+# test_locus_stacking()
+
+
+
 def test_rshift_container():
 
     # Clip testing ###################################################

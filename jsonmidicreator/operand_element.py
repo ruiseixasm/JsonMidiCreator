@@ -223,7 +223,7 @@ class Element(o.Operand):
         if self.start() < other.start():
             self._position_beats = other._position_beats
         if self.finish() > other.finish():
-            self._duration_beats -= self.finish() - other.finish()
+            self._duration_beats -= self.finish() % Fraction() - other.finish() % Fraction()
         return self
 
     def get_component_elements(self) -> list['Element']:
