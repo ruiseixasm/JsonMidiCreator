@@ -3430,7 +3430,8 @@ class Plot(ReadOnly):
         from . import operand_container as oc
         # The plotting is managed by the single and original Composition.
         plotlist: list[dict] = self._plot_lists[self._iteration_index]
-        time_signature = self._compositions[self._iteration_index]._get_time_signature()
+        composition: oc.Composition = self._compositions[self._iteration_index]
+        time_signature = composition._get_time_signature()
         checksum_str: str = self._plot_checksums[self._iteration_index]
 
         self._ax.clear()
@@ -3455,7 +3456,10 @@ class Plot(ReadOnly):
 
         # Horizontal X-Axis, Time related (COMMON)
 
-        composition_tempo: float = float(120)   # JUST TO MAKE IT WORK FOR NOW
+        composition_tempo: float = 120.0    # JUST TO MAKE SURE IT WORKS
+        if settings._tempos:
+            composition_tempo = settings._tempos[0] % float()
+
         # # 1. Disable autoscaling and force limits
         # self._ax.set_autoscalex_on(False)
         # current_min, current_max = self._ax.get_xlim()
@@ -4006,7 +4010,8 @@ class Plot(ReadOnly):
             f"{int(last_position / composition_tempo * 60 // 60)}'"
             f"{int(last_position / composition_tempo * 60 % 60)}''"
             f"{int(last_position / composition_tempo * 60_000 % 1000)}ms "
-            f"with a Time Signature of {time_signature._top}/{time_signature._bottom} "
+            f"with a Length of {composition % ra.Length() % ra.Beats() % int()} Beats "
+            f"a Time Signature of {time_signature._top}/{time_signature._bottom} "
             f"and a Quantization of {quantization_beats} Beat"
         )
 

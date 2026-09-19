@@ -285,6 +285,7 @@ def test_locus_stacking():
     eight_wholes = Note(1/1) / 8 + Iterate()**Degree()
     locus_notes = eight_wholes / [[0], [1], [2], [0], [3], [5]]
     assert locus_notes.len() == 6
+    locus_notes >> Plot()
 
 # test_locus_stacking()
 
@@ -1107,6 +1108,7 @@ def test_clip_length():
     assert two_notes % Net(Duration()) == Beats(2)
     two_notes << Length(1.0)    # Imposed Length
     assert two_notes % Length() == Beats(4)
+    assert two_notes % Length() % Beats() % int() == 4
 
     assert two_notes * 2 % Length() == Beats(4) * 2
     assert two_notes * two_notes % Length() == Beats(4) * 2
