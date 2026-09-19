@@ -108,7 +108,7 @@ class Locus(Generic):
     def start(self) -> ra.Position:
         return ra.Position(self, self._position_beats)
 
-    def net_finish(self) -> ra.Position:
+    def finish(self) -> ra.Position:
         return ra.Position(self, self._position_beats + self._duration_beats)
 
     def overlaps(self, other: 'Locus') -> bool:

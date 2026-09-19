@@ -2383,15 +2383,24 @@ class Clip(Composition):  # Just a container of Elements
                     self._set_owner_clip()
                 else:   # Locus stacking
                     clip_elements: list[oe.Element] = []
+                    clip_finish: ra.Position = ra.Position(self, 0)
                     for locus_data in operand:
                         locus: og.Locus = og.Locus(self, locus_data)
                         locus_elements: list[oe.Element] = []
                         for single_element in self._items:
-                            start: ra.Position = single_element.start()
-                            finish: ra.Position = single_element.finish()
-                            
-
-                    ...
+                            element_locus = og.Locus(single_element)
+                            if locus.overlaps(element_locus):
+                                locus_elements.append(single_element.copy())    # decoupling element copy
+                        for single_element in locus_elements:   # Elements trimming
+                            if single_element.start() < locus.start():
+                                single_element._position_beats = locus._position_beats
+                            if single_element.finish() > locus.finish():
+                                single_element._duration_beats -= single_element.finish() - locus.finish()
+                            locus_elements += clip_finish   # Places each element
+                        clip_elements.extend(locus_elements)
+                        clip_finish += locus._duration_beats
+                    self._items = clip_elements
+                    
             case _:
                 super().__itruediv__(operand)
         return self._sort_items()  # Shall be sorted!
