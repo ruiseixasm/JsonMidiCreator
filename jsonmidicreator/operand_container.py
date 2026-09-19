@@ -2388,12 +2388,11 @@ class Clip(Composition):  # Just a container of Elements
                         locus: og.Locus = og.Locus(self, locus_data)
                         locus_elements: list[oe.Element] = []
                         for single_element in self._items:
-                            element_locus = og.Locus(single_element)
-                            if locus.overlaps(element_locus):
+                            if single_element.overlaps(locus):
                                 locus_elements.append(single_element.copy())    # decoupling element copy
                         for single_element in locus_elements:   # Elements trimming
                             single_element.trim(locus)
-                            locus_elements += clip_start   # Places each element
+                            single_element -= clip_start - locus.start()   # Places each element
                         clip_elements.extend(locus_elements)
                         clip_start += locus._duration_beats
                     self._items = clip_elements

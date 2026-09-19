@@ -660,7 +660,7 @@ class Convertible(Rational):
                 # Needs to go very easy to avoid infinite Recursion
                 operand_beats: Beats = operand._get_beats(self._time_signature_reference)
                 self._set_with_beats(operand_beats)
-            case oe.Element() | oc.Composition():
+            case oe.Element() | oc.Composition() | og.Locus():
                 if self._time_signature_reference is None:
                     self._time_signature_reference = operand._get_time_signature()
             case og.TimeSignature():
