@@ -594,6 +594,92 @@ class Semitone(PitchParameter):
     pass
 
 
+
+
+class KeySignature(PitchParameter):
+    """`Generic -> PitchParameter -> KeySignature`
+
+    A KeySignature() consists in an integer from -7 to 7 describing the amount
+    of Sharps for positive values and the amount of Flats for negative values.
+    It also sets the type as Major or minor key signature.
+    
+    Parameters
+    ----------
+    int(0) : By default it has no Sharps or Flats, it's the C Major scale.
+    bool(True) : By default it considers the Major scale.
+    """
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case Sharps():
+                if self._unit > 0:
+                    return Sharps(self._unit)
+                return Sharps(0)
+            case Flats():
+                if self._unit < 0:
+                    return Flats(self._unit * -1)
+                return Flats(0)
+            case Accidentals():
+                return Accidentals(self._unit)
+            case str():
+                if self._unit < 0:
+                    flats: int = self._unit * -1
+                    return "b" * flats
+                return "#" * self._unit
+            case _:                     return super().__mod__(operand)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Flats():
+                self._unit = operand._unit * -1
+            case Accidentals():
+                self._unit = operand._unit
+            case str(): # Processes series of "#" and "b"
+                if len(operand) == 0:
+                    self._unit = 0
+                else:
+                    sharps = re.findall(r"#+", operand)
+                    if len(sharps) > 0:
+                        self._unit = len(sharps[0])
+                    else:
+                        flats = re.findall(r"b+", operand)
+                        if len(flats) > 0:
+                            self._unit = -len(flats[0])
+            case _: 
+                super().__lshift__(operand)
+        return self
+
+    # Circle of fifths (modulations) (fast access)
+    _key_signatures: tuple[tuple] = (
+    #     C      D      E   F      G      A      B
+        (-1, 0, -1, 0, -1, -1, 0, -1, 0, -1, 0, -1),    # -7
+        (-1, 0, -1, 0, -1, -0, 0, -1, 0, -1, 0, -1),    # -6
+        (-0, 0, -1, 0, -1, -0, 0, -1, 0, -1, 0, -1),    # -5
+        (-0, 0, -1, 0, -1, -0, 0, -0, 0, -1, 0, -1),    # -4
+        (-0, 0, -0, 0, -1, -0, 0, -0, 0, -1, 0, -1),    # -3
+        (-0, 0, -0, 0, -1, -0, 0, -0, 0, -0, 0, -1),    # -2
+        (-0, 0, -0, 0, -0, -0, 0, -0, 0, -0, 0, -1),    # -1
+    #     C      D      E   F      G      A      B
+        (+0, 0, +0, 0, +0, +0, 0, +0, 0, +0, 0, +0),    # +0
+    #     C      D      E   F      G      A      B
+        (+0, 0, +0, 0, +0, +1, 0, +0, 0, +0, 0, +0),    # +1
+        (+1, 0, +0, 0, +0, +1, 0, +0, 0, +0, 0, +0),    # +2
+        (+1, 0, +0, 0, +0, +1, 0, +1, 0, +0, 0, +0),    # +3
+        (+1, 0, +1, 0, +0, +1, 0, +1, 0, +0, 0, +0),    # +4
+        (+1, 0, +1, 0, +0, +1, 0, +1, 0, +1, 0, +0),    # +5
+        (+1, 0, +1, 0, +1, +1, 0, +1, 0, +1, 0, +0),    # +6
+        (+1, 0, +1, 0, +1, +1, 0, +1, 0, +1, 0, +1)     # +7
+    )
+
+    @staticmethod
+    def is_enharmonic(key: int, sharps: int) -> bool:
+        self_key_signature: tuple[int] = KeySignature._key_signatures[(sharps + 7) % 15]
+        return self_key_signature[key % 12] != 0
+
+
+
 class Key(PitchParameter):
     """`Unit -> PitchParameter -> Key`
 

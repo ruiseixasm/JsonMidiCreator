@@ -2124,7 +2124,7 @@ class Note(ChannelElement):
                     case ra.Gate():         return ra.Gate() << od.Pipe(self._gate)
                     case ou.Tied():         return ou.Tied() << od.Pipe( self._tied )
                     case og.Pitch():        return self._pitch
-                    case og.KeySignature() | ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
+                    case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
                                             return self._pitch % operand
                     case og.NoteEffect():   return self._note_effect
                     case _:                 return super().__mod__(operand)
@@ -2132,7 +2132,7 @@ class Note(ChannelElement):
             case ra.Gate():         return ra.Gate() << od.Pipe(self._gate)
             case ou.Tied():         return ou.Tied() << od.Pipe( self._tied )
             case og.Pitch():        return self._pitch.copy()
-            case og.KeySignature() | ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale() | ou.Mode():
+            case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale() | ou.Mode():
                                     return self._pitch % operand
             case og.NoteEffect():   return o.deep_copy(self._note_effect)
             case ou.Order() | ra.Swing() | ch.Chaos():
@@ -2331,7 +2331,7 @@ class Note(ChannelElement):
                     case ra.Gate():         self._gate      = operand._data._rational
                     case ou.Tied():         self._tied      = operand._data.__mod__(od.Pipe( bool() ))
                     case og.Pitch():        self._pitch     = operand._data
-                    case og.KeySignature() | ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
+                    case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
                                             self._pitch << operand
                     case og.NoteEffect():   self._note_effect = operand._data
                     case _:                 super().__lshift__(operand)
@@ -2344,7 +2344,7 @@ class Note(ChannelElement):
                     super().__lshift__(operand)
                 else:
                     self._pitch << operand
-            case og.Pitch() | og.KeySignature() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale() | ou.Mode():
+            case og.Pitch() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale() | ou.Mode():
                 self._pitch << operand
             case og.NoteEffect():
                 self._note_effect = o.deep_copy(operand)
@@ -2365,7 +2365,7 @@ class Note(ChannelElement):
     def __iadd__(self, operand: any) -> 'Note':
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case og.Pitch() | og.KeySignature() | ou.PitchParameter():
+            case og.Pitch() | ou.PitchParameter():
                 self._pitch += operand  # Specific and compounded parameter
                 return self
             case _:
@@ -2374,7 +2374,7 @@ class Note(ChannelElement):
     def __isub__(self, operand: any) -> 'Note':
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case og.Pitch() | og.KeySignature() | ou.PitchParameter():
+            case og.Pitch() | ou.PitchParameter():
                 self._pitch -= operand  # Specific and compounded parameter
                 return self
             case _:
@@ -4601,12 +4601,12 @@ class PolyAftertouch(Aftertouch):
             case od.Pipe():
                 match operand._data:
                     case og.Pitch():    return self._pitch
-                    case og.KeySignature() | ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
+                    case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
                                         return self._pitch % operand
                     case _:             return super().__mod__(operand)
             case og.Pitch():
                 return self._pitch.copy()
-            case og.KeySignature() | ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
+            case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
                 return self._pitch % operand
             case ou.Octave():
                 return self._pitch % ou.Octave()
@@ -4683,7 +4683,7 @@ class PolyAftertouch(Aftertouch):
             case od.Pipe():
                 match operand._data:
                     case og.Pitch():            self._pitch = operand._data
-                    case og.KeySignature() | ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
+                    case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
                                                 self._pitch << operand
                     case _:                     super().__lshift__(operand)
             case str():
@@ -4691,7 +4691,7 @@ class PolyAftertouch(Aftertouch):
                     super().__lshift__(operand)
                 else:
                     self._pitch << operand
-            case og.Pitch() | og.KeySignature() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale():
+            case og.Pitch() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale():
                                 self._pitch << operand
             case _:             super().__lshift__(operand)
         return self
