@@ -477,14 +477,7 @@ class Element(o.Operand):
                     self._owner_clip._replace(self, wrapped_self)
                 return wrapped_self
             case list():
-                total_wrappers: int = len(operand)
-                if total_wrappers > 0:
-                    if self._owner_clip is not None:    # Owner clip is always the base container
-                        self_index: int = self._owner_clip._element_index(self)
-                        return self.__irshift__(operand[self_index % total_wrappers])
-                    else:
-                        return self.__irshift__(operand[0])
-                return self
+                return self << og.Locus(operand)
             case og.Fit():
                 if self._owner_clip is not None:
                     previous_element: Element | None = self._owner_clip._previous_item(self)
