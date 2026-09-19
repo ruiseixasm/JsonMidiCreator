@@ -115,6 +115,13 @@ class Locus(Generic):
         return other._position_beats + other._duration_beats > self._position_beats \
             and other._position_beats < self._position_beats + self._duration_beats
 
+    def trim(self, other: 'Locus') -> Self:
+        if self.start() < other.start():
+            self._position_beats = other._position_beats
+        if self.finish() > other.finish():
+            self._duration_beats -= self.finish() - other.finish()
+        return self
+
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:

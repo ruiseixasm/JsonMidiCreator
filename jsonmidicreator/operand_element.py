@@ -215,10 +215,16 @@ class Element(o.Operand):
     def finish(self) -> ra.Position:
         return ra.Position(self, self._position_beats + self._duration_beats)
 
-    def overlaps(self, other: 'Element') -> bool:
+    def overlaps(self, other: Union['Element', 'og.Locus']) -> bool:
         return other._position_beats + other._duration_beats > self._position_beats \
             and other._position_beats < self._position_beats + self._duration_beats
 
+    def trim(self, other: Union['Element', 'og.Locus']) -> Self:
+        if self.start() < other.start():
+            self._position_beats = other._position_beats
+        if self.finish() > other.finish():
+            self._duration_beats -= self.finish() - other.finish()
+        return self
 
     def get_component_elements(self) -> list['Element']:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
