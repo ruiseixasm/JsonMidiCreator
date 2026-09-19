@@ -405,8 +405,8 @@ class Edit(Generic):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["position_beats"]     = o.serialize(self._position_beats)
-        serialization["parameters"]["source_clip"]  = o.serialize(self._source_clip)
+        serialization["parameters"]["position_beats"]   = o.serialize(self._position_beats)
+        serialization["parameters"]["source_clip"]      = o.serialize(self._source_clip)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -506,7 +506,7 @@ class Replace(Edit):
         cutting_locus = Locus(self._source_clip, ra.Position(self._position_beats))
         cutting_locus << self._source_clip % ra.Duration()
         clip -= cutting_locus
-        clip += self._source_clip
+        clip += self._source_clip + self % ra.Position()
         return clip
     
 

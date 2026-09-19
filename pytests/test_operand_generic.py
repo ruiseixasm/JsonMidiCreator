@@ -76,10 +76,10 @@ def test_edit_clip():
     whole_note = Note(1/1) * 1
     assert whole_note.len() == 1
     replace.edit(whole_note)
-    whole_note >> Plot()
+    # whole_note >> Plot()
     assert whole_note.len() == 4
 
-test_edit_clip()
+# test_edit_clip()
 
 
 def test_timesignature_mod():
