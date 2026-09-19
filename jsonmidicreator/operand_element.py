@@ -286,6 +286,8 @@ class Element(o.Operand):
                 locus_copy._position_beats = self._position_beats
                 locus_copy._duration_beats = self._duration_beats
                 return locus_copy
+            case list():
+                return self % og.Locus() % list()
             case ra.Finish():
                 return operand.copy(self, self._position_beats + self._duration_beats)
             case ra.Position():
@@ -380,6 +382,8 @@ class Element(o.Operand):
             case og.Locus():
                 self._position_beats = operand._position_beats
                 self._duration_beats = operand._duration_beats
+            case list():
+                self << og.Locus(operand)
             case ra.Duration() | ra.Length():
                 if operand > Fraction(0):   # Allows innocuous non positive setting (neutral)
                     self._duration_beats    = operand._rational
@@ -422,19 +426,6 @@ class Element(o.Operand):
             case Fraction():
                 if operand > Fraction(0):   # Allows innocuous non positive setting (neutral)
                     self._duration_beats    = ra.Beats(operand)._rational
-            case list():
-                if all(isinstance(single_element, Element) for single_element in operand):
-                    if self._owner_clip is not None:
-                        if not self._owner_clip._set:   # Makes sure only the first Element sets the position and replacement
-                            if operand:
-                                self_position: ra.Position = self.start() - operand[0].start()
-                                replacing_elements_list: list[Element] = [
-                                    element.copy()._set_owner_clip(self._owner_clip) for element in operand
-                                ]
-                                self._owner_clip._extend(replacing_elements_list)
-                            self._owner_clip._set = True
-                        self._owner_clip._remove(self, True)
-            
             case oc.Clip():
                 # Replace this element by the Clip elements
                 if self._owner_clip is not None:
@@ -477,7 +468,14 @@ class Element(o.Operand):
                     self._owner_clip._replace(self, wrapped_self)
                 return wrapped_self
             case list():
-                return self << og.Locus(operand)
+                total_wrappers: int = len(operand)
+                if total_wrappers > 0:
+                    if self._owner_clip is not None:    # Owner clip is always the base container
+                        self_index: int = self._owner_clip._element_index(self)
+                        return self.__irshift__(operand[self_index % total_wrappers])
+                    else:
+                        return self.__irshift__(operand[0])
+                return self
             case og.Fit():
                 if self._owner_clip is not None:
                     previous_element: Element | None = self._owner_clip._previous_item(self)
