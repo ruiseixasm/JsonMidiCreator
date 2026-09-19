@@ -287,11 +287,11 @@ def test_locus_stacking():
 
     locus_notes = eight_wholes / [[0], [1], [2], [0], [3], [5]]
     assert locus_notes.len() == 6
-    locus_notes >> Plot()
+    # locus_notes >> Plot()
     assert locus_notes[First()][0] == Degree(1)
-    assert locus_notes[Last()][0] == Degree(8)
+    assert locus_notes[Last()][0] == Degree(5 + 1)
 
-test_locus_stacking()
+# test_locus_stacking()
 
 
 def test_rshift_container():
