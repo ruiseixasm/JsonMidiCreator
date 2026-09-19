@@ -687,11 +687,7 @@ class Convertible(Rational):
                 elif dotted:
                     self << Dotted(duration)
                 else:
-                    match duration:
-                        case int():
-                            self << Steps(duration)
-                        case float():
-                            self << NoteValue(duration)
+                    self << duration
 
             case _:
                 super().__lshift__(operand)
