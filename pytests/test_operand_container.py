@@ -915,7 +915,7 @@ def test_position_shift():
     print(f"Duration: {fifth_measure_chords % Duration() % float()}")
     assert fifth_measure_chords % Position() == 0.0 # Clip has no Position on its own
     assert fifth_measure_chords % Length() == 5.0   # All Elements became at the same position, 1.0 length each one
-    assert fifth_measure_chords % Duration() == 1.0 # All Elements became at the same position, 1.0 length each one, so, Duration is 1.0 NoteValue
+    assert fifth_measure_chords % Net(Duration()) == 1.0 # All Elements became at the same position, 1.0 length each one, so, Duration is 1.0 NoteValue
 
     # __add__ is clip position agnostic!
     aggregated_chords: Clip = chords + fifth_measure_chords
@@ -923,7 +923,7 @@ def test_position_shift():
     print(f"Length ADD: {(Steps(3) + Measures(4) + Measures(1)) % Length() % float()}")
     print(f"Duration: {aggregated_chords % Duration() % float()}")
     assert aggregated_chords % Length() == 5.0
-    assert aggregated_chords % Duration() == Steps(3) + Measures(4) + Measures(1)   # 5.1875
+    assert aggregated_chords % Net(Duration()) == Steps(3) + Measures(4) + Measures(1)   # 5.1875
 
 # test_position_shift()
 

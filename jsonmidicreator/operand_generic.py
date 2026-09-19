@@ -342,6 +342,159 @@ class Locus(Generic):
                     self << self_operand
         return self
 
+class Edit(Generic):
+    """`Generic -> Edit`
+
+    Allows the application of an edition on a targeted `Clip`
+        
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit, int : The position on the targeted `Clip` where the editions starts.
+    Clip() : The `Clip` to be used as the source of the edition.
+    """
+    def __init__(self, *parameters):
+        from . import operand_container as oc
+        self._position_beats: Fraction = Fraction(0)
+        self._source_clip: oc.Clip = oc.Clip()
+        super().__init__(*parameters)
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case ra.Position():
+                        return operand._data << ra.Position(self._time_signature_reference, self._position_beats)
+                    case Fraction():        return self._position_beats
+                    case _:                 return super().__mod__(operand)
+            case ra.Position():
+                return operand.copy(self._source_clip._time_signature_reference, self._position_beats)
+            case ra.TimeUnit():
+                # For TimeUnit only the `% operand` does the measure_module of it
+                return ra.Position(self._source_clip._time_signature_reference, self._position_beats) % operand
+            case ra.Duration() | ra.Length():
+                return operand.copy(self._source_clip._time_signature_reference, self._source_clip % operand)
+            case ra.TimeValue():
+                return operand.copy(ra.Beats(self._time_signature_reference, self._source_clip % ra.Duration() % operand))
+            case list():            return [self._position_beats, self._source_clip % ra.Duration() % Fraction()]
+            case int():             return self % ra.Measure() % int()
+            case Segment():         return operand.copy(self % ra.Position())
+            case float():           return self % ra.NoteValue() % float()
+            case Fraction():        return self._duration_beats
+            case Locus():           return operand.copy(self)
+            case _:                 return super().__mod__(operand)
+
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["position"] = o.serialize(self._position_beats)
+        serialization["parameters"]["duration"] = o.serialize(self._duration_beats)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Element':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "position" in serialization["parameters"] and "duration" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._position_beats    = o.deserialize(serialization["parameters"]["position"])
+            self._duration_beats    = o.deserialize(serialization["parameters"]["duration"])
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        from . import operand_element as oe
+        from . import operand_container as oc
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        if self._time_signature_reference is None:  # If a self containing TimeSignature is submitted
+            match operand:
+                case ra.Convertible():
+                    self._time_signature_reference = operand._time_signature_reference
+                case oe.Element() | oc.Composition():
+                    self._time_signature_reference = operand._get_time_signature()
+        match operand:
+            case Locus():
+                super().__lshift__(operand)
+                self._position_beats        = operand._position_beats
+                self._duration_beats        = operand._duration_beats
+            case od.Pipe():
+                match operand._data:
+                    case ra.Position():     self._position_beats = operand._data._rational
+                    case ra.Duration() | ra.Length():
+                                            self._duration_beats = operand._data._rational
+                    case Fraction():        self._duration_beats = operand._data
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case oe.Element():
+                self._position_beats = operand._position_beats
+                self._duration_beats = operand._duration_beats
+            case ra.Duration() | ra.Length():
+                self._duration_beats        = operand._rational
+            case ra.TimeValue():
+                self << ra.Duration(self._time_signature_reference, operand)
+            case ra.Position():
+                self._position_beats        = operand._rational
+            case ra.TimeUnit():
+                # The setting of the TimeUnit depends on the Element position
+                self._position_beats        = ra.Position(self._time_signature_reference, self._position_beats, operand) % Fraction()
+            case list():
+                if len(operand) < 3:
+                    locus_position: ra.Position = ra.Position(self, operand[0])
+                    self._position_beats = ra.Beats(locus_position)._rational
+                    if len(operand) == 2:
+                        locus_duration: ra.Duration = ra.Duration(self, operand[1])
+                        duration_beats: Fraction = ra.Beats(locus_duration)._rational
+                        if duration_beats > 0:
+                            self._duration_beats = duration_beats
+            case int():
+                self._position_beats        = ra.Measure(self._time_signature_reference, operand) % ra.Beats() % Fraction()
+            case Segment():
+                if operand._segment:
+                    self << ra.Measure(operand._segment[0])
+                    if len(operand._segment) == 2:
+                        self << ra.Beat(operand._segment[1])
+                    elif len(operand._segment) > 2:
+                        self << ra.Step(operand._segment[2])
+            case float():
+                self << ra.NoteValue(self._time_signature_reference, operand)
+            case Fraction():
+                self._duration_beats        = ra.Beats(operand)._rational
+            case TimeSignature():
+                self._time_signature_reference = operand
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
+        return self
+
+    def __iadd__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case ra.Position():
+                self._position_beats += operand._rational
+            case ra.Duration() | ra.Length():
+                self._duration_beats += operand._rational
+            case _:
+                self_operand: any = self % operand
+                self_operand += operand
+                self << self_operand
+        return self
+
+    def __isub__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case ra.Position():
+                self._position_beats -= operand._rational
+            case ra.Duration() | ra.Length():
+                self._duration_beats -= operand._rational
+            case _:
+                self_operand: any = self % operand
+                self_operand -= operand
+                self << self_operand
+        return self
+
+
+class Replace(Edit):
+    pass
+
 
 class TimeSignature(Generic):
     """`Generic -> TimeSignature`

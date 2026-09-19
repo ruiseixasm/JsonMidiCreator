@@ -1248,6 +1248,20 @@ class Composition(Container):
             return position_length
         return ra.Length(self, 0)
     
+    def length(self) -> 'ra.Length':
+        """
+        Returns the rounded `Length` to `Measures` that goes from start to position of the last `Element`.
+
+        Args:
+            None
+
+        Returns:
+            Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
+        """
+        if self._items:
+            return ra.Length(self.net_finish())
+        return ra.Length(self, 0)
+        
     def net_length(self) -> 'ra.Length':
         """
         Returns the rounded `Length` to `Measures` that goes from start to position of the last `Element`.
@@ -1277,6 +1291,20 @@ class Composition(Container):
             return ra.Duration(self.gross_finish())
         return ra.Duration(self, 0)
     
+    def duration(self) -> 'ra.Duration':
+        """
+        Returns the `Duration` based on the last finish position of the existing `Element`s.
+
+        Args:
+            None
+
+        Returns:
+            Duration: Equal to last finish `Element` position converted to `Duration`.
+        """
+        if self._items:
+            return ra.Duration(self.net_finish())
+        return ra.Duration(self, 0)
+            
     def net_duration(self) -> 'ra.Duration':
         """
         Returns the `Duration` that goes from `start` to the `finish` of all elements.
@@ -1308,7 +1336,7 @@ class Composition(Container):
             case ra.Length():
                 return self.gross_length()
             case ra.Duration():
-                return self.net_duration()
+                return self.duration()
             case od.CompositionConvertible():
                 convertible: ra.Convertible = operand._data
                 if isinstance(operand, od.Net):
