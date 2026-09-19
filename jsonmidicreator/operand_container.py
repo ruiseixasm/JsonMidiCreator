@@ -2185,6 +2185,9 @@ class Clip(Composition):  # Just a container of Elements
                 self._items = line_elements
                 self._set_owner_clip()._sort_items()
 
+            case og.Edit():
+                operand.edit(self)
+
             case ou.TrackNumber():
                 self._track_number = operand._unit
             case Devices():

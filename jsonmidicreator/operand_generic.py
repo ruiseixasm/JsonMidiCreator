@@ -246,7 +246,7 @@ class Locus(Generic):
                 self._position_beats        = ra.Position(self._time_signature_reference, self._position_beats, operand) % Fraction()
 
             case str():
-                self << ra.Convertible.from_string_to_convertible(operand)
+                self << ra.Convertible.get_convertible_from_string(operand)
                 
             case list():
                 if len(operand) < 3:
@@ -257,6 +257,7 @@ class Locus(Generic):
                         duration_beats: Fraction = ra.Beats(locus_duration)._rational
                         if duration_beats > 0:
                             self._duration_beats = duration_beats
+
             case int():
                 self._position_beats        = ra.Measure(self._time_signature_reference, operand) % ra.Beats() % Fraction()
             case Segment():
@@ -439,13 +440,15 @@ class Edit(Generic):
                 self._duration_beats = operand._duration_beats
             case ra.Position():
                 self._position_beats        = operand._rational
-            case ra.TimeUnit():
+            case ra.Convertible():
                 # The setting of the TimeUnit depends on the Element position
                 self._position_beats = ra.Position(self._source_clip._time_signature, self._position_beats, operand) % Fraction()
             case Locus():
                 self._position_beats = operand._position_beats
             case list():
                 self << Locus(operand)
+            case str():
+                self << ra.Convertible.get_convertible_from_string(operand)
             case int():
                 self._position_beats = ra.Measure(self._source_clip._time_signature, operand) % ra.Beats() % Fraction()
             case Segment():
@@ -501,10 +504,12 @@ class Replace(Edit):
     """
     
     def edit(self, clip: 'Clip') -> 'Clip':
-
+        cutting_locus = Locus(self._source_clip, ra.Beats(self._position_beats))
+        cutting_locus << self._source_clip % ra.Duration()
+        clip -= cutting_locus
+        clip += self._source_clip
         return clip
     
-
 
 class TimeSignature(Generic):
     """`Generic -> TimeSignature`

@@ -600,7 +600,7 @@ class Convertible(Rational):
 
 
     @staticmethod
-    def from_string_to_convertible(string: str) -> Self:
+    def get_convertible_from_string(string: str) -> Self:
 
         dotted = True if 'd' in string else False
         measures = True if 'm' in string else False
@@ -702,7 +702,7 @@ class Convertible(Rational):
                 if self._time_signature_reference is None:
                     self._time_signature_reference = operand
             case str():
-                self << Convertible.from_string_to_convertible(operand)
+                self << Convertible.get_convertible_from_string(operand)
             case _:
                 super().__lshift__(operand)
         return self

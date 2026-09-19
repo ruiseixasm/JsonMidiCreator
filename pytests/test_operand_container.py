@@ -524,7 +524,6 @@ def test_sub_clip():
     # whole_note >> Plot()
     assert whole_note.len() == 2
 
-
 # test_sub_clip()
 
 

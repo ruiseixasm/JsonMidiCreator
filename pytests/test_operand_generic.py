@@ -69,6 +69,18 @@ def test_locus_set():
 # test_locus_set()
 
 
+def test_edit_clip():
+    two_notes = Note() / 2 << Iterate(1)**Degree()
+    whole_note = Note(1/1) * 1
+    replace = Replace("1B", two_notes)
+    assert whole_note.len() == 1
+    replace.edit(whole_note)
+    whole_note >> Plot()
+    assert whole_note.len() == 4
+
+# test_edit_clip()
+
+
 def test_timesignature_mod():
 
     # Perform the operation
