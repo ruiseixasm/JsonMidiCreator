@@ -191,6 +191,7 @@ class Container(o.Operand):
     def _extend(self, items: list) -> Self:
         # Avoids redundant items/objects
         existing_ids: set[int] = {id(existing_item) for existing_item in self._items}
+        # Avoids duplication
         new_items: list = [new_item for new_item in items if id(new_item) not in existing_ids]
         self._items.extend(new_items)
         if self._upper_container is not None:   # Recursive call
@@ -2286,7 +2287,23 @@ class Clip(Composition):  # Just a container of Elements
                 ]
                 # Starts by removing the overlapping elements from the clip
                 self._delete(overlapping_elements, True)
-                
+                # Creates new bordering elements
+                bordering_elements: list[oe.Element] = []
+                locus_start_beats = operand.start() % Fraction()
+                locus_finish_beats = operand.finish() % Fraction()
+                for single_element in overlapping_elements:
+                    element_start_beats = left_element._position_beats
+                    element_finish_beats = element_start_beats + left_element._duration_beats
+                    left_element = single_element
+                    if element_start_beats < locus_start_beats:
+                        left_element._duration_beats -= element_finish_beats - locus_start_beats
+                        bordering_elements.append(left_element)
+                    if element_finish_beats > locus_finish_beats:
+                        right_element = single_element.copy()
+                        right_element._position_beats = locus_finish_beats
+                        right_element._duration_beats = element_finish_beats - locus_finish_beats
+                        bordering_elements.append(right_element)
+                self._extend(bordering_elements)
 
             case _:
                 super().__isub__(operand)
