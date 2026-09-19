@@ -383,7 +383,7 @@ class Element(o.Operand):
                 self._position_beats = operand._position_beats
                 self._duration_beats = operand._duration_beats
             case list():
-                self << og.Locus(operand)
+                self << og.Locus(self, operand)
             case ra.Duration() | ra.Length():
                 if operand > Fraction(0):   # Allows innocuous non positive setting (neutral)
                     self._duration_beats    = operand._rational
