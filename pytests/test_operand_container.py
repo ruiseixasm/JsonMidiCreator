@@ -258,6 +258,14 @@ def test_add_container():
     assert type(song) is Part
     assert song.len() == 1
 
+    empty_clip = Clip()
+    two_notes = Note() / 2 + Beat(1)
+    assert empty_clip.len() == 0
+    empty_clip += two_notes
+    empty_clip >> Plot()
+    assert empty_clip.len() == 2
+
+
 # test_add_container()
 
 
