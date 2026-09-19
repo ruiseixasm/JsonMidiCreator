@@ -79,7 +79,7 @@ def test_edit_clip():
     whole_note >> Plot()
     assert whole_note.len() == 4
 
-# test_edit_clip()
+test_edit_clip()
 
 
 def test_timesignature_mod():

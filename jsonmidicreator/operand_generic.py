@@ -503,7 +503,7 @@ class Replace(Edit):
     """
     
     def edit(self, clip: 'Clip') -> 'Clip':
-        cutting_locus = Locus(self._source_clip, ra.Beats(self._position_beats))
+        cutting_locus = Locus(self._source_clip, ra.Position(self._position_beats))
         cutting_locus << self._source_clip % ra.Duration()
         clip -= cutting_locus
         clip += self._source_clip
