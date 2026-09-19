@@ -244,6 +244,10 @@ class Locus(Generic):
             case ra.TimeUnit():
                 # The setting of the TimeUnit depends on the Element position
                 self._position_beats        = ra.Position(self._time_signature_reference, self._position_beats, operand) % Fraction()
+
+            case str():
+                self << ra.Convertible.from_string_to_convertible(operand)
+                
             case list():
                 if len(operand) < 3:
                     locus_position: ra.Position = ra.Position(self, operand[0])
@@ -497,7 +501,7 @@ class Replace(Edit):
     """
     
     def edit(self, clip: 'Clip') -> 'Clip':
-        
+
         return clip
     
 

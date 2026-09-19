@@ -598,6 +598,41 @@ class Convertible(Rational):
     def roundSteps(self) -> Self:
         return self.copy(self % Step())
 
+
+    @staticmethod
+    def from_string_to_convertible(string: str) -> Self:
+
+        dotted = True if 'd' in string else False
+        measures = True if 'm' in string else False
+        measure = True if 'M' in string else False
+        beats = True if 'b' in string else False
+        beat = True if 'B' in string else False
+        steps = True if 's' in string else False
+        step = True if 'S' in string else False
+        # Cleans up
+        string = string.replace('d', '').replace('D', '')
+        string = string.replace('m', '').replace('M', '')
+        string = string.replace('b', '').replace('B', '')
+        string = string.replace('s', '').replace('S', '')
+        duration = o.string_to_number(string)
+        if measures:
+            return Measures(duration)
+        if measure:
+            return Measure(duration)
+        elif beats:
+            return Beats(duration)
+        elif beat:
+            return Beat(duration)
+        elif steps:
+            return Steps(duration)
+        elif step:
+            return Step(duration)
+        elif dotted:
+            return Dotted(duration)
+        else:
+            return duration
+        
+
     def __eq__(self, other: any) -> bool:
         match other:
             case TimeUnit() | int() | float():
@@ -667,37 +702,7 @@ class Convertible(Rational):
                 if self._time_signature_reference is None:
                     self._time_signature_reference = operand
             case str():
-                
-                dotted = True if 'd' in operand else False
-                measures = True if 'm' in operand else False
-                measure = True if 'M' in operand else False
-                beats = True if 'b' in operand else False
-                beat = True if 'B' in operand else False
-                steps = True if 's' in operand else False
-                step = True if 'S' in operand else False
-                # Cleans up
-                operand = operand.replace('d', '').replace('D', '')
-                operand = operand.replace('m', '').replace('M', '')
-                operand = operand.replace('b', '').replace('B', '')
-                operand = operand.replace('s', '').replace('S', '')
-                duration = o.string_to_number(operand)
-                if measures:
-                    self << Measures(duration)
-                if measure:
-                    self << Measure(duration)
-                elif beats:
-                    self << Beats(duration)
-                elif beat:
-                    self << Beat(duration)
-                elif steps:
-                    self << Steps(duration)
-                elif step:
-                    self << Step(duration)
-                elif dotted:
-                    self << Dotted(duration)
-                else:
-                    self << duration
-
+                self << Convertible.from_string_to_convertible(operand)
             case _:
                 super().__lshift__(operand)
         return self

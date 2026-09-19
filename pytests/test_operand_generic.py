@@ -53,6 +53,18 @@ def test_locus_length():
 # test_locus_length()
 
 
+def test_locus_set():
+    locus = Locus()
+    assert locus % Position() == Beats(0)
+    assert locus % Length() == Beats(1)
+
+    locus << "b2"
+    assert locus % Position() == Beats(0)
+    assert locus % Length() == Beats(2)
+
+# test_locus_set()
+
+
 def test_timesignature_mod():
 
     # Perform the operation
