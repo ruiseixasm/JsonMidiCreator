@@ -666,6 +666,33 @@ class Convertible(Rational):
             case og.TimeSignature():
                 if self._time_signature_reference is None:
                     self._time_signature_reference = operand
+            case str():
+                
+                dotted = True if 'd' in operand or 'D' in operand else False
+                measures = True if 'm' in operand or 'M' in operand else False
+                beats = True if 'b' in operand or 'B' in operand else False
+                steps = True if 's' in operand or 'S' in operand else False
+                # Cleans up
+                operand = operand.replace('d', '').replace('D', '')
+                operand = operand.replace('m', '').replace('M', '')
+                operand = operand.replace('b', '').replace('B', '')
+                operand = operand.replace('s', '').replace('S', '')
+                duration = o.string_to_number(operand)
+                if measures:
+                    self << Measures(duration)
+                elif beats:
+                    self << Beats(duration)
+                elif steps:
+                    self << Steps(duration)
+                elif dotted:
+                    self << Dotted(duration)
+                else:
+                    match duration:
+                        case int():
+                            self << Steps(duration)
+                        case float():
+                            self << NoteValue(duration)
+
             case _:
                 super().__lshift__(operand)
         return self
