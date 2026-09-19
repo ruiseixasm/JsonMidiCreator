@@ -452,7 +452,7 @@ class Edit(Generic):
             case ra.Position():
                 self._position_beats += operand._rational
             case ra.Duration() | ra.Length():
-                self._duration_beats += operand._rational
+                self._source_clip += operand._rational
             case _:
                 self_operand: any = self % operand
                 self_operand += operand
@@ -465,7 +465,7 @@ class Edit(Generic):
             case ra.Position():
                 self._position_beats -= operand._rational
             case ra.Duration() | ra.Length():
-                self._duration_beats -= operand._rational
+                self._source_clip -= operand._rational
             case _:
                 self_operand: any = self % operand
                 self_operand -= operand
