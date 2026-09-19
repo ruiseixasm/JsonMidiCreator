@@ -187,19 +187,19 @@ class Locus(Generic):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["position"] = o.serialize(self._position_beats)
-        serialization["parameters"]["duration"] = o.serialize(self._duration_beats)
+        serialization["parameters"]["position_beats"] = o.serialize(self._position_beats)
+        serialization["parameters"]["duration_beats"] = o.serialize(self._duration_beats)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Element':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "position" in serialization["parameters"] and "duration" in serialization["parameters"]):
+            "position_beats" in serialization["parameters"] and "duration_beats" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._position_beats    = o.deserialize(serialization["parameters"]["position"])
-            self._duration_beats    = o.deserialize(serialization["parameters"]["duration"])
+            self._position_beats    = o.deserialize(serialization["parameters"]["position_beats"])
+            self._duration_beats    = o.deserialize(serialization["parameters"]["duration_beats"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -388,19 +388,19 @@ class Edit(Generic):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["position"] = o.serialize(self._position_beats)
-        serialization["parameters"]["duration"] = o.serialize(self._duration_beats)
+        serialization["parameters"]["position_beats"]     = o.serialize(self._position_beats)
+        serialization["parameters"]["source_clip"]  = o.serialize(self._source_clip)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Element':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "position" in serialization["parameters"] and "duration" in serialization["parameters"]):
+            "position_beats" in serialization["parameters"] and "source_clip" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._position_beats    = o.deserialize(serialization["parameters"]["position"])
-            self._duration_beats    = o.deserialize(serialization["parameters"]["duration"])
+            self._position_beats    = o.deserialize(serialization["parameters"]["position_beats"])
+            self._source_clip       = o.deserialize(serialization["parameters"]["source_clip"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -631,18 +631,18 @@ class Dot(Generic):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["value"]    = o.serialize( self._value )
-        serialization["parameters"]["position"] = o.serialize( self._position_beats )
+        serialization["parameters"]["position_beats"] = o.serialize( self._position_beats )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "value" in serialization["parameters"] and "position" in serialization["parameters"]):
+            "value" in serialization["parameters"] and "position_beats" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._value             = o.deserialize( serialization["parameters"]["value"] )
-            self._position_beats    = o.deserialize( serialization["parameters"]["position"] )
+            self._position_beats    = o.deserialize( serialization["parameters"]["position_beats"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -2438,7 +2438,7 @@ class Arpeggio(NoteEffect):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["order"]            = o.serialize( self._order )
-        serialization["parameters"]["duration"]         = o.serialize( self._duration_beats )
+        serialization["parameters"]["duration_beats"]         = o.serialize( self._duration_beats )
         serialization["parameters"]["swing"]            = o.serialize( self._swing )
         serialization["parameters"]["chaos"]            = o.serialize( self._chaos )
         return serialization
@@ -2447,12 +2447,12 @@ class Arpeggio(NoteEffect):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "order" in serialization["parameters"] and "duration" in serialization["parameters"] and
+            "order" in serialization["parameters"] and "duration_beats" in serialization["parameters"] and
             "swing" in serialization["parameters"] and "chaos" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._order                 = o.deserialize( serialization["parameters"]["order"] )
-            self._duration_beats        = o.deserialize( serialization["parameters"]["duration"] )
+            self._duration_beats        = o.deserialize( serialization["parameters"]["duration_beats"] )
             self._swing                 = o.deserialize( serialization["parameters"]["swing"] )
             self._chaos                 = o.deserialize( serialization["parameters"]["chaos"] )
         return self
@@ -2572,7 +2572,7 @@ class Repeat(NoteEffect):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["duration"] = o.serialize( self._duration_beats )
+        serialization["parameters"]["duration_beats"] = o.serialize( self._duration_beats )
         serialization["parameters"]["swing"]    = o.serialize( self._swing )
         serialization["parameters"]["chaos"]    = o.serialize( self._chaos )
         return serialization
@@ -2581,10 +2581,10 @@ class Repeat(NoteEffect):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "duration" in serialization["parameters"] and "swing" in serialization["parameters"] and "chaos" in serialization["parameters"]):
+            "duration_beats" in serialization["parameters"] and "swing" in serialization["parameters"] and "chaos" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._duration_beats    = o.deserialize( serialization["parameters"]["duration"] )
+            self._duration_beats    = o.deserialize( serialization["parameters"]["duration_beats"] )
             self._swing             = o.deserialize( serialization["parameters"]["swing"] )
             self._chaos             = o.deserialize( serialization["parameters"]["chaos"] )
         return self
@@ -4056,7 +4056,7 @@ class Plot(ReadOnly):
             if automation_plotlist:
 
                 # Updates X-Axis data
-                last_position = max(automation["position"] for automation in automation_plotlist)
+                last_position = max(automation["position_beats"] for automation in automation_plotlist)
                 last_position_measures = last_position / beats_per_measure
                 last_position_measure = int(last_position_measures)
                 if last_position_measure != last_position_measures:
@@ -4092,7 +4092,7 @@ class Plot(ReadOnly):
                         x: list[float]  = []
                         y: list[int]    = []
                         for automation in channel_plotlist:
-                            x.append( float(automation["position"]) )
+                            x.append( float(automation["position_beats"]) )
                             y.append( automation["value"] )
 
                         # Stepped line connecting the points
@@ -4123,7 +4123,7 @@ class Plot(ReadOnly):
 
                         # Add the tailed line up to the end of the chart
                         x = [
-                            float(channel_plotlist[-1]["position"]),
+                            float(channel_plotlist[-1]["position_beats"]),
                             float(last_position_measure * beats_per_measure)
                         ]
                         y = [
@@ -4137,7 +4137,7 @@ class Plot(ReadOnly):
                         self._ax.plot(x, y, marker='None', linestyle='None', color=channel_color, markersize=6)
 
                         y_pos: int = automation["value"] + 2
-                        x_pos = automation["position"]
+                        x_pos = automation["position_beats"]
                         self._ax.text(x_pos, y_pos, info, ha='center', va='bottom', fontsize=8,
                             color='black',  # Outline color
                             path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
