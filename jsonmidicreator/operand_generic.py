@@ -238,10 +238,10 @@ class Locus(Generic):
                 # The setting of the TimeUnit depends on the Element position
                 self._position_beats        = ra.Position(self._time_signature_reference, self._position_beats, operand) % Fraction()
             case list():
-                if operand:
+                if len(operand) < 2:
                     locus_position: ra.Position = ra.Position(self, operand[0])
                     self._position_beats = ra.Beats(locus_position)._rational
-                    if len(operand) > 1:
+                    if len(operand) == 1:
                         locus_duration: ra.Duration = ra.Duration(self, operand[1])
                         self._position_beats = ra.Beats(locus_duration)._rational
                         duration_beats: Fraction = ra.Beats(locus_duration)._rational
