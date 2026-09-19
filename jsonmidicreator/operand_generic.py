@@ -243,7 +243,6 @@ class Locus(Generic):
                     self._position_beats = ra.Beats(locus_position)._rational
                     if len(operand) == 2:
                         locus_duration: ra.Duration = ra.Duration(self, operand[1])
-                        self._position_beats = ra.Beats(locus_duration)._rational
                         duration_beats: Fraction = ra.Beats(locus_duration)._rational
                         if duration_beats > 0:
                             self._duration_beats = duration_beats

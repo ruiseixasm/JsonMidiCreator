@@ -286,7 +286,7 @@ def test_locus_stacking():
     assert eight_wholes % Length() == 8
 
     locus_notes = eight_wholes / [[0], [1], [2], [0, "3b"], [3], [5]]
-    assert locus_notes.len() == 7
+    assert locus_notes.len() == 6
     # locus_notes >> Plot()
     assert locus_notes[First()][0] == Degree(1)
     assert locus_notes[Last()][0] == Degree(5 + 1)

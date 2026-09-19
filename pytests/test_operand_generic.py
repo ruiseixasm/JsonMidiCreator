@@ -47,6 +47,7 @@ def test_settings_reset():
 
 def test_locus_length():
     locus = Locus([0, "3b"])
+    assert locus % Position() == Beats(0)
     assert locus % Length() == Beats(3)
 
 # test_locus_length()
