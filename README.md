@@ -56,6 +56,12 @@ pip install keyboard
 pip install numpy
 ```
 
+## Pytest installation
+In order to run the pytests you need to install `pytest` like so
+```sh
+sudo apt install python3-pytest
+```
+
 ## How to get the JsonMidiPlayer files
 1. Go to the [JsonMidiPlayer Releases page](https://github.com/ruiseixasm/JsonMidiPlayer/releases) and in the last release page you open, download the `.dll` or `.so` file for Windows or Linux respectively;
 2. Copy the `.dll` or `.so` file into your own local [JsonMidiCreator](https://github.com/ruiseixasm/JsonMidiCreator) library `/lib` folder.
