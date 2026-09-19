@@ -62,6 +62,10 @@ def test_locus_set():
     assert locus % Position() == Beats(0)
     assert locus % Length() == Beats(2)
 
+    locus << "B2"
+    assert locus % Position() == Beats(2)
+    assert locus % Length() == Beats(2)
+
 # test_locus_set()
 
 

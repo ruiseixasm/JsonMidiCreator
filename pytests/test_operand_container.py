@@ -522,7 +522,7 @@ def test_sub_clip():
     assert whole_note.len() == 1
     whole_note -= Locus("B1")
     # whole_note >> Plot()
-    # assert whole_note.len() == 2
+    assert whole_note.len() == 2
 
 
 # test_sub_clip()
