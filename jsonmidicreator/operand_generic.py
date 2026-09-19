@@ -364,7 +364,6 @@ class Edit(Generic):
                 match operand._data:
                     case ra.Position():
                         return operand._data << ra.Position(self._time_signature_reference, self._position_beats)
-                    case Fraction():        return self._position_beats
                     case _:                 return super().__mod__(operand)
             case ra.Position():
                 return operand.copy(self._source_clip._time_signature_reference, self._position_beats)
@@ -375,12 +374,15 @@ class Edit(Generic):
                 return operand.copy(self._source_clip._time_signature_reference, self._source_clip % operand)
             case ra.TimeValue():
                 return operand.copy(ra.Beats(self._time_signature_reference, self._source_clip % ra.Duration() % operand))
-            case list():            return [self._position_beats, self._source_clip % ra.Duration() % Fraction()]
-            case int():             return self % ra.Measure() % int()
+            case Locus():
+                edit_locus: Locus = Locus() << self % ra.Position()
+                edit_locus << self % ra.Duration()
+                return edit_locus
+            case list():            return self % Locus() % list()
+            case int():             return self._source_clip % ra.Position() % ra.Measure() % int()
             case Segment():         return operand.copy(self % ra.Position())
-            case float():           return self % ra.NoteValue() % float()
-            case Fraction():        return self._duration_beats
-            case Locus():           return operand.copy(self)
+            case float():           return self._source_clip % ra.Duration() % float()
+            case Fraction():        return self._source_clip % ra.Duration() % Fraction()
             case _:                 return super().__mod__(operand)
 
 
