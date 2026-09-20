@@ -515,6 +515,22 @@ class Insert(Edit):
         clip += insertion_locus
         clip += self._source_clip + self % ra.Position()
         return clip
+
+
+class Merge(Edit):
+    """`Generic -> Edit -> Merge`
+
+    Allows the merging over a target `Clip` with a source `Clip` at a given position.
+        
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit, int : The position on the targeted `Clip` where the editions starts.
+    Clip() : The `Clip` to be used as the source of the edition.
+    """
+    
+    def edit(self, clip: 'Clip') -> 'Clip':
+        clip += self._source_clip + self % ra.Position()
+        return clip
     
 
 class TimeSignature(Generic):
