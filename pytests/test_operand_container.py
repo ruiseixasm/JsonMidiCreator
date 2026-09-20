@@ -269,7 +269,7 @@ def test_add_container():
     assert two_measures % Duration() == Measures(2)
     two_measures += Locus("1M", "1m")
     print(f"two_measures % Duration(): {two_measures % Duration() % float()}")
-    two_measures >> Plot()
+    # two_measures >> Plot()
     assert two_measures % Duration() == Measures(3)
 
 

@@ -2281,7 +2281,7 @@ class Clip(Composition):  # Just a container of Elements
                 self._extend(bordering_elements)
                 # Makes sure all elements after split position are offset
                 for single_element in self._items:
-                    if single_element._position_beats > split_position_beats:
+                    if single_element._position_beats >= split_position_beats:
                         single_element._position_beats += operand._duration_beats
 
             case _:
