@@ -467,12 +467,8 @@ class Edit(Generic):
         match operand:
             case ra.Position():
                 self._position_beats += operand._rational
-            case ra.Duration() | ra.Length():
-                self._source_clip += operand._rational
             case _:
-                self_operand: any = self % operand
-                self_operand += operand
-                self << self_operand
+                self._source_clip += operand
         return self
 
     def __isub__(self, operand: any) -> Self:
@@ -480,12 +476,8 @@ class Edit(Generic):
         match operand:
             case ra.Position():
                 self._position_beats -= operand._rational
-            case ra.Duration() | ra.Length():
-                self._source_clip -= operand._rational
             case _:
-                self_operand: any = self % operand
-                self_operand -= operand
-                self << self_operand
+                self._source_clip -= operand
         return self
 
 
