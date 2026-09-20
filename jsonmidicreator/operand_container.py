@@ -2390,10 +2390,9 @@ class Clip(Composition):  # Just a container of Elements
                 # Starts by removing ALL elements from the clip
                 self._delete()
                 # Creates new bordering elements
-                cropped_elements: list[oe.Element] = []
                 for single_element in overlapping_elements:
                     single_element.trim(operand)
-                self._items = cropped_elements
+                self._items = overlapping_elements
 
             case _:
                 super().__imul__(operand)

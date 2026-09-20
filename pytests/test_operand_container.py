@@ -272,7 +272,6 @@ def test_add_container():
     # two_measures >> Plot()
     assert two_measures % Duration() == Measures(3)
 
-
 # test_add_container()
 
 
@@ -1140,6 +1139,21 @@ def test_clip_length():
     assert two_notes * two_notes * two_notes % Length() == Beats(4) * 3
 
 # test_clip_length()
+
+
+def test_crop_clip():
+    big_note = Note(2/1) * 1
+    assert big_note.gross_length() == Measures(2)
+    big_note *= Locus("1M", "2b")
+    # big_note >> Plot()
+    assert big_note.gross_length() == Measures(2)
+    assert big_note.net_duration() == Beats(2)
+    big_note /= Locus("1M", "1b")
+    assert big_note.gross_length() == Measures(1)
+    assert big_note.net_duration() == Beats(1)
+
+
+# test_crop_clip()
 
 
 def test_part_position():
