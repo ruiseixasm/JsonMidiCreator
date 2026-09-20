@@ -2617,6 +2617,31 @@ class Clip(Composition):  # Just a container of Elements
                     self._items = base_elements
                     self._set_owner_clip()
 
+            case og.Locus():    # Cuts out the Locus are and trims any overlap
+                overlapping_elements: list[oe.Element] = [
+                    single_element for single_element in self._items
+                    if single_element.overlaps(operand)
+                ]
+                # Starts by removing the overlapping elements from the clip
+                self._delete(overlapping_elements, True)
+                # Creates new bordering elements
+                bordering_elements: list[oe.Element] = []
+                locus_start_beats = operand.start() % Fraction()
+                locus_finish_beats = operand.finish() % Fraction()
+                for single_element in overlapping_elements:
+                    element_start_beats = single_element._position_beats
+                    element_finish_beats = element_start_beats + single_element._duration_beats
+                    left_element = single_element
+                    if element_start_beats < locus_start_beats:
+                        left_element._duration_beats -= element_finish_beats - locus_start_beats
+                        bordering_elements.append(left_element)
+                    if element_finish_beats > locus_finish_beats:
+                        right_element = single_element.copy()
+                        right_element._position_beats = locus_finish_beats
+                        right_element._duration_beats = element_finish_beats - locus_finish_beats
+                        bordering_elements.append(right_element)
+                self._extend(bordering_elements)
+
             case _:
                 super().__ifloordiv__(operand)
         return self._sort_items()  # Shall be sorted!
