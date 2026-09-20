@@ -496,6 +496,25 @@ class Replace(Edit):
         clip -= cutting_locus
         clip += self._source_clip + self % ra.Position()
         return clip
+
+
+class Insert(Edit):
+    """`Generic -> Edit -> Insert`
+
+    Allows the insertion on a target `Clip` a section defined by a source `Clip` duration.
+        
+    Parameters
+    ----------
+    Position(0), TimeValue, TimeUnit, int : The position on the targeted `Clip` where the editions starts.
+    Clip() : The `Clip` to be used as the source of the edition.
+    """
+    
+    def edit(self, clip: 'Clip') -> 'Clip':
+        insertion_locus = Locus(self._source_clip, ra.Position(self._position_beats))
+        insertion_locus << self._source_clip % ra.Duration()
+        clip += insertion_locus
+        clip += self._source_clip + self % ra.Position()
+        return clip
     
 
 class TimeSignature(Generic):
