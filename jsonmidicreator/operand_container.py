@@ -2255,7 +2255,35 @@ class Clip(Composition):  # Just a container of Elements
                         self[index].copy() for index in operand
                     ]
                 self._extend(new_elements)
-                
+
+            case og.Locus():    # Inserts a Locus where crossing elements split
+                crossing_elements: list[oe.Element] = [
+                    single_element for single_element in self._items
+                    if single_element.crosses(operand % ra.Position())
+                ]
+                # Starts by removing the overlapping elements from the clip
+                self._delete(crossing_elements, True)
+                # Creates new bordering elements
+                bordering_elements: list[oe.Element] = []
+                split_position_beats = operand % ra.Position() % Fraction()
+                for single_element in crossing_elements:
+                    element_start_beats = single_element._position_beats
+                    element_finish_beats = element_start_beats + single_element._duration_beats
+                    left_element = single_element
+                    if element_start_beats < split_position_beats:
+                        left_element._duration_beats -= element_finish_beats - split_position_beats
+                        bordering_elements.append(left_element)
+                    if element_finish_beats > split_position_beats:
+                        right_element = single_element.copy()
+                        right_element._position_beats = split_position_beats
+                        right_element._duration_beats = element_finish_beats - split_position_beats
+                        bordering_elements.append(right_element)
+                self._extend(bordering_elements)
+                # Makes sure all elements after split position are offset
+                for single_element in self._items:
+                    if single_element._position_beats > split_position_beats:
+                        single_element._position_beats += operand._duration_beats
+
             case _:
                 super().__iadd__(operand)
         return self._sort_items()  # Shall be sorted!
