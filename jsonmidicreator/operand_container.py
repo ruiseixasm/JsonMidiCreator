@@ -2403,6 +2403,19 @@ class Clip(Composition):  # Just a container of Elements
                 line_elements: list[oe.Element] = oe.get_elements_from_line(operand)
                 self *= Clip()._extend(line_elements)._set_owner_clip()._sort_items()
 
+            case og.Locus():    # Extract out the Locus are and trims everything else
+                overlapping_elements: list[oe.Element] = [
+                    single_element for single_element in self._items
+                    if single_element.overlaps(operand)
+                ]
+                # Starts by removing ALL elements from the clip
+                self._delete()
+                # Creates new bordering elements
+                cropped_elements: list[oe.Element] = []
+                for single_element in overlapping_elements:
+                    single_element.trim(operand)
+                self._items = cropped_elements
+
             case _:
                 super().__imul__(operand)
         return self._sort_items()  # Shall be sorted!
@@ -2485,6 +2498,13 @@ class Clip(Composition):  # Just a container of Elements
                         clip_elements.extend(locus_elements)
                         clip_start += locus._duration_beats
                     self._items = clip_elements
+
+            case og.Locus():    # Extract out the Locus are and trims everything else
+                self *= operand
+                # Makes sure all elements after cropping are placed at the beginning of the clip
+                locus_start_beats = operand.start() % Fraction()
+                for single_element in self._items:
+                    single_element._position_beats -= locus_start_beats
 
             case _:
                 super().__itruediv__(operand)
