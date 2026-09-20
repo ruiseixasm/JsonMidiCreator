@@ -257,7 +257,30 @@ class Sort(Transform):
         for index, element in enumerate(clip.elements_unmasked()):
             element._position_beats = original_positions[index]
         return clip
-    
+
+
+class Extend(Transform):
+    """`Transform -> Extend`
+
+    Extends (stretches) the given clip along a given length.
+
+    Args:
+        length(2.0) : The length along which the clip will be extended (stretched).
+    """
+    def __init__(self, length: 'ra.Length' = None):
+        self._length: ra.Length = length
+        super().__init__()
+
+
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        if self._length is None:
+            self._length = ra.Length(2.0)
+        original_self: Clip = clip.shallow_copy()
+        original_self_duration: ra.Duration = clip % ra.Duration()
+        while clip % ra.Duration() + original_self_duration <= self._length:
+            clip.__itruediv__(original_self)
+        return clip
+
 
 class Fill(Transform):
     """`Transform -> Fill`

@@ -5342,20 +5342,6 @@ class Snap(ClipProcess):
     def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.snap(self._parameters)
 
-class Extend(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Extend`
-
-    Extends (stretches) the given clip along a given length.
-
-    Args:
-        length (Length): The length along which the clip will be extended (stretched).
-    """
-    def __init__(self, length: 'Length' = None):
-        super().__init__( length )
-
-    def _direct_process(self, operand: 'Clip') -> 'Clip':
-        return operand.extend(self._parameters)
-
 
 
 class Settings(Generic):

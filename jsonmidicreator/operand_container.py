@@ -3316,25 +3316,6 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
-    def extend(self, length: ra.Length = None) -> Self:
-        """
-        Extends (stretches) the given clip along a given length.
-
-        Args:
-            length(2.0) : The length along which the clip will be extended (stretched).
-
-        Returns:
-            Clip: The same self object with the items processed.
-        """
-        if length is None:
-            length = ra.Length(2.0)
-        original_self: Clip = self.shallow_copy()
-        original_self_duration: ra.Duration = self % ra.Duration()
-        while self % ra.Duration() + original_self_duration <= length:
-            self.__itruediv__(original_self)
-        return self
-
-
     def loop(self, position = 0, length = 4) -> Self:
         """
         Creates a loop from the Composition from the given `Position` with a given `Length`.
