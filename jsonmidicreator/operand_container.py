@@ -3438,38 +3438,6 @@ class Clip(Composition):  # Just a container of Elements
                     current_element << new_length
         return self
 
-    def fill(self) -> Self:
-        """
-        Adds up Rests to empty spaces (lengths) in a staff for each Measure.
-
-        Args:
-            None
-
-        Returns:
-            Clip: The same self object with the items processed.
-        """
-        shallow_copy: Clip = self.shallow_copy()._sort_items()
-        shallow_copy_len: int = shallow_copy.len_unmasked()
-        for index in range(shallow_copy_len):
-            current_element: oe.Element = shallow_copy._items[index]
-            next_element: oe.Element = shallow_copy._items[index + 1]
-            if current_element.finish() < next_element.start():
-                rest_length: ra.Length = ra.Length( next_element.start() - current_element.finish() )
-                rest_element: oe.Rest = \
-                    oe.Rest()._set_owner_clip(self) \
-                    << rest_length
-                self += rest_element
-        
-        last_element: oe.Element = shallow_copy[shallow_copy_len - 1]
-        staff_end: ra.Position = (last_element.finish() % ra.Length()).roundMeasures() % ra.Position()
-        if last_element.finish() < staff_end:
-            rest_length: ra.Length = ra.Length( staff_end - last_element.finish() )
-            rest_element: oe.Rest = \
-                oe.Rest()._set_owner_clip(self) \
-                << rest_length
-            self += rest_element
-
-        return self
 
 
     def fit(self) -> Self:

@@ -222,7 +222,6 @@ class Overlap(Edit):
     Position(0), TimeValue, TimeUnit, int : The position on the targeted `Clip` where the editions starts.
     Clip() : The `Clip` to be used as the source of the edition.
     """
-    
     def _transform(self, clip: 'Clip') -> 'Clip':
         clip += self._source_clip + self % ra.Position()
         return clip
@@ -243,8 +242,8 @@ class Sort(Transform):
         self._reverse = reverse
         super().__init__()
 
+
     def _transform(self, clip: 'Clip') -> 'Clip':
-        
         original_positions: list[Fraction] = [
             element._position_beats for element in clip.elements_unmasked()
         ]
@@ -259,5 +258,37 @@ class Sort(Transform):
             element._position_beats = original_positions[index]
         return clip
     
+
+class Fill(Transform):
+    """`Transform -> Fill`
+
+    Adds up Rests to empty spaces (lengths) in a staff for each Measure.
+
+    Args:
+        None
+    """
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        shallow_copy: Clip = clip.shallow_copy()._sort_items()
+        shallow_copy_len: int = shallow_copy.len_unmasked()
+        for index in range(shallow_copy_len):
+            current_element: oe.Element = shallow_copy._items[index]
+            next_element: oe.Element = shallow_copy._items[index + 1]
+            if current_element.finish() < next_element.start():
+                rest_length: ra.Length = ra.Length( next_element.start() - current_element.finish() )
+                rest_element: oe.Rest = \
+                    oe.Rest()._set_owner_clip(clip) \
+                    << rest_length
+                clip += rest_element
+        
+        last_element: oe.Element = shallow_copy[shallow_copy_len - 1]
+        staff_end: ra.Position = (last_element.finish() % ra.Length()).roundMeasures() % ra.Position()
+        if last_element.finish() < staff_end:
+            rest_length: ra.Length = ra.Length( staff_end - last_element.finish() )
+            rest_element: oe.Rest = \
+                oe.Rest()._set_owner_clip(clip) \
+                << rest_length
+            clip += rest_element
+        return clip
+
 
 

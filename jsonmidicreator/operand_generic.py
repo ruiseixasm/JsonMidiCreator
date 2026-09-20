@@ -5402,18 +5402,6 @@ class Monofy(ClipProcess):
     def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.monofy()
 
-class Fill(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Fill`
-
-    Adds up Rests to empty spaces (lengths) in a staff for each Measure.
-
-    Args:
-        None
-    """
-    def _direct_process(self, operand: 'Clip') -> 'Clip':
-        return operand.fill()
-
-
 
 
 
