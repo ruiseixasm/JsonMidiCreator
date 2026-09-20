@@ -4799,27 +4799,6 @@ class ContainerProcess(Process):
         return super().__rrshift__(operand)
 
 
-class Sort(ContainerProcess):
-    """`Generic -> Process -> ContainerProcess -> Sort`
-
-    Sorts the contained items by a given parameter type.
-
-    Args:
-        parameter (type): Defines the given parameter type to sort by.
-        reverse (bool): Reverses the sorting if `True`.
-    """
-    from .operand_rational import Position
-
-    def __init__(self, parameter: type = Position, reverse: bool = False):
-        super().__init__([parameter, reverse])
-        self._indexes = {
-            'parameter': 0, 'reverse': 1
-        }
-
-    def _direct_process(self, operand: 'Container') -> 'Container':
-        return operand.sort(*self._parameters)
-
-
 class Filter(ContainerProcess):
     """`Generic -> Process -> ContainerProcess -> Filter`
 

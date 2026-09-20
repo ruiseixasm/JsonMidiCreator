@@ -270,7 +270,7 @@ class Container(o.Operand):
         # This works with a list method sort (Operands implement __lt__ and __gt__)
         self._items.sort()
         if self._upper_container is not None:   # Recursive call
-            self._upper_container.sort()
+            self._upper_container._sort_items()
         return self
 
     def _is_sorted(self) -> bool:
@@ -787,26 +787,6 @@ class Container(o.Operand):
     def is_empty(self) -> bool:
         return len(self._items) == 0
     
-
-    def sort(self, parameter: type = ra.Position, reverse: bool = False) -> Self:
-        """
-        Sorts the self list based on a given type of parameter.
-
-        Args:
-            parameter (type): The type of parameter being sorted by.
-
-        Returns:
-            Container: The same self object with the items processed.
-        """
-        compare = parameter()
-        sorted_items: list = self._items.copy().sort(
-            key=lambda x: x % compare
-        )
-        self << od.Pipe( sorted_items )
-        if reverse:
-            self._items.reverse()
-        return self
-
 
     def swap(self, left: Union[o.Operand, list, int] = 0, right: Union[o.Operand, list, int] = 1, what: type = ra.Position) -> Self:
         """
@@ -2187,7 +2167,7 @@ class Clip(Composition):  # Just a container of Elements
                 self._set_owner_clip()._sort_items()
 
             case tr.Edit():
-                operand.transform(self)
+                operand._transform(self)
 
             case ou.TrackNumber():
                 self._track_number = operand._unit
@@ -2909,24 +2889,7 @@ class Clip(Composition):  # Just a container of Elements
             unique_items.append(single_element)
         return self._delete(remove_items, True)
 
-    
-    def sort(self, parameter: type = ra.Position, reverse: bool = False) -> Self:
-        """
-        Sorts the self list based on a given type of parameter.
 
-        Args:
-            parameter (type): The type of parameter being sorted by.
-
-        Returns:
-            Clip: The same self object with the items processed.
-        """
-        original_positions: list[Fraction] = [
-            element._position_beats for element in self.elements_unmasked()
-        ]
-        super().sort(parameter, reverse)
-        for index, element in enumerate(self.elements_unmasked()):
-            element._position_beats = original_positions[index]
-        return self
     
     def stepper(self, pattern: str = "1... 1... 1... 1...", element: 'oe.Element' = None) -> Self:
         """
