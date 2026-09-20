@@ -517,8 +517,8 @@ class Insert(Edit):
         return clip
 
 
-class Merge(Edit):
-    """`Generic -> Edit -> Merge`
+class Overlap(Edit):
+    """`Generic -> Edit -> Overlap`
 
     Allows the merging over a target `Clip` with a source `Clip` at a given position.
         
