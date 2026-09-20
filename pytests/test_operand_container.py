@@ -1152,7 +1152,6 @@ def test_crop_clip():
     assert big_note.gross_length() == Measures(1)
     assert big_note.net_duration() == Beats(1)
 
-
 # test_crop_clip()
 
 
