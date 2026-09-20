@@ -2279,9 +2279,9 @@ class Clip(Composition):  # Just a container of Elements
                         right_element._duration_beats = element_finish_beats - split_position_beats
                         bordering_elements.append(right_element)
                 self._extend(bordering_elements)
-                # Makes sure all elements after split position are offset
+                # Makes sure all elements after split position are offset (Extends the duration)
                 for single_element in self._items:
-                    if single_element._position_beats >= split_position_beats:
+                    if single_element._position_beats >= operand._position_beats:
                         single_element._position_beats += operand._duration_beats
 
             case _:
@@ -2382,7 +2382,7 @@ class Clip(Composition):  # Just a container of Elements
                 line_elements: list[oe.Element] = oe.get_elements_from_line(operand)
                 self *= Clip()._extend(line_elements)._set_owner_clip()._sort_items()
 
-            case og.Locus():    # Extract out the Locus are and trims everything else
+            case og.Locus():    # Extract out the Locus are and trims everything else (Shrinks the duration)
                 overlapping_elements: list[oe.Element] = [
                     single_element for single_element in self._items
                     if single_element.overlaps(operand)
