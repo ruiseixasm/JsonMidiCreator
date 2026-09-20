@@ -5356,20 +5356,6 @@ class Extend(ClipProcess):
     def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.extend(self._parameters)
 
-class Trim(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Trim`
-
-    Trims the given clip at a given length.
-
-    Args:
-        length (Length): The length of the clip that will be trimmed.
-    """
-    def __init__(self, length: 'Length' = None):
-        super().__init__( length )
-
-    def _direct_process(self, operand: 'Clip') -> 'Clip':
-        return operand.trim(self._parameters)
-
 
 
 class Settings(Generic):

@@ -3335,30 +3335,6 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
-    def trim(self, length: ra.Length = None) -> Self:
-        """
-        Trims the given clip at a given length.
-
-        Args:
-            length(1.0) : The length of the clip that will be trimmed.
-
-        Returns:
-            Clip: The same self object with the items processed.
-        """
-        if length is None:
-            length = ra.Length(1.0)
-        if isinstance(length, ra.Length):
-            self._items = [
-                element for element in self._items
-                if element % ra.Position() < length
-            ]
-            for index, element in enumerate(self._items):
-                if element % ra.Position() + element % ra.Length() > length:
-                    new_length: ra.Length = length - element % ra.Position()
-                    element << new_length
-        return self
-    
-
     def loop(self, position = 0, length = 4) -> Self:
         """
         Creates a loop from the Composition from the given `Position` with a given `Length`.
