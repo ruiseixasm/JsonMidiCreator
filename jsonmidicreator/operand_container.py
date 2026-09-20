@@ -2335,6 +2335,10 @@ class Clip(Composition):  # Just a container of Elements
                         right_element._duration_beats = element_finish_beats - locus_finish_beats
                         bordering_elements.append(right_element)
                 self._extend(bordering_elements)
+                # Makes sure all elements after split position are offset
+                for single_element in self._items:
+                    if single_element._position_beats >= locus_finish_beats:
+                        single_element._position_beats -= operand._duration_beats
 
             case _:
                 super().__isub__(operand)
