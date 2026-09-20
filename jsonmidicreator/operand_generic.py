@@ -435,8 +435,6 @@ class Edit(Generic):
                     case _:                 self._source_clip << operand
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case oc.Clip() | oe.Element():
-                self._source_clip << operand
             case ra.Position():
                 self._position_beats        = operand._rational
             case ra.Convertible():
@@ -457,11 +455,11 @@ class Edit(Generic):
                         self << ra.Beat(operand._segment[1])
                     elif len(operand._segment) > 2:
                         self << ra.Step(operand._segment[2])
-            case TimeSignature():
-                self._source_clip << operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
+            case _:
+                self._source_clip << operand
         return self
 
     def __iadd__(self, operand: any) -> Self:
