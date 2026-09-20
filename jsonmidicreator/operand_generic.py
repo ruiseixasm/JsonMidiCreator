@@ -381,7 +381,7 @@ class Edit(Generic):
                 match operand._data:
                     case ra.Position():
                         return operand._data << ra.Position(self._time_signature, self._position_beats)
-                    case _:                 return super().__mod__(operand)
+                    case _:                 return self._source_clip % operand
             case ra.Position():
                 return operand.copy(self._source_clip._time_signature, self._position_beats)
             case ra.TimeUnit():
@@ -400,7 +400,7 @@ class Edit(Generic):
             case Segment():         return operand.copy(self % ra.Position())
             case float():           return self._source_clip % ra.Duration() % float()
             case Fraction():        return self._source_clip % ra.Duration() % Fraction()
-            case _:                 return super().__mod__(operand)
+            case _:                 return self._source_clip % operand
 
 
     def getSerialization(self) -> dict:
