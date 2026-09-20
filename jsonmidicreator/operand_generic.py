@@ -520,7 +520,7 @@ class Insert(Edit):
 class Overlap(Edit):
     """`Generic -> Edit -> Overlap`
 
-    Allows the merging over a target `Clip` with a source `Clip` at a given position.
+    Allows the placing over a target `Clip` with a source `Clip` at a given position.
         
     Parameters
     ----------
