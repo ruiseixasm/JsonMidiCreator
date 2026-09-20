@@ -265,6 +265,13 @@ def test_add_container():
     # empty_clip >> Plot()
     assert empty_clip.len() == 2
 
+    two_measures = Note(2/1) * 1
+    assert two_measures % Duration() == Measures(2)
+    two_measures += Locus("1M", "1m")
+    print(f"two_measures % Duration(): {two_measures % Duration() % float()}")
+    two_measures >> Plot()
+    assert two_measures % Duration() == Measures(3)
+
 
 # test_add_container()
 
