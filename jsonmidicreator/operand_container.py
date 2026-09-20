@@ -2140,6 +2140,7 @@ class Clip(Composition):  # Just a container of Elements
         return new_clip << parameters
 
     def __lshift__(self, operand: any) -> Self:
+        from . import operand_transform as tr
         match operand:
             case Clip():
                 super().__lshift__(operand)
@@ -2185,8 +2186,8 @@ class Clip(Composition):  # Just a container of Elements
                 self._items = line_elements
                 self._set_owner_clip()._sort_items()
 
-            case og.Edit():
-                operand.edit(self)
+            case tr.Edit():
+                operand.transform(self)
 
             case ou.TrackNumber():
                 self._track_number = operand._unit

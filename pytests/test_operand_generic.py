@@ -75,7 +75,7 @@ def test_edit_clip():
     replace = Replace("1B", two_notes)
     whole_note = Note(1/1) * 1
     assert whole_note.len() == 1
-    replace.edit(whole_note)
+    replace.transform(whole_note)
     # whole_note >> Plot()
     assert whole_note.len() == 4
 
