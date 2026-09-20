@@ -3358,32 +3358,6 @@ class Clip(Composition):  # Just a container of Elements
                     element << new_length
         return self
     
-    def cut(self, start: ra.Position = None, finish: ra.Position = None) -> Self:
-        """
-        Cuts (removes) the section of the clip from the start to the finish positions.
-
-        Args:
-            start (Position): Starting position of the section to be cut.
-            finish (Position): Finish position of the section to be cut.
-
-        Returns:
-            Clip: The same self object with the items processed.
-        """
-        if start is None:
-            start = ra.Position(0)
-        if finish is None:
-            finish = start + ra.Measures(1)
-        if finish > start:
-            self._items = [
-                element for element in self._items
-                if element < start or element >= finish
-            ]
-            move_left: ra.Position = finish - start
-            for index, element in enumerate(self._items):
-                if element > start:
-                    element -= move_left
-        return self
-
 
     def loop(self, position = 0, length = 4) -> Self:
         """

@@ -5370,27 +5370,6 @@ class Trim(ClipProcess):
     def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.trim(self._parameters)
 
-class Cut(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Cut`
-
-    Cuts (removes) the section of the clip from the start to the finish positions.
-
-    Args:
-        start (Position): Starting position of the section to be cut.
-        finish (Position): Finish position of the section to be cut.
-    """
-    from .operand_rational import Position
-
-    def __init__(self, start: Position = None, finish: Position = None):
-        super().__init__([start, finish])
-        self._indexes = {
-            'start': 0, 'finish': 1
-        }
-
-    def _direct_process(self, operand: 'Clip') -> 'Clip':
-        return operand.cut(*self._parameters)
-
-
 
 
 class Settings(Generic):
