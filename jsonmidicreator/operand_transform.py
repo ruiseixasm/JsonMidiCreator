@@ -291,4 +291,26 @@ class Fill(Transform):
         return clip
 
 
+class Monofy(Transform):
+    """`Transform -> Monofy`
+
+    Cuts out any part of an element Duration that overlaps with the next element.
+
+    Args:
+        None
+    """
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        if clip.len_unmasked() > 1:
+            # Starts by sorting by Position
+            shallow_copy: Clip = clip.shallow_copy()._sort_items()
+            for index in range(shallow_copy.len_unmasked()):
+                current_element: oe.Element = shallow_copy._items[index]
+                next_element: oe.Element = shallow_copy._items[index + 1]
+                if current_element.finish() > next_element.start():
+                    new_length: ra.Length = ra.Length( next_element.start() - current_element.start() )
+                    current_element << new_length
+        return clip
+
+
+
 

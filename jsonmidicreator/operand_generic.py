@@ -5391,18 +5391,6 @@ class Cut(ClipProcess):
         return operand.cut(*self._parameters)
 
 
-class Monofy(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Monofy`
-
-    Cuts out any part of an element Duration that overlaps with the next element.
-
-    Args:
-        None
-    """
-    def _direct_process(self, operand: 'Clip') -> 'Clip':
-        return operand.monofy()
-
-
 
 
 class Settings(Generic):
