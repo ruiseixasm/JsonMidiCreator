@@ -4834,21 +4834,6 @@ class Operate(ContainerProcess):
         return operand.operate(*self._parameters)
 
 
-class Transform(ContainerProcess):
-    """`Generic -> Process -> ContainerProcess -> Transform`
-
-    Transforms each item by wrapping it with the new operand type given.
-
-    Args:
-        operand_type (type): The type of `Operand` by which each item will be transformed into.
-    """
-    def __init__(self, operand_type: type = 'Note'):
-        super().__init__(operand_type)
-
-    def _direct_process(self, operand: 'Container') -> 'Container':
-        return operand.transform(self._parameters)
-
-
 class Swap(ContainerProcess):
     """`Generic -> Process -> ContainerProcess -> Swap`
 

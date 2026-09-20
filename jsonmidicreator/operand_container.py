@@ -908,21 +908,6 @@ class Container(o.Operand):
                 self ^ operand
         return self
 
-    def transform(self, operand_type: type = 'oe.Note') -> Self:
-        """
-        Transforms each item by wrapping it with the new operand type given.
-
-        Args:
-            operand_type (type): The type of `Operand` by which each item will be transformed into.
-
-        Returns:
-            Container: The same self object after the given processed items.
-        """
-        for item in self._items:
-            self._replace(item, operand_type(item))
-        return self
-
-
 
 class Devices(Container):
     """`Container -> Devices`
