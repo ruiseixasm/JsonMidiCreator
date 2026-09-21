@@ -4933,37 +4933,6 @@ class CompositionProcess(ContainerProcess):
         return operand
 
 
-class Drop(CompositionProcess):
-    """`Generic -> Process -> ContainerProcess -> CompositionProcess -> Drop`
-    
-    Drops from the `Composition` all `Measure`'s given by the numbers as parameters.
-
-    Parameters
-    ----------
-    int(), list(), tuple(), set() : Accepts a sequence of integers as the Measures to be dropped.
-    """
-    def __init__(self, *measures):
-        super().__init__(measures)
-
-    def _direct_process(self, operand: TypeComposition) -> TypeComposition:
-        return operand.drop(*self._parameters)
-
-class Crop(CompositionProcess):
-    """`Generic -> Process -> ContainerProcess -> CompositionProcess -> Crop`
-    
-    Crops from the `Composition` all `Measure`'s given by the numbers as parameters.
-
-    Parameters
-    ----------
-    int(), list(), tuple(), set() : Accepts a sequence of integers as the Measures to be cropped.
-    """
-    def __init__(self, *measures):
-        super().__init__(measures)
-
-    def _direct_process(self, operand: TypeComposition) -> TypeComposition:
-        return operand.crop(*self._parameters)
-
-
 class ClipProcess(CompositionProcess):
     """`Generic -> Process -> ContainerProcess -> CompositionProcess -> ClipProcess`
 

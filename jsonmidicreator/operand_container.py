@@ -1445,35 +1445,6 @@ class Composition(Container):
         return super().__ipow__(operand)
 
 
-    def drop(self, *measures) -> Self:
-        """
-        Drops from the `Composition` all `Measure`'s given by the numbers as parameters.
-
-        Parameters
-        ----------
-        int(), list(), tuple(), set() : Accepts a sequence of integers as the Measures to be dropped.
-
-        Returns:
-            Container: The same self object with the items removed if any.
-        """
-        return self
-
-    def crop(self, *measures) -> Self:
-        """
-        Crops from the `Composition` all `Measure`'s given by the numbers as parameters.
-
-        Parameters
-        ----------
-        int(), list(), tuple(), set() : Accepts a sequence of integers as the Measures to be cropped.
-
-        Returns:
-            Container: The same self object with the items removed if any.
-        """
-        return self
-
-
-
-
     def call(self, iterations: int = 1, n_button: Optional[Callable[['Composition'], 'Composition']] = None) -> Self:
             """
             `Call` a given callable function passed as `n_button`. This is to be used instead of `Plot` whenever \
@@ -2759,84 +2730,6 @@ class Clip(Composition):  # Just a container of Elements
             if isinstance(right_operand, of.Frame):
                 right_operand = self[right_operand]
             return super().swap(left_operand, right_operand, parameter_type)
-        return self
-
-
-    def drop(self, *measures) -> Self:
-        """
-        Drops from the `Composition` all `Measure`'s given by the numbers as parameters.
-
-        Parameters
-        ----------
-        int(), list(), tuple(), set() : Accepts a sequence of integers as the Measures to be dropped.
-
-        Returns:
-            Clip: The same self object with the items removed if any.
-        """
-        finish_position: ra.Position = self.net_finish_unmasked()
-        if finish_position is not None:
-
-            measures_list: list[int] = []
-            for single_measure in measures:
-                if isinstance(single_measure, (list, tuple, set)):
-                    for measure in single_measure:
-                        if isinstance(measure, (int, float, Fraction)):
-                            measures_list.append(int(measure))
-                elif isinstance(single_measure, (int, float, Fraction)):
-                    measures_list.append(int(measure))
-            
-            end_measure: int = finish_position % ra.Measure() % int()
-            # Pre processing of the measures_list, to start dropping from the end
-            measures_list = [
-                validated_measure for validated_measure in sorted(set(measures_list), reverse=True)
-                if validated_measure <= end_measure
-            ]
-
-            for single_measure in measures_list:
-                # removes all Elements at the Measure
-                elements_to_remove: list[oe.Element] = [
-                    measure_element for measure_element in self.elements_unmasked()
-                    if measure_element == ra.Measure(single_measure)
-                ]
-                self._delete(elements_to_remove, True)
-                # offsets the right side of it to occupy the dropped measure
-                for single_element in self.elements_unmasked():
-                    if single_element > ra.Measure(single_measure):
-                        single_measure -= ra.Measure(1)
-
-        return self
-
-    def crop(self, *measures) -> Self:
-        """
-        Crops from the `Composition` all `Measure`'s given by the numbers as parameters.
-
-        Parameters
-        ----------
-        int(), list(), tuple(), set() : Accepts a sequence of integers as the Measures to be cropped.
-
-        Returns:
-            Clip: The same self object with the items removed if any.
-        """
-        finish_position: ra.Position = self.net_finish_unmasked()
-        if finish_position is not None:
-
-            measures_list: list[int] = []
-            for single_measure in measures:
-                if isinstance(single_measure, (list, tuple, set)):
-                    for measure in single_measure:
-                        if isinstance(measure, (int, float, Fraction)):
-                            measures_list.append(int(measure))
-                elif isinstance(single_measure, (int, float, Fraction)):
-                    measures_list.append(int(measure))
-            
-            end_measure: int = finish_position % ra.Measure() % int()
-            
-            all_measures = range(end_measure + 1)
-            drop_measures: list[int] = [
-                single_measure for single_measure in all_measures
-                if single_measure not in measures_list
-            ]
-            return self.drop(drop_measures)
         return self
 
 
