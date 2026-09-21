@@ -2248,6 +2248,7 @@ class Clip(Composition):  # Just a container of Elements
 
     # in-place multiply (NO COPY!)
     def __imul__(self, operand: any) -> Self:
+        from . import operand_transform as tr
         match operand:
             case Clip():
                 operand_copy: Clip = operand.copy()._set_owner_clip(self)   # To be dropped
@@ -2316,6 +2317,9 @@ class Clip(Composition):  # Just a container of Elements
                 for single_element in overlapping_elements:
                     single_element.trim(operand)
                 self._items = overlapping_elements
+
+            case tr.Transform():
+                operand._transform(self)
 
             case _:
                 super().__imul__(operand)
