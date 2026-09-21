@@ -2182,7 +2182,7 @@ class Clip(Composition):  # Just a container of Elements
             case og.Locus():    # Inserts a Locus where crossing elements split
                 crossing_elements: list[oe.Element] = [
                     single_element for single_element in self._items
-                    if single_element.crosses(operand % ra.Position())
+                    if single_element.cross(operand % ra.Position())
                 ]
                 # Starts by removing the overlapping elements from the clip
                 self._delete(crossing_elements, True)
@@ -2308,7 +2308,7 @@ class Clip(Composition):  # Just a container of Elements
             case og.Locus():    # Extract out the Locus are and trims everything else (Shrinks the duration)
                 overlapping_elements: list[oe.Element] = [
                     single_element for single_element in self._items
-                    if single_element.overlaps(operand)
+                    if single_element.overlap(operand)
                 ]
                 # Starts by removing ALL elements from the clip
                 self._delete()
@@ -2391,7 +2391,7 @@ class Clip(Composition):  # Just a container of Elements
                         locus: og.Locus = og.Locus(self, locus_data)
                         locus_elements: list[oe.Element] = []
                         for single_element in self._items:
-                            if single_element.overlaps(locus):
+                            if single_element.overlap(locus):
                                 locus_elements.append(single_element.copy())    # decoupling element copy
                         for single_element in locus_elements:   # Elements trimming
                             single_element.trim(locus)
@@ -2545,7 +2545,7 @@ class Clip(Composition):  # Just a container of Elements
             case og.Locus():    # Cuts out the Locus are and trims any overlap
                 overlapping_elements: list[oe.Element] = [
                     single_element for single_element in self._items
-                    if single_element.overlaps(operand)
+                    if single_element.overlap(operand)
                 ]
                 # Starts by removing the overlapping elements from the clip
                 self._delete(overlapping_elements, True)

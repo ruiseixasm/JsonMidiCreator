@@ -772,21 +772,24 @@ class Last(Selector):
         return ol.Null()
 
 
-class Crossing(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> Crossing`
+class Cross(Selector):
+    """`Frame -> Left -> InputFilter -> Selector -> Cross`
 
-    A `Crossing` selects all elements that start at the beginning of a Measure or end at the end of one.
-    Note that `Crossing` only applies if there is a playable Measure before or after respectively.
+    A `Cross` selects all elements that passthrough a given position.
 
     Parameters
     ----------
-    None : `Crossing` doesn't have parameters to be set.
+    Position(0) : `Cross` has a default position of 0.
     """
+    def __init__(self, position: 'ra.Convertible' = None):
+        super().__init__()
+        self._named_parameters['position'] = ra.Position(position)
+
     def frame(self, input: o.T) -> o.T:
         from . import operand_element as oe
         from . import operand_container as oc
         if isinstance(self._inside_container, oc.Container) \
-            and isinstance(input, oe.Element) and input.crossing(self._inside_container):
+            and isinstance(input, oe.Element) and input.crossed(self._named_parameters['position']):
             if isinstance(self._chained_operand, Frame):
                 return self._chained_operand.frame(input)
             return self._chained_operand

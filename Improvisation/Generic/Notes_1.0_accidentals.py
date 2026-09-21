@@ -22,6 +22,6 @@ many_notes = Note() / 16 << Name("Accidentals")
 sharped_degree = Degree(Sharp())
 sharped_degree % Sharp() >> Print()
 many_notes << Odd()**sharped_degree
-many_notes.inline() + Crossing()**Flat(1)
+many_notes.inline() + Cross()**Flat(1)
 many_notes >> Plot()
 

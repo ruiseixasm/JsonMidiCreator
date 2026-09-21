@@ -129,26 +129,6 @@ class Element(o.Operand):
         return ra.Measure(start_measure)
 
 
-    def crossing(self, clip: 'Clip' = None) -> bool:
-        if clip is None:
-            if self._owner_clip is None:
-                return False
-            clip = self._owner_clip
-        last_position: ra.Position = clip._last_position_unmasked()
-        if last_position is None:   # An empty Composition doesn't count
-            return False
-        # Starts by checking if it's a starting measure Element
-        start_position: ra.Position = self.start()
-        start_measure: int = start_position % ra.Measure() % int()
-        if start_position % ra.Measures() == ra.Measures(start_measure) and start_measure > 0:
-            return True
-        # Finally checks if it finishes at or beyond the end of the Measure
-        finish_position: ra.Position = self.finish()
-        finish_measure: int = finish_position % ra.Measure() % int()
-        last_measure: int = last_position % ra.Measure() % int()
-        return finish_measure < last_measure + 1 and finish_measure > start_measure
-    
-
     def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
         if isinstance(previous_element, Element):   # Same as `previous_element.finish()`
             self._position_beats = previous_element._position_beats + previous_element._duration_beats
@@ -216,11 +196,11 @@ class Element(o.Operand):
         return ra.Position(self, self._position_beats + self._duration_beats)
 
 
-    def crosses(self, position: 'ra.Position') -> bool:
+    def cross(self, position: 'ra.Position') -> bool:
         return position._rational > self._position_beats \
             and position._rational < self._position_beats + self._duration_beats
     
-    def overlaps(self, other: Union['Element', 'og.Locus']) -> bool:
+    def overlap(self, other: Union['Element', 'og.Locus']) -> bool:
         return other._position_beats + other._duration_beats > self._position_beats \
             and other._position_beats < self._position_beats + self._duration_beats
 
