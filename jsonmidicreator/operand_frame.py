@@ -775,11 +775,11 @@ class Last(Selector):
 class Cross(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> Cross`
 
-    A `Cross` selects all elements that passthrough a given position.
+    A `Cross` selects all elements that passthrough a given `Position`.
 
     Parameters
     ----------
-    Position(0) : `Cross` has a default position of 0.
+    Position() : `Cross` has a default position of 0.
     """
     def __init__(self, position: 'ra.Convertible' = None):
         super().__init__()
@@ -794,6 +794,30 @@ class Cross(Selector):
                 return self._chained_operand.frame(input)
             return self._chained_operand
         return ol.Null()
+
+class Overlap(Selector):
+    """`Frame -> Left -> InputFilter -> Selector -> Overlap`
+
+    A `Overlap` selects all elements that overlap a given `Locus`.
+
+    Parameters
+    ----------
+    Locus() : `Overlap` has a default position of 0 and length of 1 beat.
+    """
+    def __init__(self, locus: 'og.Locus' = None):
+        super().__init__()
+        self._named_parameters['locus'] = og.Locus(locus)
+
+    def frame(self, input: o.T) -> o.T:
+        from . import operand_element as oe
+        from . import operand_container as oc
+        if isinstance(self._inside_container, oc.Container) \
+            and isinstance(input, oe.Element) and input.overlap(self._named_parameters['locus']):
+            if isinstance(self._chained_operand, Frame):
+                return self._chained_operand.frame(input)
+            return self._chained_operand
+        return ol.Null()
+
 
 class InputType(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> InputType`
