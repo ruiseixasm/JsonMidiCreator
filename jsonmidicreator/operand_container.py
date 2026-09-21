@@ -2108,7 +2108,7 @@ class Clip(Composition):  # Just a container of Elements
                 self._items = line_elements
                 self._set_owner_clip()._sort_items()
 
-            case tr.Edit():
+            case tr.Transform():
                 operand._transform(self)
 
             case ou.TrackNumber():
@@ -3176,30 +3176,6 @@ class Clip(Composition):  # Just a container of Elements
                         note._pitch << 2 * pitch_centroid - note_pitch
                 
         return self
-
-
-    def fit(self) -> Self:
-        """
-        Moves the `Position` of the following Elements to match the finish of the previous
-        `Element` by keeping its finish Position, meaning, by changing its `Duration`.
-
-        Args:
-            None
-
-        Returns:
-            Clip: The same self object with the items processed.
-        """
-        last_index: int = len(self._items) - 1
-        for i, single_element in enumerate(self._items):
-            # Sets the Position and the Duration
-            if i > 0:   # Not the first Element
-                previous_element = self._items[i - 1]
-                previous_element_finish_beats = previous_element._position_beats + previous_element._duration_beats
-                single_element_finish_beats = single_element._position_beats + single_element._duration_beats
-                if previous_element_finish_beats < single_element_finish_beats:
-                    single_element._duration_beats = single_element_finish_beats - previous_element_finish_beats
-                    single_element._position_beats = previous_element_finish_beats
-        return self    # No need for sorting in stack because stack doesn't change order
 
 
     def link(self) -> Self:

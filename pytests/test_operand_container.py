@@ -852,7 +852,7 @@ def test_clip_fitting():
     long_notes[0] << Duration(1/1)
     assert long_notes[0] % Duration() == 1/1
     assert long_notes[1] % Duration() == 2.5
-    long_notes.fit()
+    long_notes << Fit()
     assert long_notes.len() == 2
     assert long_notes % Net(Duration()) == 2.0 + 2.5
     assert long_notes[0] % Duration() == 1/1
@@ -865,13 +865,13 @@ def test_clip_fitting():
     assert isinstance(two_elements_copy[0], Note)
     assert isinstance(two_elements_copy[1], Rest)
     assert two_elements_copy[0] % Duration() == 1/4
-    two_elements_copy.fit()
+    two_elements_copy << Fit()
     assert isinstance(two_elements_copy[0], Note)
     assert isinstance(two_elements_copy[1], Rest)
     # two_elements_copy >> Plot()
     assert two_elements_copy[0] % Duration() == 1/4
 
-# test_clip_fitting()
+test_clip_fitting()
 
 
 def test_clip_map():

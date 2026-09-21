@@ -314,6 +314,28 @@ class Fill(Transform):
         return clip
 
 
+class Fit(Transform):
+    """`Transform -> Fit`
+
+    Moves the `Position` of the following Elements to match the finish of the previous
+    `Element` by keeping its finish Position, meaning, by changing its `Duration`.
+
+    Args:
+        None
+    """
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        for i, single_element in enumerate(clip._items):
+            # Sets the Position and the Duration
+            if i > 0:   # Not the first Element
+                previous_element = clip._items[i - 1]
+                previous_element_finish_beats = previous_element._position_beats + previous_element._duration_beats
+                single_element_finish_beats = single_element._position_beats + single_element._duration_beats
+                if previous_element_finish_beats < single_element_finish_beats:
+                    single_element._duration_beats = single_element_finish_beats - previous_element_finish_beats
+                    single_element._position_beats = previous_element_finish_beats
+        return clip
+
+
 class Monofy(Transform):
     """`Transform -> Monofy`
 

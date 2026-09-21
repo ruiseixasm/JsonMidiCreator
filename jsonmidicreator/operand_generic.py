@@ -4940,19 +4940,6 @@ class ClipProcess(CompositionProcess):
         return operand
     
 
-class Fit(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Fit`
-
-    Moves the `Position` of the following Elements to match the finish of the previous
-    `Element` by keeping its finish Position, meaning, by changing its `Duration`.
-
-    Args:
-        None
-    """
-    def _direct_process(self, operand: 'Clip') -> 'Clip':
-        return operand.fit()
-
-
 class Link(ClipProcess):
     """`Generic -> Process -> ContainerProcess -> ClipProcess -> Link`
 
