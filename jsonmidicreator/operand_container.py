@@ -3178,23 +3178,6 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
-    def snap(self, up: bool = False) -> Self:
-        """
-        For `Note` and derived, it snaps the given `Pitch` to the one of the key signature.
-
-        Args:
-            up (bool): By default it snaps to the closest bellow pitch, but if set as True, \
-                it will snap to the closest above pitch instead.
-
-        Returns:
-            Clip: The same self object with the items processed.
-        """
-        for single_note in self:
-            if isinstance(single_note, oe.Note):
-                single_note._pitch.snap(up)
-        return self
-
-
     def fit(self) -> Self:
         """
         Moves the `Position` of the following Elements to match the finish of the previous

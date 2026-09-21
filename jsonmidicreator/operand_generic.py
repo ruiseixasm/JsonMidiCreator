@@ -1386,21 +1386,6 @@ class Pitch(Generic):
         return self
 
 
-    def snap(self, up: bool = False) -> Self:
-        diatonic_scale: tuple[int] = self.get_diatonic_scale()
-        self_pitch: int = self.get_absolute_pitch()
-        pitch_offset: int = 0
-        if up:
-            pitch_step: int = 1
-        else:
-            pitch_step: int = -1
-        while diatonic_scale[self_pitch + pitch_offset] == 0:
-            pitch_offset += pitch_step
-        if pitch_offset > 0:
-            self += pitch_offset
-        return self
-
-
 class Controller(Generic):
     """`Generic -> Controller`
 
@@ -5276,22 +5261,6 @@ class Invert(ClipProcess):
 
     def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.invert(self._parameters)
-
-
-class Snap(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Snap`
-
-    For `Note` and derived, it snaps the given `Pitch` to the one of the key signature.
-
-    Args:
-        up (bool): By default it snaps to the closest bellow pitch, but if set as True, \
-            it will snap to the closest above pitch instead.
-    """
-    def __init__(self, up: bool = False):
-        super().__init__(up)
-
-    def _direct_process(self, operand: 'Clip') -> 'Clip':
-        return operand.snap(self._parameters)
 
 
 
