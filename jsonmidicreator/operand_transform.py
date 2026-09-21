@@ -271,7 +271,6 @@ class Extend(Transform):
         self._length: ra.Length = length
         super().__init__()
 
-
     def _transform(self, clip: 'Clip') -> 'Clip':
         if self._length is None:
             self._length = ra.Length(2.0)
@@ -357,5 +356,47 @@ class Monofy(Transform):
         return clip
 
 
+class Invert(Transform):
+    """`Transform -> Invert`
+
+    `invert` is similar to `Mirror` but based in a center defined by the first note on which all notes are vertically mirrored.
+
+    Args:
+        by_degree (bool): If `True` an inversion by Degree accordingly to the Key Signature, similar to the typical Staff, if False, \
+            does a chromatic inversion by pitch like in a piano roll. The default is `True`.
+    """
+    def __init__(self, by_degree: bool = True):
+        self._by_degree: bool = by_degree
+        super().__init__()
+
+
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        if self._by_degree:
+            center_degree_0: ou.Degree = None
+            
+            for note in clip.elements_unmasked():
+                if isinstance(note, oe.Note):
+                    center_degree_0 = note._pitch._absolute_degree_0()
+                    break
+
+            for note in clip.elements_unmasked():
+                if isinstance(note, oe.Note):
+                    note_degree_0: ou.Degree = note._pitch._absolute_degree_0()
+                    degree_distance: ou.Degree = note_degree_0 - center_degree_0
+                    # Removes twice, safer than removing 2x
+                    note._pitch -= degree_distance  # Recenter position
+                    note._pitch -= degree_distance  # Moves in opposite direction
+        else:
+            pitch_centroid: int = None
+            for note in clip.elements_unmasked():
+                if isinstance(note, oe.Note):
+                    pitch_centroid = note._pitch.get_absolute_pitch()
+                    break
+            for note in clip.elements_unmasked():
+                if isinstance(note, oe.Note):
+                    note_pitch: int = note._pitch.get_absolute_pitch()
+                    if note_pitch != pitch_centroid:
+                        note._pitch << 2 * pitch_centroid - note_pitch
+        return clip
 
 
