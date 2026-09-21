@@ -4933,24 +4933,6 @@ class CompositionProcess(ContainerProcess):
         return operand
 
 
-class Loop(CompositionProcess):
-    """`Generic -> Process -> ContainerProcess -> CompositionProcess -> Loop`
-
-    Creates a loop from the Composition from the given `Position` with a given `Length`.
-
-    Args:
-        position (Position): The given `Position` where the loop starts at.
-        length (Length): The `Length` of the loop.
-    """
-    def __init__(self, position = 0, length = 4):
-        super().__init__([position, length])
-        self._indexes = {
-            'position': 0, 'length': 1
-        }
-
-    def _direct_process(self, composition: TypeComposition) -> TypeComposition:
-        return composition.loop(*self._parameters)
-
 class Drop(CompositionProcess):
     """`Generic -> Process -> ContainerProcess -> CompositionProcess -> Drop`
     

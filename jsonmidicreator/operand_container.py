@@ -1445,20 +1445,6 @@ class Composition(Container):
         return super().__ipow__(operand)
 
 
-    def loop(self, position = 0, length = 4) -> Self:
-        """
-        Creates a loop from the Composition from the given `Position` with a given `Length`.
-
-        Args:
-            position (Position): The given `Position` where the loop starts at.
-            length (Length): The `Length` of the loop.
-
-        Returns:
-            Composition: A copy of the self object with the items processed.
-        """
-        return self.empty_copy()
-
-
     def drop(self, *measures) -> Self:
         """
         Drops from the `Composition` all `Measure`'s given by the numbers as parameters.
@@ -3316,39 +3302,6 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
-    def loop(self, position = 0, length = 4) -> Self:
-        """
-        Creates a loop from the Composition from the given `Position` with a given `Length`.
-
-        Args:
-            position (Position): The given `Position` where the loop starts at.
-            length (Length): The `Length` of the loop.
-
-        Returns:
-            Clip: A copy of the self object with the items processed.
-        """
-        punch_in: ra.Position = ra.Position(self, Fraction(0))              # Inclusive
-        punch_out: ra.Position = punch_in + ra.Position(self, Fraction(4))  # Exclusive
-
-        if isinstance(position, (int, float, Fraction, ra.Position)):
-            punch_in = ra.Position(self, position)
-        if isinstance(length, (int, float, Fraction, ra.Length)):
-            punch_out = punch_in + ra.Beats(length)
-        
-        included_elements: list[oe.Element] = [
-            inside_element for inside_element in self._items
-            if punch_in <= inside_element % od.Pipe( ra.Position() ) < punch_out
-        ]
-
-        self._delete(self._items, True)
-        self._extend(included_elements)
-
-        self -= punch_in   # Moves to the start of the Clip being looped/trimmed
-
-        return self._sort_items()
-
-
-
     def fit(self) -> Self:
         """
         Moves the `Position` of the following Elements to match the finish of the previous
@@ -4238,39 +4191,6 @@ class Section(Composition):
         return self
 
 
-    def loop(self, position = 0, length = 4) -> Self:
-        """
-        Creates a loop from the Composition from the given `Position` with a given `Length`.
-
-        Args:
-            position (Position): The given `Position` where the loop starts at.
-            length (Length): The `Length` of the loop.
-
-        Returns:
-            Block: A copy of the self object with the items processed.
-        """
-        punch_in: ra.Position = ra.Position(self, Fraction(0))  # Inclusive
-        punch_length: ra.Length = ra.Length(self, Fraction(4))  # Exclusive
-
-        if isinstance(position, (int, float, Fraction, ra.Position)):
-            punch_in = ra.Position(self, position)
-        if isinstance(length, (int, float, Fraction, ra.Length)):
-            punch_length = ra.Length(self, length)
-
-        clip_punch_in: ra.Position = punch_in - ra.Beats(self._position_beats)
-
-        # No Clip is removed, only elements are removed
-        for single_clip in self._items:
-            single_clip.loop(clip_punch_in, punch_length)
-
-        if self._position_beats < punch_in._rational:
-            self._position_beats = Fraction(0) # Positions all blocks at the start
-        else:
-            self._position_beats -= punch_in._rational
-
-        return self._sort_items()
-
-
 
 #####################################################################################################
 ##############################################  PART  ###############################################
@@ -4833,27 +4753,5 @@ class Part(Composition):
             case _:
                 super().__ifloordiv__(operand)
         return self
-
-
-    def loop(self, position = 0, length = 4) -> Self:
-        """
-        Creates a loop from the Composition from the given `Position` with a given `Length`.
-
-        Args:
-            position (Position): The given `Position` where the loop starts at.
-            length (Length): The `Length` of the loop.
-
-        Returns:
-            Part: A copy of the self object with the items processed.
-        """
-        punch_length: ra.Length = ra.Length(self, Fraction(4))  # Exclusive
-        if isinstance(length, (int, float, Fraction, ra.Length)):
-            punch_length = ra.Length(self, length)
-
-        # No Block is removed, only elements are removed
-        for block_loop in self._items:
-            block_loop.loop(position, punch_length)
-
-        return self._sort_items()
 
 
