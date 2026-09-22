@@ -1241,19 +1241,6 @@ def test_process_mask():
 # test_process_mask()
 
 
-def test_segment_swap():
-    two_notes = Note() / 2
-    assert two_notes[0] % Pitch() == two_notes[1] % Pitch()
-    two_notes << Foreach(1, 5)**Degree()
-    assert two_notes[0] % Pitch() != two_notes[1] % Pitch()
-    assert two_notes[0] % Pitch() < two_notes[1] % Pitch()
-
-    two_notes.swap([0, 0], [0, 1], Segment)
-    assert two_notes[0] % Pitch() > two_notes[1] % Pitch()
-
-# test_segment_swap()
-
-
 def test_segment_operations():
     four_notes = Note() / 4 << Foreach(0, 2, 4, 6)**Semitone()
     assert four_notes == Foreach(0, 2, 4, 6)**Semitone()

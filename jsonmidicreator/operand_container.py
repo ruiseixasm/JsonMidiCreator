@@ -765,40 +765,6 @@ class Container(o.Operand):
         return len(self._items) == 0
     
 
-    def swap(self, left: Union[o.Operand, list, int] = 0, right: Union[o.Operand, list, int] = 1, what: type = ra.Position) -> Self:
-        """
-        This method swaps a given parameter type between two operands.
-
-        Args:
-            left (any): The first item or `Segment` data.
-            right (any): The second item or `Segment` data.
-            what (type): The parameter type that will be swapped between both left and right.
-
-        Returns:
-            Container: The same self object with the operands processed.
-        """
-        from . import operand_generic as og
-        if what == og.Segment:
-            left_segment: og.Segment = og.Segment(left)
-            right_segment: og.Segment = og.Segment(right)
-            if left_segment.len() == right_segment.len():
-                left_selection: Clip = self[left_segment]
-                right_selection: Clip = self[right_segment]
-                left_selection << right_segment
-                right_selection << left_segment
-        else:
-            if isinstance(what, type):
-                if isinstance(left, int):
-                    left = self[left]
-                if isinstance(right, int):
-                    right = self[right]
-                if isinstance(left, o.Operand) and isinstance(right, o.Operand):
-                    parameter_instance = what()
-                    left_parameter: any = left % parameter_instance
-                    left << right % parameter_instance
-                    right << left_parameter
-        return self._sort_items()
-
     def reverse(self) -> Self:
         """
         Reverses the self list of items.
@@ -2650,26 +2616,6 @@ class Clip(Composition):  # Just a container of Elements
             single_element._masked = False
         return self
     
-
-    def swap(self, left_operand: o.Operand, right_operand: o.Operand, parameter_type: type = ra.Position) -> Self:
-        """
-        This method swaps a given parameter type between two operands.
-
-        Args:
-            left_item (any): The first item called the left item.
-            right_item (any): The second item called the right item.
-            parameter (type): The parameters that will be switched between both operands.
-
-        Returns:
-            Container: The same self object with the operands processed.
-        """
-        if isinstance(parameter_type, type):
-            if isinstance(left_operand, of.Frame):
-                left_operand = self[left_operand]
-            if isinstance(right_operand, of.Frame):
-                right_operand = self[right_operand]
-            return super().swap(left_operand, right_operand, parameter_type)
-        return self
 
     
     def stepper(self, pattern: str = "1... 1... 1... 1...", element: 'oe.Element' = None) -> Self:

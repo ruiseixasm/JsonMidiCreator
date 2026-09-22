@@ -4737,28 +4737,6 @@ class ContainerProcess(Process):
         return super().__rrshift__(operand)
 
 
-
-class Swap(ContainerProcess):
-    """`Generic -> Process -> ContainerProcess -> Swap`
-
-    This method swaps a given parameter type between two operands.
-
-    Args:
-        left (any): The first item or `Segment` data.
-        right (any): The second item or `Segment` data.
-        what (type): The parameter type that will be swapped between both left and right.
-    """
-    from .operand_rational import Position
-
-    def __init__(self, left: Union[o.Operand, list, int] = 0, right: Union[o.Operand, list, int] = 1, what: type = Position):
-        super().__init__([left, right, what])
-        self._indexes = {
-            'left': 0, 'right': 1, 'what': 2
-        }
-
-    def _direct_process(self, operand: 'Container') -> 'Container':
-        return operand.swap(*self._parameters)
-
 class Reverse(ContainerProcess):
     """`Generic -> Process -> ContainerProcess -> Reverse`
 
