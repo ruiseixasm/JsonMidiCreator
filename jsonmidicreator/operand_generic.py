@@ -3209,7 +3209,7 @@ class Export(ReadOnly):
                 if not isinstance(file_path, str):
                     file_path = "json/_Export_jsonMidiPlayer.json"
                 element_length: ra.Length = operand % ra.Length()
-                element_length_beats: Fraction = element_length.roundMeasures() % Fraction()
+                element_length_beats: Fraction = element_length.roundBeats() % Fraction()
                 clocking: dict[str, list] = settings.getClocking(element_length_beats)
                 playlist: list[dict] = self._get_playlist(operand)
                 c.exportJsonMidiPlay(clocking, playlist, file_path)
@@ -4545,7 +4545,7 @@ class Play(ReadOnly):
                 return operand
             case oe.Element():
                 element_length: ra.Length = operand % ra.Length()
-                element_length_beats: Fraction = element_length.roundMeasures() % Fraction()
+                element_length_beats: Fraction = element_length.roundBeats() % Fraction()
                 clocking: dict[str, list] = settings.getClocking(element_length_beats)
                 playlist: list[dict] = self._get_playlist(operand)  # Where the heavy lifting method is called
                 if self._parameters[self._indexes["plot"]] and self._parameters[self._indexes["block"]]:
