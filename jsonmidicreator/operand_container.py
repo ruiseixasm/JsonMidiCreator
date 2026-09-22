@@ -2890,83 +2890,8 @@ class Clip(Composition):  # Just a container of Elements
                     last_element << ra.Gate(gate)
                 last_element = item
         return self
+
     
-    def smooth(self, algorithm_type: int = 1) -> Self:
-        """
-        Adjusts each `Note` octave to have the closest pitch to the first, previous one or both.
-
-        Args:
-            algorithm_type (int): Sets the type of algorithm to be used accordingly to the next table:
-                +------+---------------------------------------------------------------------------+
-                | Type | Description                                                               |
-                +------+---------------------------------------------------------------------------+
-                | 1    | Considers both pitch distances, from the first note and the previous one. |
-                | 2    | Considers only the previous note pitch distance.                          |
-                | 3    | Considers only the first note pitch distance.                             |
-                | 4    | Considers the middle_pitch in relation to the previous one.               |
-                | 5    | Considers the middle_pitch in relation to the first note.                 |
-                +------+---------------------------------------------------------------------------+
-
-        Returns:
-            Clip: The same self object with the items processed.
-        """
-        first_pitch: int | None = None
-        previous_pitch: int | None = None
-        for note in self.elements_unmasked():
-            if isinstance(note, oe.Note):    # Only Notes have Pitch
-                if algorithm_type < 4:
-                    note_pitch: int = note._pitch.get_absolute_pitch()
-                    if first_pitch is None:
-                        previous_pitch = first_pitch = note_pitch
-                    else:
-                        delta_pitch: int = note_pitch
-                        if algorithm_type == 3:
-                            delta_pitch -= first_pitch
-                        else:
-                            delta_pitch -= previous_pitch
-                        octave_offset: int = delta_pitch // 12
-                        remaining_delta: int = delta_pitch % 12
-                        if remaining_delta > 6:
-                            octave_offset += 1
-                        elif remaining_delta < -6:
-                            octave_offset -= 1
-                        if algorithm_type == 1:
-                            expected_pitch: int = note_pitch - octave_offset * 12
-                            alternative_pitch: int = expected_pitch
-                            if first_pitch > expected_pitch:
-                                alternative_pitch += 12
-                            else:
-                                alternative_pitch -= 12
-                            delta_expected_pitch: int = abs(expected_pitch - first_pitch) + abs(expected_pitch - previous_pitch)
-                            delta_alternative_pitch: int = abs(alternative_pitch - first_pitch) + abs(alternative_pitch - previous_pitch)
-                            if delta_alternative_pitch < delta_expected_pitch:
-                                octave_offset -= (alternative_pitch - expected_pitch) // 12
-                        note -= ou.Octave(octave_offset)
-                        previous_pitch = note_pitch - octave_offset * 12
-                else:   # center pitch based
-                    note_pitch: int = note.pitch_centroid()
-                    if note_pitch >= 0:
-                        if first_pitch is None:
-                            previous_pitch = first_pitch = note_pitch
-                        else:
-                            if note_pitch > previous_pitch:
-                                above_pitch: int = note_pitch
-                                while note_pitch > previous_pitch:
-                                    above_pitch = note_pitch
-                                    note_pitch = note.decrease_pitch_centroid().pitch_centroid()
-                                if above_pitch - previous_pitch <= previous_pitch - note_pitch:
-                                    note_pitch = note.increase_pitch_centroid().pitch_centroid()
-                            elif note_pitch < previous_pitch:
-                                below_pitch: int = note_pitch
-                                while note_pitch < previous_pitch:
-                                    below_pitch = note_pitch
-                                    note_pitch = note.increase_pitch_centroid().pitch_centroid()
-                                if previous_pitch - below_pitch <= note_pitch - previous_pitch:
-                                    note_pitch = note.decrease_pitch_centroid().pitch_centroid()
-                        if algorithm_type == 4:
-                            previous_pitch = note_pitch
-        return self
-
 
     def split(self, position: ra.Position) -> tuple['Clip', 'Clip']:
         """

@@ -4896,29 +4896,6 @@ class Slur(ClipProcess):
     def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.slur(self._parameters)
 
-class Smooth(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Smooth`
-
-    Adjusts each `Note` octave to have the closest pitch to the first, previous one or both.
-
-    Args:
-        algorithm_type (int): Sets the type of algorithm to be used accordingly to the next table:
-            +------+---------------------------------------------------------------------------+
-            | Type | Description                                                               |
-            +------+---------------------------------------------------------------------------+
-            | 1    | Considers both pitch distances, from the first note and the previous one. |
-            | 2    | Considers only the previous note pitch distance.                          |
-            | 3    | Considers only the first note pitch distance.                             |
-            | 4    | Considers the middle_pitch in relation to the previous one.               |
-            | 5    | Considers the middle_pitch in relation to the first note. (default)       |
-            +------+---------------------------------------------------------------------------+
-    """
-    def __init__(self, algorithm_type: int = 5):
-        super().__init__(algorithm_type)
-
-    def _direct_process(self, operand: 'Clip') -> 'Clip':
-        return operand.smooth(self._parameters)
-
 
 
 class Settings(Generic):
