@@ -4864,23 +4864,6 @@ class Oscillate(ClipProcess):
         return operand.oscillate(*self._parameters)
 
 
-class Join(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Join`
-
-    Joins all same type notes with the same `Pitch` as a single `Note`, from left to right.
-
-    Args:
-        decompose (bool): If `True`, decomposes elements derived from `Note` first.
-    """
-    def __init__(self, decompose: bool = True):
-        super().__init__([decompose])  # Has to have the ending "," to be considered a tuple
-        self._indexes = {
-            'decompose': 0
-        }
-
-    def _direct_process(self, operand: 'Clip') -> 'Clip':
-        return operand.join(*self._parameters)
-
 
 
 

@@ -2840,45 +2840,6 @@ class Clip(Composition):  # Just a container of Elements
 
 
 
-    def join(self, decompose: bool = True, strict: bool = True) -> Self:
-        """
-        Joins all same type notes with the same `Pitch` as a single `Note`, from left to right.
-
-        Args:
-            decompose (bool): If `True`, decomposes elements derived from `Note` first (the default).
-            strict (bool): If `True`, the finish position of the previous note has to match the start position
-            of the next one (the default).
-
-        Returns:
-            Clip: The same self object with its notes joined by pitch and type.
-        """
-        if decompose: self.decompose()
-        clip_notes: list[oe.Note] = [
-            single_note for single_note in self.elements_unmasked() if type(single_note) is oe.Note
-        ]
-        joined_notes: list[oe.Note] = []
-        last_extended_notes: dict[int, oe.Note] = {}
-        for single_note in clip_notes:
-            note_channel_pitch: int = single_note._channel_0 << 8 | single_note._pitch.get_absolute_pitch()
-            if note_channel_pitch in last_extended_notes:
-                homologous_note: oe.Note = last_extended_notes[note_channel_pitch]
-                homologous_note_finish_position_beats: Fraction = homologous_note.finish()._rational
-                single_note_start_position_beats: Fraction = single_note._position_beats
-                single_note_finish_position_beats: Fraction = single_note.finish()._rational
-                if single_note_start_position_beats == homologous_note_finish_position_beats:
-                    homologous_note._duration_beats += single_note._duration_beats
-                    joined_notes.append(single_note)
-                elif not strict and single_note_finish_position_beats > homologous_note_finish_position_beats:
-                    homologous_note._duration_beats += single_note_finish_position_beats - homologous_note_finish_position_beats
-                else:
-                    last_extended_notes[note_channel_pitch] = single_note
-            else:
-                last_extended_notes[note_channel_pitch] = single_note   # Overrides previous existing notes (sorted by position)
-        self._delete(joined_notes)
-        return self
-
-
-
     def split(self, position: ra.Position) -> tuple['Clip', 'Clip']:
         """
         Splits the given clip in two at the given position.
