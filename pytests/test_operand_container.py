@@ -1091,7 +1091,6 @@ def test_clip_set():
     empty_clip = ~non_empty_clip << []
     assert empty_clip.len() == 0
 
-
 # test_clip_set()
 
 
