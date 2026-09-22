@@ -890,3 +890,52 @@ class Join(Parameterized):
 
 
 
+class Oscillate(Parameterized):
+    """`Transform -> Parameterized -> Oscillate`
+
+    Applies for each item element the value at the given position given by the oscillator function at
+    that same position.
+
+    Args:
+        amplitude (int): Amplitude of the wave.
+        wavelength (float): The length of the wave in note value.
+        offset (int): Sets the horizontal axis of the wave.
+        phase (int): Sets the starting degree of the wave.
+        parameter (type): The parameter used as the one being automated by the wave.
+    """
+    def __init__(self, amplitude: int = 63, wavelength: float = 1/1, offset: int = 0, phase: int = 0,
+                 parameter: type = None):
+        super().__init__()
+        self._parameters["amplitude"] = amplitude
+        self._parameters["wavelength"] = wavelength
+        self._parameters["offset"] = offset
+        self._parameters["phase"] = phase
+        self._parameters["parameter"] = parameter
+
+
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        amplitude = self._parameters["amplitude"]
+        wavelength = self._parameters["wavelength"]
+        offset = self._parameters["offset"]
+        phase = self._parameters["phase"]
+        parameter = self._parameters["parameter"]
+        for single_element in clip.elements_unmasked():
+            element_position: ra.Position = single_element % ra.Position()
+            wavelength_duration: Fraction = ra.Duration(wavelength)._rational
+            wavelength_position: Fraction = element_position % ra.Duration() % Fraction()
+            wavelength_ratio: Fraction = wavelength_position / wavelength_duration
+            # The default unit of measurement of Position and Length is in Measures !!
+            wave_phase: float = float(wavelength_ratio * 360 + phase)   # degrees
+            # int * float results in a float
+            # Fraction * float results in a float
+            # Fraction * Fraction results in a Fraction
+            value: int = int(amplitude * math.sin(math.radians(wave_phase)))
+            value += offset
+            if parameter is not None:
+                single_element << parameter(value)
+            else:
+                single_element << value # Most of the time
+        return clip
+
+
+

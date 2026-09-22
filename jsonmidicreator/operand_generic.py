@@ -4840,31 +4840,6 @@ class Automate(ClipProcess):
         return operand.automate(*self._parameters)
 
 
-class Oscillate(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Oscillate`
-
-    Applies for each item element the value at the given position given by the oscillator function at
-    that same position.
-
-    Args:
-        amplitude (int): Amplitude of the wave.
-        wavelength (float): The length of the wave in note value.
-        offset (int): Sets the horizontal axis of the wave.
-        phase (int): Sets the starting degree of the wave.
-        parameter (type): The parameter used as the one being automated by the wave.
-    """
-    def __init__(self, amplitude: int = 63, wavelength: float = 1/1, offset: int = 0, phase: int = 0,
-                 parameter: type = None):
-        super().__init__([amplitude, wavelength, offset, phase, parameter])
-        self._indexes = {
-            'amplitude': 0, 'wavelength': 1, 'offset': 2, 'phase': 3, 'parameter': 4
-        }
-
-    def _direct_process(self, operand: 'Clip') -> 'Clip':
-        return operand.oscillate(*self._parameters)
-
-
-
 
 
 class Settings(Generic):

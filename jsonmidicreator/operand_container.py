@@ -2731,43 +2731,6 @@ class Clip(Composition):  # Just a container of Elements
         return automation
 
 
-    def oscillate(self, amplitude: int = 63, wavelength: float = 1/1, offset: int = 0, phase: int = 0,
-                  parameter: type = None) -> Self:
-        """
-        Applies for each item element the value at the given position given by the oscillator function at
-        that same position.
-
-        Args:
-            amplitude (int): Amplitude of the wave.
-            wavelength (float): The length of the wave in note value.
-            offset (int): Sets the horizontal axis of the wave.
-            phase (int): Sets the starting degree of the wave.
-            parameter (type): The parameter used as the one being automated by the wave.
-
-        Returns:
-            Clip: A clip with each element having the wave value set on it.
-        """
-        for single_element in self.elements_unmasked():
-            
-            element_position: ra.Position = single_element % ra.Position()
-            wavelength_duration: Fraction = ra.Duration(wavelength)._rational
-            wavelength_position: Fraction = element_position % ra.Duration() % Fraction()
-            wavelength_ratio: Fraction = wavelength_position / wavelength_duration
-            # The default unit of measurement of Position and Length is in Measures !!
-            wave_phase: float = float(wavelength_ratio * 360 + phase)   # degrees
-            # int * float results in a float
-            # Fraction * float results in a float
-            # Fraction * Fraction results in a Fraction
-            value: int = int(amplitude * math.sin(math.radians(wave_phase)))
-            value += offset
-            if parameter is not None:
-                single_element << parameter(value)
-            else:
-                single_element << value # Most of the time
-
-        return self
-    
-    
 
     def quantize(self, amount: float = 1.0, quantize_duration: bool = False) -> Self:
         """
