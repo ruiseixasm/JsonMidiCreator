@@ -462,3 +462,29 @@ class Mirror(Transform):
                         note_pitch.set_absolute_pitch(new_pitch)
         return clip
 
+
+
+class Flip(Transform):
+    """`Transform -> Flip`
+
+    `Flip` works like `Reverse` but it's agnostic about the Measure keeping the elements positional range.
+
+    Args:
+        None
+    """
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        position_duration_beats: list[dict[str, Fraction]] = []
+        for index, single_element in enumerate(clip.elements_unmasked()):
+            position_duration_dict: dict[str, Fraction] = {
+                "duration": single_element._duration_beats
+            }
+            if index == 0:
+                position_duration_dict["position"] = single_element._position_beats
+            else:
+                position_duration_dict["position"] = \
+                    position_duration_beats[0]["position"] + position_duration_beats[0]["duration"]
+            position_duration_beats.insert(0, position_duration_dict)   # last one at position 0
+        for index, single_element in enumerate(clip.elements_unmasked()):
+            single_element._position_beats = position_duration_beats[index]["position"]
+            single_element._duration_beats = position_duration_beats[index]["duration"]
+        return clip

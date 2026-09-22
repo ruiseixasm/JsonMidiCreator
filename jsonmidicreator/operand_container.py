@@ -3044,34 +3044,6 @@ class Clip(Composition):  # Just a container of Elements
             self._swap(self.elements_unmasked()[operand_i], self.elements_unmasked()[self_len - 1 - operand_i])
         return self._sort_items()
 
-    def flip(self) -> Self:
-        """
-        `flip` works like `reverse` but it's agnostic about the Measure keeping the elements positional range.
-
-        Args:
-            None
-
-        Returns:
-            Clip: The same self object with the items processed.
-        """
-        position_duration_beats: list[dict[str, Fraction]] = []
-        for index, single_element in enumerate(self.elements_unmasked()):
-            position_duration_dict: dict[str, Fraction] = {
-                "duration": single_element._duration_beats
-            }
-            if index == 0:
-                position_duration_dict["position"] = single_element._position_beats
-            else:
-                position_duration_dict["position"] = \
-                    position_duration_beats[0]["position"] + position_duration_beats[0]["duration"]
-            position_duration_beats.insert(0, position_duration_dict)   # last one at position 0
-
-        for index, single_element in enumerate(self.elements_unmasked()):
-            single_element._position_beats = position_duration_beats[index]["position"]
-            single_element._duration_beats = position_duration_beats[index]["duration"]
-            
-        return self._sort_items()    # Sorting here is only needed because it may be a mask!
-
 
     def link(self) -> Self:
         """

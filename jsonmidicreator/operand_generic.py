@@ -5207,17 +5207,6 @@ class Shift(ClipProcess):
         return operand.shift(*self._parameters)
 
 
-class Flip(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Flip`
-
-    `Flip` works like `Reverse` but it's agnostic about the Measure keeping the elements positional range.
-
-    Args:
-        None
-    """
-    def _direct_process(self, operand: 'Clip') -> 'Clip':
-        return operand.flip()
-
 
 class Settings(Generic):
     """`Generic -> Settings`
