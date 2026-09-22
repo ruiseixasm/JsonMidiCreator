@@ -511,15 +511,14 @@ class Rotate(Transform):
         elements_locus: list[og.Locus] = [
             single_element % og.Locus() for single_element in rotated_elements
         ]
-        for _ in range(self._amount):
-            rotated_elements = o.list_rotate(rotated_elements, self._amount)
-            if self._move_duration:
-                for rotated_elements, single_locus in zip(rotated_elements, elements_locus):
-                    single_locus._duration_beats = rotated_elements._duration_beats
-                remainder_duration_beats: Fraction = Fraction(0)
-                for rotated_elements, single_locus in zip(rotated_elements, elements_locus):
-                    single_locus._position_beats += remainder_duration_beats
-                    remainder_duration_beats += rotated_elements._duration_beats - single_locus._duration_beats
+        rotated_elements = o.list_rotate(rotated_elements, self._amount)
+        if self._move_duration:
+            for rotated_elements, single_locus in zip(rotated_elements, elements_locus):
+                single_locus._duration_beats = rotated_elements._duration_beats
+            remainder_duration_beats: Fraction = Fraction(0)
+            for rotated_elements, single_locus in zip(rotated_elements, elements_locus):
+                single_locus._position_beats += remainder_duration_beats
+                remainder_duration_beats += rotated_elements._duration_beats - single_locus._duration_beats
         for rotated_elements, single_locus in zip(rotated_elements, elements_locus):
             rotated_elements << single_locus
         return clip
