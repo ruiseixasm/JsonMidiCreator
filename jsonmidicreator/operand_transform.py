@@ -335,6 +335,28 @@ class Fit(Transform):
         return clip
 
 
+
+class Link(Transform):
+    """`Transform -> Link`
+
+    Adjusts the `Duration` of each element to link its finish with the start of the next element.
+
+    Args:
+        None.
+    """
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        unmasked_elements: list[oe.Element] = clip.elements_unmasked()
+        last_index: int = len(unmasked_elements) - 1
+        for i, single_element in enumerate(unmasked_elements):
+            # Sets the Duration
+            if i < last_index:   # Not the last Element
+                next_element = unmasked_elements[i + 1]
+                if next_element._position_beats > single_element._position_beats:
+                    single_element._duration_beats = next_element._position_beats - single_element._position_beats
+        return clip
+
+
+
 class Monofy(Transform):
     """`Transform -> Monofy`
 

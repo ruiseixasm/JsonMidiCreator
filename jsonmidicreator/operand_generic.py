@@ -4885,17 +4885,6 @@ class ClipProcess(CompositionProcess):
         return operand
     
 
-class Link(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Link`
-
-    Adjusts the `Duration` of each element to link its finish with the start of the next element.
-
-    Args:
-        None.
-    """
-    def _direct_process(self, operand: 'Clip') -> 'Clip':
-        return operand.link()
-
 class Stack(ClipProcess):
     """`Generic -> Process -> ContainerProcess -> ClipProcess -> Stack`
 

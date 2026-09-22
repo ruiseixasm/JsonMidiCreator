@@ -2983,26 +2983,6 @@ class Clip(Composition):  # Just a container of Elements
         return self._sort_items()
 
 
-    def link(self) -> Self:
-        """
-        Adjusts the `Duration` of each element to link its finish with the start of the next element.
-
-        Args:
-            None
-
-        Returns:
-            Clip: The same self object with the items processed.
-        """
-        last_index: int = len(self._items) - 1
-        for i, single_element in enumerate(self._items):
-            # Sets the Duration
-            if i < last_index:   # Not the last Element
-                next_element = self._items[i + 1]
-                if next_element._position_beats > single_element._position_beats:
-                    single_element._duration_beats = next_element._position_beats - single_element._position_beats
-        return self    # No need for sorting in stack because stack doesn't change order
-
-
     def stack(self) -> Self:
         """
         Moves each Element to start at the finish `Position` of the previous one.
