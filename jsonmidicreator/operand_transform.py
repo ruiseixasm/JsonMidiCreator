@@ -488,3 +488,41 @@ class Flip(Transform):
             single_element._position_beats = position_duration_beats[index]["position"]
             single_element._duration_beats = position_duration_beats[index]["duration"]
         return clip
+
+
+
+class Rotate(Transform):
+    """`Transform -> Rotate`
+
+    `Rotate` does a right rotation of all elements by a given amount of rotation
+
+    Args:
+        amount (int): The right rotation amount of the list index, displacement.
+        move_duration (bool): Rotates the duration of the elements too (the default).
+    """
+    def __init__(self, amount: int = 1, move_duration = True):
+        self._amount: int = amount
+        self._move_duration: int = move_duration
+        super().__init__()
+
+
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        from collections import deque
+        elements_locus: list[og.Locus] = [
+            single_element % og.Locus() for single_element in clip.elements_unmasked()
+        ]
+        for _ in range(self._amount):
+            elements_locus = o.list_rotate(elements_locus, self._amount)
+            if self._move_duration:
+                for single_element, single_locus in zip(clip.elements_unmasked(), elements_locus):
+                    single_locus._duration_beats = single_element._duration_beats
+                remainder_duration_beats: Fraction = Fraction(0)
+                for single_element, single_locus in zip(clip.elements_unmasked(), elements_locus):
+                    single_locus._position_beats += remainder_duration_beats
+                    remainder_duration_beats += single_element._duration_beats - single_locus._duration_beats
+        for single_element, single_locus in zip(clip.elements_unmasked(), elements_locus):
+            single_element << single_locus
+        return clip
+
+
+
