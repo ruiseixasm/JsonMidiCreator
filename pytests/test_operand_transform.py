@@ -35,9 +35,15 @@ def test_clip_rotate():
     assert three_notes % Duration() == Beats(4)
 
     simple_rotation = three_notes * Rotate(1, False)
-    simple_rotation >> Plot()
-    assert simple_rotation[First()][0] == Degree(2)
+    # simple_rotation >> Plot()
+    assert simple_rotation[1] == Degree(3)
+    assert simple_rotation[1] == Beats(1)
 
-test_clip_rotate()
+    complete_rotation = three_notes * Rotate(1)
+    # complete_rotation >> Plot()
+    assert complete_rotation[1] == Degree(3)
+    assert complete_rotation[1] == Beats(2)
+
+# test_clip_rotate()
 
 
