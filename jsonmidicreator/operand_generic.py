@@ -4817,28 +4817,6 @@ class Stepper(ClipProcess):
     def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.stepper(*self._parameters)
 
-class Automate(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Automate`
-
-    Distributes the values given by the Steps pattern in a way very like the stepper Drum Machine fashion.
-
-    Args:
-        values (list[int]): The automation values at the triggered steps.
-        pattern (str): A string where the 1s in it are where the triggered midi messages are.
-        automation (Any): The type of automation wanted, like, Aftertouch, PitchBend or ControlChange,
-        the last one being the default.
-        interpolate (bool): Does an interpolation per `Step` between the multiple triggered steps.
-    """
-    def __init__(self, values: list[int] = [100, 70, 30, 100],
-                 pattern: str = "1... 1... 1... 1...", automation: Any = "Pan", interpolate: bool = True):
-        super().__init__([values, pattern, automation, interpolate])
-        self._indexes = {
-            'values': 0, 'pattern': 1, 'automation': 2, 'interpolate': 3
-        }
-
-    def _direct_process(self, operand: 'Clip') -> 'Clip':
-        return operand.automate(*self._parameters)
-
 
 
 

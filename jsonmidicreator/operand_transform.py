@@ -939,3 +939,77 @@ class Oscillate(Parameterized):
 
 
 
+
+class Automate(Parameterized):
+    """`Transform -> Parameterized -> Automate`
+
+    Distributes the values given by the Steps pattern in a way very like the stepper Drum Machine fashion.
+
+    Args:
+        values (list[int]): The automation values at the triggered steps.
+        pattern (str): A string where the 1s in it are where the triggered midi messages are.
+        automation (Any): The type of automation wanted, like, Aftertouch, PitchBend or ControlChange,
+        the last one being the default.
+        interpolate (bool): Does an interpolation per `Step` between the multiple triggered steps.
+    """
+    def __init__(self, values: list[int] = [100, 70, 30, 100],
+                 pattern: str = "1... 1... 1... 1...", automation: Any = "Modulation", interpolate: bool = True):
+        super().__init__()
+        self._parameters["values"] = values
+        self._parameters["pattern"] = pattern
+        self._parameters["automation"] = automation
+        self._parameters["interpolate"] = interpolate
+
+
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        values = self._parameters["values"]
+        pattern = self._parameters["pattern"]
+        automation = self._parameters["automation"]
+        interpolate = self._parameters["interpolate"]
+        if isinstance(pattern, str):
+            # ControlChange, PitchBend adn Aftertouch Elements have already 1 Step of Duration
+            if isinstance(automation, oe.Aftertouch):
+                automate_element: oe.Element = \
+                    oe.Aftertouch()._set_owner_clip(clip) \
+                    << automation
+                # Ensure values is a non-empty list with only integers ≥ 0
+                if not (isinstance(values, list) and values and all(isinstance(v, int) for v in values)):
+                    values = [30, 70, 50, 0]
+            elif isinstance(automation, oe.PitchBend) or automation is None:  # Pitch Bend, special case
+                automate_element: oe.Element = \
+                    oe.PitchBend()._set_owner_clip(clip) \
+                    << automation
+                # Ensure values is a non-empty list with only integers ≥ 0
+                if not (isinstance(values, list) and values and all(isinstance(v, int) for v in values)):
+                    values = [-20*64, -70*64, -50*64, 0*64]
+            else:
+                automate_element: oe.Element = \
+                    oe.ControlChange()._set_owner_clip(clip) \
+                    << automation
+                # Ensure values is a non-empty list with only integers ≥ 0
+                if not (isinstance(values, list) and values and all(isinstance(v, int) and v >= 0 for v in values)):
+                    values = [80, 50, 30, 100]
+            pattern_values = []
+            value_index = 0  # Keep track of which value to use
+            for char in pattern.replace(" ", "").replace("-", ""):
+                if char == "1":
+                    pattern_values.append(values[value_index])
+                    value_index = (value_index + 1) % len(values)  # Cycle through values
+                else:
+                    pattern_values.append(None)  # Empty slots
+            automation = pattern_values[:] # makes a copy of pattern_values
+            if interpolate:
+                # Find indices of known values
+                known_indices = [i for i, val in enumerate(pattern_values) if val is not None]
+                if not known_indices:
+                    raise ValueError("List must contain at least one integer.")
+                else:
+                    automation = clip._interpolate_list(known_indices, pattern_values)
+            position_steps: ra.Steps = ra.Steps(0)
+            for value in automation:
+                if value is not None:   # None adds no Element
+                    clip += automate_element << value << position_steps
+                position_steps += 1        
+        return clip
+
+
