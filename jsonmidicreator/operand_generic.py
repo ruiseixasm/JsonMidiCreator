@@ -4882,20 +4882,6 @@ class Join(ClipProcess):
         return operand.join(*self._parameters)
 
 
-class Slur(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Slur`
-
-    Changes the note `Gate` in order to crate a small overlap.
-
-    Args:
-        gate (float): Can be given a different gate from 1.05, de default.
-    """
-    def __init__(self, gate: float = 1.05):
-        super().__init__(gate)
-
-    def _direct_process(self, operand: 'Clip') -> 'Clip':
-        return operand.slur(self._parameters)
-
 
 
 class Settings(Generic):

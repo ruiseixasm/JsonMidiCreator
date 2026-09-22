@@ -2873,25 +2873,6 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
-    def slur(self, gate: float = 1.05) -> Self:
-        """
-        Changes the note `Gate` in order to crate a small overlap.
-
-        Args:
-            gate (float): Can be given a different gate from 1.05, de default.
-
-        Returns:
-            Clip: The same self object with the items processed.
-        """
-        last_element = None
-        for item in self.elements_unmasked():
-            if isinstance(item, oe.Note):
-                if last_element is not None:
-                    last_element << ra.Gate(gate)
-                last_element = item
-        return self
-
-    
 
     def split(self, position: ra.Position) -> tuple['Clip', 'Clip']:
         """

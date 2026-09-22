@@ -818,4 +818,27 @@ class Smooth(Parameterized):
 
 
 
+class Slur(Parameterized):
+    """`Transform -> Parameterized -> Slur`
+
+    Changes the note `Gate` in order to crate a small overlap.
+
+    Args:
+        gate (float): Can be given a different gate from 1.05, de default.
+    """
+    def __init__(self, gate: float = 1.05):
+        super().__init__()
+        self._parameters["gate"] = gate
+
+
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        last_element = None
+        for item in clip.elements_unmasked():
+            if isinstance(item, oe.Note):
+                if last_element is not None:
+                    last_element << ra.Gate(self._parameters["gate"])
+                last_element = item
+        return clip
+
+
 
