@@ -404,6 +404,29 @@ class Decompose(Transform):
         return clip.decompose()
 
 
+class Tie(Transform):
+    """`Transform -> Tie`
+
+    Adjusts the pitch of successive notes to the previous one and sets all Notes as tied.
+
+    Args:
+        None.
+    """
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        tied_notes: list[oe.Note] = [   # Only notes can be tied
+            single_note << ou.Tied(True)
+            for single_note in clip.elements_unmasked() if isinstance(single_note, oe.Note)
+        ]
+        notes_position_off: dict[Fraction, og.Pitch] = {
+            single_note._position_beats + single_note._duration_beats: single_note._pitch   # Has to be a pitch reference
+            for single_note in tied_notes
+        }
+        for single_note in tied_notes:
+            if single_note._position_beats in notes_position_off:
+                single_note << notes_position_off[single_note._position_beats]
+        return clip
+
+
 class Merge(Transform):
     """`Transform -> Merge`
 

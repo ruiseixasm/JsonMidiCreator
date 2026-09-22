@@ -4978,17 +4978,6 @@ class Oscillate(ClipProcess):
         return operand.oscillate(*self._parameters)
 
 
-class Tie(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Tie`
-
-    Adjusts the pitch of successive notes to the previous one and sets all Notes as tied.
-
-    Args:
-        None.
-    """
-    def _direct_process(self, operand: 'Clip') -> 'Clip':
-        return operand.tie()
-
 class Join(ClipProcess):
     """`Generic -> Process -> ContainerProcess -> ClipProcess -> Join`
 
