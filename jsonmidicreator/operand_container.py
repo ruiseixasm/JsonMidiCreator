@@ -2696,28 +2696,6 @@ class Clip(Composition):  # Just a container of Elements
             return super().swap(left_operand, right_operand, parameter_type)
         return self
 
-
-    def clean(self) -> Self:
-        """
-        With time a `Clip` may accumulate redundant Elements, this method removes all those elements.
-
-        Args:
-            None.
-
-        Returns:
-            Clip: The same self object with the items processed.
-        """
-        unique_items: list[oe.Element] = []
-        remove_items: list[oe.Element] = []
-        for single_element in self._items:
-            for unique_element in unique_items:
-                if single_element == unique_element:
-                    remove_items.append(single_element)
-                    break
-            unique_items.append(single_element)
-        return self._delete(remove_items, True)
-
-
     
     def stepper(self, pattern: str = "1... 1... 1... 1...", element: 'oe.Element' = None) -> Self:
         """

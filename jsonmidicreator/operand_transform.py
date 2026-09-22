@@ -524,3 +524,23 @@ class Rotate(Transform):
 
 
 
+class Clean(Transform):
+    """`Transform -> Clean`
+
+    With time a `Clip` may accumulate redundant Elements, this method removes all those elements.
+
+    Args:
+        None.
+    """
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        unique_items: list[oe.Element] = []
+        remove_items: list[oe.Element] = []
+        for single_element in clip._items:
+            for unique_element in unique_items:
+                if single_element == unique_element:
+                    remove_items.append(single_element)
+                    break
+            unique_items.append(single_element)
+        return clip._delete(remove_items, True)
+
+
