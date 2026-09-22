@@ -3045,6 +3045,7 @@ class Clip(Composition):  # Just a container of Elements
         self._extend(decomposed_elements)
         return self._sort_items()
 
+
     def arpeggiate(self, parameters: any = None) -> Self:
         """
         Distributes each element accordingly to the configured arpeggio by the parameters given.

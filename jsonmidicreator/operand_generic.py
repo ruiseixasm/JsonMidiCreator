@@ -4901,19 +4901,6 @@ class Quantize(ClipProcess):
         return operand.quantize(*self._parameters)
 
 
-class Decompose(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Decompose`
-
-    Transform each element in its component elements if it's a composed element,
-    like a chord that is composed of multiple notes, so, it becomes those multiple notes instead.
-
-    Args:
-        None
-    """
-    def _direct_process(self, operand: 'Clip') -> 'Clip':
-        return operand.decompose()
-
-
 class Arpeggiate(ClipProcess):
     """`Generic -> Process -> ContainerProcess -> ClipProcess -> Arpeggiate`
 

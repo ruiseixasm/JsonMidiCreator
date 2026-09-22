@@ -391,6 +391,19 @@ class Close(Transform):
         return self
 
 
+class Decompose(Transform):
+    """`Transform -> Decompose`
+
+    Transform each element in its component elements if it's a composed element,
+    like a chord that is composed of multiple notes, so, it becomes those multiple notes instead.
+
+    Args:
+        None.
+    """
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        return clip.decompose()
+
+
 
 class Monofy(Transform):
     """`Transform -> Monofy`
