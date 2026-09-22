@@ -413,17 +413,19 @@ class Tie(Transform):
         None.
     """
     def _transform(self, clip: 'Clip') -> 'Clip':
-        tied_notes: list[oe.Note] = [   # Only notes can be tied
-            single_note << ou.Tied(True)
-            for single_note in clip.elements_unmasked() if isinstance(single_note, oe.Note)
+        clip_notes: list[oe.Note] = [
+            single_note for single_note in clip.elements_unmasked() if type(single_note) is oe.Note
         ]
-        notes_position_off: dict[Fraction, og.Pitch] = {
-            single_note._position_beats + single_note._duration_beats: single_note._pitch   # Has to be a pitch reference
-            for single_note in tied_notes
-        }
-        for single_note in tied_notes:
-            if single_note._position_beats in notes_position_off:
-                single_note << notes_position_off[single_note._position_beats]
+        last_extended_notes: dict[int, oe.Note] = {}
+        for single_note in clip_notes:
+            note_channel_pitch: int = single_note._channel_0 << 8 | single_note._pitch.get_absolute_pitch()
+            if note_channel_pitch in last_extended_notes:
+                homologous_note: oe.Note = last_extended_notes[note_channel_pitch]
+                homologous_note_finish_position_beats: Fraction = homologous_note.finish()._rational
+                single_note_start_position_beats: Fraction = single_note._position_beats
+                if single_note_start_position_beats == homologous_note_finish_position_beats:
+                    single_note << ou.Tied(True)
+            last_extended_notes[note_channel_pitch] = single_note   # Overrides previous existing notes (sorted by position)
         return clip
 
 
