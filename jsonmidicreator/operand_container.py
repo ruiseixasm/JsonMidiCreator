@@ -539,8 +539,6 @@ class Container(o.Operand):
     # Pass trough method that always results in a Container (Self)
     def __irshift__(self, operand) -> Self:
         match operand:
-            case og.ContainerProcess(): # Allows the direct call o the process (NO COPY)
-                return operand._direct_process(self)
             case of.Frame():
                 operand._set_inside_container(self)
                 unmasked_items: list = self.items_unmasked()

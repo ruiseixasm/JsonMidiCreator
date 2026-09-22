@@ -4719,59 +4719,6 @@ class Read(Process):
 
 
 
-class ContainerProcess(Process):
-    """`Generic -> Process -> ContainerProcess`
-
-    Processes applicable exclusively to `Container` operands.
-    """
-    def __init__(self, parameters: list = []):
-        super().__init__(parameters)
-        self._previous_item: Any = None
-
-    def _direct_process(self, operand: o.T) -> o.T:
-        from . import operand_container as oc
-        if isinstance(operand, oc.Container):
-            return operand
-        else:
-            print(f"Warning: Operand is NOT a `Container`!")
-        return super().__rrshift__(operand)
-
-
-
-TypeComposition = TypeVar('TypeComposition', bound='Composition')  # TypeComposition represents any subclass of Operand
-
-class CompositionProcess(ContainerProcess):
-    """`Generic -> Process -> ContainerProcess -> CompositionProcess`
-
-    Processes applicable to any `Composition`.
-    """
-    def _direct_process(self, operand: TypeComposition) -> TypeComposition:
-        return operand
-
-
-class ClipProcess(CompositionProcess):
-    """`Generic -> Process -> ContainerProcess -> CompositionProcess -> ClipProcess`
-
-    Processes applicable exclusively to `Clip` operands.
-    """
-    def __init__(self, parameters: list = []):
-        from . import operand_element as oe
-        super().__init__(parameters)
-        self._previous_item: oe.Element | None = None
-
-    def _direct_process(self, operand: o.T) -> o.T:
-        from . import operand_container as oc
-        if isinstance(operand, oc.Clip):
-            return self._direct_process(operand)
-        else:
-            print(f"Warning: Operand is NOT a `Clip`!")
-        return super().__rrshift__(operand)
-
-    def _direct_process(self, operand: o.T) -> o.T:
-        return operand
-    
-
-
 
 class Settings(Generic):
     """`Generic -> Settings`
