@@ -4771,22 +4771,6 @@ class ClipProcess(CompositionProcess):
         return operand
     
 
-class Quantize(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Quantize`
-
-    Quantizes a `Clip` by a given amount from 0.0 to 1.0.
-
-    Args:
-        amount (float): The amount of quantization to apply from 0.0 to 1.0.
-        quantize_duration (bool): Includes the quantization of the `Duration` too.
-    """
-    def __init__(self, amount: float = 1.0, quantize_duration: bool = False):
-        super().__init__((amount, quantize_duration))
-
-    def _direct_process(self, operand: 'Clip') -> 'Clip':
-        return operand.quantize(*self._parameters)
-
-
 
 
 class Settings(Generic):

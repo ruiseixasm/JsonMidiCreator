@@ -2630,38 +2630,6 @@ class Clip(Composition):  # Just a container of Elements
 
 
 
-    def quantize(self, amount: float = 1.0, quantize_duration: bool = False) -> Self:
-        """
-        Quantizes a `Clip` by a given amount from 0.0 to 1.0.
-
-        Args:
-            amount (float): The amount of quantization to apply from 0.0 to 1.0.
-            quantize_duration (bool): Includes the quantization of the `Duration` too.
-
-        Returns:
-            Clip: The same self object with the items processed.
-        """
-        quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
-        amount_rational: Fraction = ra.Amount(amount) % Fraction()
-        for single_element in self.elements_unmasked():
-            # Position On
-            element_position_on: Fraction = single_element._position_beats
-            unquantized_amount: Fraction = element_position_on % quantization_beats
-            quantization_limit: int = round(unquantized_amount / quantization_beats)
-            position_on_offset: Fraction = (quantization_limit * quantization_beats - unquantized_amount) * amount_rational
-            single_element._position_beats += position_on_offset
-            # Position Off
-            if quantize_duration:
-                element_position_off: Fraction = single_element._position_beats + single_element._duration_beats
-                unquantized_amount = element_position_off % quantization_beats
-                quantization_limit = round(unquantized_amount / quantization_beats)
-                position_off_offset: Fraction = (quantization_limit * quantization_beats - unquantized_amount) * amount_rational
-                single_element._duration_beats += position_off_offset
-                while single_element._duration_beats <= Fraction(0):
-                    single_element._duration_beats += quantization_beats
-        return self
-    
-
     def decompose(self) -> Self:
         """
         Transform each element in its component elements if it's a composed element,
