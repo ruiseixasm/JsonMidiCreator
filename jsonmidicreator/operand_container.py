@@ -2852,8 +2852,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: The same self object with its notes joined by pitch and type.
         """
-        if decompose:
-            self.decompose()
+        if decompose: self.decompose()
         clip_notes: list[oe.Note] = [
             single_note for single_note in self.elements_unmasked() if type(single_note) is oe.Note
         ]
