@@ -2768,49 +2768,6 @@ class Clip(Composition):  # Just a container of Elements
         return self
     
     
-    def shift(self, right: Union['ra.Position', 'ra.TimeUnit', int, float, Fraction] = 1) -> Self:
-        """
-        Does a `Position` shift in a rotative fashion by doing a positional displacement of each `Element`
-        in the `Clip` list by the given amount. Clockwise. It does the module of positions by `Length` Measures.
-
-        Args:
-            right (1): The right `Position` amount for the displacement. Numbers are equivalent to:        
-                +----------+-------------+
-                | Type     | Equivalency |
-                +----------+-------------+
-                | int      | Measure     |
-                | float    | Step        |
-                | Fraction | Beat        |
-                +----------+-------------+
-
-        Returns:
-            Clip: The self object with the chosen parameter displaced.
-        """
-        if isinstance(right, (ra.Position, ra.TimeUnit, int, float, Fraction)):
-            match right:
-                case int():
-                    right = ra.Measure(right)
-                case float():
-                    right = ra.Step(right)
-                case Fraction():
-                    right = ra.Beat(right)
-            self_start: ra.Position = self.start()
-            if self_start is not None:
-                self_net_length: ra.Length = self.net_length_unmasked()
-                first_measure: int = self_start % ra.Measure() % int()
-                length_measures: int = self_net_length % ra.Measure() % int()
-                # Shift all items first
-                self += right   # Right changes elements Position
-                # Modulate out of range elements
-                for single_element in self.elements_unmasked():
-                    element_measure: int = single_element % ra.Measure() % int()
-                    element_measure -= first_measure
-                    element_measure %= length_measures
-                    element_measure += first_measure
-                    single_element << ra.Measure(element_measure)
-        return self._sort_items()
-
-
 
     def quantize(self, amount: float = 1.0, quantize_duration: bool = False) -> Self:
         """
