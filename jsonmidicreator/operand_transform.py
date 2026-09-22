@@ -374,6 +374,23 @@ class Stack(Transform):
         return clip
 
 
+class Close(Transform):
+    """`Transform -> Close`
+
+    Sets the finish `Position` of the last `Element` to match the end if its occupying `Measure`.
+
+    Args:
+        None.
+    """
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        unmasked_elements: list[oe.Element] = clip.elements_unmasked()
+        if unmasked_elements:
+            last_index: int = len(unmasked_elements) - 1
+            last_element: oe.Element = unmasked_elements[last_index]
+            last_element._duration_beats = self.gross_length()._rational - last_element._position_beats
+        return self
+
+
 
 class Monofy(Transform):
     """`Transform -> Monofy`

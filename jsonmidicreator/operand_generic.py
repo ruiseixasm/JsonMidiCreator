@@ -4885,17 +4885,6 @@ class ClipProcess(CompositionProcess):
         return operand
     
 
-class Close(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Close`
-    
-    Sets the finish `Position` of the last `Element` to match the end if its occupying `Measure`.
-
-    Args:
-        None.
-    """
-    def _direct_process(self, operand: 'Clip') -> 'Clip':
-        return operand.close()
-
 class Quantize(ClipProcess):
     """`Generic -> Process -> ContainerProcess -> ClipProcess -> Quantize`
 

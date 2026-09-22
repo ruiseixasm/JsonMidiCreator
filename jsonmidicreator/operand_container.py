@@ -2991,23 +2991,6 @@ class Clip(Composition):  # Just a container of Elements
 
 
 
-    def close(self) -> Self:
-        """
-        Sets the finish `Position` of the last `Element` to match the end if its occupying `Measure`.
-
-        Args:
-            None.
-
-        Returns:
-            Clip: The same self object with the items processed.
-        """
-        if self._items:
-            last_index: int = len(self._items) - 1
-            last_element: oe.Element = self._items[last_index]
-            last_element._duration_beats = self.gross_length()._rational - last_element._position_beats
-        return self    # No need for sorting in stack because stack doesn't change order
-
-
     def quantize(self, amount: float = 1.0, quantize_duration: bool = False) -> Self:
         """
         Quantizes a `Clip` by a given amount from 0.0 to 1.0.
