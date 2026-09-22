@@ -4873,19 +4873,6 @@ class Recur(ContainerProcess):
         return operand.recur(*self._parameters)
 
 
-class Erase(ContainerProcess):
-    """`Generic -> Process -> ContainerProcess -> Erase`
-
-    Erases all the given items in the present container and propagates the deletion
-    of the same items for the containers above.
-
-    Args:
-        *parameters: After deletion, any given parameter will be operated with `<<` in the sequence given.
-    """
-    def _direct_process(self, operand: 'Container') -> 'Container':
-        return operand.erase(*self._parameters)
-
-
 TypeComposition = TypeVar('TypeComposition', bound='Composition')  # TypeComposition represents any subclass of Operand
 
 class CompositionProcess(ContainerProcess):

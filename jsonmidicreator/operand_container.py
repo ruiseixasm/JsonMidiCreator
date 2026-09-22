@@ -760,23 +760,6 @@ class Container(o.Operand):
         self._delete(self._items, True)
         return super().clear(parameters)
     
-    def erase(self, *parameters) -> Self:
-        """
-        Erases all the given items in the present container and propagates the deletion
-        of the same items for the containers above.
-
-        Args:
-            *parameters: After deletion, any given parameter will be operated with `<<` in the sequence given.
-
-        Returns:
-            Container: Returns an empty self but with all the rest parameters untouched except the ones
-            changed by the imputed Args.
-        """
-        self._delete(self.items_unmasked(), True)
-        for single_parameter in parameters:
-            self << single_parameter
-        return self
-
 
     def is_empty(self) -> bool:
         return len(self._items) == 0
