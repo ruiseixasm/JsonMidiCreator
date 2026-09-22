@@ -854,38 +854,6 @@ class Container(o.Operand):
         return self._delete_by_ids(excluded_item_ids)
 
 
-    def operate(self, operand: Any = None, operator: str = "<<") -> Self:
-        """
-        Allows the setting of a specific operator as operation with a str as operator symbol.
-
-        Args:
-            operand (Any): `Operand` that is the source of the operation.
-            operator (str): The operator `op` that becomes processed as `self op operand`.
-
-        Returns:
-            Container: The same self object after the given processed operation.
-        """
-        operator = operator.strip()
-        match operator:
-            case "<<":
-                self << operand
-            case "+":
-                self += operand
-            case "-":
-                self -= operand
-            case "*":
-                self *= operand
-            case "/":
-                self /= operand
-            case "|":
-                self >>= operand
-            case "<<=":
-                self <<= operand
-            case "^":
-                self ^ operand
-        return self
-
-
 class Devices(Container):
     """`Container -> Devices`
 

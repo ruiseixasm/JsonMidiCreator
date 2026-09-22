@@ -4738,25 +4738,6 @@ class ContainerProcess(Process):
 
 
 
-class Operate(ContainerProcess):
-    """`Generic -> Process -> ContainerProcess -> Operate`
-
-    Allows the setting of a specific operator as operation with a str as operator symbol.
-
-    Args:
-        operand (Any): `Operand` that is the source of the operation.
-        operator (str): The operator `op` that becomes processed as `self op operand`.
-    """
-    def __init__(self, operand: Any = None, operator: str = "<<"):
-        super().__init__([operand, operator])
-        self._indexes = {
-            'operand': 0, 'operator': 1
-        }
-
-    def _direct_process(self, operand: 'Container') -> 'Container':
-        return operand.operate(*self._parameters)
-
-
 class Swap(ContainerProcess):
     """`Generic -> Process -> ContainerProcess -> Swap`
 
