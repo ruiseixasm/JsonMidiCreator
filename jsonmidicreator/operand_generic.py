@@ -4851,27 +4851,6 @@ class Reverse(ContainerProcess):
     def _direct_process(self, operand: 'Container') -> 'Container':
         return operand.reverse()
 
-class Recur(ContainerProcess):
-    """`Generic -> Process -> ContainerProcess -> Recur`
-
-    Calls the function on the successive items in a Xn+1 = Xn fashion (recursive),
-    where n is the previous element and n+1 the next one.
-
-    Args:
-        recursion (Callable): recursive function.
-        parameter (type): The type of parameter being processed by the recursive function.
-    """
-    from .operand_rational import Duration
-
-    def __init__(self, recursion: Callable = lambda d: d/2, parameter: type = Duration):
-        super().__init__([recursion, parameter])
-        self._indexes = {
-            'recursion': 0, 'parameter': 1
-        }
-
-    def _direct_process(self, operand: 'Container') -> 'Container':
-        return operand.recur(*self._parameters)
-
 
 TypeComposition = TypeVar('TypeComposition', bound='Composition')  # TypeComposition represents any subclass of Operand
 
