@@ -4799,25 +4799,6 @@ class Arpeggiate(ClipProcess):
         return operand.arpeggiate(self._parameters)
 
 
-class Stepper(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Stepper`
-
-    Sets the steps in a Drum Machine for a given `Element`. The default element is `Note()` for None.
-
-    Args:
-        pattern (str): A string where the 1s in it set where the triggered steps are.
-        element (Element): A element or any respective parameter that sets each element.
-    """
-    def __init__(self, pattern: str = "1... 1... 1... 1...", element: 'Element' = None):
-        super().__init__([pattern, element])
-        self._indexes = {
-            'pattern': 0, 'element': 1
-        }
-
-    def _direct_process(self, operand: 'Clip') -> 'Clip':
-        return operand.stepper(*self._parameters)
-
-
 
 
 class Settings(Generic):

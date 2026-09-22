@@ -1013,3 +1013,36 @@ class Automate(Parameterized):
         return clip
 
 
+
+class Stepper(Parameterized):
+    """`Transform -> Parameterized -> Stepper`
+
+    Sets the steps in a Drum Machine for a given `Element`. The default element is `Note()` for None.
+
+    Args:
+        pattern (str): A string where the 1s in it set where the triggered steps are.
+        element (Element): A element or any respective parameter that sets each element.
+    """
+    def __init__(self, pattern: str = "1... 1... 1... 1...", element: 'Element' = None):
+        super().__init__()
+        self._parameters["pattern"] = pattern
+        self._parameters["element"] = element
+
+
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        pattern = self._parameters["pattern"]
+        element = self._parameters["element"]    
+        if isinstance(pattern, str):
+            # Fraction sets the Duration in Steps
+            element_element: oe.Note = \
+                oe.Note()._set_owner_clip(clip) \
+                << Fraction(1) << element
+            steps_place = o.string_to_list(pattern)
+            position_steps: ra.Steps = ra.Steps(0)
+            for single_step in steps_place:
+                if single_step == 1:
+                    clip += element_element << position_steps
+                position_steps += 1
+        return clip
+
+
