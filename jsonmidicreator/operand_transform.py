@@ -229,7 +229,7 @@ class Overlap(Edit):
 
 
 class Sort(Transform):
-    """`Generic -> Transform -> Sort`
+    """`Transform -> Sort`
 
     Sorts the contained items by a given parameter type.
 
@@ -694,5 +694,41 @@ class Clean(Transform):
                     break
             unique_items.append(single_element)
         return clip._delete(remove_items, True)
+
+
+
+
+class Parameterized(Transform):
+    """`Transform -> Parameterized`
+
+    A `Parameterized` transformation allows the setting of multiple parameters in it.
+
+    Parameters
+    ----------
+    tuple() : A parameterized `Transform` has multiple parameters setting the respective transformation.
+    """
+    def __init__(self, parameters: tuple = tuple()):
+        super().__init__()
+        self._parameters: dict[str, Any] = {}   # Empty by default
+
+
+class Filter(Parameterized):
+    """`Transform -> Parameterized -> Filter`
+
+    A `Filter` works exactly like a `Mask` with the difference of keeping just \
+        the matching items and deleting everything else.
+
+    Args:
+        condition (Any): Sets a condition to be compared with `==` operator.
+    """
+    def __init__(self, *conditions):
+        super().__init__()
+        self._parameters["conditions"] = conditions
+
+
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        return clip.filter(*self._parameters["conditions"])
+
+
 
 

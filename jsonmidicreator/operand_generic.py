@@ -4784,21 +4784,6 @@ class ContainerProcess(Process):
         return super().__rrshift__(operand)
 
 
-class Filter(ContainerProcess):
-    """`Generic -> Process -> ContainerProcess -> Filter`
-
-    A `Filter` works exactly like a `Mask` with the difference of keeping just \
-        the matching items and deleting everything else.
-
-    Args:
-        condition (Any): Sets a condition to be compared with `==` operator.
-    """
-    def __init__(self, *conditions):
-        super().__init__(conditions)
-
-    def _direct_process(self, operand: 'Container') -> 'Container':
-        return operand.filter(*self._parameters)
-
 
 class Operate(ContainerProcess):
     """`Generic -> Process -> ContainerProcess -> Operate`
