@@ -4748,23 +4748,6 @@ class Modulate(ScaleProcess):    # Modal Modulation
     def _direct_process(self, operand: 'Scale') -> 'Scale':
         return operand.modulate(self._parameters)
 
-class Transpose(ScaleProcess):
-    """`Generic -> Process -> ScaleProcess -> Transpose`
-
-    Transpose() is used to rotate a scale by semitones given the steps.
-    
-    Parameters
-    ----------
-    int(7) : Transpose a given Scale by 7 semitones as the default.
-    """
-    def __init__(self, semitones: int = 7):
-        super().__init__(semitones)
-
-    # CHAINABLE OPERATIONS
-
-    def _direct_process(self, operand: 'Scale') -> 'Scale':
-        return operand.transpose(self._parameters)
-
 
 class ContainerProcess(Process):
     """`Generic -> Process -> ContainerProcess`
