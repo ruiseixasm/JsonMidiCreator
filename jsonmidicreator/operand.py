@@ -284,9 +284,6 @@ class Operand:
     
     # self is the pusher
     def __rshift__(self, operand: any) -> Any:
-        from . import operand_generic as og
-        if isinstance(operand, og.ReadOnly):
-            return operand.__rrshift__(self)
         return self.copy().__irshift__(operand)
 
     def right(self, operand: any) -> Self:
