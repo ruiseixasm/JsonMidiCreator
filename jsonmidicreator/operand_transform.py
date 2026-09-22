@@ -507,21 +507,21 @@ class Rotate(Transform):
 
 
     def _transform(self, clip: 'Clip') -> 'Clip':
-        from collections import deque
+        rotated_elements: list[oe.Element] = clip.elements_unmasked().copy()
         elements_locus: list[og.Locus] = [
-            single_element % og.Locus() for single_element in clip.elements_unmasked()
+            single_element % og.Locus() for single_element in rotated_elements
         ]
         for _ in range(self._amount):
-            elements_locus = o.list_rotate(elements_locus, self._amount)
+            rotated_elements = o.list_rotate(rotated_elements, self._amount)
             if self._move_duration:
-                for single_element, single_locus in zip(clip.elements_unmasked(), elements_locus):
-                    single_locus._duration_beats = single_element._duration_beats
+                for rotated_elements, single_locus in zip(rotated_elements, elements_locus):
+                    single_locus._duration_beats = rotated_elements._duration_beats
                 remainder_duration_beats: Fraction = Fraction(0)
-                for single_element, single_locus in zip(clip.elements_unmasked(), elements_locus):
+                for rotated_elements, single_locus in zip(rotated_elements, elements_locus):
                     single_locus._position_beats += remainder_duration_beats
-                    remainder_duration_beats += single_element._duration_beats - single_locus._duration_beats
-        for single_element, single_locus in zip(clip.elements_unmasked(), elements_locus):
-            single_element << single_locus
+                    remainder_duration_beats += rotated_elements._duration_beats - single_locus._duration_beats
+        for rotated_elements, single_locus in zip(rotated_elements, elements_locus):
+            rotated_elements << single_locus
         return clip
 
 
