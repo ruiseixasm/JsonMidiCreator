@@ -616,11 +616,11 @@ class Mirror(Transform):
 
 
 
-class Flip(Transform):
-    """`Transform -> Flip`
+class Reverse(Transform):
+    """`Transform -> Reverse`
 
-    `Flip` works like `Reverse` but it's agnostic about the Measure keeping the elements positional range.
-
+    Reverses the sequence of the clip concerning the elements `Position`.
+    
     Args:
         None
     """
@@ -694,7 +694,6 @@ class Clean(Transform):
                     break
             unique_items.append(single_element)
         return clip._delete(remove_items, True)
-
 
 
 

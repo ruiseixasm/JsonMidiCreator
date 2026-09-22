@@ -480,7 +480,7 @@ def test_playlists():
     # assert midi_pitch_1 == midi_pitch_2    # Because both notes are in the same Measure, the sharp propagates (61)
     assert midi_pitch_1 != midi_pitch_2    # Abandoned the sharp propagation on same Measure (61)
 
-    two_notes.reverse()
+    two_notes << Reverse()
     assert two_notes[0] % Pitch() != two_notes[1] % Pitch()
     playlist = playlist_position_beats( two_notes.getPlaylist() )
     midi_pitch_1 = playlist[0]["midi_message"]["data_byte_1"]
@@ -990,8 +990,14 @@ def test_clip_duration():
 
 def test_clip_operations():
 
-    straight_clip: Clip = Note() / 4 << Foreach(eight, quarter, dotted_quarter, dotted_eight) << Stack()
-    reversed_clip: Clip = Note() / 4 << Foreach(dotted_eight, dotted_quarter, quarter, eight) << Stack()
+    straight_clip: Clip = Note(Semitone(0)) / 4 + Iterate()**Semitone() \
+        << Foreach(eight, quarter, dotted_quarter, dotted_eight) \
+        << Stack() << Name("Straight")
+    reversed_clip: Clip = Note(Semitone(3)) / 4 - Iterate()**Semitone() \
+        << Foreach(dotted_eight, dotted_quarter, quarter, eight) \
+        << Stack() << Name("Reversed")
+    # straight_clip >> Plot(block=False)
+    # reversed_clip >> Plot()
 
     # 1/8 + 1/4 + 1/4 * 3/2 + 1/8 * 3/2 = 15/16 NoteValue = 4 * 15/16 = 15/4 = 3.75 Beats
     # 1/8 * 3/2 + 1/4 * 3/2 + 1/4 + 1/8 = 15/16 NoteValue = 4 * 15/16 = 15/4 = 3.75 Beats
@@ -1021,11 +1027,9 @@ def test_clip_operations():
     assert reversed_serialization % Data("float") == 3.75
 
     assert straight_clip != reversed_clip
-    assert straight_clip.copy().reverse()[0] == reversed_clip[0] + Step(1)  # 1 Step == 1/4 Beats
-    assert straight_clip.copy().reverse()[1] == reversed_clip[1] + Step(1)
-    assert straight_clip.copy().reverse()[2] == reversed_clip[2] + Step(1)
-    assert straight_clip.copy().reverse()[3] == reversed_clip[3] + Step(1)
-    assert straight_clip.reverse() == reversed_clip + All()**Step(1)
+    reversed_clip >> Plot(block=False)
+    straight_clip >> Reverse() >> Plot()
+    assert straight_clip >> Reverse() == reversed_clip
 
 
     three_notes = Note(1/4) + Note(1/2) + Note(1/2) << Stack()

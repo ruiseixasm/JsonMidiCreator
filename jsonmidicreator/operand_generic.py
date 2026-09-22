@@ -4737,17 +4737,6 @@ class ContainerProcess(Process):
         return super().__rrshift__(operand)
 
 
-class Reverse(ContainerProcess):
-    """`Generic -> Process -> ContainerProcess -> Reverse`
-
-    Reverses the self list of items.
-
-    Args:
-        None
-    """
-    def _direct_process(self, operand: 'Container') -> 'Container':
-        return operand.reverse()
-
 
 TypeComposition = TypeVar('TypeComposition', bound='Composition')  # TypeComposition represents any subclass of Operand
 

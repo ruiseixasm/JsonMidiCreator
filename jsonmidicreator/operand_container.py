@@ -763,22 +763,7 @@ class Container(o.Operand):
 
     def is_empty(self) -> bool:
         return len(self._items) == 0
-    
 
-    def reverse(self) -> Self:
-        """
-        Reverses the self list of items.
-
-        Args:
-            None
-
-        Returns:
-            Container: The same self object with the items processed.
-        """
-        self_len: int = self.len()
-        for operand_i in range(self_len // 2):
-            self._swap(self._items[operand_i], self._items[self_len - 1 - operand_i])
-        return self._sort_items()
     
     def filter(self, *conditions) -> Self:
         """
@@ -2823,36 +2808,6 @@ class Clip(Composition):  # Just a container of Elements
                     element_measure %= length_measures
                     element_measure += first_measure
                     single_element << ra.Measure(element_measure)
-        return self._sort_items()
-
-
-    def reverse(self, ignore_empty_measures: bool = True) -> Self:
-        """
-        Switches the sequence of the clip concerning the elements `Position`.
-
-        Args:
-            None
-
-        Returns:
-            Clip: The same self object with the items processed.
-        """
-        if ignore_empty_measures:
-            first_measure_position_beats: Fraction = self.net_start_unmasked().roundMeasures()._rational
-        else:
-            first_measure_position_beats: Fraction = Fraction(0)
-        self_finish: ra.Position = self.net_finish_unmasked()
-        if self_finish is None:
-            self_finish = ra.Position(self)
-        clip_length_beats: Fraction = ra.Length( self_finish ).roundMeasures()._rational # Rounded up Duration to next Measure
-        for single_element in self.elements_unmasked():
-            element_position_beats: Fraction = single_element._position_beats
-            element_length_beats: Fraction = single_element % ra.Length() % od.Pipe( Fraction() )
-            # Only changes Positions
-            single_element._position_beats = first_measure_position_beats + clip_length_beats - (element_position_beats + element_length_beats)
-            
-        self_len: int = self.len_unmasked()
-        for operand_i in range(self_len // 2):
-            self._swap(self.elements_unmasked()[operand_i], self.elements_unmasked()[self_len - 1 - operand_i])
         return self._sort_items()
 
 
