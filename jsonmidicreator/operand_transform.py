@@ -359,7 +359,7 @@ class Monofy(Transform):
 class Invert(Transform):
     """`Transform -> Invert`
 
-    `invert` is similar to `Mirror` but based in a center defined by the first note on which all notes are vertically mirrored.
+    `Invert` is similar to `Mirror` but based in a center defined by the first note on which all notes are vertically mirrored.
 
     Args:
         by_degree (bool): If `True` an inversion by Degree accordingly to the Key Signature, similar to the typical Staff, if False, \
@@ -399,4 +399,66 @@ class Invert(Transform):
                         note._pitch << 2 * pitch_centroid - note_pitch
         return clip
 
+
+
+class Mirror(Transform):
+    """`Transform -> Mirror`
+
+    `Mirror` is similar to reverse but instead of reversing the elements position it reverses the
+    Note's respective Pitch, like vertically mirrored.
+
+    Args:
+        by_degree (bool): If `True` a mirror by Degree accordingly to the Key Signature, similar to the typical Staff, if False, \
+            does a chromatic mirror by pitch like in a piano roll. The default is `True`.
+    """
+    def __init__(self, by_degree: bool = True):
+        self._by_degree: bool = by_degree
+        super().__init__()
+
+
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        if self._by_degree:
+            top_absolute_degree: ou.Degree | None = None
+            base_absolute_degree: ou.Degree | None = None
+            for element in clip.elements_unmasked():
+                if isinstance(element, oe.Note):
+                    note_absolute_degree: ou.Degree = element % od.Pipe(ou.Degree())
+                    if top_absolute_degree is None:
+                        top_absolute_degree = note_absolute_degree
+                        base_absolute_degree = note_absolute_degree
+                    elif note_absolute_degree > top_absolute_degree:
+                        top_absolute_degree = note_absolute_degree
+                    elif note_absolute_degree < base_absolute_degree:
+                        base_absolute_degree = note_absolute_degree
+            if top_absolute_degree is not None:
+                for element in clip.elements_unmasked():
+                    if isinstance(element, oe.Note):
+                        note_absolute_degree: ou.Degree = element % od.Pipe(ou.Degree())
+                        degree_from_top: ou.Degree = top_absolute_degree - note_absolute_degree
+                        degree_from_base: ou.Degree = note_absolute_degree - base_absolute_degree
+                        element += degree_from_top - degree_from_base
+        else:
+            higher_pitch: og.Pitch | None = None
+            lower_pitch: og.Pitch | None = None
+            for element in clip.elements_unmasked():
+                if isinstance(element, oe.Note):
+                    note_pitch: og.Pitch = element._pitch
+                    if higher_pitch is None:
+                        higher_pitch = note_pitch
+                        lower_pitch = note_pitch
+                    elif note_pitch > higher_pitch:
+                        higher_pitch = note_pitch
+                    elif note_pitch < lower_pitch:
+                        lower_pitch = note_pitch
+            if higher_pitch is not None:
+                top_pitch_int: int = higher_pitch.get_absolute_pitch()
+                bottom_pitch_int: int = lower_pitch.get_absolute_pitch()
+
+                for element in clip.elements_unmasked():
+                    if isinstance(element, oe.Note):
+                        note_pitch: og.Pitch = element._pitch
+                        note_pitch_int: int = note_pitch.get_absolute_pitch()
+                        new_pitch: int = top_pitch_int - (note_pitch_int - bottom_pitch_int)
+                        note_pitch.set_absolute_pitch(new_pitch)
+        return clip
 

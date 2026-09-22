@@ -1056,7 +1056,7 @@ def test_flip_operation():
         assert single_note._pitch.get_absolute_pitch() == actual_pitch
         actual_pitch += 2
     
-    four_notes.mirror(False)
+    four_notes << Mirror(False)
 
     print("------")
     for single_note in four_notes:

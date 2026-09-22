@@ -5218,22 +5218,6 @@ class Flip(ClipProcess):
     def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.flip()
 
-class Mirror(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Mirror`
-
-    Mirror is similar to reverse but instead of reversing the elements position it reverses the
-    Note's respective Pitch, like vertically mirrored.
-
-    Args:
-        by_degree (bool): If `True` a mirror by Degree accordingly to the Key Signature, similar to the typical Staff, if False, \
-            does a chromatic mirror by pitch like in a piano roll. The default is `True`.
-    """
-    def __init__(self, by_degree: bool = True):
-        super().__init__(by_degree)
-
-    def _direct_process(self, operand: 'Clip') -> 'Clip':
-        return operand.mirror(self._parameters)
-
 
 class Settings(Generic):
     """`Generic -> Settings`
