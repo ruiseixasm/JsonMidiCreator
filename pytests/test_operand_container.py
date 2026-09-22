@@ -1085,6 +1085,16 @@ def test_clip_content():
         assert isinstance(item, Element)
 
 
+def test_clip_set():
+    non_empty_clip = Note() / 4
+    assert non_empty_clip.len() == 4
+    empty_clip = ~non_empty_clip << []
+    assert empty_clip.len() == 0
+
+
+# test_clip_set()
+
+
 def test_tied_notes():
 
     notes = Note() / 2
