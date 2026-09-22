@@ -357,6 +357,24 @@ class Link(Transform):
 
 
 
+class Stack(Transform):
+    """`Transform -> Stack`
+
+    Moves each Element to start at the finish `Position` of the previous one.
+
+    Args:
+        None.
+    """
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        unmasked_elements: list[oe.Element] = clip.elements_unmasked()
+        for index, single_element in enumerate(unmasked_elements):
+            if index > 0:   # Not the first element
+                duration_beats: Fraction = unmasked_elements[index - 1]._duration_beats
+                single_element._position_beats = unmasked_elements[index - 1]._position_beats + duration_beats  # Stacks on Element Duration
+        return clip
+
+
+
 class Monofy(Transform):
     """`Transform -> Monofy`
 

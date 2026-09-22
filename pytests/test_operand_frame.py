@@ -93,7 +93,7 @@ def test_foreach_mod():
     assert four_notes[3] == eight
 
     # Test Stacking
-    four_notes >>= Stack()
+    four_notes << Stack()
     assert four_notes[0] == Position(Beats(0))
     assert four_notes[1] == Position(Beats(4))
     assert four_notes[2] == Position(Beats(6))
@@ -175,7 +175,7 @@ def test_conditional_clip_note():
     assert four_notes[1] % Octave() == 4
 
     four_notes << 1/1   # Each note is now one measure long (1 note = 1 measure)
-    four_notes >>= Stack()
+    four_notes << Stack()
     assert four_notes % Duration() == Measures(4)
 
     assert four_notes[0] % Octave() == 4

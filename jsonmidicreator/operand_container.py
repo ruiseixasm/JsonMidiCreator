@@ -2115,6 +2115,17 @@ class Clip(Composition):  # Just a container of Elements
         return self._sort_items()
 
 
+    # Pass trough method that always results in a Container (Self)
+    def __irshift__(self, operand) -> Self:
+        from . import operand_transform as tr
+        match operand:
+            case tr.Transform():
+                operand._transform(self)
+                return self._sort_items()
+            case _:
+                return super().__irshift__(operand)
+
+
     # Avoids the costly copy of Track self doing +=
     def __iadd__(self, operand: any) -> Self:
         match operand:
@@ -2208,7 +2219,6 @@ class Clip(Composition):  # Just a container of Elements
 
     # in-place multiply (NO COPY!)
     def __imul__(self, operand: any) -> Self:
-        from . import operand_transform as tr
         match operand:
             case Clip():
                 operand_copy: Clip = operand.copy()._set_owner_clip(self)   # To be dropped
@@ -2277,9 +2287,6 @@ class Clip(Composition):  # Just a container of Elements
                 for single_element in overlapping_elements:
                     single_element.trim(operand)
                 self._items = overlapping_elements
-
-            case tr.Transform():
-                operand._transform(self)
 
             case _:
                 super().__imul__(operand)
@@ -2983,21 +2990,6 @@ class Clip(Composition):  # Just a container of Elements
         return self._sort_items()
 
 
-    def stack(self) -> Self:
-        """
-        Moves each Element to start at the finish `Position` of the previous one.
-
-        Args:
-            None
-
-        Returns:
-            Clip: The same self object with the items processed.
-        """
-        for index, single_element in enumerate(self._items):
-            if index > 0:   # Not the first element
-                duration_beats: Fraction = self._items[index - 1]._duration_beats
-                single_element._position_beats = self._items[index - 1]._position_beats + duration_beats  # Stacks on Element Duration
-        return self    # No need for sorting in stack because stack doesn't change order
 
     def close(self) -> Self:
         """

@@ -4885,17 +4885,6 @@ class ClipProcess(CompositionProcess):
         return operand
     
 
-class Stack(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Stack`
-
-    Moves each Element to start at the finish `Position` of the previous one.
-
-    Args:
-        None.
-    """
-    def _direct_process(self, operand: 'Clip') -> 'Clip':
-        return operand.stack()
-
 class Close(ClipProcess):
     """`Generic -> Process -> ContainerProcess -> ClipProcess -> Close`
     

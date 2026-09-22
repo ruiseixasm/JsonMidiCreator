@@ -495,7 +495,7 @@ def test_add_clip():
     two_notes: Clip = Note() / 2
     four_notes: Clip = Note() / 4
 
-    assert two_notes + two_notes >> Stack() == four_notes
+    assert two_notes + two_notes << Stack() == four_notes
     assert two_notes != four_notes
 
     three_notes: Clip = Note() / 3
@@ -549,7 +549,7 @@ def test_mul_clip():
     # Checks if it's a mask
     # assert not two_notes % bool()
     # assert not four_notes % bool()
-    assert two_notes * 2 >> Stack() == four_notes
+    assert two_notes * 2 << Stack() == four_notes
     assert two_notes != four_notes
 
     two_notes << Name("Two Notes")
@@ -990,8 +990,8 @@ def test_clip_duration():
 
 def test_clip_operations():
 
-    straight_clip: Clip = Note() / 4 << Foreach(eight, quarter, dotted_quarter, dotted_eight) >> Stack()
-    reversed_clip: Clip = Note() / 4 << Foreach(dotted_eight, dotted_quarter, quarter, eight) >> Stack()
+    straight_clip: Clip = Note() / 4 << Foreach(eight, quarter, dotted_quarter, dotted_eight) << Stack()
+    reversed_clip: Clip = Note() / 4 << Foreach(dotted_eight, dotted_quarter, quarter, eight) << Stack()
 
     # 1/8 + 1/4 + 1/4 * 3/2 + 1/8 * 3/2 = 15/16 NoteValue = 4 * 15/16 = 15/4 = 3.75 Beats
     # 1/8 * 3/2 + 1/4 * 3/2 + 1/4 + 1/8 = 15/16 NoteValue = 4 * 15/16 = 15/4 = 3.75 Beats
@@ -1028,7 +1028,7 @@ def test_clip_operations():
     assert straight_clip.reverse() == reversed_clip + All()**Step(1)
 
 
-    three_notes = Note(1/4) + Note(1/2) + Note(1/2) >> Stack()
+    three_notes = Note(1/4) + Note(1/2) + Note(1/2) << Stack()
     three_notes += Measure(1)
 
     # NOT at Position 0.0, so length != net_duration
