@@ -504,7 +504,7 @@ class Container(o.Operand):
                 # Remove previous Elements from the Container stack
                 self._delete() # deletes all
                 # Finally adds the decomposed elements to the Container stack
-                self._extend( [o.deep_copy(item) for item in operand] )
+                self._extend( o.deep_copy(operand) )
             case dict():
                 for index, item in operand.items():
                     if isinstance(index, int) and index >= 0 and index < len(self.items_unmasked()):
