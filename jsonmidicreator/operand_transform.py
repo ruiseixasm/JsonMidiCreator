@@ -404,6 +404,26 @@ class Decompose(Transform):
         return clip.decompose()
 
 
+class Merge(Transform):
+    """`Transform -> Merge`
+
+    Adjusts the pitch of successive notes to the previous one and sets all Notes as tied.
+
+    Args:
+        None.
+    """
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        previous_element: oe.Element | None = None
+        elements_to_remove: list[oe.Element] = []
+        for unmasked_element in clip.elements_unmasked():
+            if previous_element is not None and unmasked_element.start() == previous_element.finish():
+                elements_to_remove.append(unmasked_element)
+                previous_element._duration_beats += unmasked_element._duration_beats
+                continue
+            previous_element = unmasked_element
+        return clip._delete(elements_to_remove, True)
+
+
 
 class Interpolate(Transform):
     """`Transform -> Interpolate`
