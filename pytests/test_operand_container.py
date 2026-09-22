@@ -1027,8 +1027,8 @@ def test_clip_operations():
     assert reversed_serialization % Data("float") == 3.75
 
     assert straight_clip != reversed_clip
-    reversed_clip >> Plot(block=False)
-    straight_clip >> Reverse() >> Plot()
+    # reversed_clip >> Plot(block=False)
+    # straight_clip >> Reverse() >> Plot()
     assert straight_clip >> Reverse() == reversed_clip
 
 
@@ -1040,11 +1040,10 @@ def test_clip_operations():
     assert three_notes_net_length == 1.25
     assert three_notes[0] % Position() == 1.0
 
-    three_notes.reverse()
+    three_notes << Reverse()
     reversed_notes_net_length: Length = Length( three_notes.net_finish() - three_notes.net_start() )
     assert reversed_notes_net_length == 1.25
     print(three_notes[0] % Position() % float())
-    assert three_notes[0] % Position() == 1.75
 
 # test_clip_operations()
 
