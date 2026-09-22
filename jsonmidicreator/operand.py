@@ -233,6 +233,8 @@ class Operand:
                     self._set = False   # by default a new copy of data unsets the Operand
                     # COPY THE SELF OPERANDS RECURSIVELY
                     self._chained_operand = deep_copy(operand._chained_operand)
+            case None:  # Does a reset
+                self << self.__class__()
             case tuple():
                 for single_parameter in operand:
                     self.__lshift__(single_parameter)
