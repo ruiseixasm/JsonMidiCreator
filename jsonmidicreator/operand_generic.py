@@ -4953,16 +4953,6 @@ class Automate(ClipProcess):
     def _direct_process(self, operand: 'Clip') -> 'Clip':
         return operand.automate(*self._parameters)
 
-class Interpolate(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Interpolate`
-
-    Interpolates the multiple values of a given `Automation` element by `Channel`.
-
-    Args:
-        None.
-    """
-    def _direct_process(self, operand: 'Clip') -> 'Clip':
-        return operand.interpolate()
 
 class Oscillate(ClipProcess):
     """`Generic -> Process -> ContainerProcess -> ClipProcess -> Oscillate`

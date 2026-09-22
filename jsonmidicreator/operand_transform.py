@@ -405,6 +405,45 @@ class Decompose(Transform):
 
 
 
+class Interpolate(Transform):
+    """`Transform -> Interpolate`
+
+    Interpolates the multiple values of a given `Automation` element by `Channel`.
+
+    Args:
+        None.
+    """
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        automation_clip: Clip = clip.select(of.InputType(oe.Automatable))
+        plotlist: list[dict] = automation_clip.getPlotlist()
+        automation_channels: list[int] = plotlist[0]["channels"]["automation"]
+        for channel_0 in automation_channels:
+            channel_automation: Clip = automation_clip.select(ou.Channel(channel_0 + 1))
+            if channel_automation.len_unmasked() > 1:
+                element_template: oe.Element = channel_automation[0].copy()
+                # Find indices of known values
+                known_indices = [
+                    element % ra.Position() % ra.Steps() % int() for element in channel_automation._items
+                ]
+                total_messages: int = known_indices[-1] - known_indices[0] + 1
+                pattern_values = [ None ] * total_messages
+                element_index: int = 0
+                for index in range(total_messages):
+                    if index in known_indices:
+                        # Extracts int as what is being automated
+                        pattern_values[index] = channel_automation[element_index] % int()
+                        element_index += 1
+                # Calls a static method
+                automation = clip._interpolate_list(known_indices, pattern_values)
+                position_steps: ra.Steps = ra.Steps(0)
+                for index, value in enumerate(automation):
+                    if index not in known_indices:   # None adds no Element
+                        channel_automation += element_template << value << position_steps
+                    position_steps += 1
+        return clip
+
+
+
 class Monofy(Transform):
     """`Transform -> Monofy`
 
