@@ -4787,18 +4787,6 @@ class Quantize(ClipProcess):
         return operand.quantize(*self._parameters)
 
 
-class Arpeggiate(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Arpeggiate`
-
-    Distributes each element accordingly to the configured arpeggio by the parameters given.
-
-    Args:
-        parameters: Parameters that will be passed to the `Arpeggio` operand.
-    """
-    def _direct_process(self, operand: 'Clip') -> 'Clip':
-        return operand.arpeggiate(self._parameters)
-
-
 
 
 class Settings(Generic):

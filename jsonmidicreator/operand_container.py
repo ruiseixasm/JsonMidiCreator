@@ -2685,21 +2685,6 @@ class Clip(Composition):  # Just a container of Elements
         return self._sort_items()
 
 
-    def arpeggiate(self, parameters: any = None) -> Self:
-        """
-        Distributes each element accordingly to the configured arpeggio by the parameters given.
-
-        Args:
-            parameters: Parameters that will be passed to the `Arpeggio` operand.
-
-        Returns:
-            Clip: Clip with its elements distributed in an arpeggiated manner.
-        """
-        arpeggio = og.Arpeggio(parameters)
-        arpeggio.arpeggiate_source(self.elements_unmasked(), self.start(), ra.Length( self.net_duration() ))
-        return self
-
-
 
     def split(self, position: ra.Position) -> tuple['Clip', 'Clip']:
         """
