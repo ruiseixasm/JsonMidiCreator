@@ -4959,8 +4959,8 @@ class Arpeggiate(ClipProcess):
         return operand.arpeggiate(self._parameters)
 
 
-class Purge(ClipProcess):
-    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Purge`
+class Clean(ClipProcess):
+    """`Generic -> Process -> ContainerProcess -> ClipProcess -> Clean`
 
     With time a `Clip` may accumulate redundant Elements, this method removes all those elements.
 
@@ -4968,7 +4968,7 @@ class Purge(ClipProcess):
         None.
     """
     def _direct_process(self, operand: 'Clip') -> 'Clip':
-        return operand.purge()
+        return operand.clean()
 
 
 class Stepper(ClipProcess):

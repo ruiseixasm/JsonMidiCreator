@@ -2697,7 +2697,7 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
-    def purge(self) -> Self:
+    def clean(self) -> Self:
         """
         With time a `Clip` may accumulate redundant Elements, this method removes all those elements.
 
