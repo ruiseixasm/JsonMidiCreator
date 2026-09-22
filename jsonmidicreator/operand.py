@@ -994,12 +994,19 @@ def list_snap(items: list, on: any) -> list:
     list_out = list_extend(list_out, on)
     return list_out
 
+
+def list_reverse(items: list[T]) -> list[T]:
+    """Reverse a list."""
+    return items[::-1]
+
+
 def list_rotate(items: list[T], left: int = 1) -> list[T]:
     """Rotate list left by given number of positions (positive for left, negative for right)."""
     if not items:  # Handle empty list case
         return []
     left %= len(items)  # Normalize rotation amount
     return items[left:] + items[:left]
+
 
 def list_get(operands: list['Operand'], parameters: any) -> list:
     list_parameters: list = []

@@ -620,25 +620,30 @@ class Reverse(Transform):
     """`Transform -> Reverse`
 
     Reverses the sequence of the clip concerning the elements `Position`.
-    
+
     Args:
         None
     """
+    def __init__(self, amount: int = 1, reverse_duration = True):
+        self._amount: int = amount
+        self._move_duration: int = reverse_duration
+        super().__init__()
+
+
     def _transform(self, clip: 'Clip') -> 'Clip':
-        position_duration_beats: list[dict[str, Fraction]] = []
-        for index, single_element in enumerate(clip.elements_unmasked()):
-            position_duration_dict: dict[str, Fraction] = {
-                "duration": single_element._duration_beats
-            }
-            if index == 0:
-                position_duration_dict["position"] = single_element._position_beats
-            else:
-                position_duration_dict["position"] = \
-                    position_duration_beats[0]["position"] + position_duration_beats[0]["duration"]
-            position_duration_beats.insert(0, position_duration_dict)   # last one at position 0
-        for index, single_element in enumerate(clip.elements_unmasked()):
-            single_element._position_beats = position_duration_beats[index]["position"]
-            single_element._duration_beats = position_duration_beats[index]["duration"]
+        reversed_elements: list[oe.Element] = clip.elements_unmasked().copy()
+        elements_locus: list[og.Locus] = [  # Decoupled data
+            single_element % og.Locus() for single_element in reversed_elements
+        ]
+        reversed_elements = o.list_reverse(reversed_elements)
+        if self._move_duration:
+            remainder_duration_beats: Fraction = Fraction(0)
+            for single_element, single_locus in zip(reversed_elements, elements_locus):  # Duration doesn't change
+                single_element._position_beats = single_locus._position_beats + remainder_duration_beats
+                remainder_duration_beats += single_element._duration_beats - single_locus._duration_beats
+        else:
+            for single_element, single_locus in zip(reversed_elements, elements_locus):
+                single_element << single_locus
         return clip
 
 
@@ -652,9 +657,9 @@ class Rotate(Transform):
         amount (int): The left rotation amount of the list index, displacement.
         move_duration (bool): Rotates the duration of the elements too (the default).
     """
-    def __init__(self, amount: int = 1, move_duration = True):
+    def __init__(self, amount: int = 1, rotate_duration = True):
         self._amount: int = amount
-        self._move_duration: int = move_duration
+        self._move_duration: int = rotate_duration
         super().__init__()
 
 
