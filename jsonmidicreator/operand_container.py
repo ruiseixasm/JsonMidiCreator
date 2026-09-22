@@ -2121,9 +2121,9 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case tr.Transform():
                 operand._transform(self)
-                return self._sort_items()
             case _:
-                return super().__irshift__(operand)
+                super().__irshift__(operand)
+        return self._sort_items()
 
 
     # Avoids the costly copy of Track self doing +=
