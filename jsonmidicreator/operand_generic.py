@@ -4718,36 +4718,6 @@ class Read(Process):
         return super().__rrshift__(operand)
 
 
-class ScaleProcess(Process):
-    """`Generic -> Process -> ScaleProcess`
-    """
-    def _direct_process(self, operand: o.T) -> o.T:
-        if isinstance(operand, Scale):
-            return operand
-        else:
-            print(f"Warning: Operand is NOT a `Scale`!")
-        return super().__rrshift__(operand)
-
-
-class Modulate(ScaleProcess):    # Modal Modulation
-    """`Generic -> Process -> ScaleProcess -> Modulate`
-
-    Modulate() is used to modulate the self Scale or Scale.
-    
-    Parameters
-    ----------
-    int(1) : Modulate a given Scale to 1 ("1st") as the default mode.
-    """
-    def __init__(self, mode: int | str = 1):
-        from . import operand_unit as ou
-        unit = ou.Mode(mode)._unit
-        super().__init__(unit)
-
-    # CHAINABLE OPERATIONS
-
-    def _direct_process(self, operand: 'Scale') -> 'Scale':
-        return operand.modulate(self._parameters)
-
 
 class ContainerProcess(Process):
     """`Generic -> Process -> ContainerProcess`
