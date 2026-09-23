@@ -536,19 +536,6 @@ class Container(o.Operand):
         return self
 
 
-    # Pass trough method that always results in a Container (Self)
-    def __irshift__(self, operand) -> Self:
-        match operand:
-            case of.Frame():
-                operand._set_inside_container(self)
-                unmasked_items: list = self.items_unmasked()
-                for index, single_item in enumerate(unmasked_items):
-                    unmasked_items[index] >>= operand.frame(single_item)
-                return self
-            case _:
-                return super().__irshift__(operand)
-
-
     # Pass trough operation as last resort
     def __rrshift__(self, operand: o.T) -> o.T:
         self << operand # Left shifts remaining parameter (Pass Through)
