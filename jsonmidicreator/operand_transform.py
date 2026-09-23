@@ -458,6 +458,31 @@ class Interpolate(Transform):
     Args:
         None.
     """
+    @staticmethod
+    def _interpolate_list(known_indices, pattern_values) -> list:
+
+        automation = pattern_values[:] # makes a copy of pattern_values
+            
+        for i in range(len(pattern_values)):
+            if automation[i] is None:
+                    # Find closest known values before and after
+                left_idx = max([idx for idx in known_indices if idx < i], default=None)
+                right_idx = min([idx for idx in known_indices if idx > i], default=None)
+                    
+                if left_idx is None:
+                    automation[i] = automation[right_idx]   # Use the right value if no left
+                elif right_idx is None:
+                    automation[i] = automation[left_idx]    # Use the left value if no right
+                else:
+                        # Linear interpolation
+                    left_val = automation[left_idx]
+                    right_val = automation[right_idx]
+                    step = (right_val - left_val) / (right_idx - left_idx)
+                    automation[i] = int(left_val + step * (i - left_idx))
+
+        return automation
+
+
     def _transform(self, clip: 'Clip') -> 'Clip':
         automation_clip: Clip = clip.select(of.InputType(oe.Automatable))
         plotlist: list[dict] = automation_clip.getPlotlist()
@@ -479,7 +504,7 @@ class Interpolate(Transform):
                         pattern_values[index] = channel_automation[element_index] % int()
                         element_index += 1
                 # Calls a static method
-                automation = clip._interpolate_list(known_indices, pattern_values)
+                automation = Interpolate._interpolate_list(known_indices, pattern_values)
                 position_steps: ra.Steps = ra.Steps(0)
                 for index, value in enumerate(automation):
                     if index not in known_indices:   # None adds no Element
