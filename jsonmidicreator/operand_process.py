@@ -35,10 +35,7 @@ from . import operand_container as oc
 from . import operand_frame as of
 from . import operand_chaos as ch
 from . import operand_tamer as ot
-
-if TYPE_CHECKING:
-    from operand_element import Element
-    from operand_container import Clip
+from . import operand_iterations as oi
 
 
 class Process(o.Operand):
@@ -75,7 +72,6 @@ class Save(Process):
         self._indexes = {'filename': 0, 'include_settings': 1}
 
     def _process(self, operand: o.T) -> o.T:
-        from . import operand_container as oc
         if isinstance(operand, o.Operand):
             file_path: str = self._parameters[self._indexes["filename"]]
             if not isinstance(file_path, str):
@@ -103,8 +99,6 @@ class Export(Process):
         super().__init__(filename)
 
     def _process(self, operand: o.T) -> o.T:
-        from . import operand_element as oe
-        from . import operand_container as oc
         match operand:
             case oc.Composition():
                 if operand._items:
@@ -147,8 +141,6 @@ class Render(Process):
         super().__init__(filename)
 
     def _process(self, operand: o.T) -> o.T:
-        from . import operand_element as oe
-        from . import operand_container as oc
         # filepath and filename
         file_path: str = self._parameters
         if not isinstance(file_path, str):
@@ -220,12 +212,12 @@ class Plot(Process):
     title (str): A title to give to the chart in order to identify it.
     """
     def __init__(self, by_channel: bool = False, block: bool = True, pause: float = 0.0, iterations: int = 0,
-                 composition: Optional['Composition'] = None, title: str | None = None):
+                 composition: Optional['oc.Composition'] = None, title: str | None = None):
         super().__init__([by_channel, block, pause, iterations, composition, title])
         self._indexes = {
             'by_channel': 0, 'block': 1, 'pause': 2, 'iterations': 3, 'composition': 5, 'title': 6
         }
-        self._compositions: list[Composition] = []
+        self._compositions: list[oc.Composition] = []
         self._plot_lists: list[list] = []
         self._plot_checksums: list[str] = []
         self._by_channel: bool = by_channel
@@ -235,13 +227,9 @@ class Plot(Process):
         self._block: bool = block
         self._pause: bool = pause
         self._iterations: int = iterations
-        self._n_function: Callable[[int], 'Clip'] = None
+        self._n_function: Callable[[int], 'oc.Clip'] = None
 
-    def _process(self, operand: o.T) -> 'Composition':
-        from . import operand_unit as ou
-        from . import operand_element as oe
-        from . import operand_container as oc
-        from . import operand_iterations as oi
+    def _process(self, operand: o.T) -> 'oc.Composition':
         match operand:
             case oc.Composition():
                 return self.plot_composition(operand)
@@ -254,10 +242,10 @@ class Plot(Process):
             case str():
                 line = od.Line(operand)
                 self.__rrshift__(line)
-            case Scale():
-                Scale.plot(self._parameters[1], operand % list())
+            case og.Scale():
+                og.Scale.plot(self._parameters[1], operand % list())
             case ou.KeySignature():
-                Scale.plot(self._parameters[1], operand % list(), operand % ou.Key(), operand % str())
+                og.Scale.plot(self._parameters[1], operand % list(), operand % ou.Key(), operand % str())
             case oi.Iterations():
                 if not isinstance(self._title, str):
                     self._title = operand.__class__.__name__
@@ -302,22 +290,22 @@ class Plot(Process):
         y: float = 0.0
         pitch_int: int = int(pitch)
         octaves: int = pitch_int // 12
-        y += octaves * Composition._octave_heigh
+        y += octaves * oc.Composition._octave_heigh
         if pitch_int > 59:
-            y += Composition._b3_key_heigh - Composition._white_key_heigh
+            y += oc.Composition._b3_key_heigh - oc.Composition._white_key_heigh
             if pitch_int > 60:
-                y += Composition._c4_key_heigh - Composition._white_key_heigh
+                y += oc.Composition._c4_key_heigh - oc.Composition._white_key_heigh
         pitch_octave: int = pitch_int % 12
-        y += pitch_octave * Composition._white_key_heigh
-        y -= Composition._previous_black_keys[pitch_octave] * Composition._white_above_black_heigh
+        y += pitch_octave * oc.Composition._white_key_heigh
+        y -= oc.Composition._previous_black_keys[pitch_octave] * oc.Composition._white_above_black_heigh
         key_float: float = pitch - pitch_int
-        key_heigh: float = Composition._white_key_heigh
+        key_heigh: float = oc.Composition._white_key_heigh
         if pitch_int == 59:
-            key_heigh = Composition._b3_key_heigh
+            key_heigh = oc.Composition._b3_key_heigh
         elif pitch_int == 60:
-            key_heigh = Composition._c4_key_heigh
+            key_heigh = oc.Composition._c4_key_heigh
         elif o.is_black_key(pitch_int):
-            key_heigh = Composition._black_key_heigh
+            key_heigh = oc.Composition._black_key_heigh
         y += key_heigh * key_float
         return y
 
@@ -332,8 +320,6 @@ class Plot(Process):
         """
         The method that does the heavy work of plotting
         """
-        from . import operand_element as oe
-        from . import operand_container as oc
         # The plotting is managed by the single and original Composition.
         plotlist: list[dict] = self._plot_lists[self._iteration_index]
         composition: oc.Composition = self._compositions[self._iteration_index]
@@ -489,7 +475,7 @@ class Plot(Process):
                                 info: str = ""
                                 if note["self"]._tied:
                                     info += " Tied"
-                                if isinstance(note["self"]._note_effect, NoteEffect):
+                                if isinstance(note["self"]._note_effect, og.NoteEffect):
                                     info += " FX"
                                 self._ax.text(float(note["position_on"]), note["pitch"] + 0.3, info, ha='left', va='bottom', fontsize=4,
                                     color='black',  # Outline color
@@ -678,7 +664,7 @@ class Plot(Process):
                             info: str = ""
                             if note["self"]._tied:
                                 info += " Tied"
-                            if isinstance(note["self"]._note_effect, NoteEffect):
+                            if isinstance(note["self"]._note_effect, og.NoteEffect):
                                 info += " FX"
                             self._ax.text(float(note["position_on"]), note["pitch"] + 0.3, info, ha='left', va='bottom', fontsize=4,
                                 color='black',  # Outline color
@@ -707,7 +693,7 @@ class Plot(Process):
                                 if last_mode_measure < 0 or staff_modes[last_mode_measure] != mode_0:
                                     staff_modes[note_measure] = mode_0  # It's the Note KeySignature that is Plotted
                                     scale_mode: int = mode_0 % 9 + 1
-                                    mode_marker: str = Scale._names[scale_mode][0]
+                                    mode_marker: str = og.Scale._names[scale_mode][0]
                                     base_pitch: int = max_pitch - 12
                                     self._ax.text(float(note_measure * beats_per_measure) + 0.05, base_pitch + 12, mode_marker, ha='left', va='center', fontsize=6, color='black')
                                     flag_update_key_signature = True
@@ -737,9 +723,9 @@ class Plot(Process):
                             if note_measure not in staff_sharps_or_flats: # Concerning the KeySignature, sharps, > 0 or flats, < 0, from -7 to +7
                                 if flag_update_key_signature:
                                     diatonic_mode_0: int = staff_modes[last_mode_measure]
-                                    diatonic_scale: list[int] = Scale.get_diatonic_scale(diatonic_mode_0 + 1)
+                                    diatonic_scale: list[int] = og.Scale.get_diatonic_scale(diatonic_mode_0 + 1)
                                     tonic_key: int = staff_tonic_keys[last_tonic_key_measure]
-                                    scale_accidentals: list[int] = Scale.sharps_or_flats_picker(tonic_key, diatonic_scale)
+                                    scale_accidentals: list[int] = og.Scale.sharps_or_flats_picker(tonic_key, diatonic_scale)
                                     if last_sharps_or_flats_measure < 0 or staff_sharps_or_flats[last_sharps_or_flats_measure] != scale_accidentals:
                                         staff_sharps_or_flats[note_measure] = scale_accidentals
                                         
@@ -934,19 +920,19 @@ class Plot(Process):
 
     def _run_play(self, even = None, loops: int = 1) -> Self:
         import threading
-        iteration_self: Composition = self._compositions[self._iteration_index]
+        iteration_self: oc.Composition = self._compositions[self._iteration_index]
         threading.Thread(target=Play.play, args=(iteration_self, loops)).start()
         return self
 
     def _run_composition(self, even = None, loops: int = 1) -> Self:
         import threading
-        if isinstance(self._composition, Composition):
-            iteration_self: Composition = self._compositions[self._iteration_index]
-            iteration_composition: Composition = self._composition + iteration_self
+        if isinstance(self._composition, oc.Composition):
+            iteration_self: oc.Composition = self._compositions[self._iteration_index]
+            iteration_composition: oc.Composition = self._composition + iteration_self
             threading.Thread(target=Play.play, args=(iteration_composition, loops)).start()
         return self
 
-    def _plot_filename(self, composition: 'Composition') -> str:
+    def _plot_filename(self, composition: 'oc.Composition') -> str:
         # Process title separately (replace whitespace with underscores)
         processed_title = str(self._title).replace(" ", "_").replace("\t", "_").replace("\n", "_").replace("__", "_")
         composition_designations: list[str] = [
@@ -1038,8 +1024,6 @@ class Plot(Process):
     
     def _onclick(self, event: MouseEvent) -> Self:
         import threading
-        from . import operand_element as oe
-        from . import operand_container as oc
         if event.button == 3 and event.xdata is not None and event.ydata is not None:   # 1=left, 2=middle, 3=right
             composition = self._compositions[self._iteration_index]
             at_position_elements: list[oe.Element] = composition.at_position_elements(ra.Position(ra.Beats(event.xdata)))
@@ -1079,7 +1063,7 @@ class Plot(Process):
         return self
 
 
-    def plot_composition(self, composition: 'Composition') -> Self:
+    def plot_composition(self, composition: 'oc.Composition') -> Self:
         """
         Plots the `Note`s in a `Composition`, if it has no Notes it plots the existing `Automation` instead.
 
@@ -1089,8 +1073,6 @@ class Plot(Process):
         Returns:
             Composition: Returns the presently plotted composition.
         """
-        from . import operand_element as oe
-        from . import operand_container as oc
         # First composition and its plotting (i = 0) it's always the self copy
         self._compositions      = [ composition.copy() ]   # Works with a forced copy (Read Only)
         self._plot_lists        = [ composition.getPlotlist() ]
@@ -1213,7 +1195,6 @@ class Plot(Process):
 
 
     def _run_new(self, even = None) -> Self:
-        from . import operand_container as oc
         if callable(self._n_function):
             # Keeps iterating the root/seed composition
             new_iteration: oc.Composition = self._n_function(self._iteration_index + 1)
@@ -1247,8 +1228,6 @@ class Plot(Process):
         Returns:
             Composition: Returns the presently plotted composition.
         """
-        from . import operand_element as oe
-        from . import operand_container as oc
         # First composition and its plotting (i = 0) it's always the self copy
         iteration_0: oc.Composition = self._n_function(0)
         self._compositions      = [ iteration_0 ]   # Works with a forced copy (Read Only)
@@ -1259,7 +1238,7 @@ class Plot(Process):
 
         if callable(self._n_function) and isinstance(self._iterations, int) and self._iterations > 1:
             for i in range(self._iterations):
-                new_composition: Composition = self._n_function(i)
+                new_composition: oc.Composition = self._n_function(i)
                 new_plotlist: list[dict] = new_composition.getPlotlist()
                 new_checksum_str: str = o.checksum_to_string(new_composition.checksum())
                 self._compositions.append(new_composition)
@@ -1399,15 +1378,13 @@ class Call(Process):
             this is dependent on a n_button being given.
         n_button (Callable): A function that takes a Composition to be used to generate a new iteration.
     """
-    def __init__(self, iterations: int = 1, n_button: Optional[Callable[['Composition'], 'Composition']] = None):
+    def __init__(self, iterations: int = 1, n_button: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None):
         super().__init__([iterations, n_button])
         self._indexes = {
             'iterations': 0, 'n_button': 1
         }
 
     def _process(self, operand: o.T) -> o.T:
-        from . import operand_element as oe
-        from . import operand_container as oc
         if isinstance(operand, (oc.Composition, oe.Element)):
             return operand.call(*self._parameters)
         return operand
@@ -1431,8 +1408,6 @@ class Play(Process):
 
     def _process(self, operand: o.T) -> o.T:
         import threading
-        from . import operand_element as oe
-        from . import operand_container as oc
         match operand:
             case oc.Composition():
                 if operand._items:
@@ -1509,7 +1484,6 @@ class Print(Process):
 
     def _process(self, operand: o.T) -> o.T:
         import json
-        from . import operand_container as oc
         match operand:
             case oc.Container():
                 self._process(operand._items)
@@ -1570,7 +1544,6 @@ class Proxy(Process):
         super().__init__(parameters)
 
     def _process(self, operand: o.T) -> o.T:
-        from . import operand_container as oc
         if isinstance(operand, oc.Container):
             return operand.shallow_copy(*self._parameters)
         return super().__rrshift__(operand)
