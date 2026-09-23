@@ -70,37 +70,6 @@ class Delete(Transform):
 
 
 
-class Sort(Transform):
-    """`Transform -> Sort`
-
-    Sorts the contained items by a given parameter type.
-
-    Args:
-        parameter (type): Defines the given parameter type to sort by.
-        reverse (bool): Reverses the sorting if `True`.
-    """
-    def __init__(self, parameter: type = og.Pitch, reverse: bool = False):
-        self._parameter = parameter
-        self._reverse = reverse
-        super().__init__()
-
-
-    def _transform(self, clip: 'Clip') -> 'Clip':
-        original_positions: list[Fraction] = [
-            element._position_beats for element in clip.elements_unmasked()
-        ]
-        compare = self._parameter()
-        sorted_items: list = self._items.copy().sort(
-            key=lambda x: x % compare
-        )
-        self << od.Pipe( sorted_items )
-        if self._reverse:
-            self._items.reverse()
-        for index, element in enumerate(clip.elements_unmasked()):
-            element._position_beats = original_positions[index]
-        return clip
-
-
 class Extend(Transform):
     """`Transform -> Extend`
 
@@ -669,6 +638,39 @@ class Filter(Parameterized):
 
     def _transform(self, clip: 'Clip') -> 'Clip':
         return clip.filter(*self._parameters["conditions"])
+
+
+
+class Sort(Parameterized):
+    """`Transform -> Parameterized -> Sort`
+
+    Sorts the contained items by a given parameter type.
+
+    Args:
+        parameter (type): Defines the given parameter type to sort by.
+        reverse (bool): Reverses the sorting if `True`.
+    """
+    def __init__(self, parameter: type = og.Pitch, reverse: bool = False):
+        super().__init__()
+        self._parameters["parameter"] = parameter
+        self._parameters["reverse"] = reverse
+
+
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        original_positions: list[Fraction] = [
+            element._position_beats for element in clip.elements_unmasked()
+        ]
+        compare = self._parameters["parameter"]()
+        sorted_items: list = self._items.copy().sort(
+            key=lambda x: x % compare
+        )
+        self << od.Pipe( sorted_items )
+        if self._parameters["reverse"]:
+            self._items.reverse()
+        for index, element in enumerate(clip.elements_unmasked()):
+            element._position_beats = original_positions[index]
+        return clip
+
 
 
 
