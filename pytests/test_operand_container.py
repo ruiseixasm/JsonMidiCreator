@@ -110,8 +110,8 @@ def test_clip_mod():
 
     assert clip_1 == clip_2
 
-    clip_1 >> Stack()
-    clip_2 >> Stack()
+    clip_1 << Stack()
+    clip_2 << Stack()
 
     assert clip_1 == clip_2
     
@@ -387,7 +387,7 @@ def test_rshift_container():
     all_chords = Chord(1/4) / 7 << Size("7th")
     assert not all_chords.is_masked()
     assert all_chords[0].access(Pitch()).get_absolute_pitch() == 60
-    first_chords = all_chords >> Filter(Beat(0))
+    first_chords = ~all_chords << Filter(Beat(0))
     # assert not first_chords.is_masked()
     assert all_chords._test_owner_clip()
     assert first_chords._test_owner_clip()
@@ -499,7 +499,7 @@ def test_add_clip():
     assert two_notes != four_notes
 
     three_notes: Clip = Note() / 3
-    three_notes_2 = two_notes + Note() >> Stack()   # two_notes is NOT changed and thus remains of size 2
+    three_notes_2 = two_notes + Note() << Stack()   # two_notes is NOT changed and thus remains of size 2
     assert three_notes == three_notes_2
     assert two_notes != three_notes_2               # two_notes remains unchanged, size 2!
 
@@ -523,7 +523,7 @@ def test_sub_clip():
     four_notes: Clip = Note() / 4
     single_note: Element = four_notes[0]
     notes_to_remove: Clip = ~four_notes << Select(Nth(1, 3))
-    remaining_notes: Clip = four_notes >> Filter(Nth(2, 4))
+    remaining_notes: Clip = ~four_notes << Filter(Nth(2, 4))
 
     assert notes_to_remove.len_unmasked() < four_notes.len_unmasked()
     assert notes_to_remove.len_unmasked() == remaining_notes.len_unmasked()
@@ -734,7 +734,7 @@ def test_element_stacking():
 
     two_notes << 1/8    # Stacking is NOT included!
     assert two_notes[-1] == Beat(1)
-    two_notes >>= Stack()
+    two_notes << Stack()
     assert two_notes[-1] == Step(2) # 2 Steps == 1/2 Beats
 
     single_note: Note = Note(Measure(1))
@@ -821,7 +821,7 @@ def test_clip_filter():
     # assert original_note.len_unmasked() == 2
 
     # Stacks to make Elements (Notes) different
-    selected_note >>= Stack()
+    selected_note << Stack()
     second_note: Note = selected_note[1]
     selected_note -= second_note
     # Shall remove just one Element and become size 1, remove by id and not by data
@@ -1029,7 +1029,7 @@ def test_clip_operations():
     assert straight_clip != reversed_clip
     # reversed_clip >> Plot(block=False)
     # straight_clip >> Reverse() >> Plot()
-    assert straight_clip >> Reverse() == reversed_clip
+    assert ~straight_clip << Reverse() == reversed_clip
 
 
     three_notes = Note(1/4) + Note(1/2) + Note(1/2) << Stack()
@@ -1219,7 +1219,7 @@ def test_split_note():
 def test_process_mask():
     # It splits by 4 elements (notes)
     native_clip: Clip = Note(1/1) // 4 << Position(0)
-    copy_clip: Clip = native_clip >> Stack()
+    copy_clip: Clip = ~native_clip << Stack()
     assert copy_clip != native_clip
     masked_native_clip: Clip = native_clip.select(All())
     assert not masked_native_clip.is_masked()   # Because all were selected
@@ -1227,7 +1227,7 @@ def test_process_mask():
     # masked_native_clip is native_clip
     assert masked_native_clip is native_clip
     # A >> from a Mask shall also result in a copy!
-    same_mask: Clip = masked_native_clip >> Stack()
+    same_mask: Clip = ~masked_native_clip << Stack()
     assert masked_native_clip is native_clip
     assert same_mask is not native_clip
     # Now by using the mask the native_copy was stacked changed
