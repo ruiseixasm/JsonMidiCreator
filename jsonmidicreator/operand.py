@@ -287,7 +287,10 @@ class Operand:
     # Works as << with top precedence than << and with implicit copy
     def __matmul__(self, operand) -> Self:
         return self.copy().__lshift__( operand )
+
     
+    def __rrshift__(self, operand: T) -> T:
+        return operand   # No copy (read-only) !
     
     def __add__(self, operand: any) -> Self:
         return self.copy().__iadd__(operand)
