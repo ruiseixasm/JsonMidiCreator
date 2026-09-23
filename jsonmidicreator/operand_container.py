@@ -2580,22 +2580,6 @@ class Clip(Composition):  # Just a container of Elements
 
 
 
-    def split(self, position: ra.Position) -> tuple['Clip', 'Clip']:
-        """
-        Splits the given clip in two at the given position.
-
-        Args:
-            position (ra.Position): Position at which the clip will be split in two
-
-        Returns:
-            Clip: The same self object with the items processed.
-        """
-        self_left: Clip     = self.copy().filter(of.Bellow(position))
-        self_right: Clip    = self.copy().filter(of.DownTo(position))
-        return self_left, self_right
-
-
-
 #####################################################################################################
 ############################################  SECTION  ##############################################
 #####################################################################################################
