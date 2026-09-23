@@ -268,8 +268,10 @@ class Operand:
         # !! DON'T DO THIS !!
         # return type(self)() << self << parameters
         return self_copy
+
     
     def reset(self, *parameters) -> Self:
+        """Resets the `Operand`'s iterative variables"""
         # RESET THE SELF OPERANDS RECURSIVELY
         if self._chained_operand is not None:
             self << self._chained_operand.reset()
@@ -277,8 +279,10 @@ class Operand:
         self._set           = False
         self._index         = -1    # negative means no iteration so far
         return self << parameters
+
     
     def clear(self, *parameters) -> Self:
+        """Clears the Operand to the default state"""
         self._chained_operand = None
         return self.reset() << self.__class__() << parameters
 

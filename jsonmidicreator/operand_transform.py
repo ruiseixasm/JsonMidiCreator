@@ -49,6 +49,10 @@ class Transform(o.Operand):
     def _transform(self, clip: 'Clip') -> 'Clip':
         return clip
     
+    def copy(self, *parameters) -> Self:
+        # Frame class IS a Read-only class
+        return self
+
 
 
 class Edit(Transform):
@@ -226,6 +230,21 @@ class Overlap(Edit):
         clip += self._source_clip + self % ra.Position()
         return clip
     
+
+
+class Delete(Transform):
+    """`Transform -> Delete`
+
+    Deletes all the given items in the present container and propagates the deletion
+    of the same items for the containers above.
+
+    Args:
+        None
+    """
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        clip._delete(self.elements_unmasked(), True)    # Already recursive
+        return clip
+
 
 
 class Sort(Transform):

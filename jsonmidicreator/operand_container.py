@@ -1376,21 +1376,6 @@ class Clip(Composition):  # Just a container of Elements
         self._time_signature << time_signature
         return self
 
-    def clear(self, *parameters) -> Self:
-        """
-        Clears all the given items in the present container and propagates the deletion
-        of the same items for the containers above.
-
-        Args:
-            *parameters: After deletion, any given parameter will be operated with `<<` in the sequence given.
-
-        Returns:
-            Container: Returns an empty self but with all the rest parameters untouched except the ones
-            changed by the imputed Args.
-        """
-        self._delete(self.elements_unmasked(), True)
-        return super().clear(parameters)
-    
 
     def _first_element(self) -> 'oe.Element':
         """
@@ -1697,6 +1682,7 @@ class Clip(Composition):  # Just a container of Elements
                         return index
         return -1
 
+
     def get_component_elements(self) -> list['oe.Element']:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         component_elements: list[oe.Element] = []
@@ -1723,6 +1709,7 @@ class Clip(Composition):  # Just a container of Elements
                 copied_note._duration_beats += extended_duration
                 component_elements.append(copied_note)
         return sorted(component_elements)
+
 
     if TYPE_CHECKING:
         from operand_metrics import Vector
@@ -1869,6 +1856,7 @@ class Clip(Composition):  # Just a container of Elements
                 self._set_owner_clip()
         return self
 
+
     def empty_copy(self, *parameters) -> Self:
         """
         Returns a Clip with all the same parameters but the list that is empty.
@@ -1904,6 +1892,7 @@ class Clip(Composition):  # Just a container of Elements
         new_clip._track_number  = self._track_number
         new_clip._enabled       = self._enabled
         return new_clip << parameters
+
 
     def __lshift__(self, operand: any) -> Self:
         from . import operand_transform as tr
