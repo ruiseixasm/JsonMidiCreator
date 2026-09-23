@@ -2968,17 +2968,6 @@ class Process(Generic):
         return self._direct_process( o.deep_copy(operand) )
 
 
-    @staticmethod
-    def _get_playlist(operand: o.T) -> list[dict]:
-        from . import operand_element as oe
-        from . import operand_container as oc
-
-        match operand:
-            case oc.Composition() | oe.Element():
-                return operand.getPlaylist()
-
-        return []
-
 
 class SideEffect(Process):
     """`Generic -> Process -> SideEffect`
@@ -3200,7 +3189,7 @@ class Export(ReadOnly):
                     composition_length: ra.Length = operand % ra.Length()
                     composition_length_beats: Fraction = composition_length._rational   # Implicit rounding
                     clocking: dict[str, list] = settings.getClocking(composition_length_beats)
-                    playlist: list[dict] = self._get_playlist(operand)
+                    playlist: list[dict] = operand.getPlaylist()
                     c.exportJsonMidiPlay(clocking, playlist, file_path)
                 else:
                     print(f"Warning: Trying to export an **empty** list!")
@@ -3211,7 +3200,7 @@ class Export(ReadOnly):
                 element_length: ra.Length = operand % ra.Length()
                 element_length_beats: Fraction = element_length.roundBeats() % Fraction()
                 clocking: dict[str, list] = settings.getClocking(element_length_beats)
-                playlist: list[dict] = self._get_playlist(operand)
+                playlist: list[dict] = operand.getPlaylist()
                 c.exportJsonMidiPlay(clocking, playlist, file_path)
                 return operand
 
@@ -4523,7 +4512,7 @@ class Play(ReadOnly):
                     composition_length: ra.Length = operand % ra.Length()
                     composition_length_beats: Fraction = composition_length._rational   # Implicit rounding
                     clocking: dict[str, list] = settings.getClocking(composition_length_beats)
-                    playlist: list[dict] = self._get_playlist(operand)  # Where the heavy lifting method is called
+                    playlist: list[dict] = operand.getPlaylist()  # Where the heavy lifting method is called
                     if self._parameters[self._indexes["plot"]] and self._parameters[self._indexes["block"]]:
                         # Start the function in a new process
                         process = threading.Thread(target=c.playJsonMidiPlay,
@@ -4547,7 +4536,7 @@ class Play(ReadOnly):
                 element_length: ra.Length = operand % ra.Length()
                 element_length_beats: Fraction = element_length.roundBeats() % Fraction()
                 clocking: dict[str, list] = settings.getClocking(element_length_beats)
-                playlist: list[dict] = self._get_playlist(operand)  # Where the heavy lifting method is called
+                playlist: list[dict] = operand.getPlaylist()  # Where the heavy lifting method is called
                 if self._parameters[self._indexes["plot"]] and self._parameters[self._indexes["block"]]:
                     # Start the function in a new process
                     process = threading.Thread(target=c.playJsonMidiPlay,
