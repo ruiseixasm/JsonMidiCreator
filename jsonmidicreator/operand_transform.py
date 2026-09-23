@@ -49,6 +49,11 @@ class Transform(o.Operand):
     def _transform(self, clip: 'Clip') -> 'Clip':
         return clip
     
+    def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(operand, oc.Clip):
+            return self._transform(operand.copy())
+        return operand
+
 
 
 class Edit(Transform):

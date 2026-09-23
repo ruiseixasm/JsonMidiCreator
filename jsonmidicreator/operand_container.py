@@ -2022,9 +2022,12 @@ class Clip(Composition):  # Just a container of Elements
     # Pass trough method that always results in a Container (Self)
     def __irshift__(self, operand) -> Self:
         from . import operand_transform as tr
+        from . import operand_process as op
         match operand:
             case tr.Transform():
                 operand._transform(self)
+            case op.Process():
+                operand._process(self)
             case _:
                 super().__irshift__(operand)
         return self._sort_items()
