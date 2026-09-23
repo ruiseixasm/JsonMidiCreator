@@ -2416,60 +2416,6 @@ class Clip(Composition):  # Just a container of Elements
         return self._sort_items()  # Shall be sorted!
 
 
-    def recur(self, recursion: Callable = lambda d: d/2, parameter: type = ra.Duration) -> Self:
-        """
-        Calls the function on the successive items in a Xn+1 = Xn fashion (recursive),
-        where n is the previous element and n+1 the next one.
-
-        Args:
-            recursion (Callable): recursive function.
-            parameter (type): The type of parameter being processed by the recursive function.
-
-        Returns:
-            Container: The same self object with the items processed.
-        """
-        for item_i in range(1, self.len_unmasked()):
-            self._items[item_i] << recursion(self._items[item_i - 1] % parameter())
-        return self._sort_items()
-
-    def rotate(self, right: int = 1, parameter: type = ra.Position) -> Self:
-        """
-        Rotates a given parameter by a given right amount, by other words,
-        does a displacement for each Element in the Container list of
-        a chosen parameter by the given right amount. Clockwise.
-
-        Args:
-            right (int): The right amount of the list index, displacement.
-            parameter (type): The type of parameter being displaced, rotated.
-
-        Returns:
-            Container: The self object with the chosen parameter displaced.
-        """
-        parameter_instance = parameter()
-        if isinstance(parameter_instance, od.Pipe):
-            items: list = []
-            for _ in len(self._items):
-                item_index: int = right % len(self._items)
-                items.append(self._items[item_index])   # No need to copy
-                right += 1
-            # Remove previous Elements from the Container stack
-            self._delete(self._items, True) # deletes by id, safer
-            # Finally adds the decomposed elements to the Container stack
-            self._extend(items)
-        else:
-            parameters: list = []
-            for operand in self.elements_unmasked():
-                if isinstance(operand, o.Operand):
-                    parameters.append( operand % parameter_instance )
-                else:
-                    parameters.append( ol.Null() )
-            for operand in self.elements_unmasked():
-                if isinstance(operand, o.Operand):
-                    operand << parameters[ right % len(parameters) ]
-                right += 1
-        return self._sort_items()
-
-
     def mask(self, *conditions) -> Self:
         """
         Masks the items that meet the conditions (equal to). No implicit copies.
