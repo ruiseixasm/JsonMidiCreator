@@ -195,31 +195,6 @@ class ReadOnly(Process):
     pass
 
 
-class RightShift(ReadOnly):
-    """`Generic -> Process -> ReadOnly -> RightShift`
-
-    Applies the `>>` operation if process is `True`.
-
-    Parameters
-    ----------
-    Any(None) : Typically an `Operand` intended to be affected with `>>` by the chained data sequence.
-    bool(True) : By default, the the give `Operand` is targeted with `>>`.
-    """
-    def __init__(self, operand: o.Operand = None, process_it: bool = True):
-        super().__init__()
-        self._parameters = operand    # needs to keep the original reference (no copy)
-        self._process_it: bool = process_it
-
-    # CHAINABLE OPERATIONS
-
-    def _process(self, operand: o.T) -> o.T:
-        if isinstance(self._parameters, o.Operand):
-            if self._process_it:
-                return self._parameters.__rshift__(operand)
-            return operand
-        return super().__rshift__(operand)
-
-
 class Save(ReadOnly):
     """`Generic -> Process -> ReadOnly -> Save`
 
