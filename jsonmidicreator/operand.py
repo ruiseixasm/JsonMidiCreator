@@ -284,9 +284,9 @@ class Operand:
 
     
     # The @ operator in Python is used for matrix multiplication (__@__)
-    # Works as >> with top precedence than >>
+    # Works as << with top precedence than << and with implicit copy
     def __matmul__(self, operand) -> Self:
-        return self.__rshift__( operand )
+        return self.copy().__lshift__( operand )
     
     
     def __add__(self, operand: any) -> Self:
