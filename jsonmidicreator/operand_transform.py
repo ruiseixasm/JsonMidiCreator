@@ -615,7 +615,7 @@ class Replace(Edit):
     """
     def _transform(self, clip: 'Clip') -> 'Clip':
         clip //= self._parameters["locus"]
-        clip += self._parameters["clip"] + self._parameters["locus"] % ra.Position()
+        clip += self._parameters["clip"] + self._parameters["locus"] % ra.Position(clip)
         return clip
 
 
@@ -632,7 +632,7 @@ class Insert(Edit):
     """
     def _transform(self, clip: 'Clip') -> 'Clip':
         clip += self._parameters["locus"]
-        clip += self._parameters["clip"] + self._parameters["locus"] % ra.Position()
+        clip += self._parameters["clip"] + self._parameters["locus"] % ra.Position(clip)
         return clip
 
 
@@ -648,7 +648,7 @@ class Overlap(Edit):
     Clip() : The `Clip` to be used as the source of the edition.
     """
     def _transform(self, clip: 'Clip') -> 'Clip':
-        clip += self._parameters["clip"] + self._parameters["locus"] % ra.Position()
+        clip += self._parameters["clip"] + self._parameters["locus"] % ra.Position(clip)
         return clip
     
 
