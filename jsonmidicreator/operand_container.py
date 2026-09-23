@@ -1326,26 +1326,6 @@ class Composition(Container):
         return super().__ipow__(operand)
 
 
-    def call(self, iterations: int = 1, n_button: Optional[Callable[['Composition'], 'Composition']] = None) -> Self:
-            """
-            `Call` a given callable function passed as `n_button`. This is to be used instead of `Plot` whenever \
-                a given iteration was already chosen bypassing this way the process of plotting.
-
-            Args:
-                iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
-                    this is dependent on a n_button being given.
-                n_button (Callable): A function that takes a Composition to be used to generate a new iteration.
-
-            Returns:
-                Composition: Returns the presently plotted composition.
-            """
-            iterated_composition: Composition = self.copy()
-            if callable(n_button) and isinstance(iterations, int) and iterations > 0:
-                for _ in range(iterations):
-                    iterated_composition = n_button(self.copy())
-            return iterated_composition
-
-
 
 #####################################################################################################
 ##############################################  CLIP  ###############################################

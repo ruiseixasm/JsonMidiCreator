@@ -43,10 +43,9 @@ class Process(o.Operand):
 
     A `Process` is target to an `Element` or a `Clip` which result in a output of their data.
     """
-    def __init__(self, parameters: list = []):
+    def __init__(self, parameters: tuple = tuple()):
         super().__init__()
-        self._parameters: list = o.deep_copy(parameters)
-        self._indexes: dict[str, int] = {}
+        self._parameters: dict[str, Any] = {}   # Empty by default
 
 
     def _process(self, operand: o.T) -> o.T:
@@ -68,12 +67,13 @@ class Save(Process):
     False, bool() : Include the global settings.
     """
     def __init__(self, filename: str | None = None, include_settings = False):
-        super().__init__([filename, include_settings])
-        self._indexes = {'filename': 0, 'include_settings': 1}
+        super().__init__()
+        self._parameters["filename"] = filename
+        self._parameters["include_settings"] = include_settings
 
     def _process(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
-            file_path: str = self._parameters[self._indexes["filename"]]
+            file_path: str = self._parameters["filename"]
             if not isinstance(file_path, str):
                 if isinstance(operand, oc.Composition):
                     file_path = operand.composition_filename() + "_save.json"
@@ -81,8 +81,7 @@ class Save(Process):
                     file_path = "json/_Save_jsonMidiCreator.json"
             else: # Folder is just a prefix
                 file_path = file_path
-            c.saveJsonMidiCreator(operand.getSerialization(), file_path,
-                                  self._parameters[self._indexes["include_settings"]])
+            c.saveJsonMidiCreator(operand.getSerialization(), file_path, self._parameters["include_settings"])
             return operand
         return super().__rrshift__(operand)
 
@@ -96,13 +95,14 @@ class Export(Process):
     None, str() : The filename of the JsonMidiPlayer playable file.
     """
     def __init__(self, filename: str | None = None):
-        super().__init__(filename)
+        super().__init__()
+        self._parameters["filename"] = filename
 
     def _process(self, operand: o.T) -> o.T:
         match operand:
             case oc.Composition():
                 if operand._items:
-                    file_path: str = self._parameters
+                    file_path: str = self._parameters["filename"]
                     if not isinstance(file_path, str):
                         file_path = operand.composition_filename() + "_export.json"
                     else: # Folder is just a prefix
@@ -138,11 +138,12 @@ class Render(Process):
     None, str() : The filename of the Midi playable file.
     """
     def __init__(self, filename: str | None = None):
-        super().__init__(filename)
+        super().__init__()
+        self._parameters["filename"] = filename
 
     def _process(self, operand: o.T) -> o.T:
         # filepath and filename
-        file_path: str = self._parameters
+        file_path: str = self._parameters["filename"]
         if not isinstance(file_path, str):
             if isinstance(operand, oc.Composition):
                 file_path = operand.composition_filename() + "_render.mid"
@@ -213,21 +214,20 @@ class Plot(Process):
     """
     def __init__(self, by_channel: bool = False, block: bool = True, pause: float = 0.0, iterations: int = 0,
                  composition: Optional['oc.Composition'] = None, title: str | None = None):
-        super().__init__([by_channel, block, pause, iterations, composition, title])
-        self._indexes = {
-            'by_channel': 0, 'block': 1, 'pause': 2, 'iterations': 3, 'composition': 5, 'title': 6
-        }
+        super().__init__()
+        self._parameters["by_channel"] = by_channel
+        self._parameters["block"] = block
+        self._parameters["pause"] = pause
+        self._parameters["iterations"] = iterations
+        self._parameters["composition"] = composition
+        self._parameters["title"] = title
+
         self._compositions: list[oc.Composition] = []
         self._plot_lists: list[list] = []
         self._plot_checksums: list[str] = []
-        self._by_channel: bool = by_channel
         self._iteration_index: int = 0
-        self._composition = composition
-        self._title: str = title
-        self._block: bool = block
-        self._pause: bool = pause
-        self._iterations: int = iterations
         self._n_function: Callable[[int], 'oc.Clip'] = None
+
 
     def _process(self, operand: o.T) -> 'oc.Composition':
         match operand:
@@ -243,12 +243,12 @@ class Plot(Process):
                 line = od.Line(operand)
                 self.__rrshift__(line)
             case og.Scale():
-                og.Scale.plot(self._parameters[1], operand % list())
+                og.Scale.plot(self._parameters["block"], operand % list())
             case ou.KeySignature():
-                og.Scale.plot(self._parameters[1], operand % list(), operand % ou.Key(), operand % str())
+                og.Scale.plot(self._parameters["block"], operand % list(), operand % ou.Key(), operand % str())
             case oi.Iterations():
-                if not isinstance(self._title, str):
-                    self._title = operand.__class__.__name__
+                if not isinstance(self._parameters["title"], str):
+                    self._parameters["title"] = operand.__class__.__name__
                 self._n_function = operand.n_function
                 return self.plot_iterations()
             case _:
@@ -333,7 +333,7 @@ class Plot(Process):
         quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
         steps_per_measure: Fraction = beats_per_measure / quantization_beats
 
-        chart_title: str = f"{self._title + " - " if self._title != "" else ""}" \
+        chart_title: str = f"{self._parameters["title"] + " - " if self._parameters["title"] != "" else ""}" \
                         + f"{self._compositions[self._iteration_index].__class__.__name__}"
         # Chart title (TITLE)
         if isinstance(self, oc.Section):
@@ -391,7 +391,7 @@ class Plot(Process):
         if note_channels or not automation_channels:
 
             # As Channels (Drums)
-            if self._by_channel:
+            if self._parameters["by_channel"]:
                 self._ax.set_ylabel("Channels")
 
                 # Set MIDI channel ticks with Middle C in bold
@@ -926,15 +926,15 @@ class Plot(Process):
 
     def _run_composition(self, even = None, loops: int = 1) -> Self:
         import threading
-        if isinstance(self._composition, oc.Composition):
+        if isinstance(self._parameters["composition"], oc.Composition):
             iteration_self: oc.Composition = self._compositions[self._iteration_index]
-            iteration_composition: oc.Composition = self._composition + iteration_self
+            iteration_composition: oc.Composition = self._parameters["composition"] + iteration_self
             threading.Thread(target=Play.play, args=(iteration_composition, loops)).start()
         return self
 
     def _plot_filename(self, composition: 'oc.Composition') -> str:
         # Process title separately (replace whitespace with underscores)
-        processed_title = str(self._title).replace(" ", "_").replace("\t", "_").replace("\n", "_").replace("__", "_")
+        processed_title = str(self._parameters["title"]).replace(" ", "_").replace("\t", "_").replace("\n", "_").replace("__", "_")
         composition_designations: list[str] = [
             processed_title,
             type(composition).__name__,
@@ -1032,7 +1032,7 @@ class Plot(Process):
                 if isinstance(single_note, oe.Note)
             ]
             if at_position_notes:
-                if self._by_channel:
+                if self._parameters["by_channel"]:
                     if 0 <= round(event.ydata - 1) < 16:
                         # Sort by Position in reverse instead
                         at_position_notes.sort(key=lambda note:note._position_beats * -1)
@@ -1077,14 +1077,14 @@ class Plot(Process):
         self._compositions      = [ composition.copy() ]   # Works with a forced copy (Read Only)
         self._plot_lists        = [ composition.getPlotlist() ]
         self._plot_checksums    = [ o.checksum_to_string(composition.checksum()) ]
-        if not isinstance(self._title, str):
-            self._title: str = composition._name
+        if not isinstance(self._parameters["title"], str):
+            self._parameters["title"] = composition._name
 
         # Enable interactive mode (doesn't block the execution)
         plt.ion()
 
         # Where the window title is set too
-        self._fig, self._ax = plt.subplots(num=self._title, figsize=(12, 6))
+        self._fig, self._ax = plt.subplots(num=self._parameters["title"], figsize=(12, 6))
         # Replace handler
         try:
             # self._fig.canvas.mpl_disconnect(self._fig.canvas.manager.key_press_handler_id)
@@ -1141,21 +1141,20 @@ class Plot(Process):
         render_button = Button(ax_button, 'R', color='white', hovercolor='grey')
         render_button.on_clicked(self._run_render)
 
-        if not isinstance(self._composition, oc.Composition):
+        if not isinstance(self._parameters["composition"], oc.Composition):
             # Composition Button Widget
             self._disable_button(composition_button)
 
-        if self._block and self._pause == 0:
+        if self._parameters["block"] and self._parameters["pause"] == 0:
             plt.show(block=True)
-        elif self._pause > 0:
+        elif self._parameters["pause"] > 0:
             plt.draw()
-            plt.pause(self._pause)
+            plt.pause(self._parameters["pause"])
         else:
             plt.show(block=False)
 
         return composition
     
-
 
     def _run_first(self, even = None) -> Self:
         if self._iteration_index > 0:
@@ -1233,11 +1232,11 @@ class Plot(Process):
         self._compositions      = [ iteration_0 ]   # Works with a forced copy (Read Only)
         self._plot_lists        = [ iteration_0.getPlotlist() ]
         self._plot_checksums    = [ o.checksum_to_string(iteration_0.checksum()) ]
-        if not isinstance(self._title, str):
-            self._title: str = iteration_0 % str()
+        if not isinstance(self._parameters["title"], str):
+            self._parameters["title"] = iteration_0 % str()
 
-        if callable(self._n_function) and isinstance(self._iterations, int) and self._iterations > 1:
-            for i in range(self._iterations):
+        if callable(self._n_function) and isinstance(self._parameters["iterations"], int) and self._parameters["iterations"] > 1:
+            for i in range(self._parameters["iterations"]):
                 new_composition: oc.Composition = self._n_function(i)
                 new_plotlist: list[dict] = new_composition.getPlotlist()
                 new_checksum_str: str = o.checksum_to_string(new_composition.checksum())
@@ -1250,7 +1249,7 @@ class Plot(Process):
         plt.ion()
 
         # Where the window title is set too
-        self._fig, self._ax = plt.subplots(num=self._title, figsize=(12, 6))
+        self._fig, self._ax = plt.subplots(num=self._parameters["title"], figsize=(12, 6))
         # Replace handler
         try:
             # self._fig.canvas.mpl_disconnect(self._fig.canvas.manager.key_press_handler_id)
@@ -1332,15 +1331,15 @@ class Plot(Process):
             # New Button Widget
             self._disable_button(new_button)
 
-        if not isinstance(self._composition, oc.Composition):
+        if not isinstance(self._parameters["composition"], oc.Composition):
             # Composition Button Widget
             self._disable_button(composition_button)
 
-        if self._block and self._pause == 0:
+        if self._parameters["block"] and self._parameters["pause"] == 0:
             plt.show(block=True)
-        elif self._pause > 0:
+        elif self._parameters["pause"] > 0:
             plt.draw()
-            plt.pause(self._pause)
+            plt.pause(self._parameters["pause"])
         else:
             plt.show(block=False)
 
@@ -1354,7 +1353,7 @@ class Plot(Process):
         match operand:
             case Plot():
                 super().__lshift__(operand)
-                self._parameters = operand._parameters.copy()
+                self._parameters = o.deep_copy(operand._parameters)
             case _:
                 super().__lshift__(operand)
         return self
@@ -1362,32 +1361,8 @@ class Plot(Process):
     def __imul__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         if isinstance(operand, int):
-            self._parameters[self._indexes['iterations']] = operand
+            self._parameters["iterations"] = operand
         return self
-
-
-
-class Call(Process):
-    """`Generic -> Process -> Call`
-
-    `Call` a given callable function passed as `n_button`. This is to be used instead of `Plot` whenever \
-        a given iteration was already chosen bypassing this way the process of plotting.
-
-    Args:
-        iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
-            this is dependent on a n_button being given.
-        n_button (Callable): A function that takes a Composition to be used to generate a new iteration.
-    """
-    def __init__(self, iterations: int = 1, n_button: Optional[Callable[['oc.Composition'], 'oc.Composition']] = None):
-        super().__init__([iterations, n_button])
-        self._indexes = {
-            'iterations': 0, 'n_button': 1
-        }
-
-    def _process(self, operand: o.T) -> o.T:
-        if isinstance(operand, (oc.Composition, oe.Element)):
-            return operand.call(*self._parameters)
-        return operand
 
 
 class Play(Process):
@@ -1401,10 +1376,13 @@ class Play(Process):
         block (bool): Blocks the Plot until is closed and then plays the plotted content.
     """
     def __init__(self, loops: int = 1, verbose: bool = False, plot: bool = False, block: bool = False, talkie_delay_ms: int = 500):
-        super().__init__([loops, verbose, plot, block, talkie_delay_ms])
-        self._indexes = {
-            'loops': 0, 'verbose': 1, 'plot': 2, 'block': 3, 'talkie_delay_ms': 4
-        }
+        super().__init__()
+        self._parameters["loops"] = loops
+        self._parameters["verbose"] = verbose
+        self._parameters["plot"] = plot
+        self._parameters["block"] = block
+        self._parameters["talkie_delay_ms"] = talkie_delay_ms
+        
 
     def _process(self, operand: o.T) -> o.T:
         import threading
@@ -1415,22 +1393,22 @@ class Play(Process):
                     composition_length_beats: Fraction = composition_length._rational   # Implicit rounding
                     clocking: dict[str, list] = og.settings.getClocking(composition_length_beats)
                     playlist: list[dict] = operand.getPlaylist()  # Where the heavy lifting method is called
-                    if self._parameters[self._indexes["plot"]] and self._parameters[self._indexes["block"]]:
+                    if self._parameters["plot"] and self._parameters["block"]:
                         # Start the function in a new process
                         process = threading.Thread(target=c.playJsonMidiPlay,
                                                    args=(clocking, playlist,
-                                                         self._parameters[self._indexes["loops"]],
-                                                         self._parameters[self._indexes["verbose"]],
-                                                         self._parameters[self._indexes["talkie_delay_ms"]]))
+                                                         self._parameters["loops"],
+                                                         self._parameters["verbose"],
+                                                         self._parameters["talkie_delay_ms"]))
                         process.start()
-                        operand >> Plot(self._parameters[self._indexes["block"]])
+                        operand >> Plot(self._parameters["block"])
                     else:
-                        if self._parameters[self._indexes["plot"]] and not self._parameters[self._indexes["block"]]:
-                            operand >> Plot(self._parameters[self._indexes["block"]])
+                        if self._parameters["plot"] and not self._parameters["block"]:
+                            operand >> Plot(self._parameters["block"])
                         c.playJsonMidiPlay(clocking, playlist,
-                                            self._parameters[self._indexes["loops"]],
-                                            self._parameters[self._indexes["verbose"]],
-                                            self._parameters[self._indexes["talkie_delay_ms"]])
+                                            self._parameters["loops"],
+                                            self._parameters["verbose"],
+                                            self._parameters["talkie_delay_ms"])
                 else:
                     print(f"Warning: Trying to play an **empty** list!")
                 return operand
@@ -1439,22 +1417,22 @@ class Play(Process):
                 element_length_beats: Fraction = element_length.roundBeats() % Fraction()
                 clocking: dict[str, list] = og.settings.getClocking(element_length_beats)
                 playlist: list[dict] = operand.getPlaylist()  # Where the heavy lifting method is called
-                if self._parameters[self._indexes["plot"]] and self._parameters[self._indexes["block"]]:
+                if self._parameters["plot"] and self._parameters["block"]:
                     # Start the function in a new process
                     process = threading.Thread(target=c.playJsonMidiPlay,
                                                args=(clocking, playlist,
-                                                         self._parameters[self._indexes["loops"]],
-                                                         self._parameters[self._indexes["verbose"]],
-                                                         self._parameters[self._indexes["talkie_delay_ms"]]))
+                                                         self._parameters["loops"],
+                                                         self._parameters["verbose"],
+                                                         self._parameters["talkie_delay_ms"]))
                     process.start()
-                    operand >> Plot(self._parameters[self._indexes["block"]])
+                    operand >> Plot(self._parameters["block"])
                 else:
-                    if self._parameters[self._indexes["plot"]] and not self._parameters[self._indexes["block"]]:
-                        operand >> Plot(self._parameters[self._indexes["block"]])
+                    if self._parameters["plot"] and not self._parameters["block"]:
+                        operand >> Plot(self._parameters["block"])
                     c.playJsonMidiPlay(clocking, playlist,
-                                            self._parameters[self._indexes["loops"]],
-                                            self._parameters[self._indexes["verbose"]],
-                                            self._parameters[self._indexes["talkie_delay_ms"]])
+                                            self._parameters["loops"],
+                                            self._parameters["verbose"],
+                                            self._parameters["talkie_delay_ms"])
                 return operand
             case od.Line():
                 line_clip = oc.Clip(operand)
@@ -1508,6 +1486,7 @@ class Print(Process):
                 print(operand)
         return operand
 
+
 class Copy(Process):
     """`Generic -> Process -> Copy`
 
@@ -1521,12 +1500,14 @@ class Copy(Process):
         Operand: Returns a copy of the left side `>>` operand.
     """
     def __init__(self, *parameters):
-        super().__init__(parameters)
+        super().__init__()
+        self._parameters["parameters"] = parameters
 
     def _process(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
-            return operand.copy(*self._parameters)
-        return super().__rrshift__(operand)
+            return operand.copy(*self._parameters["parameters"])
+        return o.deep_copy(operand)
+
 
 class Proxy(Process):
     """`Generic -> Process -> Proxy`
@@ -1541,12 +1522,14 @@ class Proxy(Process):
         Container: Returns a shallow copy of the left side `>>` operand.
     """
     def __init__(self, *parameters):
-        super().__init__(parameters)
+        super().__init__()
+        self._parameters["parameters"] = parameters
 
     def _process(self, operand: o.T) -> o.T:
         if isinstance(operand, oc.Container):
-            return operand.shallow_copy(*self._parameters)
+            return operand.shallow_copy(*self._parameters["parameters"])
         return super().__rrshift__(operand)
+
 
 class Reset(Process):
     """`Generic -> Process -> Reset`
@@ -1561,12 +1544,14 @@ class Reset(Process):
         Operand: Returns the same reset operand.
     """
     def __init__(self, *parameters):
-        super().__init__(parameters)
+        super().__init__()
+        self._parameters["parameters"] = parameters
 
     def _process(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
-            return operand.reset(*self._parameters)
+            return operand.reset(*self._parameters["parameters"])
         return super().__rrshift__(operand)
+
 
 class Clear(Process):
     """`Generic -> Process -> Clear`
@@ -1582,12 +1567,14 @@ class Clear(Process):
         Operand: Returns the same cleared operand.
     """
     def __init__(self, *parameters):
-        super().__init__(parameters)
+        super().__init__()
+        self._parameters["parameters"] = parameters
 
     def _process(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
-            return operand.clear(*self._parameters)
+            return operand.clear(*self._parameters["parameters"])
         return super().__rrshift__(operand)
+
 
 class Read(Process):
     """`Generic -> Process -> Read`
@@ -1603,7 +1590,7 @@ class Read(Process):
         if isinstance(operand, (oe.Element, ou.Tempo)):
             return operand.read()
         else:
-            print(f"Warning: Operand is NOT an `Element` os a `Tempo`!")
+            print(f"Warning: Operand is NOT an `Element` or a `Tempo`!")
         return super().__rrshift__(operand)
 
 
