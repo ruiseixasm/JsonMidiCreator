@@ -2961,11 +2961,11 @@ class Process(Generic):
             self._parameters[self._indexes[name]] = value
         return self
     
-    def _direct_process(self, operand: o.T) -> o.T:
+    def _process(self, operand: o.T) -> o.T:
         return operand  # No copy
 
     def __rrshift__(self, operand: o.T) -> o.T:
-        return self._direct_process( o.deep_copy(operand) )
+        return self._process( o.deep_copy(operand) )
 
 
 
@@ -2987,7 +2987,7 @@ class SideEffect(Process):
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: o.T) -> o.T:
-        return self._direct_process(operand)
+        return self._process(operand)
 
 class LeftShift(SideEffect):
     """`Generic -> Process -> SideEffect -> LeftShift`
@@ -2999,7 +2999,7 @@ class LeftShift(SideEffect):
     Any(None) : Typically an `Operand` intended to be affected with `<<` by the chained data sequence.
     """
     # CHAINABLE OPERATIONS
-    def _direct_process(self, operand: o.T) -> o.T:
+    def _process(self, operand: o.T) -> o.T:
         if isinstance(self._parameters, o.Operand):
             if self._process_it:
                 self._parameters.__lshift__(operand)
@@ -3016,7 +3016,7 @@ class RightShift(SideEffect):
     Any(None) : Typically an `Operand` intended to be affected with `>>` by the chained data sequence.
     """
     # CHAINABLE OPERATIONS
-    def _direct_process(self, operand: o.T) -> o.T:
+    def _process(self, operand: o.T) -> o.T:
         if isinstance(self._parameters, o.Operand):
             if self._process_it:
                 self._parameters.__rshift__(operand)
@@ -3033,7 +3033,7 @@ class IAdd(SideEffect):    # i stands for "inplace"
     Any(None) : Typically an `Operand` intended to be affected with `+=` by the chained data sequence.
     """
     # CHAINABLE OPERATIONS
-    def _direct_process(self, operand: o.T) -> o.T:
+    def _process(self, operand: o.T) -> o.T:
         if isinstance(self._parameters, o.Operand):
             if self._process_it:
                 self._parameters.__iadd__(operand)
@@ -3050,7 +3050,7 @@ class ISub(SideEffect):
     Any(None) : Typically an `Operand` intended to be affected with `-=` by the chained data sequence.
     """
     # CHAINABLE OPERATIONS
-    def _direct_process(self, operand: o.T) -> o.T:
+    def _process(self, operand: o.T) -> o.T:
         if isinstance(self._parameters, o.Operand):
             if self._process_it:
                 self._parameters.__isub__(operand)
@@ -3067,7 +3067,7 @@ class IMul(SideEffect):
     Any(None) : Typically an `Operand` intended to be affected with `*=` by the chained data sequence.
     """
     # CHAINABLE OPERATIONS
-    def _direct_process(self, operand: o.T) -> o.T:
+    def _process(self, operand: o.T) -> o.T:
         if isinstance(self._parameters, o.Operand):
             if self._process_it:
                 self._parameters.__imul__(operand)
@@ -3084,7 +3084,7 @@ class IDiv(SideEffect):
     Any(None) : Typically an `Operand` intended to be affected with `/=` by the chained data sequence.
     """
     # CHAINABLE OPERATIONS
-    def _direct_process(self, operand: o.T) -> o.T:
+    def _process(self, operand: o.T) -> o.T:
         if isinstance(self._parameters, o.Operand):
             if self._process_it:
                 self._parameters.__itruediv__(operand)
@@ -3105,7 +3105,7 @@ class ReadOnly(Process):
         Any: All `Process` operands return the original left side `>>` input. Exceptions mentioned.
     """
     def __rrshift__(self, operand: o.T) -> o.T:
-        return self._direct_process(operand)
+        return self._process(operand)
 
 
 class RightShift(ReadOnly):
@@ -3125,7 +3125,7 @@ class RightShift(ReadOnly):
 
     # CHAINABLE OPERATIONS
 
-    def _direct_process(self, operand: o.T) -> o.T:
+    def _process(self, operand: o.T) -> o.T:
         if isinstance(self._parameters, o.Operand):
             if self._process_it:
                 return self._parameters.__rshift__(operand)
@@ -3147,7 +3147,7 @@ class Save(ReadOnly):
         super().__init__([filename, include_settings])
         self._indexes = {'filename': 0, 'include_settings': 1}
 
-    def _direct_process(self, operand: o.T) -> o.T:
+    def _process(self, operand: o.T) -> o.T:
         from . import operand_container as oc
         if isinstance(operand, o.Operand):
             file_path: str = self._parameters[self._indexes["filename"]]
@@ -3175,7 +3175,7 @@ class Export(ReadOnly):
     def __init__(self, filename: str | None = None):
         super().__init__(filename)
 
-    def _direct_process(self, operand: o.T) -> o.T:
+    def _process(self, operand: o.T) -> o.T:
         from . import operand_element as oe
         from . import operand_container as oc
         match operand:
@@ -3219,7 +3219,7 @@ class Render(ReadOnly):
     def __init__(self, filename: str | None = None):
         super().__init__(filename)
 
-    def _direct_process(self, operand: o.T) -> o.T:
+    def _process(self, operand: o.T) -> o.T:
         from . import operand_element as oe
         from . import operand_container as oc
         # filepath and filename
@@ -3310,7 +3310,7 @@ class Plot(ReadOnly):
         self._iterations: int = iterations
         self._n_function: Callable[[int], 'Clip'] = None
 
-    def _direct_process(self, operand: o.T) -> 'Composition':
+    def _process(self, operand: o.T) -> 'Composition':
         from . import operand_unit as ou
         from . import operand_element as oe
         from . import operand_container as oc
@@ -4478,7 +4478,7 @@ class Call(ReadOnly):
             'iterations': 0, 'n_button': 1
         }
 
-    def _direct_process(self, operand: o.T) -> o.T:
+    def _process(self, operand: o.T) -> o.T:
         from . import operand_element as oe
         from . import operand_container as oc
         if isinstance(operand, (oc.Composition, oe.Element)):
@@ -4502,7 +4502,7 @@ class Play(ReadOnly):
             'loops': 0, 'verbose': 1, 'plot': 2, 'block': 3, 'talkie_delay_ms': 4
         }
 
-    def _direct_process(self, operand: o.T) -> o.T:
+    def _process(self, operand: o.T) -> o.T:
         import threading
         from . import operand_element as oe
         from . import operand_container as oc
@@ -4580,12 +4580,12 @@ class Print(ReadOnly):
     def __init__(self, serialization: bool = False):
         super().__init__( False if serialization is None else serialization )
 
-    def _direct_process(self, operand: o.T) -> o.T:
+    def _process(self, operand: o.T) -> o.T:
         import json
         from . import operand_container as oc
         match operand:
             case oc.Container():
-                self._direct_process(operand._items)
+                self._process(operand._items)
             case o.Operand():
                 if self._parameters:
                     serialized_json_str = json.dumps(operand.getSerialization())
@@ -4622,7 +4622,7 @@ class Copy(ReadOnly):
     def __init__(self, *parameters):
         super().__init__(parameters)
 
-    def _direct_process(self, operand: o.T) -> o.T:
+    def _process(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
             return operand.copy(*self._parameters)
         return super().__rrshift__(operand)
@@ -4642,7 +4642,7 @@ class Proxy(ReadOnly):
     def __init__(self, *parameters):
         super().__init__(parameters)
 
-    def _direct_process(self, operand: o.T) -> o.T:
+    def _process(self, operand: o.T) -> o.T:
         from . import operand_container as oc
         if isinstance(operand, oc.Container):
             return operand.shallow_copy(*self._parameters)
@@ -4663,7 +4663,7 @@ class Reset(Process):
     def __init__(self, *parameters):
         super().__init__(parameters)
 
-    def _direct_process(self, operand: o.T) -> o.T:
+    def _process(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
             return operand.reset(*self._parameters)
         return super().__rrshift__(operand)
@@ -4684,7 +4684,7 @@ class Clear(Process):
     def __init__(self, *parameters):
         super().__init__(parameters)
 
-    def _direct_process(self, operand: o.T) -> o.T:
+    def _process(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
             return operand.clear(*self._parameters)
         return super().__rrshift__(operand)
@@ -4698,7 +4698,7 @@ class Read(Process):
         None
     """
 
-    def _direct_process(self, operand: o.T) -> o.T:
+    def _process(self, operand: o.T) -> o.T:
         from . import operand_element as oe
         if isinstance(operand, (oe.Element, ou.Tempo)):
             return operand.read()
