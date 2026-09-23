@@ -55,180 +55,6 @@ class Transform(o.Operand):
 
 
 
-class Edit(Transform):
-    """`Transform -> Edit`
-
-    Allows the application of an edition on a targeted `Clip`
-        
-    Parameters
-    ----------
-    Position(0), TimeValue, TimeUnit, int : The position on the targeted `Clip` where the editions starts.
-    Clip() : The `Clip` to be used as the source of the edition.
-    """
-    def __init__(self, *parameters):
-        self._position_beats: Fraction = Fraction(0)
-        self._source_clip: oc.Clip = oc.Clip()
-        super().__init__(*parameters)
-
-
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case ra.Position():
-                        return operand._data << ra.Position(self._time_signature, self._position_beats)
-                    case _:                 return self._source_clip % operand
-            case ra.Position():
-                return operand.copy(self._source_clip._time_signature, self._position_beats)
-            case ra.TimeUnit():
-                # For TimeUnit only the `% operand` does the measure_module of it
-                return ra.Position(self._source_clip._time_signature, self._position_beats) % operand
-            case ra.Duration() | ra.Length():
-                return operand.copy(self._source_clip._time_signature, self._source_clip % operand)
-            case ra.TimeValue():
-                return operand.copy(ra.Beats(self._time_signature, self._source_clip % ra.Duration() % operand))
-            case og.Locus():
-                edit_locus: og.Locus = og.Locus() << self % ra.Position()
-                edit_locus << self % ra.Duration()
-                return edit_locus
-            case list():            return self % og.Locus() % list()
-            case int():             return self._source_clip % ra.Position() % ra.Measure() % int()
-            case og.Segment():         return operand.copy(self % ra.Position())
-            case float():           return self._source_clip % ra.Duration() % float()
-            case Fraction():        return self._source_clip % ra.Duration() % Fraction()
-            case _:                 return self._source_clip % operand
-
-
-    def getSerialization(self) -> dict:
-        serialization = super().getSerialization()
-        serialization["parameters"]["position_beats"]   = o.serialize(self._position_beats)
-        serialization["parameters"]["source_clip"]      = o.serialize(self._source_clip)
-        return serialization
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict) -> 'Element':
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "position_beats" in serialization["parameters"] and "source_clip" in serialization["parameters"]):
-
-            super().loadSerialization(serialization)
-            self._position_beats    = o.deserialize(serialization["parameters"]["position_beats"])
-            self._source_clip       = o.deserialize(serialization["parameters"]["source_clip"])
-        return self
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case Edit():
-                super().__lshift__(operand)
-                self._position_beats    = operand._position_beats
-                self._source_clip       = operand._source_clip.copy()
-            case od.Pipe():
-                match operand._data:
-                    case ra.Position():     self._position_beats = operand._data._rational
-                    case _:                 self._source_clip << operand
-            case od.Serialization():
-                self.loadSerialization( operand.getSerialization() )
-            case ra.Position():
-                self._position_beats        = operand._rational
-            case ra.Convertible():
-                # The setting of the TimeUnit depends on the Element position
-                self._position_beats = ra.Position(self._source_clip._time_signature, self._position_beats, operand) % Fraction()
-            case og.Locus():
-                self._position_beats = operand._position_beats
-            case list():
-                self << og.Locus(operand)
-            case str():
-                self << ra.Convertible.get_convertible_from_string(operand)
-            case int():
-                self._position_beats = ra.Measure(self._source_clip._time_signature, operand) % ra.Beats() % Fraction()
-            case og.Segment():
-                if operand._segment:
-                    self << ra.Measure(operand._segment[0])
-                    if len(operand._segment) == 2:
-                        self << ra.Beat(operand._segment[1])
-                    elif len(operand._segment) > 2:
-                        self << ra.Step(operand._segment[2])
-            case tuple():
-                for single_operand in operand:
-                    self << single_operand
-            case _:
-                self._source_clip << operand
-        return self
-
-    def __iadd__(self, operand: any) -> Self:
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case ra.Position():
-                self._position_beats += operand._rational
-            case _:
-                self._source_clip += operand
-        return self
-
-    def __isub__(self, operand: any) -> Self:
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case ra.Position():
-                self._position_beats -= operand._rational
-            case _:
-                self._source_clip -= operand
-        return self
-
-
-class Replace(Edit):
-    """`Transform -> Edit -> Replace`
-
-    Allows the substitution on a target `Clip` section by the source `Clip` duration.
-        
-    Parameters
-    ----------
-    Position(0), TimeValue, TimeUnit, int : The position on the targeted `Clip` where the editions starts.
-    Clip() : The `Clip` to be used as the source of the edition.
-    """
-    
-    def _transform(self, clip: 'Clip') -> 'Clip':
-        splitting_locus = og.Locus(self._source_clip, ra.Position(self._position_beats))
-        splitting_locus << self._source_clip % ra.Duration()
-        clip //= splitting_locus
-        clip += self._source_clip + self % ra.Position()
-        return clip
-
-
-class Insert(Edit):
-    """`Transform -> Edit -> Insert`
-
-    Allows the insertion on a target `Clip` a section defined by a source `Clip` duration.
-        
-    Parameters
-    ----------
-    Position(0), TimeValue, TimeUnit, int : The position on the targeted `Clip` where the editions starts.
-    Clip() : The `Clip` to be used as the source of the edition.
-    """
-    
-    def _transform(self, clip: 'Clip') -> 'Clip':
-        insertion_locus = og.Locus(self._source_clip, ra.Position(self._position_beats))
-        insertion_locus << self._source_clip % ra.Duration()
-        clip += insertion_locus
-        clip += self._source_clip + self % ra.Position()
-        return clip
-
-
-class Overlap(Edit):
-    """`Transform -> Edit -> Overlap`
-
-    Allows the placing over a target `Clip` with a source `Clip` at a given position.
-        
-    Parameters
-    ----------
-    Position(0), TimeValue, TimeUnit, int : The position on the targeted `Clip` where the editions starts.
-    Clip() : The `Clip` to be used as the source of the edition.
-    """
-    def _transform(self, clip: 'Clip') -> 'Clip':
-        clip += self._source_clip + self % ra.Position()
-        return clip
-    
-
-
 class Delete(Transform):
     """`Transform -> Delete`
 
@@ -757,6 +583,74 @@ class Parameterized(Transform):
     def __init__(self, parameters: tuple = tuple()):
         super().__init__()
         self._parameters: dict[str, Any] = {}   # Empty by default
+
+
+
+class Edit(Parameterized):
+    """`Transform -> Parameterized -> Edit`
+
+    Allows the application of an edition on a targeted `Clip`
+        
+    Parameters
+    ----------
+    Locus() : The locus on the targeted `Clip` where the editions happens.
+    Clip() : The `Clip` to be used as the source of the edition.
+    """
+    def __init__(self, locus: og.Locus = None, clip: oc.Clip = None):
+        super().__init__()
+        self._parameters["locus"] = og.Locus(locus)
+        self._parameters["clip"] = oc.Clip(clip)
+
+
+
+class Replace(Edit):
+    """`Transform -> Parameterized -> Edit -> Replace`
+
+    Allows the substitution on a target `Clip` section by the source `Clip` duration.
+        
+    Parameters
+    ----------
+    Locus() : The locus on the targeted `Clip` where the editions happens.
+    Clip() : The `Clip` to be used as the source of the edition.
+    """
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        clip //= self._parameters["locus"]
+        clip += self._parameters["clip"] + self._parameters["locus"] % ra.Position()
+        return clip
+
+
+
+class Insert(Edit):
+    """`Transform -> Parameterized -> Edit -> Insert`
+
+    Allows the insertion on a target `Clip` a section defined by a source `Clip` duration.
+        
+    Parameters
+    ----------
+    Locus() : The locus on the targeted `Clip` where the editions happens.
+    Clip() : The `Clip` to be used as the source of the edition.
+    """
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        clip += self._parameters["locus"]
+        clip += self._parameters["clip"] + self._parameters["locus"] % ra.Position()
+        return clip
+
+
+
+class Overlap(Edit):
+    """`Transform -> Parameterized -> Edit -> Overlap`
+
+    Allows the placing over a target `Clip` with a source `Clip` at a given position.
+        
+    Parameters
+    ----------
+    Locus() : The locus on the targeted `Clip` where the editions happens.
+    Clip() : The `Clip` to be used as the source of the edition.
+    """
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        clip += self._parameters["clip"] + self._parameters["locus"] % ra.Position()
+        return clip
+    
 
 
 class Filter(Parameterized):
