@@ -284,6 +284,7 @@ class Operand:
     
     # self is the pusher
     def __rshift__(self, operand: any) -> Any:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         return self.copy().__irshift__(operand)
 
     def right(self, operand: any) -> Self:
