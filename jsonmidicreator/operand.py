@@ -281,37 +281,14 @@ class Operand:
     def clear(self, *parameters) -> Self:
         self._chained_operand = None
         return self.reset() << self.__class__() << parameters
+
     
-    # self is the pusher
-    def __rshift__(self, operand: any) -> Any:
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        return self.copy().__irshift__(operand)
-
-    def right(self, operand: any) -> Self:
-        """Applies `>>=` on the operand while keeping self"""
-        return self.__irshift__(operand)
-
-    # self is the pusher
-    def __irshift__(self, operand: any) -> Self:
-        if isinstance(operand, tuple):
-            last_operand = self
-            for single_operand in operand:
-                last_operand >>= single_operand
-            return last_operand
-        return operand.__rrshift__(self)    # Reverses papers
-
     # The @ operator in Python is used for matrix multiplication (__@__)
     # Works as >> with top precedence than >>
     def __matmul__(self, operand) -> Self:
         return self.__rshift__( operand )
     
     
-    # operand is the pusher
-    # This means: A >> B translates to B.copy(A), similar to B.copy() << A
-    def __rrshift__(self, operand: T) -> Self:
-        return self.copy(operand)
-
-
     def __add__(self, operand: any) -> Self:
         return self.copy().__iadd__(operand)
     

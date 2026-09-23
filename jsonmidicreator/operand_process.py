@@ -56,7 +56,7 @@ class Process(o.Operand):
         return operand  # No copy
 
     def __rrshift__(self, operand: o.T) -> o.T:
-        return self._process(operand)
+        return self._process(operand)   # No copy (read-only) !
 
 
 

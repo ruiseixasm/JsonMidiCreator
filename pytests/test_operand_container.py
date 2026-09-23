@@ -1395,11 +1395,11 @@ def test_clip_proxy():
     inline_notes * 2
     assert four_notes.len() == 8
 
-    inline_mask = inline_notes >> Mask(Nth(1, 2))
+    inline_mask = inline_notes << Mask(Nth(1, 2))
     assert inline_mask % Pipe() is inline_notes % Pipe()
     assert inline_notes % Pipe() % bool()   # True means masked
 
-    joined_mask = inline_mask >> Join()
+    joined_mask = inline_mask << Join()
     assert joined_mask % Pipe() is inline_notes % Pipe()
 
 # test_clip_proxy()

@@ -658,10 +658,7 @@ class Inline(Data):
                     self._data << operand
         return self
 
-    def __rshift__(self, operand: any) -> Self:
-        self._data.__irshift__(operand)
-        return self # remains as an Inline operand
-    
+
     def __add__(self, operand: any) -> Self:
         self._data.__iadd__(operand)
         return self # remains as an Inline operand

@@ -443,27 +443,6 @@ class Element(o.Operand):
         return self
 
 
-    def __irshift__(self, operand: o.T) -> Self:
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case Element():  # Element wapping (wrap)
-                wrapped_self: Element = operand.copy()._set_owner_clip(self._owner_clip) << self
-                if self._owner_clip is not None:        # Owner clip is always the base container
-                    self._owner_clip._replace(self, wrapped_self)
-                return wrapped_self
-            case list():
-                total_wrappers: int = len(operand)
-                if total_wrappers > 0:
-                    if self._owner_clip is not None:    # Owner clip is always the base container
-                        self_index: int = self._owner_clip._element_index(self)
-                        return self.__irshift__(operand[self_index % total_wrappers])
-                    else:
-                        return self.__irshift__(operand[0])
-                return self
-
-        return super().__irshift__(operand)
-
-
     def __ipow__(self, operand: Any) -> Union[TypeElement, 'Clip']:
         if isinstance(operand, (int, list)):
             return self.__itruediv__(operand)
