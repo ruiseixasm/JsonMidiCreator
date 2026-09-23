@@ -60,23 +60,8 @@ class Process(o.Operand):
 
 
 
-class ReadOnly(Process):
-    """`Generic -> Process -> ReadOnly`
-
-    A ReadOnly process is one that results in no change of the subject `Operand`.
-
-    Parameters
-    ----------
-    Any(None) : A `Process` has multiple parameters dependent on the specific `Process` sub class.
-
-    Returns:
-        Any: All `Process` operands return the original left side `>>` input. Exceptions mentioned.
-    """
-    pass
-
-
-class Save(ReadOnly):
-    """`Generic -> Process -> ReadOnly -> Save`
+class Save(Process):
+    """`Generic -> Process -> Save`
 
     Saves all parameters' `Serialization` of a given `Operand` into a file.
 
@@ -105,8 +90,8 @@ class Save(ReadOnly):
             return operand
         return super().__rrshift__(operand)
 
-class Export(ReadOnly):
-    """`Generic -> Process -> ReadOnly -> Export`
+class Export(Process):
+    """`Generic -> Process -> Export`
 
     Exports a file playable by the `JsonMidiPlayer` program.
 
@@ -149,8 +134,8 @@ class Export(ReadOnly):
             case _:
                 return super().__rrshift__(operand)
 
-class Render(ReadOnly):
-    """`Generic -> Process -> ReadOnly -> Render`
+class Render(Process):
+    """`Generic -> Process -> Render`
 
     Renders a midi file playable by any Midi player.
 
@@ -211,8 +196,8 @@ except ImportError:
 
 
 
-class Plot(ReadOnly):
-    """`Generic -> Process -> ReadOnly -> Plot`
+class Plot(Process):
+    """`Generic -> Process -> Plot`
 
     Plots the `Composition` content, Notes or the `Automation` if existent.
 
@@ -1403,8 +1388,8 @@ class Plot(ReadOnly):
 
 
 
-class Call(ReadOnly):
-    """`Generic -> Process -> ReadOnly -> Call`
+class Call(Process):
+    """`Generic -> Process -> Call`
 
     `Call` a given callable function passed as `n_button`. This is to be used instead of `Plot` whenever \
         a given iteration was already chosen bypassing this way the process of plotting.
@@ -1428,8 +1413,8 @@ class Call(ReadOnly):
         return operand
 
 
-class Play(ReadOnly):
-    """`Generic -> Process -> ReadOnly -> Play`
+class Play(Process):
+    """`Generic -> Process -> Play`
 
     Plays an `Element` or a `Composition` straight on into the `JsonMidiPlayer` program.
 
@@ -1510,8 +1495,8 @@ class Play(ReadOnly):
         return Play(*parameters).__rrshift__(operand)
 
 
-class Print(ReadOnly):
-    """`Generic -> Process -> ReadOnly -> Print`
+class Print(Process):
+    """`Generic -> Process -> Print`
 
     Prints the Operand's parameters in a JSON alike layout if it's an `Operand` being given,
     otherwise prints directly like the common `print` function.
@@ -1549,8 +1534,8 @@ class Print(ReadOnly):
                 print(operand)
         return operand
 
-class Copy(ReadOnly):
-    """`Generic -> Process -> ReadOnly -> Copy`
+class Copy(Process):
+    """`Generic -> Process -> Copy`
 
     Creates and returns a copy of the left side `>>` operand.
 
@@ -1569,8 +1554,8 @@ class Copy(ReadOnly):
             return operand.copy(*self._parameters)
         return super().__rrshift__(operand)
 
-class Proxy(ReadOnly):
-    """`Generic -> Process -> ReadOnly -> Proxy`
+class Proxy(Process):
+    """`Generic -> Process -> Proxy`
 
     Creates and returns a shallow copy of the left side `>>` Container.
 
