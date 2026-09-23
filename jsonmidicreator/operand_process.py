@@ -46,6 +46,18 @@ class Process(o.Operand):
 
     A `Process` is target to an `Element` or a `Clip` which result in a output of their data.
     """
-    pass
-    
+    def __init__(self, parameters: list = []):
+        super().__init__()
+        self._parameters: list = o.deep_copy(parameters)
+        self._indexes: dict[str, int] = {}
+
+
+    def _process(self, operand: o.T) -> o.T:
+        return operand  # No copy
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        return self._process(operand)
+
+
+
 

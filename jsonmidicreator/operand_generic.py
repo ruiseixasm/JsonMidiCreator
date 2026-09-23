@@ -2946,26 +2946,12 @@ class Process(Generic):
         self._parameters: list = o.deep_copy(parameters)
         self._indexes: dict[str, int] = {}
 
-    def __getitem__(self, name: str) -> Any:
-        """Get parameter value by name using bracket notation."""
-        if name not in self._indexes:
-            print(f"Warning: Parameter '{name}' not found. Available: {list(self._indexes.keys())}")
-            return ol.Null()
-        return self._parameters[self._indexes[name]]
-    
-    def __setitem__(self, name: str, value: Any) -> Self:
-        """Set parameter value by name using bracket notation."""
-        if name not in self._indexes:
-            print(f"Warning: Parameter '{name}' not found. Available: {list(self._indexes.keys())}")
-        else:
-            self._parameters[self._indexes[name]] = value
-        return self
-    
+
     def _process(self, operand: o.T) -> o.T:
         return operand  # No copy
 
     def __rrshift__(self, operand: o.T) -> o.T:
-        return self._process( o.deep_copy(operand) )
+        return self._process(operand)
 
 
 
@@ -2984,10 +2970,6 @@ class SideEffect(Process):
         self._parameters = operand    # needs to keep the original reference (no copy)
         self._process_it: bool = process_it
     
-    # CHAINABLE OPERATIONS
-
-    def __rrshift__(self, operand: o.T) -> o.T:
-        return self._process(operand)
 
 class LeftShift(SideEffect):
     """`Generic -> Process -> SideEffect -> LeftShift`
