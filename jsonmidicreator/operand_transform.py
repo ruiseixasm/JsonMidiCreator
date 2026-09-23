@@ -66,7 +66,6 @@ class Edit(Transform):
     Clip() : The `Clip` to be used as the source of the edition.
     """
     def __init__(self, *parameters):
-        from . import operand_container as oc
         self._position_beats: Fraction = Fraction(0)
         self._source_clip: oc.Clip = oc.Clip()
         super().__init__(*parameters)
@@ -118,8 +117,6 @@ class Edit(Transform):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        from . import operand_element as oe
-        from . import operand_container as oc
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Edit():
