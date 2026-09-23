@@ -387,7 +387,7 @@ def test_rshift_container():
     all_chords = Chord(1/4) / 7 << Size("7th")
     assert not all_chords.is_masked()
     assert all_chords[0].access(Pitch()).get_absolute_pitch() == 60
-    first_chords = ~all_chords << Filter(Beat(0))
+    first_chords = all_chords @ Filter(Beat(0))
     # assert not first_chords.is_masked()
     assert all_chords._test_owner_clip()
     assert first_chords._test_owner_clip()
@@ -522,8 +522,8 @@ def test_sub_clip():
 
     four_notes: Clip = Note() / 4
     single_note: Element = four_notes[0]
-    notes_to_remove: Clip = ~four_notes << Select(Nth(1, 3))
-    remaining_notes: Clip = ~four_notes << Filter(Nth(2, 4))
+    notes_to_remove: Clip = four_notes @ Select(Nth(1, 3))
+    remaining_notes: Clip = four_notes @ Filter(Nth(2, 4))
 
     assert notes_to_remove.len_unmasked() < four_notes.len_unmasked()
     assert notes_to_remove.len_unmasked() == remaining_notes.len_unmasked()
