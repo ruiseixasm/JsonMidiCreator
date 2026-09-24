@@ -48,6 +48,11 @@ class Transform(o.Operand):
     """
     def _transform(self, clip: 'Clip') -> 'Clip':
         return clip
+
+    def next(self) -> 'oc.Clip':
+        """Runs each tail"""
+
+
     
     def copy(self, *parameters) -> Self:
         # Frame class IS a Read-only class
@@ -60,8 +65,18 @@ class Operate(Transform):
     Accepts a `lambda` function to act as a generic transformation.
 
     Args:
-        lambda : A lambda function.
+        operator : A callable function that accepts a `Clip` and returns that same `Clip` \
+        with the default as `lambda clip: clip`.
     """
+    def __init__(self, operator: Callable[['oc.Clip'], 'oc.Clip'] = lambda clip: clip):
+        super().__init__()
+        self._operator: Callable[['oc.Clip'], 'oc.Clip'] = lambda clip: clip
+        if callable(operator):
+            self._operator = operator
+
+
+    def _transform(self, clip: 'Clip') -> 'Clip':
+        return self._operator(clip)
 
 
 

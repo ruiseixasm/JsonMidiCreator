@@ -35,6 +35,7 @@ from . import operand_container as oc
 from . import operand_frame as of
 from . import operand_chaos as ch
 from . import operand_tamer as ot
+from . import operand_transform as tr
 from . import operand_iterations as oi
 
 
@@ -212,12 +213,11 @@ class Plot(Process):
     composition (Composition): A composition to be played together with the plotted one.
     title (str): A title to give to the chart in order to identify it.
     """
-    def __init__(self, by_channel: bool = False, block: bool = True, pause: float = 0.0, iterations: int = 0,
+    def __init__(self, by_channel: bool = False, block: bool = True, iterations: int = 0,
                  composition: Optional['oc.Composition'] = None, title: str | None = None):
         super().__init__()
         self._parameters["by_channel"] = by_channel
         self._parameters["block"] = block
-        self._parameters["pause"] = pause
         self._parameters["iterations"] = iterations
         self._parameters["composition"] = composition
         self._parameters["title"] = title
@@ -1145,11 +1145,8 @@ class Plot(Process):
             # Composition Button Widget
             self._disable_button(composition_button)
 
-        if self._parameters["block"] and self._parameters["pause"] == 0:
+        if self._parameters["block"]:
             plt.show(block=True)
-        elif self._parameters["pause"] > 0:
-            plt.draw()
-            plt.pause(self._parameters["pause"])
         else:
             plt.show(block=False)
 
@@ -1335,11 +1332,8 @@ class Plot(Process):
             # Composition Button Widget
             self._disable_button(composition_button)
 
-        if self._parameters["block"] and self._parameters["pause"] == 0:
+        if self._parameters["block"]:
             plt.show(block=True)
-        elif self._parameters["pause"] > 0:
-            plt.draw()
-            plt.pause(self._parameters["pause"])
         else:
             plt.show(block=False)
 
