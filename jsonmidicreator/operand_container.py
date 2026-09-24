@@ -1377,6 +1377,48 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
+    def __getitem__(self, index: Any) -> Union['oe.Element', 'Clip']:
+        match index:
+            case ra.Convertible():
+                elements_unmasked = self.elements_unmasked()
+                new_container = self.empty_copy()
+                new_container._upper_container = self
+                for single_element in elements_unmasked:
+                    if single_element == index:
+                        new_container._append(single_element)
+                return new_container
+            case od.Pipe():
+                match index._data:
+                    case ra.Convertible():
+                        elements_unmasked = self.elements_unmasked()
+                        new_container = self.empty_copy()
+                        new_container._upper_container = self
+                        for single_element in elements_unmasked:
+                            frame_result = index
+                            if single_element == od.Pipe(frame_result):
+                                new_container._append(single_element)
+                        return new_container
+                    case _:
+                        return super().__getitem__(index)
+            case _:
+                return super().__getitem__(index)
+
+    
+    def __setitem__(self, index: Any, value: Union['oe.Element', 'Clip']) -> Self:
+        """
+        Read and Write method
+        """
+        if isinstance(value, oe.Element):
+            target_element: oe.Element = self[index]
+            if isinstance(target_element, oe.Element) and value is not target_element:
+                self._replace(target_element, value)    # Makes sure it propagates
+                value._set_owner_clip(self) # Makes sure `value` is owned by the Clip
+        return self._sort_items()
+    
+    def __next__(self) -> 'oe.Element':
+        return super().__next__()
+
+
     def _first_element(self) -> 'oe.Element':
         """
         Gets the first Element accordingly to it's Position on the TimeSignature.
@@ -1464,20 +1506,6 @@ class Clip(Composition):  # Just a container of Elements
         """
         return self._last_element_unmasked()
 
-
-    def __setitem__(self, index: Any, value: Union['oe.Element', 'Clip']) -> Self:
-        """
-        Read and Write method
-        """
-        if isinstance(value, oe.Element):
-            target_element: oe.Element = self[index]
-            if isinstance(target_element, oe.Element) and value is not target_element:
-                self._replace(target_element, value)    # Makes sure it propagates
-                value._set_owner_clip(self) # Makes sure `value` is owned by the Clip
-        return self._sort_items()
-    
-    def __next__(self) -> 'oe.Element':
-        return super().__next__()
 
     def _element_index(self, item: Any) -> int | None:
         """

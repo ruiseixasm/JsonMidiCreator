@@ -806,6 +806,7 @@ class Measurement(Convertible):
         match operand:
             case int():                 return self % Measure() % int()     # Measure, NOT Measures
             case float():               return self % Measures() % float()
+            case str():                 return str(self % Measures() % Fraction())
             case _:                     return super().__mod__(operand)
 
     def __str__(self):
@@ -1044,6 +1045,8 @@ class Duration(Measurement):
                 return self % Steps() % operand
             case float():
                 return self % NoteValue() % operand
+            case str():
+                return str(self % NoteValue() % Fraction())
             case _:
                 return super().__mod__(operand)
 
