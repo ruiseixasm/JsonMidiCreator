@@ -2963,9 +2963,8 @@ class Chord(KeyScale):
 
     def checksum(self) -> int:
         """16-bit checksum for a `Chord`."""
-        component_elements = self.get_component_elements()
         master: int = 0
-        for single_element in component_elements:
+        for single_element in self.get_component_elements():
             master += single_element.checksum()
         return master & 0xFFFF  # 16-bit
 
@@ -3200,7 +3199,7 @@ class Tuplet(Note):
             self << single_parameter
 
     def checksum(self) -> int:
-        """16-bit checksum for a `Retrigger`."""
+        """16-bit checksum for a `Tuplet`."""
         master: int = 0 # It's just a wrapper
         for single_element in self.get_component_elements():
             master += single_element.checksum()
@@ -3405,7 +3404,7 @@ class ControlChange(Automatable):
         return Fraction(self._value)
 
     def checksum(self) -> int:
-        """16-bit checksum for an `Automation`."""
+        """16-bit checksum for a `ControlChange`."""
         master: int = super().checksum()
         master ^= (self._value << 8) | self._value
         master ^= (self._number << 8) | self._number
@@ -3747,6 +3746,13 @@ class ControlChangePair(ControlChange):
     def is_clipped(self) -> bool:
         return super().is_clipped() \
             or self._number_lsb < 0 or self._number_lsb > 128
+
+    def checksum(self) -> int:
+        """16-bit checksum for a `ControlChangePair`."""
+        master: int = super().checksum()
+        # In order to be neutral if `_value_lsb == 0`
+        master += (self._number_lsb * self._value_lsb) << 8 | self._value_lsb
+        return master & 0xFFFF  # 16-bit
 
     def __eq__(self, other: Any) -> bool:
         match other:
@@ -4305,7 +4311,7 @@ class Aftertouch(Automatable):
         return Fraction(self._pressure)
 
     def checksum(self) -> int:
-        """16-bit checksum for an `Automation`."""
+        """16-bit checksum for an `Aftertouch`."""
         master: int = super().checksum()
         master ^= (self._pressure << 8) | self._pressure
         return master & 0xFFFF  # 16-bit
@@ -4666,7 +4672,7 @@ class PitchBend(Automatable):
         return Fraction(msb_value)
 
     def checksum(self) -> int:
-        """16-bit checksum for an `Automation`."""
+        """16-bit checksum for a `PitchBend`."""
         master: int = super().checksum()
         master ^= (self._msb << 8) | self._msb
         master ^= (self._lsb << 8) | self._lsb
@@ -4935,7 +4941,7 @@ class Automation(Element):
 
 
     def checksum(self) -> int:
-        """16-bit checksum for an `Element`."""
+        """16-bit checksum for an `Automation`."""
         master: int = 0 # It's just a wrapper
         for single_element in self.get_component_elements():
             master += single_element.checksum()

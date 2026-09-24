@@ -35,15 +35,17 @@ def test_cutting_note():
     settings << None    # Reset settings
 
     simple_cuts = Note(1/1) * 1
-    # Main splits
+    # Main splits (Positional)
     simple_cuts //= Beat(1)
     simple_cuts //= Position(1) - Steps(1)
-    # Secondary splits
+    # Secondary splits (Durational)
     # Shallow clip splitting
     simple_cuts[Beat(0)] //= Steps(1)
     simple_cuts *= Rest(1/1)    # Add a simple rest
-    simple_cuts[4] % Duration() >> Print()
+    # simple_cuts[4] % Duration() >> Print()
     # simple_cuts >> Plot()
     assert simple_cuts[4] % Duration() == Beats(3) - Steps(1)
 
-test_cutting_note()
+# test_cutting_note()
+
+
