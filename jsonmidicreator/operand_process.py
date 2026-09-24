@@ -1328,7 +1328,7 @@ class Plot(Process):
         # Next Button Widget
         self._disable_button(self._next_button)
 
-        if not callable(self._n_function):
+        if not callable(self._n_function) and not isinstance(self._parameters["transform"], tr.Transform):
             # New Button Widget
             self._disable_button(new_button)
 

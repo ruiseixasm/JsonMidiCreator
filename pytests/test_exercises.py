@@ -57,14 +57,15 @@ def test_transform_note():
     # Main splits (Positional)
     split_1 = Operate(lambda clip: clip // Beat(1))
     split_2 = Operate(lambda clip: clip // Position(1) - Steps(1))
-    split_3 = Operate(lambda clip: clip[Beat(0)] // Steps(1))
+    split_3 = Operate(lambda clip: clip[Beat(0)] // Steps(1) >> Top())
     add_rest = Operate(lambda clip: clip * Rest(1/1))
     # Chaining all the transformations
     global_transform = split_1**split_2**split_3**add_rest
+    simple_cuts >> Plot(transform=global_transform)
+
     simple_cuts << global_transform
-    
     simple_cuts[4] % Duration() >> Print()
-    simple_cuts >> Plot()
+    
     assert simple_cuts[4] % Duration() == Beats(3) - Steps(1)
 
 test_transform_note()

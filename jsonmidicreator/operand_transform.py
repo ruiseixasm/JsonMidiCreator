@@ -89,8 +89,8 @@ class Operate(Transform):
 
 
     def _single_transform(self, clip: 'Clip') -> 'Clip':
-        # `clip <<` Makes sure copies don-t break changes
-        clip << self._operator(clip).top_container()
+        # `clip <<` Makes sure copies don't break changes
+        clip << self._operator(clip)
         return clip._sort_items()
 
 
