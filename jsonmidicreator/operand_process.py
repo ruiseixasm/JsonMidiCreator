@@ -45,11 +45,6 @@ class Process(o.Operand):
 
     A `Process` is target to an `Element` or a `Clip` which result in a output of their data.
     """
-    def __init__(self, parameters: tuple = tuple()):
-        super().__init__()
-        self._parameters: dict[str, Any] = {}   # Empty by default
-
-
     def process(self, operand: o.T) -> o.T:
         return operand  # No copy
 
@@ -70,12 +65,12 @@ class Save(Process):
     """
     def __init__(self, filename: str | None = None, include_settings = False):
         super().__init__()
-        self._parameters["filename"] = filename
-        self._parameters["include_settings"] = include_settings
+        self.filename = filename
+        self.include_settings = include_settings
 
     def process(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
-            file_path: str = self._parameters["filename"]
+            file_path: str = self.filename
             if not isinstance(file_path, str):
                 if isinstance(operand, oc.Composition):
                     file_path = operand.composition_filename() + "_save.json"
@@ -83,7 +78,7 @@ class Save(Process):
                     file_path = "json/_Save_jsonMidiCreator.json"
             else: # Folder is just a prefix
                 file_path = file_path
-            c.saveJsonMidiCreator(operand.getSerialization(), file_path, self._parameters["include_settings"])
+            c.saveJsonMidiCreator(operand.getSerialization(), file_path, self.include_settings)
             return operand
         return super().__rrshift__(operand)
 
@@ -100,13 +95,13 @@ class Export(Process):
     """
     def __init__(self, filename: str | None = None):
         super().__init__()
-        self._parameters["filename"] = filename
+        self.filename = filename
 
     def process(self, operand: o.T) -> o.T:
         match operand:
             case oc.Composition():
                 if operand._items:
-                    file_path: str = self._parameters["filename"]
+                    file_path: str = self.filename
                     if not isinstance(file_path, str):
                         file_path = operand.composition_filename() + "_export.json"
                     else: # Folder is just a prefix
@@ -145,11 +140,11 @@ class Render(Process):
     """
     def __init__(self, filename: str | None = None):
         super().__init__()
-        self._parameters["filename"] = filename
+        self.filename = filename
 
     def process(self, operand: o.T) -> o.T:
         # filepath and filename
-        file_path: str = self._parameters["filename"]
+        file_path: str = self.filename
         if not isinstance(file_path, str):
             if isinstance(operand, oc.Composition):
                 file_path = operand.composition_filename() + "_render.mid"
@@ -221,11 +216,11 @@ class Plot(Process):
     def __init__(self, by_channel: bool = False, block: bool = True, transform: tr.Transform = None,
                  composition: Optional['oc.Composition'] = None, title: str | None = None):
         super().__init__()
-        self._parameters["by_channel"] = by_channel
-        self._parameters["block"] = block
-        self._parameters["transform"] = transform
-        self._parameters["composition"] = composition
-        self._parameters["title"] = title
+        self.by_channel = by_channel
+        self.block = block
+        self.transform = transform
+        self.composition = composition
+        self.title = title
 
         self._compositions: list[oc.Composition] = []
         self._plot_lists: list[list] = []
@@ -248,12 +243,12 @@ class Plot(Process):
                 line = od.Line(operand)
                 self.__rrshift__(line)
             case og.Scale():
-                og.Scale.plot(self._parameters["block"], operand % list())
+                og.Scale.plot(self.block, operand % list())
             case ou.KeySignature():
-                og.Scale.plot(self._parameters["block"], operand % list(), operand % ou.Key(), operand % str())
+                og.Scale.plot(self.block, operand % list(), operand % ou.Key(), operand % str())
             case oi.Iterations():
-                if not isinstance(self._parameters["title"], str):
-                    self._parameters["title"] = operand.__class__.__name__
+                if not isinstance(self.title, str):
+                    self.title = operand.__class__.__name__
                 self._n_function = operand.n_function
                 return self.plot_iterations()
             case _:
@@ -338,7 +333,7 @@ class Plot(Process):
         quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
         steps_per_measure: Fraction = beats_per_measure / quantization_beats
 
-        chart_title: str = f"{self._parameters["title"] + " - " if self._parameters["title"] != "" else ""}" \
+        chart_title: str = f"{self.title + " - " if self.title != "" else ""}" \
                         + f"{self._compositions[self._iteration_index].__class__.__name__}"
         # Chart title (TITLE)
         if isinstance(self, oc.Section):
@@ -396,7 +391,7 @@ class Plot(Process):
         if note_channels or not automation_channels:
 
             # As Channels (Drums)
-            if self._parameters["by_channel"]:
+            if self.by_channel:
                 self._ax.set_ylabel("Channels")
 
                 # Set MIDI channel ticks with Middle C in bold
@@ -931,15 +926,15 @@ class Plot(Process):
 
     def _run_composition(self, even = None, loops: int = 1) -> Self:
         import threading
-        if isinstance(self._parameters["composition"], oc.Composition):
+        if isinstance(self.composition, oc.Composition):
             iteration_self: oc.Composition = self._compositions[self._iteration_index]
-            iteration_composition: oc.Composition = self._parameters["composition"] + iteration_self
+            iteration_composition: oc.Composition = self.composition + iteration_self
             threading.Thread(target=Play.play, args=(iteration_composition, loops)).start()
         return self
 
     def _plot_filename(self, composition: 'oc.Composition') -> str:
         # Process title separately (replace whitespace with underscores)
-        processed_title = str(self._parameters["title"]).replace(" ", "_").replace("\t", "_").replace("\n", "_").replace("__", "_")
+        processed_title = str(self.title).replace(" ", "_").replace("\t", "_").replace("\n", "_").replace("__", "_")
         composition_designations: list[str] = [
             processed_title,
             type(composition).__name__,
@@ -1037,7 +1032,7 @@ class Plot(Process):
                 if isinstance(single_note, oe.Note)
             ]
             if at_position_notes:
-                if self._parameters["by_channel"]:
+                if self.by_channel:
                     if 0 <= round(event.ydata - 1) < 16:
                         # Sort by Position in reverse instead
                         at_position_notes.sort(key=lambda note:note._position_beats * -1)
@@ -1082,14 +1077,14 @@ class Plot(Process):
         self._compositions      = [ composition.copy() ]   # Works with a forced copy (Read Only)
         self._plot_lists        = [ composition.getPlotlist() ]
         self._plot_checksums    = [ o.checksum_to_string(composition.checksum()) ]
-        if not isinstance(self._parameters["title"], str):
-            self._parameters["title"] = composition._name
+        if not isinstance(self.title, str):
+            self.title = composition._name
 
         # Enable interactive mode (doesn't block the execution)
         plt.ion()
 
         # Where the window title is set too
-        self._fig, self._ax = plt.subplots(num=self._parameters["title"], figsize=(12, 6))
+        self._fig, self._ax = plt.subplots(num=self.title, figsize=(12, 6))
         # Replace handler
         try:
             # self._fig.canvas.mpl_disconnect(self._fig.canvas.manager.key_press_handler_id)
@@ -1161,7 +1156,7 @@ class Plot(Process):
         render_button = Button(ax_button, 'R', color='white', hovercolor='grey')
         render_button.on_clicked(self._run_render)
 
-        if not isinstance(self._parameters["composition"], oc.Composition):
+        if not isinstance(self.composition, oc.Composition):
             # Composition Button Widget
             self._disable_button(composition_button)
 
@@ -1171,11 +1166,11 @@ class Plot(Process):
         # Next Button Widget
         self._disable_button(self._next_button)
 
-        if not callable(self._n_function) and not isinstance(self._parameters["transform"], tr.Transform):
+        if not callable(self._n_function) and not isinstance(self.transform, tr.Transform):
             # New Button Widget
             self._disable_button(new_button)
 
-        plt.show(block=self._parameters["block"])
+        plt.show(block=self.block)
 
         return composition
     
@@ -1218,10 +1213,10 @@ class Plot(Process):
 
 
     def _run_new(self, even = None) -> Self:
-        if isinstance(self._parameters["transform"], tr.Transform):
+        if isinstance(self.transform, tr.Transform):
             clip: oc.Composition = self._compositions[-1]    # It has always at least one
             if isinstance(clip, oc.Clip):
-                new_iteration = self._parameters["transform"].next(clip.copy()) # Decouples
+                new_iteration = self.transform.next(clip.copy()) # Decouples
                 if isinstance(new_iteration, oc.Clip):
                     self._iteration_index = len(self._compositions)
                     plotlist: list[dict] = new_iteration.getPlotlist()
@@ -1271,14 +1266,14 @@ class Plot(Process):
         self._compositions      = [ iteration_0 ]   # Works with a forced copy (Read Only)
         self._plot_lists        = [ iteration_0.getPlotlist() ]
         self._plot_checksums    = [ o.checksum_to_string(iteration_0.checksum()) ]
-        if not isinstance(self._parameters["title"], str):
-            self._parameters["title"] = iteration_0 % str()
+        if not isinstance(self.title, str):
+            self.title = iteration_0 % str()
 
         # Enable interactive mode (doesn't block the execution)
         plt.ion()
 
         # Where the window title is set too
-        self._fig, self._ax = plt.subplots(num=self._parameters["title"], figsize=(12, 6))
+        self._fig, self._ax = plt.subplots(num=self.title, figsize=(12, 6))
         # Replace handler
         try:
             # self._fig.canvas.mpl_disconnect(self._fig.canvas.manager.key_press_handler_id)
@@ -1350,7 +1345,7 @@ class Plot(Process):
         render_button = Button(ax_button, 'R', color='white', hovercolor='grey')
         render_button.on_clicked(self._run_render)
 
-        if not isinstance(self._parameters["composition"], oc.Composition):
+        if not isinstance(self.composition, oc.Composition):
             # Composition Button Widget
             self._disable_button(composition_button)
 
@@ -1360,26 +1355,16 @@ class Plot(Process):
         # Next Button Widget
         self._disable_button(self._next_button)
 
-        if not callable(self._n_function) and not isinstance(self._parameters["transform"], tr.Transform):
+        if not callable(self._n_function) and not isinstance(self.transform, tr.Transform):
             # New Button Widget
             self._disable_button(new_button)
 
-        plt.show(block=self._parameters["block"])
+        plt.show(block=self.block)
 
         return self._compositions[self._iteration_index]
 
 
     # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case Plot():
-                super().__lshift__(operand)
-                self._parameters = o.deep_copy(operand._parameters)
-            case _:
-                super().__lshift__(operand)
-        return self
 
     def __imul__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -1408,11 +1393,11 @@ class Play(Process):
     """
     def __init__(self, loops: int = 1, verbose: bool = False, plot: bool = False, block: bool = False, talkie_delay_ms: int = 500):
         super().__init__()
-        self._parameters["loops"] = loops
-        self._parameters["verbose"] = verbose
-        self._parameters["plot"] = plot
-        self._parameters["block"] = block
-        self._parameters["talkie_delay_ms"] = talkie_delay_ms
+        self.loops = loops
+        self.verbose = verbose
+        self.plot = plot
+        self.block = block
+        self.talkie_delay_ms = talkie_delay_ms
         
 
     def process(self, operand: o.T) -> o.T:
@@ -1424,22 +1409,22 @@ class Play(Process):
                     composition_length_beats: Fraction = composition_length._rational   # Implicit rounding
                     clocking: dict[str, list] = og.settings.getClocking(composition_length_beats)
                     playlist: list[dict] = operand.getPlaylist()  # Where the heavy lifting method is called
-                    if self._parameters["plot"] and self._parameters["block"]:
+                    if self.plot and self.block:
                         # Start the function in a new process
                         process = threading.Thread(target=c.playJsonMidiPlay,
                                                    args=(clocking, playlist,
-                                                         self._parameters["loops"],
-                                                         self._parameters["verbose"],
-                                                         self._parameters["talkie_delay_ms"]))
+                                                         self.loops,
+                                                         self.verbose,
+                                                         self.talkie_delay_ms))
                         process.start()
-                        operand >> Plot(self._parameters["block"])
+                        operand >> Plot(self.block)
                     else:
-                        if self._parameters["plot"] and not self._parameters["block"]:
-                            operand >> Plot(self._parameters["block"])
+                        if self.plot and not self.block:
+                            operand >> Plot(self.block)
                         c.playJsonMidiPlay(clocking, playlist,
-                                            self._parameters["loops"],
-                                            self._parameters["verbose"],
-                                            self._parameters["talkie_delay_ms"])
+                                            self.loops,
+                                            self.verbose,
+                                            self.talkie_delay_ms)
                 else:
                     print(f"Warning: Trying to play an **empty** list!")
                 return operand
@@ -1448,22 +1433,22 @@ class Play(Process):
                 element_length_beats: Fraction = element_length.roundBeats() % Fraction()
                 clocking: dict[str, list] = og.settings.getClocking(element_length_beats)
                 playlist: list[dict] = operand.getPlaylist()  # Where the heavy lifting method is called
-                if self._parameters["plot"] and self._parameters["block"]:
+                if self.plot and self.block:
                     # Start the function in a new process
                     process = threading.Thread(target=c.playJsonMidiPlay,
                                                args=(clocking, playlist,
-                                                         self._parameters["loops"],
-                                                         self._parameters["verbose"],
-                                                         self._parameters["talkie_delay_ms"]))
+                                                         self.loops,
+                                                         self.verbose,
+                                                         self.talkie_delay_ms))
                     process.start()
-                    operand >> Plot(self._parameters["block"])
+                    operand >> Plot(self.block)
                 else:
-                    if self._parameters["plot"] and not self._parameters["block"]:
-                        operand >> Plot(self._parameters["block"])
+                    if self.plot and not self.block:
+                        operand >> Plot(self.block)
                     c.playJsonMidiPlay(clocking, playlist,
-                                            self._parameters["loops"],
-                                            self._parameters["verbose"],
-                                            self._parameters["talkie_delay_ms"])
+                                            self.loops,
+                                            self.verbose,
+                                            self.talkie_delay_ms)
                 return operand
             case od.Line():
                 line_clip = oc.Clip(operand)
@@ -1489,7 +1474,8 @@ class Print(Process):
         formatted (bool): If False prints the `Operand` content in a single line.
     """
     def __init__(self, serialization: bool = False):
-        super().__init__( False if serialization is None else serialization )
+        super().__init__()
+        self.serialization = serialization
 
     def process(self, operand: o.T) -> o.T:
         import json
@@ -1497,7 +1483,7 @@ class Print(Process):
             case oc.Container():
                 self.process(operand._items)
             case o.Operand():
-                if self._parameters:
+                if self.serialization:
                     serialized_json_str = json.dumps(operand.getSerialization())
                     json_object = json.loads(serialized_json_str)
                     json_formatted_str = json.dumps(json_object, indent=4)
@@ -1532,11 +1518,11 @@ class Copy(Process):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._parameters["parameters"] = parameters
+        self.parameters = parameters
 
     def process(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
-            return operand.copy(*self._parameters["parameters"])
+            return operand.copy(*self.parameters)
         return o.deep_copy(operand)
 
 
@@ -1554,11 +1540,11 @@ class Proxy(Process):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._parameters["parameters"] = parameters
+        self.parameters = parameters
 
     def process(self, operand: o.T) -> o.T:
         if isinstance(operand, oc.Container):
-            return operand.shallow_copy(*self._parameters["parameters"])
+            return operand.shallow_copy(*self.parameters)
         return super().__rrshift__(operand)
 
 
@@ -1576,11 +1562,11 @@ class Reset(Process):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._parameters["parameters"] = parameters
+        self.parameters = parameters
 
     def process(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
-            return operand.reset(*self._parameters["parameters"])
+            return operand.reset(*self.parameters)
         return super().__rrshift__(operand)
 
 
@@ -1599,11 +1585,11 @@ class Clear(Process):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._parameters["parameters"] = parameters
+        self.parameters = parameters
 
     def process(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
-            return operand.clear(*self._parameters["parameters"])
+            return operand.clear(*self.parameters)
         return super().__rrshift__(operand)
 
 
