@@ -55,7 +55,6 @@ class Container(o.Operand):
         super().__init__()
         self._items: list = []
         self._items_iterator: int = 0
-        self._upper_container: Container | None = None
         for single_operand in operands:
             self << single_operand
 
@@ -175,8 +174,6 @@ class Container(o.Operand):
         existing_ids: set[int] = {id(existing_item) for existing_item in self._items}
         new_items: list = [new_item for new_item in items if id(new_item) not in existing_ids]
         self._items = new_items + self._items
-        if self._upper_container is not None:   # Recursive call
-            self._upper_container._insert(items)
         return self
 
     def _extend(self, items: list) -> Self:
@@ -185,8 +182,6 @@ class Container(o.Operand):
         # Avoids duplication
         new_items: list = [new_item for new_item in items if id(new_item) not in existing_ids]
         self._items.extend(new_items)
-        if self._upper_container is not None:   # Recursive call
-            self._upper_container._extend(items)
         return self
 
 
@@ -212,8 +207,6 @@ class Container(o.Operand):
                     single_item for single_item in self._items
                     if single_item not in items
                 ]
-        if self._upper_container is not None:   # Recursive call
-            self._upper_container._delete(items, by_id)
         return self
 
     
@@ -226,8 +219,6 @@ class Container(o.Operand):
                 ]
         else:
             self._items.clear()
-        if self._upper_container is not None:   # Recursive call
-            self._upper_container._delete_by_ids(item_ids)
         return self
 
 
@@ -236,8 +227,6 @@ class Container(o.Operand):
             if old_item is item:
                 self._items[index] = new_item
                 break   # There is no repeated items
-        if self._upper_container is not None:   # Recursive call
-            self._upper_container._replace(old_item, new_item)
         return self
 
 
@@ -252,16 +241,12 @@ class Container(o.Operand):
                     self._items[first_index] = self._items[index]
                     self._items[index] = temp_item
                     break
-        if self._upper_container is not None:   # Recursive call
-            self._upper_container._swap(left_item, right_item)
         return self
 
 
     def _sort_items(self) -> Self:
         # This works with a list method sort (Operands implement __lt__ and __gt__)
         self._items.sort()
-        if self._upper_container is not None:   # Recursive call
-            self._upper_container._sort_items()
         return self
 
     def _is_sorted(self) -> bool:
@@ -1520,8 +1505,6 @@ class Clip(Composition):  # Just a container of Elements
             self._time_signature << owner_clip._time_signature    # Does a parameters copy
             for single_element in self._items:
                 single_element._set_owner_clip(owner_clip)
-        if self._upper_container is not None:   # Recursive call
-            self._upper_container._set_owner_clip(owner_clip) # upper container is a Clip too
         return self
 
 
