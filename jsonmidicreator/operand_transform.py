@@ -54,6 +54,16 @@ class Transform(o.Operand):
         return self
 
 
+class Operate(Transform):
+    """`Transform -> Operate`
+
+    Accepts a `lambda` function to act as a generic transformation.
+
+    Args:
+        lambda : A lambda function.
+    """
+
+
 
 class Delete(Transform):
     """`Transform -> Delete`
@@ -65,7 +75,7 @@ class Delete(Transform):
         None
     """
     def _transform(self, clip: 'Clip') -> 'Clip':
-        clip._delete(self.elements_unmasked(), True)    # Already recursive
+        clip._delete(clip.elements_unmasked(), True)    # Already recursive
         return clip
 
 
