@@ -59,7 +59,7 @@ class Transform(o.Operand):
         self._index += 1    # Starts at -1
         transform: Transform = self
         for _ in range(self._index):
-            if isinstance(self._chained_operand, Transform):
+            if isinstance(transform._chained_operand, Transform):
                 transform = transform._chained_operand
             else:
                 self._index -= 1    # Reverts the previous increment
