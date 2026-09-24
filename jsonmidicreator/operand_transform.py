@@ -56,22 +56,15 @@ class Transform(o.Operand):
         return clip
 
     def next(self, clip: 'oc.Clip') -> 'oc.Clip':
-        if self._index < 0:
-            self._index = 0
-            return self._single_transform(clip)
-        if isinstance(self._chained_operand, Transform):
-            self._index += 1
-            transform = self
-            for _ in range(self._index):
-                if isinstance(self._chained_operand, Transform):
-                    transform = transform._chained_operand
-                else:
-                    self._index = -1
-                    raise StopIteration
-            return transform._single_transform(clip)
-        else:
-            self._index = -1
-            raise StopIteration
+        self._index += 1    # Starts at -1
+        transform: Transform = self
+        for _ in range(self._index):
+            if isinstance(self._chained_operand, Transform):
+                transform = transform._chained_operand
+            else:
+                self._index = -1
+                raise StopIteration
+        return transform._single_transform(clip)
 
     
     def copy(self, *parameters) -> Self:
