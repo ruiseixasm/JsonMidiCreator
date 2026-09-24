@@ -1373,27 +1373,21 @@ class Clip(Composition):  # Just a container of Elements
         return self
 
 
-    def __getitem__(self, index: Any) -> Union['oe.Element', 'Clip']:
+    def __getitem__(self, index: Any) -> 'oe.Element':
         match index:
             case ra.Convertible():
                 elements_unmasked = self.elements_unmasked()
-                new_container = self.empty_copy()
-                new_container._upper_container = self
                 for single_element in elements_unmasked:
                     if single_element == index:
-                        new_container._append(single_element)
-                return new_container
+                        return single_element
             case od.Pipe():
                 match index._data:
                     case ra.Convertible():
                         elements_unmasked = self.elements_unmasked()
-                        new_container = self.empty_copy()
-                        new_container._upper_container = self
                         for single_element in elements_unmasked:
                             frame_result = index
                             if single_element == od.Pipe(frame_result):
-                                new_container._append(single_element)
-                        return new_container
+                                return single_element
                     case _:
                         return super().__getitem__(index)
             case _:

@@ -157,15 +157,6 @@ def test_owner_clip():
 # test_owner_clip()
 
 
-def test_upper_container():
-    upper_container = Note(1/16) / 16
-    assert upper_container.len() == 16
-    lower_container = upper_container[Beat(1)]
-    assert lower_container.len() == 4
-    top_container = lower_container >> Top()
-    assert top_container.len() == 16
-
-
 def test_element_replacement():
 
     triplet = Note(Beats(1/3)) / 3
