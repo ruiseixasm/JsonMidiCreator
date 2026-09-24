@@ -995,19 +995,17 @@ class Stepper(Transform):
     """
     def __init__(self, pattern: str = "1... 1... 1... 1...", element: 'Element' = None):
         super().__init__()
-        self._parameters["pattern"] = pattern
-        self._parameters["element"] = element
+        self.pattern = pattern
+        self.element = element
 
 
     def _single_transform(self, clip: 'Clip') -> 'Clip':
-        pattern = self._parameters["pattern"]
-        element = self._parameters["element"]    
-        if isinstance(pattern, str):
+        if isinstance(self.pattern, str):
             # Fraction sets the Duration in Steps
             element_element: oe.Note = \
                 oe.Note()._set_owner_clip(clip) \
-                << Fraction(1) << element
-            steps_place = o.string_to_list(pattern)
+                << Fraction(1) << self.element 
+            steps_place = o.string_to_list(self.pattern)
             position_steps: ra.Steps = ra.Steps(0)
             for single_step in steps_place:
                 if single_step == 1:
@@ -1030,12 +1028,11 @@ class Arpeggiate(Transform):
     """
     def __init__(self, parameters: any = None):
         super().__init__()
-        self._parameters["parameters"] = parameters
+        self.parameters = parameters
 
 
     def _single_transform(self, clip: 'Clip') -> 'Clip':
-        parameters = self._parameters["parameters"]
-        arpeggio = og.Arpeggio(parameters)
+        arpeggio = og.Arpeggio(self.parameters)
         arpeggio.arpeggiate_source(clip.elements_unmasked(), clip.start(), ra.Length( clip.net_duration() ))
         return clip._sort_items()
 
