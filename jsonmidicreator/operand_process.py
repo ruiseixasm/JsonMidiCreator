@@ -213,12 +213,12 @@ class Plot(Process):
     composition (Composition): A composition to be played together with the plotted one.
     title (str): A title to give to the chart in order to identify it.
     """
-    def __init__(self, by_channel: bool = False, block: bool = True, iterations: int = 0,
+    def __init__(self, by_channel: bool = False, block: bool = True, transform: tr.Transform = None,
                  composition: Optional['oc.Composition'] = None, title: str | None = None):
         super().__init__()
         self._parameters["by_channel"] = by_channel
         self._parameters["block"] = block
-        self._parameters["iterations"] = iterations
+        self._parameters["transform"] = transform
         self._parameters["composition"] = composition
         self._parameters["title"] = title
 
@@ -1232,16 +1232,6 @@ class Plot(Process):
         if not isinstance(self._parameters["title"], str):
             self._parameters["title"] = iteration_0 % str()
 
-        if callable(self._n_function) and isinstance(self._parameters["iterations"], int) and self._parameters["iterations"] > 1:
-            for i in range(self._parameters["iterations"]):
-                new_composition: oc.Composition = self._n_function(i)
-                new_plotlist: list[dict] = new_composition.getPlotlist()
-                new_checksum_str: str = o.checksum_to_string(new_composition.checksum())
-                self._compositions.append(new_composition)
-                self._plot_lists.append(new_plotlist)
-                self._plot_checksums.append(new_checksum_str)
-                self._iteration_index += 1
-
         # Enable interactive mode (doesn't block the execution)
         plt.ion()
 
@@ -1355,7 +1345,15 @@ class Plot(Process):
     def __imul__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         if isinstance(operand, int):
-            self._parameters["iterations"] = operand
+            if callable(self._n_function) and operand > 0:
+                for i in range(operand):
+                    new_composition: oc.Composition = self._n_function(i)
+                    new_plotlist: list[dict] = new_composition.getPlotlist()
+                    new_checksum_str: str = o.checksum_to_string(new_composition.checksum())
+                    self._compositions.append(new_composition)
+                    self._plot_lists.append(new_plotlist)
+                    self._plot_checksums.append(new_checksum_str)
+                    self._iteration_index += 1
         return self
 
 
