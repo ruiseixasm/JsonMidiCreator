@@ -56,7 +56,7 @@ def test_transform_note():
     simple_cuts = Note(1/1) * 1
     # Main splits (Positional)
     split_1 = Operate(lambda clip: clip // Beat(1))
-    split_2 = Operate(lambda clip: clip // Position(1) - Steps(1))
+    split_2 = Operate(lambda clip: clip // (Position(1) - Steps(1)))
     split_3 = Operate(lambda clip: clip[Beat(0)] // Steps(1) >> Top())
     add_rest = Operate(lambda clip: clip * Rest(1/1))
     # Chaining all the transformations
