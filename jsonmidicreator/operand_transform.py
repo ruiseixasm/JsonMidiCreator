@@ -49,7 +49,7 @@ class Transform(o.Operand):
     def _transform(self, clip: 'Clip') -> 'Clip':
         return clip
 
-    def next(self) -> 'oc.Clip':
+    def next(self, clip: 'oc.Clip') -> 'oc.Clip':
         """Runs each tail"""
 
 
@@ -76,7 +76,8 @@ class Operate(Transform):
 
 
     def _transform(self, clip: 'Clip') -> 'Clip':
-        return self._operator(clip)
+        self._operator(clip)
+        return super()._transform(clip)
 
 
 
@@ -91,7 +92,7 @@ class Delete(Transform):
     """
     def _transform(self, clip: 'Clip') -> 'Clip':
         clip._delete(clip.elements_unmasked(), True)    # Already recursive
-        return clip
+        return super()._transform(clip)
 
 
 
@@ -114,7 +115,7 @@ class Extend(Transform):
         original_self_duration: ra.Duration = clip % ra.Duration()
         while clip % ra.Duration() + original_self_duration <= self._length:
             clip.__itruediv__(original_self)
-        return clip
+        return super()._transform(clip)
 
 
 class Fill(Transform):
@@ -137,7 +138,6 @@ class Fill(Transform):
                     oe.Rest()._set_owner_clip(clip) \
                     << rest_length
                 clip += rest_element
-        
         last_element: oe.Element = shallow_copy[shallow_copy_len - 1]
         staff_end: ra.Position = (last_element.finish() % ra.Length()).roundMeasures() % ra.Position()
         if last_element.finish() < staff_end:
@@ -146,7 +146,7 @@ class Fill(Transform):
                 oe.Rest()._set_owner_clip(clip) \
                 << rest_length
             clip += rest_element
-        return clip
+        return super()._transform(clip)
 
 
 class Fit(Transform):
@@ -168,7 +168,7 @@ class Fit(Transform):
                 if previous_element_finish_beats < single_element_finish_beats:
                     single_element._duration_beats = single_element_finish_beats - previous_element_finish_beats
                     single_element._position_beats = previous_element_finish_beats
-        return clip
+        return super()._transform(clip)
 
 
 
@@ -189,7 +189,7 @@ class Link(Transform):
                 next_element = unmasked_elements[i + 1]
                 if next_element._position_beats > single_element._position_beats:
                     single_element._duration_beats = next_element._position_beats - single_element._position_beats
-        return clip
+        return super()._transform(clip)
 
 
 
@@ -207,7 +207,7 @@ class Stack(Transform):
             if index > 0:   # Not the first element
                 duration_beats: Fraction = unmasked_elements[index - 1]._duration_beats
                 single_element._position_beats = unmasked_elements[index - 1]._position_beats + duration_beats  # Stacks on Element Duration
-        return clip
+        return super()._transform(clip)
 
 
 class Close(Transform):
@@ -224,7 +224,7 @@ class Close(Transform):
             last_index: int = len(unmasked_elements) - 1
             last_element: oe.Element = unmasked_elements[last_index]
             last_element._duration_beats = self.gross_length()._rational - last_element._position_beats
-        return self
+        return super()._transform(clip)
 
 
 class Decompose(Transform):
@@ -237,7 +237,8 @@ class Decompose(Transform):
         None.
     """
     def _transform(self, clip: 'Clip') -> 'Clip':
-        return clip.decompose()
+        clip.decompose()
+        return super()._transform(clip)
 
 
 class Tie(Transform):
@@ -262,7 +263,7 @@ class Tie(Transform):
                 if single_note_start_position_beats == homologous_note_finish_position_beats:
                     single_note << ou.Tied(True)
             last_extended_notes[note_channel_pitch] = single_note   # Overrides previous existing notes (sorted by position)
-        return clip
+        return super()._transform(clip)
 
 
 class Merge(Transform):
@@ -282,7 +283,8 @@ class Merge(Transform):
                 previous_element._duration_beats += unmasked_element._duration_beats
                 continue
             previous_element = unmasked_element
-        return clip._delete(elements_to_remove, True)
+        clip._delete(elements_to_remove, True)
+        return super()._transform(clip)
 
 
 
@@ -346,7 +348,7 @@ class Interpolate(Transform):
                     if index not in known_indices:   # None adds no Element
                         channel_automation += element_template << value << position_steps
                     position_steps += 1
-        return clip
+        return super()._transform(clip)
 
 
 
@@ -368,7 +370,7 @@ class Monofy(Transform):
                 if current_element.finish() > next_element.start():
                     new_length: ra.Length = ra.Length( next_element.start() - current_element.start() )
                     current_element << new_length
-        return clip
+        return super()._transform(clip)
 
 
 class Invert(Transform):
@@ -412,7 +414,7 @@ class Invert(Transform):
                     note_pitch: int = note._pitch.get_absolute_pitch()
                     if note_pitch != pitch_centroid:
                         note._pitch << 2 * pitch_centroid - note_pitch
-        return clip
+        return super()._transform(clip)
 
 
 
@@ -475,7 +477,7 @@ class Mirror(Transform):
                         note_pitch_int: int = note_pitch.get_absolute_pitch()
                         new_pitch: int = top_pitch_int - (note_pitch_int - bottom_pitch_int)
                         note_pitch.set_absolute_pitch(new_pitch)
-        return clip
+        return super()._transform(clip)
 
 
 
@@ -507,7 +509,7 @@ class Reverse(Transform):
         else:
             for single_element, single_locus in zip(reversed_elements, elements_locus):
                 single_element << single_locus
-        return clip
+        return super()._transform(clip)
 
 
 
@@ -540,7 +542,7 @@ class Rotate(Transform):
         else:
             for single_element, single_locus in zip(rotated_elements, elements_locus):
                 single_element << single_locus
-        return clip
+        return super()._transform(clip)
 
 
 
@@ -561,7 +563,8 @@ class Clean(Transform):
                     remove_items.append(single_element)
                     break
             unique_items.append(single_element)
-        return clip._delete(remove_items, True)
+        clip._delete(remove_items, True)
+        return super()._transform(clip)
 
 
 
@@ -610,7 +613,7 @@ class Replace(Edit):
     def _transform(self, clip: 'Clip') -> 'Clip':
         clip //= self._parameters["locus"]
         clip += self._parameters["clip"] + self._parameters["locus"] % ra.Position(clip)
-        return clip
+        return super()._transform(clip)
 
 
 
@@ -627,7 +630,7 @@ class Insert(Edit):
     def _transform(self, clip: 'Clip') -> 'Clip':
         clip += self._parameters["locus"]
         clip += self._parameters["clip"] + self._parameters["locus"] % ra.Position(clip)
-        return clip
+        return super()._transform(clip)
 
 
 
@@ -643,7 +646,7 @@ class Overlap(Edit):
     """
     def _transform(self, clip: 'Clip') -> 'Clip':
         clip += self._parameters["clip"] + self._parameters["locus"] % ra.Position(clip)
-        return clip
+        return super()._transform(clip)
     
 
 
@@ -662,7 +665,8 @@ class Filter(Parameterized):
 
 
     def _transform(self, clip: 'Clip') -> 'Clip':
-        return clip.filter(*self._parameters["conditions"])
+        clip.filter(*self._parameters["conditions"])
+        return super()._transform(clip)
 
 
 
@@ -694,7 +698,7 @@ class Sort(Parameterized):
             self._items.reverse()
         for index, element in enumerate(clip.elements_unmasked()):
             element._position_beats = original_positions[index]
-        return clip
+        return super()._transform(clip)
 
 
 
@@ -778,7 +782,7 @@ class Smooth(Parameterized):
                                     note_pitch = note.decrease_pitch_centroid().pitch_centroid()
                         if algorithm_type == 4:
                             previous_pitch = note_pitch
-        return clip
+        return super()._transform(clip)
 
 
 
@@ -802,7 +806,7 @@ class Slur(Parameterized):
                 if last_element is not None:
                     last_element << ra.Gate(self._parameters["gate"])
                 last_element = item
-        return clip
+        return super()._transform(clip)
 
 
 
@@ -848,7 +852,7 @@ class Join(Parameterized):
             else:
                 last_extended_notes[note_channel_pitch] = single_note   # Overrides previous existing notes (sorted by position)
         clip._delete(joined_notes)
-        return clip
+        return super()._transform(clip)
 
 
 
@@ -897,7 +901,7 @@ class Oscillate(Parameterized):
                 single_element << parameter(value)
             else:
                 single_element << value # Most of the time
-        return clip
+        return super()._transform(clip)
 
 
 
@@ -971,8 +975,8 @@ class Automate(Parameterized):
             for value in automation:
                 if value is not None:   # None adds no Element
                     clip += automate_element << value << position_steps
-                position_steps += 1        
-        return clip
+                position_steps += 1
+        return super()._transform(clip)
 
 
 
@@ -1005,7 +1009,7 @@ class Stepper(Parameterized):
                 if single_step == 1:
                     clip += element_element << position_steps
                 position_steps += 1
-        return clip
+        return super()._transform(clip)
 
 
 
@@ -1029,7 +1033,7 @@ class Arpeggiate(Parameterized):
         parameters = self._parameters["parameters"]
         arpeggio = og.Arpeggio(parameters)
         arpeggio.arpeggiate_source(clip.elements_unmasked(), clip.start(), ra.Length( clip.net_duration() ))
-        return clip
+        return super()._transform(clip)
 
 
 
@@ -1069,6 +1073,5 @@ class Quantize(Parameterized):
                 single_element._duration_beats += position_off_offset
                 while single_element._duration_beats <= Fraction(0):
                     single_element._duration_beats += quantization_beats
-        return clip
-
+        return super()._transform(clip)
 
