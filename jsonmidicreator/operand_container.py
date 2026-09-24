@@ -81,34 +81,25 @@ class Container(o.Operand):
                     if single_item == frame_result:
                         return single_item
             case ch.Chaos():
-                new_container = self.empty_copy()
-                new_container._upper_container = self
                 for single_item in items_unmasked:
                     chaos_result = index.chaoticize()
                     if single_item == chaos_result:
-                        new_container._append(single_item)
-                return new_container
+                        return single_item
             case od.Pipe():
                 match index._data:
                     case of.Frame():
                         pipped_frame = index._data
                         pipped_frame._set_inside_container(self)
-                        new_container = self.empty_copy()
-                        new_container._upper_container = self
                         for single_item in items_unmasked:
                             frame_result = pipped_frame.frame(single_item)
                             if single_item == od.Pipe(frame_result):
-                                new_container._append(single_item)
-                        return new_container
+                                return single_item
                     case ch.Chaos():
                         pipped_chaos = index._data
-                        new_container = self.empty_copy()
-                        new_container._upper_container = self
                         for single_item in items_unmasked:
                             chaos_result = pipped_chaos.chaoticize()
                             if single_item == od.Pipe(chaos_result):
-                                new_container._append(single_item)
-                        return new_container
+                                return single_item
             case int():
                 if index < len(items_unmasked):
                     return items_unmasked[index]
