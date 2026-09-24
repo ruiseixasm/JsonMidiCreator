@@ -1192,9 +1192,9 @@ class Plot(Process):
 
     def _run_new(self, even = None) -> Self:
         if isinstance(self._parameters["transform"], tr.Transform):
-            composition: oc.Composition = self._compositions[-1]    # It has always at least one
-            if isinstance(composition, oc.Clip):
-                new_iteration = self._parameters["transform"].next(composition)
+            clip: oc.Composition = self._compositions[-1]    # It has always at least one
+            if isinstance(clip, oc.Clip):
+                new_iteration = self._parameters["transform"].next(clip)
                 self._iteration_index = len(self._compositions)
                 plotlist: list[dict] = new_iteration.getPlotlist()
                 new_checksum_str: str = o.checksum_to_string(new_iteration.checksum())
