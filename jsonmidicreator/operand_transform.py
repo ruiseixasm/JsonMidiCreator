@@ -46,6 +46,11 @@ class Transform(o.Operand):
 
     `Transform` is intended to manipulate a `Clip` based on a given transformation process.
     """
+    def __init__(self, parameters: tuple = tuple()):
+        super().__init__()
+        self._parameters: dict[str, Any] = {}   # Empty by default
+
+
     def _single_transform(self, clip: 'Clip') -> 'Clip':
         return clip._sort_items()
 
@@ -582,23 +587,8 @@ class Clean(Transform):
 
 
 
-class Parameterized(Transform):
-    """`Transform -> Parameterized`
-
-    A `Parameterized` transformation allows the setting of multiple parameters in it.
-
-    Parameters
-    ----------
-    tuple() : A parameterized `Transform` has multiple parameters setting the respective transformation.
-    """
-    def __init__(self, parameters: tuple = tuple()):
-        super().__init__()
-        self._parameters: dict[str, Any] = {}   # Empty by default
-
-
-
-class Edit(Parameterized):
-    """`Transform -> Parameterized -> Edit`
+class Edit(Transform):
+    """`Transform -> Edit`
 
     Allows the application of an edition on a targeted `Clip`
         
@@ -615,7 +605,7 @@ class Edit(Parameterized):
 
 
 class Replace(Edit):
-    """`Transform -> Parameterized -> Edit -> Replace`
+    """`Transform -> Edit -> Replace`
 
     Allows the substitution on a target `Clip` section by the source `Clip` duration.
         
@@ -632,7 +622,7 @@ class Replace(Edit):
 
 
 class Insert(Edit):
-    """`Transform -> Parameterized -> Edit -> Insert`
+    """`Transform -> Edit -> Insert`
 
     Allows the insertion on a target `Clip` a section defined by a source `Clip` duration.
         
@@ -649,7 +639,7 @@ class Insert(Edit):
 
 
 class Overlap(Edit):
-    """`Transform -> Parameterized -> Edit -> Overlap`
+    """`Transform -> Edit -> Overlap`
 
     Allows the placing over a target `Clip` with a source `Clip` at a given position.
         
@@ -664,8 +654,8 @@ class Overlap(Edit):
     
 
 
-class Filter(Parameterized):
-    """`Transform -> Parameterized -> Filter`
+class Filter(Transform):
+    """`Transform -> Filter`
 
     A `Filter` works exactly like a `Mask` with the difference of keeping just \
         the matching items and deleting everything else.
@@ -684,8 +674,8 @@ class Filter(Parameterized):
 
 
 
-class Sort(Parameterized):
-    """`Transform -> Parameterized -> Sort`
+class Sort(Transform):
+    """`Transform -> Sort`
 
     Sorts the contained items by a given parameter type.
 
@@ -717,8 +707,8 @@ class Sort(Parameterized):
 
 
 
-class Smooth(Parameterized):
-    """`Transform -> Parameterized -> Smooth`
+class Smooth(Transform):
+    """`Transform -> Smooth`
 
     Adjusts each `Note` octave to have the closest pitch to the first, previous one or both.
 
@@ -800,8 +790,8 @@ class Smooth(Parameterized):
 
 
 
-class Slur(Parameterized):
-    """`Transform -> Parameterized -> Slur`
+class Slur(Transform):
+    """`Transform -> Slur`
 
     Changes the note `Gate` in order to crate a small overlap.
 
@@ -824,8 +814,8 @@ class Slur(Parameterized):
 
 
 
-class Join(Parameterized):
-    """`Transform -> Parameterized -> Join`
+class Join(Transform):
+    """`Transform -> Join`
 
     Joins all same type notes with the same `Pitch` as a single `Note`, from left to right.
 
@@ -870,8 +860,8 @@ class Join(Parameterized):
 
 
 
-class Oscillate(Parameterized):
-    """`Transform -> Parameterized -> Oscillate`
+class Oscillate(Transform):
+    """`Transform -> Oscillate`
 
     Applies for each item element the value at the given position given by the oscillator function at
     that same position.
@@ -920,8 +910,8 @@ class Oscillate(Parameterized):
 
 
 
-class Automate(Parameterized):
-    """`Transform -> Parameterized -> Automate`
+class Automate(Transform):
+    """`Transform -> Automate`
 
     Distributes the values given by the Steps pattern in a way very like the stepper Drum Machine fashion.
 
@@ -994,8 +984,8 @@ class Automate(Parameterized):
 
 
 
-class Stepper(Parameterized):
-    """`Transform -> Parameterized -> Stepper`
+class Stepper(Transform):
+    """`Transform -> Stepper`
 
     Sets the steps in a Drum Machine for a given `Element`. The default element is `Note()` for None.
 
@@ -1027,8 +1017,8 @@ class Stepper(Parameterized):
 
 
 
-class Arpeggiate(Parameterized):
-    """`Transform -> Parameterized -> Arpeggiate`
+class Arpeggiate(Transform):
+    """`Transform -> Arpeggiate`
 
     Distributes each element accordingly to the configured arpeggio by the parameters given.
 
@@ -1051,8 +1041,8 @@ class Arpeggiate(Parameterized):
 
 
 
-class Quantize(Parameterized):
-    """`Transform -> Parameterized -> Quantize`
+class Quantize(Transform):
+    """`Transform -> Quantize`
 
     Quantizes a `Clip` by a given amount from 0.0 to 1.0.
 
