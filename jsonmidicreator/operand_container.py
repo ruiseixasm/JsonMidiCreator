@@ -115,6 +115,8 @@ class Container(o.Operand):
             case int():
                 if index < len(items_unmasked):
                     return items_unmasked[index]
+                else:
+                    print(f"Warning: Index too high!")
             case str():
                 index = o.tag_to_int(index)
                 if index != -1:
