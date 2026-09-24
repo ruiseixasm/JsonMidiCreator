@@ -66,7 +66,6 @@ def test_transform_note():
     simple_cuts << global_transform
     simple_cuts[4] % Duration() >> Print()
     # simple_cuts >> Plot()
-
     assert simple_cuts[4] % Duration() == Beats(3) - Steps(1)
 
 # test_transform_note()
