@@ -599,8 +599,8 @@ class Edit(Transform):
     """
     def __init__(self, locus: og.Locus = None, clip: oc.Clip = None):
         super().__init__()
-        self._parameters["locus"] = og.Locus(locus)
-        self._parameters["clip"] = oc.Clip(clip)
+        self.locus = og.Locus(locus)
+        self.clip = oc.Clip(clip)
 
 
 
@@ -615,8 +615,8 @@ class Replace(Edit):
     Clip() : The `Clip` to be used as the source of the edition.
     """
     def _single_transform(self, clip: 'Clip') -> 'Clip':
-        clip //= self._parameters["locus"]
-        clip += self._parameters["clip"] + self._parameters["locus"] % ra.Position(clip)
+        clip //= self.locus
+        clip += self.clip + self.locus % ra.Position(clip)
         return clip._sort_items()
 
 
@@ -632,8 +632,8 @@ class Insert(Edit):
     Clip() : The `Clip` to be used as the source of the edition.
     """
     def _single_transform(self, clip: 'Clip') -> 'Clip':
-        clip += self._parameters["locus"]
-        clip += self._parameters["clip"] + self._parameters["locus"] % ra.Position(clip)
+        clip += self.locus
+        clip += self.clip + self.locus % ra.Position(clip)
         return clip._sort_items()
 
 
@@ -649,7 +649,7 @@ class Overlap(Edit):
     Clip() : The `Clip` to be used as the source of the edition.
     """
     def _single_transform(self, clip: 'Clip') -> 'Clip':
-        clip += self._parameters["clip"] + self._parameters["locus"] % ra.Position(clip)
+        clip += self.clip + self.locus % ra.Position(clip)
         return clip._sort_items()
     
 
@@ -665,11 +665,11 @@ class Filter(Transform):
     """
     def __init__(self, *conditions):
         super().__init__()
-        self._parameters["conditions"] = conditions
+        self.conditions = conditions
 
 
     def _single_transform(self, clip: 'Clip') -> 'Clip':
-        clip.filter(*self._parameters["conditions"])
+        clip.filter(*self.conditions)
         return clip._sort_items()
 
 
@@ -1052,15 +1052,13 @@ class Quantize(Transform):
     """
     def __init__(self, amount: float = 1.0, quantize_duration: bool = False):
         super().__init__()
-        self._parameters["amount"] = amount
-        self._parameters["quantize_duration"] = quantize_duration
+        self.amount = amount
+        self.quantize_duration = quantize_duration
 
 
     def _single_transform(self, clip: 'Clip') -> 'Clip':
-        amount = self._amount["parameters"]
-        quantize_duration = self._parameters["quantize_duration"]
         quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
-        amount_rational: Fraction = ra.Amount(amount) % Fraction()
+        amount_rational: Fraction = ra.Amount(self.amount) % Fraction()
         for single_element in clip.elements_unmasked():
             # Position On
             element_position_on: Fraction = single_element._position_beats
@@ -1069,7 +1067,7 @@ class Quantize(Transform):
             position_on_offset: Fraction = (quantization_limit * quantization_beats - unquantized_amount) * amount_rational
             single_element._position_beats += position_on_offset
             # Position Off
-            if quantize_duration:
+            if self.quantize_duration:
                 element_position_off: Fraction = single_element._position_beats + single_element._duration_beats
                 unquantized_amount = element_position_off % quantization_beats
                 quantization_limit = round(unquantized_amount / quantization_beats)
