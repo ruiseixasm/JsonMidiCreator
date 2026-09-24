@@ -1194,7 +1194,7 @@ class Plot(Process):
         if isinstance(self._parameters["transform"], tr.Transform):
             clip: oc.Composition = self._compositions[-1]    # It has always at least one
             if isinstance(clip, oc.Clip):
-                new_iteration = self._parameters["transform"].next(clip)
+                new_iteration = self._parameters["transform"].next(clip.copy()) # Decouples
                 self._iteration_index = len(self._compositions)
                 plotlist: list[dict] = new_iteration.getPlotlist()
                 new_checksum_str: str = o.checksum_to_string(new_iteration.checksum())
@@ -1590,13 +1590,27 @@ class Read(Process):
     Args:
         None
     """
-
     def _process(self, operand: o.T) -> o.T:
-        from . import operand_element as oe
         if isinstance(operand, (oe.Element, ou.Tempo)):
             return operand.read()
         else:
             print(f"Warning: Operand is NOT an `Element` or a `Tempo`!")
+        return super().__rrshift__(operand)
+
+
+class Top(Process):
+    """`Generic -> Process -> Top`
+
+    Extracts the Top container of all upper containers.
+
+    Args:
+        None
+    """
+    def _process(self, operand: o.T) -> o.T:
+        if isinstance(operand, oc.Container):
+            return operand.top_container()
+        else:
+            print(f"Warning: Operand is NOT a `Container`!")
         return super().__rrshift__(operand)
 
 

@@ -59,6 +59,12 @@ class Container(o.Operand):
         for single_operand in operands:
             self << single_operand
 
+    def top_container(self) -> Self:
+        if self._upper_container is not None:   # Recursive call
+            return self._upper_container.top_container()
+        return self
+
+
     def items_unmasked(self) -> list[Any]:
         if isinstance(self, Clip):
             return self.elements_unmasked()
