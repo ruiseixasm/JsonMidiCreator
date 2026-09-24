@@ -76,13 +76,10 @@ class Container(o.Operand):
         match index:
             case of.Frame():
                 index._set_inside_container(self)
-                new_container = self.empty_copy()
-                new_container._upper_container = self
                 for single_item in items_unmasked:
                     frame_result = index.frame(single_item)
                     if single_item == frame_result:
-                        new_container._append(single_item)
-                return new_container
+                        return single_item
             case ch.Chaos():
                 new_container = self.empty_copy()
                 new_container._upper_container = self

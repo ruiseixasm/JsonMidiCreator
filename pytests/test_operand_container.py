@@ -311,8 +311,8 @@ def test_locus_stacking():
     locus_notes = eight_wholes / [[0], [1], [2], [0, "3b"], [3], [5]]
     assert locus_notes.len() == 6
     # locus_notes >> Plot()
-    assert locus_notes[First()][0] == Degree(1)
-    assert locus_notes[Last()][0] == Degree(5 + 1)
+    assert locus_notes[First()] == Degree(1)
+    assert locus_notes[Last()] == Degree(5 + 1)
 
 # test_locus_stacking()
 
@@ -1219,7 +1219,7 @@ def test_split_note():
 
     # Steps split
     steps_16 = Note(Steps(1)) / 16
-    steps_16[DownTo(Step(12))] //= Steps(1/2)
+    steps_16 //= DownTo(Step(12))**Steps(1/2)
     assert steps_16.len() == 16 + 4
 
 # test_split_note()
@@ -1449,7 +1449,7 @@ def test_match_time_signature():
 
 def test_clip_masking():
     all_chords = Chord(1/4) / 2
-    assert all_chords[Even()].len_unmasked() > 0
+    assert all_chords.len_unmasked() > 0
     even_chords = all_chords << Mask(Even())
     assert even_chords.len_unmasked() > 0
 
