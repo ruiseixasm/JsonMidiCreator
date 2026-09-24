@@ -1129,6 +1129,21 @@ class Plot(Process):
         composition_button = Button(ax_button, 'C', color='white', hovercolor='grey')
         composition_button.on_clicked(self._run_composition)
 
+        # Previous Button Widget
+        ax_button = plt.axes([0.979, 0.768, 0.015, 0.05])
+        self._previous_button = Button(ax_button, '<', color='white', hovercolor='grey')
+        self._previous_button.on_clicked(self._run_previous)
+
+        # Next Button Widget
+        ax_button = plt.axes([0.979, 0.708, 0.015, 0.05])
+        self._next_button = Button(ax_button, '>', color='white', hovercolor='grey')
+        self._next_button.on_clicked(self._run_next)
+
+        # New Button Widget
+        ax_button = plt.axes([0.979, 0.648, 0.015, 0.05])
+        new_button = Button(ax_button, 'N', color='white', hovercolor='grey')
+        new_button.on_clicked(self._run_new)
+
         # Buttons are vertically spaced by 0.060
 
         # Save Button Widget
@@ -1149,6 +1164,16 @@ class Plot(Process):
         if not isinstance(self._parameters["composition"], oc.Composition):
             # Composition Button Widget
             self._disable_button(composition_button)
+
+        # Previous Button Widget
+        if self._iteration_index == 0:
+            self._disable_button(self._previous_button)
+        # Next Button Widget
+        self._disable_button(self._next_button)
+
+        if not callable(self._n_function) and not isinstance(self._parameters["transform"], tr.Transform):
+            # New Button Widget
+            self._disable_button(new_button)
 
         plt.show(block=self._parameters["block"])
 
@@ -1324,6 +1349,10 @@ class Plot(Process):
         render_button = Button(ax_button, 'R', color='white', hovercolor='grey')
         render_button.on_clicked(self._run_render)
 
+        if not isinstance(self._parameters["composition"], oc.Composition):
+            # Composition Button Widget
+            self._disable_button(composition_button)
+
         # Previous Button Widget
         if self._iteration_index == 0:
             self._disable_button(self._previous_button)
@@ -1334,14 +1363,7 @@ class Plot(Process):
             # New Button Widget
             self._disable_button(new_button)
 
-        if not isinstance(self._parameters["composition"], oc.Composition):
-            # Composition Button Widget
-            self._disable_button(composition_button)
-
-        if self._parameters["block"]:
-            plt.show(block=True)
-        else:
-            plt.show(block=False)
+        plt.show(block=self._parameters["block"])
 
         return self._compositions[self._iteration_index]
 
