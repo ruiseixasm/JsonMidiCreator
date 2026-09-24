@@ -1066,3 +1066,118 @@ class Quantize(Transform):
                     single_element._duration_beats += quantization_beats
         return clip._sort_items()
 
+
+
+class Iterate(Transform):
+    """`Transform -> Iterate`
+
+    This class allows the transformation of the `Clip` based on chaotic input in an iterative fashion.
+
+    Args:
+        chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
+        post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
+        max_tries (int) : The maximum amount of tries to find a `Clip` solution.
+        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
+    """
+    def __init__(self, chaos: ch.Chaos = ch.SinX(340),
+                 pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
+                 post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
+                 max_tries: int = 4, no_repetitions: bool = False, freeze_at: int = -1):
+        self._seed: oc.Clip = oc.Clip() # Read-Only
+        self._iterations: list[oc.Clip] = []
+        self._chaos: ch.Chaos = chaos
+        self._pre_filter: Callable[['oc.Clip', 'oc.Clip'], bool] | None = pre_filter
+        self._post_process: Callable[['oc.Clip'], 'oc.Clip'] | None = post_process
+        self._max_tries: int = max_tries
+        self._no_repetitions: bool = no_repetitions
+        self._freeze_at: int = freeze_at
+        super().__init__()
+        
+
+    def reset(self) -> Self:
+        self._iterations = []
+        return super().reset()
+    
+    def n_function(self, iteration: int) -> 'oc.Clip':
+        extra_iterations = iteration - self._index
+        if extra_iterations > 0:
+            for _ in range(extra_iterations):
+                self.iterate()
+        return self._iterations[iteration].copy()   # Decoupled
+    
+    
+    def iterate(self) -> Self:
+        self._index += 1    # Each new_composition is added to the list, so, the index has to increase
+        for _ in range(self._max_tries):    # Gets a non-empty iteration
+            candidate: oc.Clip = self._single_iteration()
+            if isinstance(self._chained_operand, Iterate):
+                self._chained_operand._seed = candidate
+                candidate = self._chained_operand._single_iteration()
+            if candidate.len() > 0: # Only non empty candidates can be considered as solutions
+                if not callable(self._pre_filter) or self._pre_filter(candidate, self._seed):
+                    if callable(self._post_process):
+                        candidate = self._post_process(candidate)
+                    if not self._no_repetitions or not candidate in self._iterations:
+                        candidate._index = self._index
+                        self._iterations.append(candidate)
+                        return self
+        empty_iteration: oc.Clip = self._seed.empty_copy()
+        if callable(self._post_process):
+            empty_iteration = self._post_process(empty_iteration)
+        empty_iteration._index = self._index
+        self._iterations.append(empty_iteration)
+        return self
+    
+    def get_clip(self) -> 'oc.Clip':
+        """Also applies the post processing on the original iteration"""
+        if self._freeze_at < 0:
+            self.iterate()
+        elif self._freeze_at > self._index: # self._index is the last item
+            iterations: int = self._freeze_at - self._index
+            for _ in range(iterations):
+                self.iterate()
+        return self._iterations[-1].copy()
+    
+
+    
+    # CHAINABLE OPERATIONS
+
+    def __imul__(self, number: Union['ou.Unit', 'ra.Rational', int, float, Fraction]) -> Self:
+        if self._iterations:
+            number = o.number_to_int(number) # Results in a int, like int(float)
+            for _ in range(number):
+                self.iterate()
+        return self
+    
+    def __getitem__(self, index: int) -> oc.Clip | None:
+        """To set the initial seed, use new_iteration with it"""
+        if isinstance(index, int) and self._iterations:
+            if index > self._index: # self._index is the last item
+                iterations: int = index - self._index
+                seed_composition = self._iterations[0]
+                for _ in range(iterations):
+                    self.iterate(seed_composition)
+            return self._iterations[index]
+        return None
+
+
+
+class I_ApplyFunction(Iterate):
+    def __init__(self, function: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
+                 chaos: ch.Chaos = ch.SinX(340),
+                 pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
+                 post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
+                 max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
+        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+        self._function: list[Any] = function
+
+
+    def _single_iteration(self) -> 'oc.Clip':
+        if callable(self._function):
+            new_iteration: oc.Clip = self._function(self._seed.copy())
+            return new_iteration._sort_items()  # Safe code
+        return self._seed.empty_copy()  # No valid Composition made
+
+    
