@@ -54,7 +54,6 @@ class Container(o.Operand):
     def __init__(self, *operands):
         super().__init__()
         self._items: list = []
-        self._items_iterator: int = 0
         for single_operand in operands:
             self << single_operand
 
@@ -129,13 +128,13 @@ class Container(o.Operand):
     
     # To be used directly in for loops
     def __next__(self) -> any:
-        items_to_iterate: list = self._items    # Self iteration always ignore any mask
-        if self._items_iterator < len(items_to_iterate):
-            item = items_to_iterate[self._items_iterator]
-            self._items_iterator += 1
+        # Self iteration always ignore any mask
+        self._index += 1    # Starts at -1
+        if self._index < len(self._items):
+            item = self._items[self._index]
             return item  # It's the data that should be returned
         else:
-            self._items_iterator = 0   # Reset to 0 when limit is reached
+            self._index = -1   # Reset to -1 when limit is reached
             raise StopIteration
 
 
