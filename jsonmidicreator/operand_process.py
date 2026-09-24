@@ -1150,7 +1150,7 @@ class Plot(Process):
             # Composition Button Widget
             self._disable_button(composition_button)
 
-        plt.show(self._parameters["block"])
+        plt.show(block=self._parameters["block"])
 
         return composition
     
