@@ -65,9 +65,9 @@ def test_transform_note():
 
     simple_cuts << global_transform
     simple_cuts[4] % Duration() >> Print()
-    
+
     assert simple_cuts[4] % Duration() == Beats(3) - Steps(1)
 
-test_transform_note()
+# test_transform_note()
 
 

@@ -49,11 +49,11 @@ class Process(o.Operand):
         self._parameters: dict[str, Any] = {}   # Empty by default
 
 
-    def _process(self, operand: o.T) -> o.T:
+    def process(self, operand: o.T) -> o.T:
         return operand  # No copy
 
     def __rrshift__(self, operand: o.T) -> o.T:
-        return self._process(operand)   # No copy (read-only) !
+        return self.process(operand)   # No copy (read-only) !
 
 
 
@@ -72,7 +72,7 @@ class Save(Process):
         self._parameters["filename"] = filename
         self._parameters["include_settings"] = include_settings
 
-    def _process(self, operand: o.T) -> o.T:
+    def process(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
             file_path: str = self._parameters["filename"]
             if not isinstance(file_path, str):
@@ -99,7 +99,7 @@ class Export(Process):
         super().__init__()
         self._parameters["filename"] = filename
 
-    def _process(self, operand: o.T) -> o.T:
+    def process(self, operand: o.T) -> o.T:
         match operand:
             case oc.Composition():
                 if operand._items:
@@ -142,7 +142,7 @@ class Render(Process):
         super().__init__()
         self._parameters["filename"] = filename
 
-    def _process(self, operand: o.T) -> o.T:
+    def process(self, operand: o.T) -> o.T:
         # filepath and filename
         file_path: str = self._parameters["filename"]
         if not isinstance(file_path, str):
@@ -229,7 +229,7 @@ class Plot(Process):
         self._n_function: Callable[[int], 'oc.Clip'] = None
 
 
-    def _process(self, operand: o.T) -> 'oc.Composition':
+    def process(self, operand: o.T) -> 'oc.Composition':
         match operand:
             case oc.Composition():
                 return self.plot_composition(operand)
@@ -1390,7 +1390,7 @@ class Play(Process):
         self._parameters["talkie_delay_ms"] = talkie_delay_ms
         
 
-    def _process(self, operand: o.T) -> o.T:
+    def process(self, operand: o.T) -> o.T:
         import threading
         match operand:
             case oc.Composition():
@@ -1466,11 +1466,11 @@ class Print(Process):
     def __init__(self, serialization: bool = False):
         super().__init__( False if serialization is None else serialization )
 
-    def _process(self, operand: o.T) -> o.T:
+    def process(self, operand: o.T) -> o.T:
         import json
         match operand:
             case oc.Container():
-                self._process(operand._items)
+                self.process(operand._items)
             case o.Operand():
                 if self._parameters:
                     serialized_json_str = json.dumps(operand.getSerialization())
@@ -1509,7 +1509,7 @@ class Copy(Process):
         super().__init__()
         self._parameters["parameters"] = parameters
 
-    def _process(self, operand: o.T) -> o.T:
+    def process(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
             return operand.copy(*self._parameters["parameters"])
         return o.deep_copy(operand)
@@ -1531,7 +1531,7 @@ class Proxy(Process):
         super().__init__()
         self._parameters["parameters"] = parameters
 
-    def _process(self, operand: o.T) -> o.T:
+    def process(self, operand: o.T) -> o.T:
         if isinstance(operand, oc.Container):
             return operand.shallow_copy(*self._parameters["parameters"])
         return super().__rrshift__(operand)
@@ -1553,7 +1553,7 @@ class Reset(Process):
         super().__init__()
         self._parameters["parameters"] = parameters
 
-    def _process(self, operand: o.T) -> o.T:
+    def process(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
             return operand.reset(*self._parameters["parameters"])
         return super().__rrshift__(operand)
@@ -1576,7 +1576,7 @@ class Clear(Process):
         super().__init__()
         self._parameters["parameters"] = parameters
 
-    def _process(self, operand: o.T) -> o.T:
+    def process(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
             return operand.clear(*self._parameters["parameters"])
         return super().__rrshift__(operand)
@@ -1590,7 +1590,7 @@ class Read(Process):
     Args:
         None
     """
-    def _process(self, operand: o.T) -> o.T:
+    def process(self, operand: o.T) -> o.T:
         if isinstance(operand, (oe.Element, ou.Tempo)):
             return operand.read()
         else:
@@ -1606,7 +1606,7 @@ class Top(Process):
     Args:
         None
     """
-    def _process(self, operand: o.T) -> o.T:
+    def process(self, operand: o.T) -> o.T:
         if isinstance(operand, oc.Container):
             return operand.top_container()
         else:
