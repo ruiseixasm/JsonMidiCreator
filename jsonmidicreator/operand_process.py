@@ -1625,20 +1625,3 @@ class Read(Process):
 
 
 
-class Top(Process):
-    """`Generic -> Process -> Top`
-
-    Extracts the Top container of all upper containers.
-
-    Args:
-        None
-    """
-    def process(self, operand: o.T) -> o.T:
-        if isinstance(operand, oc.Container):
-            return operand.top_container()
-        else:
-            print(f"Warning: Operand is NOT a `Container`!")
-        return super().__rrshift__(operand)
-
-
-
