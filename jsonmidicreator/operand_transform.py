@@ -46,11 +46,6 @@ class Transform(o.Operand):
 
     `Transform` is intended to manipulate a `Clip` based on a given transformation process.
     """
-    def __init__(self, parameters: tuple = tuple()):
-        super().__init__()
-        self._parameters: dict[str, Any] = {}   # Empty by default
-
-
     def _single_transform(self, clip: 'Clip') -> 'Clip':
         return clip._sort_items()
 
@@ -685,20 +680,20 @@ class Sort(Transform):
     """
     def __init__(self, parameter: type = og.Pitch, reverse: bool = False):
         super().__init__()
-        self._parameters["parameter"] = parameter
-        self._parameters["reverse"] = reverse
+        self.parameter = parameter
+        self.reverse = reverse
 
 
     def _single_transform(self, clip: 'Clip') -> 'Clip':
         original_positions: list[Fraction] = [
             element._position_beats for element in clip.elements_unmasked()
         ]
-        compare = self._parameters["parameter"]()
+        compare = self.parameter()
         sorted_items: list = self._items.copy().sort(
             key=lambda x: x % compare
         )
         self << od.Pipe( sorted_items )
-        if self._parameters["reverse"]:
+        if self.reverse:
             self._items.reverse()
         for index, element in enumerate(clip.elements_unmasked()):
             element._position_beats = original_positions[index]
@@ -726,22 +721,21 @@ class Smooth(Transform):
     """
     def __init__(self, algorithm_type: int = 5):
         super().__init__()
-        self._parameters["algorithm_type"] = algorithm_type
+        self.algorithm_type = algorithm_type
 
 
     def _single_transform(self, clip: 'Clip') -> 'Clip':
         first_pitch: int | None = None
         previous_pitch: int | None = None
-        algorithm_type = self._parameters["algorithm_type"]
         for note in clip.elements_unmasked():
             if isinstance(note, oe.Note):    # Only Notes have Pitch
-                if algorithm_type < 4:
+                if self.algorithm_type < 4:
                     note_pitch: int = note._pitch.get_absolute_pitch()
                     if first_pitch is None:
                         previous_pitch = first_pitch = note_pitch
                     else:
                         delta_pitch: int = note_pitch
-                        if algorithm_type == 3:
+                        if self.algorithm_type == 3:
                             delta_pitch -= first_pitch
                         else:
                             delta_pitch -= previous_pitch
@@ -751,7 +745,7 @@ class Smooth(Transform):
                             octave_offset += 1
                         elif remaining_delta < -6:
                             octave_offset -= 1
-                        if algorithm_type == 1:
+                        if self.algorithm_type == 1:
                             expected_pitch: int = note_pitch - octave_offset * 12
                             alternative_pitch: int = expected_pitch
                             if first_pitch > expected_pitch:
@@ -784,7 +778,7 @@ class Smooth(Transform):
                                     note_pitch = note.increase_pitch_centroid().pitch_centroid()
                                 if previous_pitch - below_pitch <= note_pitch - previous_pitch:
                                     note_pitch = note.decrease_pitch_centroid().pitch_centroid()
-                        if algorithm_type == 4:
+                        if self.algorithm_type == 4:
                             previous_pitch = note_pitch
         return clip._sort_items()
 
@@ -800,7 +794,7 @@ class Slur(Transform):
     """
     def __init__(self, gate: float = 1.05):
         super().__init__()
-        self._parameters["gate"] = gate
+        self.gate = gate
 
 
     def _single_transform(self, clip: 'Clip') -> 'Clip':
@@ -808,7 +802,7 @@ class Slur(Transform):
         for item in clip.elements_unmasked():
             if isinstance(item, oe.Note):
                 if last_element is not None:
-                    last_element << ra.Gate(self._parameters["gate"])
+                    last_element << ra.Gate(self.gate)
                 last_element = item
         return clip._sort_items()
 
@@ -826,14 +820,12 @@ class Join(Transform):
     """
     def __init__(self, decompose: bool = True, strict: bool = True):
         super().__init__()
-        self._parameters["decompose"] = decompose
-        self._parameters["strict"] = strict
+        self.decompose = decompose
+        self.strict = strict
 
 
     def _single_transform(self, clip: 'Clip') -> 'Clip':
-        decompose = self._parameters["decompose"]
-        strict = self._parameters["strict"]
-        if decompose: clip.decompose()
+        if self.decompose: clip.decompose()
         clip_notes: list[oe.Note] = [
             single_note for single_note in clip.elements_unmasked() if type(single_note) is oe.Note
         ]
@@ -849,7 +841,7 @@ class Join(Transform):
                 if single_note_start_position_beats == homologous_note_finish_position_beats:
                     homologous_note._duration_beats += single_note._duration_beats
                     joined_notes.append(single_note)
-                elif not strict and single_note_finish_position_beats > homologous_note_finish_position_beats:
+                elif not self.strict and single_note_finish_position_beats > homologous_note_finish_position_beats:
                     homologous_note._duration_beats += single_note_finish_position_beats - homologous_note_finish_position_beats
                 else:
                     last_extended_notes[note_channel_pitch] = single_note
@@ -876,19 +868,19 @@ class Oscillate(Transform):
     def __init__(self, amplitude: int = 63, wavelength: float = 1/1, offset: int = 0, phase: int = 0,
                  parameter: type = None):
         super().__init__()
-        self._parameters["amplitude"] = amplitude
-        self._parameters["wavelength"] = wavelength
-        self._parameters["offset"] = offset
-        self._parameters["phase"] = phase
-        self._parameters["parameter"] = parameter
+        self.amplitude = amplitude
+        self.wavelength = wavelength
+        self.offset = offset
+        self.phase = phase
+        self.parameter = parameter
 
 
     def _single_transform(self, clip: 'Clip') -> 'Clip':
-        amplitude = self._parameters["amplitude"]
-        wavelength = self._parameters["wavelength"]
-        offset = self._parameters["offset"]
-        phase = self._parameters["phase"]
-        parameter = self._parameters["parameter"]
+        amplitude = self.amplitude
+        wavelength = self.wavelength
+        offset = self.offset
+        phase = self.phase
+        parameter = self.parameter
         for single_element in clip.elements_unmasked():
             element_position: ra.Position = single_element % ra.Position()
             wavelength_duration: Fraction = ra.Duration(wavelength)._rational
@@ -925,17 +917,17 @@ class Automate(Transform):
     def __init__(self, values: list[int] = [100, 70, 30, 100],
                  pattern: str = "1... 1... 1... 1...", automation: Any = "Modulation", interpolate: bool = True):
         super().__init__()
-        self._parameters["values"] = values
-        self._parameters["pattern"] = pattern
-        self._parameters["automation"] = automation
-        self._parameters["interpolate"] = interpolate
+        self.values = values
+        self.pattern = pattern
+        self.automation = automation
+        self.interpolate = interpolate
 
 
     def _single_transform(self, clip: 'Clip') -> 'Clip':
-        values = self._parameters["values"]
-        pattern = self._parameters["pattern"]
-        automation = self._parameters["automation"]
-        interpolate = self._parameters["interpolate"]
+        values = self.values
+        pattern = self.pattern
+        automation = self.automation
+        interpolate = self.interpolate
         if isinstance(pattern, str):
             # ControlChange, PitchBend adn Aftertouch Elements have already 1 Step of Duration
             if isinstance(automation, oe.Aftertouch):
