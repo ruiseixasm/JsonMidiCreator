@@ -47,6 +47,8 @@ class Transform(o.Operand):
     `Transform` is intended to manipulate a `Clip` based on a given transformation process.
     """
     def _transform(self, clip: 'Clip') -> 'Clip':
+        if isinstance(self._chained_operand, Transform):
+            return self._chained_operand(clip)
         return clip
 
     def next(self, clip: 'oc.Clip') -> 'oc.Clip':
