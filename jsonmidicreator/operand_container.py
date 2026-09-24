@@ -1394,7 +1394,7 @@ class Clip(Composition):  # Just a container of Elements
                 return super().__getitem__(index)
 
     
-    def __setitem__(self, index: Any, value: Union['oe.Element', 'Clip']) -> Self:
+    def __setitem__(self, index: Any, value: 'oe.Element') -> Self:
         """
         Read and Write method
         """
@@ -2597,10 +2597,10 @@ class Section(Composition):
 
 
 
-    def __getitem__(self, index: Any) -> Union['Clip', 'Section']:
+    def __getitem__(self, index: Any) -> 'Clip':
         return super().__getitem__(index)
     
-    def __setitem__(self, index: Any, value: Union['Clip', 'Section']) -> Self:
+    def __setitem__(self, index: Any, value: 'Clip') -> Self:
         """
         Read and Write method
         """
@@ -3172,17 +3172,17 @@ class Part(Composition):
         return None
 
 
-    def __getitem__(self, index: Any) -> Union['Section', 'Part']:
+    def __getitem__(self, index: Any) -> 'Section':
         return super().__getitem__(index)
     
-    def __setitem__(self, index: Any, value: Union['Section', 'Part']) -> Self:
+    def __setitem__(self, index: Any, value: 'Section') -> Self:
         """
         Read and Write method
         """
         if isinstance(value, Section):
-            target_block: Section = self[index]
-            if isinstance(target_block, Section) and value is not target_block:
-                self._replace(target_block, value)    # Makes sure it propagates
+            target_section: Section = self[index]
+            if isinstance(target_section, Section) and value is not target_section:
+                self._replace(target_section, value)    # Makes sure it propagates
                 value._set_owner_part(self) # Makes sure `value` is owned by the Part
         return self._sort_items()
     
