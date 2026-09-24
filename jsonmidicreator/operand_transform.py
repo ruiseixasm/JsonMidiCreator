@@ -52,7 +52,7 @@ class Transform(o.Operand):
     def transform(self, clip: 'Clip') -> 'Clip':
         self._single_transform(clip)
         if isinstance(self._chained_operand, Transform):
-            return self._chained_operand._single_transform(clip)
+            self._chained_operand._single_transform(clip)
         return clip
 
     def next(self, clip: 'oc.Clip') -> 'oc.Clip':
