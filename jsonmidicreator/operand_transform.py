@@ -46,14 +46,32 @@ class Transform(o.Operand):
 
     `Transform` is intended to manipulate a `Clip` based on a given transformation process.
     """
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
+        return clip
+
     def _transform(self, clip: 'Clip') -> 'Clip':
+        self._single_transform(clip)
         if isinstance(self._chained_operand, Transform):
-            return self._chained_operand._transform(clip)
+            return self._chained_operand._single_transform(clip)
         return clip
 
     def next(self, clip: 'oc.Clip') -> 'oc.Clip':
-        """Runs each tail"""
-
+        if self._index < 0:
+            self._index = 0
+            return self._single_transform(clip)
+        if isinstance(self._chained_operand, Transform):
+            self._index += 1
+            transform = self
+            for _ in range(self._index):
+                if isinstance(self._chained_operand, Transform):
+                    transform = transform._chained_operand
+                else:
+                    self._index = -1
+                    raise StopIteration
+            return transform._single_transform(clip)
+        else:
+            self._index = -1
+            raise StopIteration
 
     
     def copy(self, *parameters) -> Self:
@@ -77,9 +95,9 @@ class Operate(Transform):
             self._operator = operator
 
 
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         self._operator(clip)
-        return super()._transform(clip)
+        return clip
 
 
 
@@ -92,9 +110,9 @@ class Delete(Transform):
     Args:
         None
     """
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         clip._delete(clip.elements_unmasked(), True)    # Already recursive
-        return super()._transform(clip)
+        return clip
 
 
 
@@ -110,14 +128,14 @@ class Extend(Transform):
         self._length: ra.Length = length
         super().__init__()
 
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         if self._length is None:
             self._length = ra.Length(2.0)
         original_self: Clip = clip.shallow_copy()
         original_self_duration: ra.Duration = clip % ra.Duration()
         while clip % ra.Duration() + original_self_duration <= self._length:
             clip.__itruediv__(original_self)
-        return super()._transform(clip)
+        return clip
 
 
 class Fill(Transform):
@@ -128,7 +146,7 @@ class Fill(Transform):
     Args:
         None
     """
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         shallow_copy: Clip = clip.shallow_copy()._sort_items()
         shallow_copy_len: int = shallow_copy.len_unmasked()
         for index in range(shallow_copy_len):
@@ -148,7 +166,7 @@ class Fill(Transform):
                 oe.Rest()._set_owner_clip(clip) \
                 << rest_length
             clip += rest_element
-        return super()._transform(clip)
+        return clip
 
 
 class Fit(Transform):
@@ -160,7 +178,7 @@ class Fit(Transform):
     Args:
         None
     """
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         for i, single_element in enumerate(clip._items):
             # Sets the Position and the Duration
             if i > 0:   # Not the first Element
@@ -170,7 +188,7 @@ class Fit(Transform):
                 if previous_element_finish_beats < single_element_finish_beats:
                     single_element._duration_beats = single_element_finish_beats - previous_element_finish_beats
                     single_element._position_beats = previous_element_finish_beats
-        return super()._transform(clip)
+        return clip
 
 
 
@@ -182,7 +200,7 @@ class Link(Transform):
     Args:
         None.
     """
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         unmasked_elements: list[oe.Element] = clip.elements_unmasked()
         last_index: int = len(unmasked_elements) - 1
         for i, single_element in enumerate(unmasked_elements):
@@ -191,7 +209,7 @@ class Link(Transform):
                 next_element = unmasked_elements[i + 1]
                 if next_element._position_beats > single_element._position_beats:
                     single_element._duration_beats = next_element._position_beats - single_element._position_beats
-        return super()._transform(clip)
+        return clip
 
 
 
@@ -203,13 +221,13 @@ class Stack(Transform):
     Args:
         None.
     """
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         unmasked_elements: list[oe.Element] = clip.elements_unmasked()
         for index, single_element in enumerate(unmasked_elements):
             if index > 0:   # Not the first element
                 duration_beats: Fraction = unmasked_elements[index - 1]._duration_beats
                 single_element._position_beats = unmasked_elements[index - 1]._position_beats + duration_beats  # Stacks on Element Duration
-        return super()._transform(clip)
+        return clip
 
 
 class Close(Transform):
@@ -220,13 +238,13 @@ class Close(Transform):
     Args:
         None.
     """
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         unmasked_elements: list[oe.Element] = clip.elements_unmasked()
         if unmasked_elements:
             last_index: int = len(unmasked_elements) - 1
             last_element: oe.Element = unmasked_elements[last_index]
             last_element._duration_beats = self.gross_length()._rational - last_element._position_beats
-        return super()._transform(clip)
+        return clip
 
 
 class Decompose(Transform):
@@ -238,9 +256,9 @@ class Decompose(Transform):
     Args:
         None.
     """
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         clip.decompose()
-        return super()._transform(clip)
+        return clip
 
 
 class Tie(Transform):
@@ -251,7 +269,7 @@ class Tie(Transform):
     Args:
         None.
     """
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         clip_notes: list[oe.Note] = [
             single_note for single_note in clip.elements_unmasked() if type(single_note) is oe.Note
         ]
@@ -265,7 +283,7 @@ class Tie(Transform):
                 if single_note_start_position_beats == homologous_note_finish_position_beats:
                     single_note << ou.Tied(True)
             last_extended_notes[note_channel_pitch] = single_note   # Overrides previous existing notes (sorted by position)
-        return super()._transform(clip)
+        return clip
 
 
 class Merge(Transform):
@@ -276,7 +294,7 @@ class Merge(Transform):
     Args:
         None.
     """
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         previous_element: oe.Element | None = None
         elements_to_remove: list[oe.Element] = []
         for unmasked_element in clip.elements_unmasked():
@@ -286,7 +304,7 @@ class Merge(Transform):
                 continue
             previous_element = unmasked_element
         clip._delete(elements_to_remove, True)
-        return super()._transform(clip)
+        return clip
 
 
 
@@ -323,7 +341,7 @@ class Interpolate(Transform):
         return automation
 
 
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         automation_clip: Clip = clip.select(of.InputType(oe.Automatable))
         plotlist: list[dict] = automation_clip.getPlotlist()
         automation_channels: list[int] = plotlist[0]["channels"]["automation"]
@@ -350,7 +368,7 @@ class Interpolate(Transform):
                     if index not in known_indices:   # None adds no Element
                         channel_automation += element_template << value << position_steps
                     position_steps += 1
-        return super()._transform(clip)
+        return clip
 
 
 
@@ -362,7 +380,7 @@ class Monofy(Transform):
     Args:
         None
     """
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         if clip.len_unmasked() > 1:
             # Starts by sorting by Position
             shallow_copy: Clip = clip.shallow_copy()._sort_items()
@@ -372,7 +390,7 @@ class Monofy(Transform):
                 if current_element.finish() > next_element.start():
                     new_length: ra.Length = ra.Length( next_element.start() - current_element.start() )
                     current_element << new_length
-        return super()._transform(clip)
+        return clip
 
 
 class Invert(Transform):
@@ -389,7 +407,7 @@ class Invert(Transform):
         super().__init__()
 
 
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         if self._by_degree:
             center_degree_0: ou.Degree = None
             
@@ -416,7 +434,7 @@ class Invert(Transform):
                     note_pitch: int = note._pitch.get_absolute_pitch()
                     if note_pitch != pitch_centroid:
                         note._pitch << 2 * pitch_centroid - note_pitch
-        return super()._transform(clip)
+        return clip
 
 
 
@@ -435,7 +453,7 @@ class Mirror(Transform):
         super().__init__()
 
 
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         if self._by_degree:
             top_absolute_degree: ou.Degree | None = None
             base_absolute_degree: ou.Degree | None = None
@@ -479,7 +497,7 @@ class Mirror(Transform):
                         note_pitch_int: int = note_pitch.get_absolute_pitch()
                         new_pitch: int = top_pitch_int - (note_pitch_int - bottom_pitch_int)
                         note_pitch.set_absolute_pitch(new_pitch)
-        return super()._transform(clip)
+        return clip
 
 
 
@@ -497,7 +515,7 @@ class Reverse(Transform):
         super().__init__()
 
 
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         reversed_elements: list[oe.Element] = clip.elements_unmasked().copy()
         elements_locus: list[og.Locus] = [  # Decoupled data
             single_element % og.Locus() for single_element in reversed_elements
@@ -511,7 +529,7 @@ class Reverse(Transform):
         else:
             for single_element, single_locus in zip(reversed_elements, elements_locus):
                 single_element << single_locus
-        return super()._transform(clip)
+        return clip
 
 
 
@@ -530,7 +548,7 @@ class Rotate(Transform):
         super().__init__()
 
 
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         rotated_elements: list[oe.Element] = clip.elements_unmasked().copy()
         elements_locus: list[og.Locus] = [  # Decoupled data
             single_element % og.Locus() for single_element in rotated_elements
@@ -544,7 +562,7 @@ class Rotate(Transform):
         else:
             for single_element, single_locus in zip(rotated_elements, elements_locus):
                 single_element << single_locus
-        return super()._transform(clip)
+        return clip
 
 
 
@@ -556,7 +574,7 @@ class Clean(Transform):
     Args:
         None.
     """
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         unique_items: list[oe.Element] = []
         remove_items: list[oe.Element] = []
         for single_element in clip._items:
@@ -566,7 +584,7 @@ class Clean(Transform):
                     break
             unique_items.append(single_element)
         clip._delete(remove_items, True)
-        return super()._transform(clip)
+        return clip
 
 
 
@@ -612,10 +630,10 @@ class Replace(Edit):
     Locus() : The locus on the targeted `Clip` where the editions happens.
     Clip() : The `Clip` to be used as the source of the edition.
     """
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         clip //= self._parameters["locus"]
         clip += self._parameters["clip"] + self._parameters["locus"] % ra.Position(clip)
-        return super()._transform(clip)
+        return clip
 
 
 
@@ -629,10 +647,10 @@ class Insert(Edit):
     Locus() : The locus on the targeted `Clip` where the editions happens.
     Clip() : The `Clip` to be used as the source of the edition.
     """
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         clip += self._parameters["locus"]
         clip += self._parameters["clip"] + self._parameters["locus"] % ra.Position(clip)
-        return super()._transform(clip)
+        return clip
 
 
 
@@ -646,9 +664,9 @@ class Overlap(Edit):
     Locus() : The locus on the targeted `Clip` where the editions happens.
     Clip() : The `Clip` to be used as the source of the edition.
     """
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         clip += self._parameters["clip"] + self._parameters["locus"] % ra.Position(clip)
-        return super()._transform(clip)
+        return clip
     
 
 
@@ -666,9 +684,9 @@ class Filter(Parameterized):
         self._parameters["conditions"] = conditions
 
 
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         clip.filter(*self._parameters["conditions"])
-        return super()._transform(clip)
+        return clip
 
 
 
@@ -687,7 +705,7 @@ class Sort(Parameterized):
         self._parameters["reverse"] = reverse
 
 
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         original_positions: list[Fraction] = [
             element._position_beats for element in clip.elements_unmasked()
         ]
@@ -700,7 +718,7 @@ class Sort(Parameterized):
             self._items.reverse()
         for index, element in enumerate(clip.elements_unmasked()):
             element._position_beats = original_positions[index]
-        return super()._transform(clip)
+        return clip
 
 
 
@@ -727,7 +745,7 @@ class Smooth(Parameterized):
         self._parameters["algorithm_type"] = algorithm_type
 
 
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         first_pitch: int | None = None
         previous_pitch: int | None = None
         algorithm_type = self._parameters["algorithm_type"]
@@ -784,7 +802,7 @@ class Smooth(Parameterized):
                                     note_pitch = note.decrease_pitch_centroid().pitch_centroid()
                         if algorithm_type == 4:
                             previous_pitch = note_pitch
-        return super()._transform(clip)
+        return clip
 
 
 
@@ -801,14 +819,14 @@ class Slur(Parameterized):
         self._parameters["gate"] = gate
 
 
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         last_element = None
         for item in clip.elements_unmasked():
             if isinstance(item, oe.Note):
                 if last_element is not None:
                     last_element << ra.Gate(self._parameters["gate"])
                 last_element = item
-        return super()._transform(clip)
+        return clip
 
 
 
@@ -828,7 +846,7 @@ class Join(Parameterized):
         self._parameters["strict"] = strict
 
 
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         decompose = self._parameters["decompose"]
         strict = self._parameters["strict"]
         if decompose: clip.decompose()
@@ -854,7 +872,7 @@ class Join(Parameterized):
             else:
                 last_extended_notes[note_channel_pitch] = single_note   # Overrides previous existing notes (sorted by position)
         clip._delete(joined_notes)
-        return super()._transform(clip)
+        return clip
 
 
 
@@ -881,7 +899,7 @@ class Oscillate(Parameterized):
         self._parameters["parameter"] = parameter
 
 
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         amplitude = self._parameters["amplitude"]
         wavelength = self._parameters["wavelength"]
         offset = self._parameters["offset"]
@@ -903,7 +921,7 @@ class Oscillate(Parameterized):
                 single_element << parameter(value)
             else:
                 single_element << value # Most of the time
-        return super()._transform(clip)
+        return clip
 
 
 
@@ -929,7 +947,7 @@ class Automate(Parameterized):
         self._parameters["interpolate"] = interpolate
 
 
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         values = self._parameters["values"]
         pattern = self._parameters["pattern"]
         automation = self._parameters["automation"]
@@ -978,7 +996,7 @@ class Automate(Parameterized):
                 if value is not None:   # None adds no Element
                     clip += automate_element << value << position_steps
                 position_steps += 1
-        return super()._transform(clip)
+        return clip
 
 
 
@@ -997,7 +1015,7 @@ class Stepper(Parameterized):
         self._parameters["element"] = element
 
 
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         pattern = self._parameters["pattern"]
         element = self._parameters["element"]    
         if isinstance(pattern, str):
@@ -1011,7 +1029,7 @@ class Stepper(Parameterized):
                 if single_step == 1:
                     clip += element_element << position_steps
                 position_steps += 1
-        return super()._transform(clip)
+        return clip
 
 
 
@@ -1031,11 +1049,11 @@ class Arpeggiate(Parameterized):
         self._parameters["parameters"] = parameters
 
 
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         parameters = self._parameters["parameters"]
         arpeggio = og.Arpeggio(parameters)
         arpeggio.arpeggiate_source(clip.elements_unmasked(), clip.start(), ra.Length( clip.net_duration() ))
-        return super()._transform(clip)
+        return clip
 
 
 
@@ -1054,7 +1072,7 @@ class Quantize(Parameterized):
         self._parameters["quantize_duration"] = quantize_duration
 
 
-    def _transform(self, clip: 'Clip') -> 'Clip':
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
         amount = self._amount["parameters"]
         quantize_duration = self._parameters["quantize_duration"]
         quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
@@ -1075,5 +1093,5 @@ class Quantize(Parameterized):
                 single_element._duration_beats += position_off_offset
                 while single_element._duration_beats <= Fraction(0):
                     single_element._duration_beats += quantization_beats
-        return super()._transform(clip)
+        return clip
 
