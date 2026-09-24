@@ -62,8 +62,8 @@ class Transform(o.Operand):
             if isinstance(self._chained_operand, Transform):
                 transform = transform._chained_operand
             else:
-                self._index = -1
-                raise StopIteration
+                self._index -= 1    # Reverts the previous increment
+                return ol.Null()
         return transform._single_transform(clip)
 
     
