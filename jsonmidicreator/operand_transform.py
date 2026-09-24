@@ -48,7 +48,7 @@ class Transform(o.Operand):
     """
     def _transform(self, clip: 'Clip') -> 'Clip':
         if isinstance(self._chained_operand, Transform):
-            return self._chained_operand(clip)
+            return self._chained_operand._transform(clip)
         return clip
 
     def next(self, clip: 'oc.Clip') -> 'oc.Clip':
