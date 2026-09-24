@@ -39,6 +39,7 @@ from . import operand_transform as tr
 from . import operand_iterations as oi
 
 
+
 class Process(o.Operand):
     """`Process`
 
@@ -86,6 +87,8 @@ class Save(Process):
             return operand
         return super().__rrshift__(operand)
 
+
+
 class Export(Process):
     """`Generic -> Process -> Export`
 
@@ -128,6 +131,8 @@ class Export(Process):
 
             case _:
                 return super().__rrshift__(operand)
+
+
 
 class Render(Process):
     """`Generic -> Process -> Render`
@@ -1145,10 +1150,7 @@ class Plot(Process):
             # Composition Button Widget
             self._disable_button(composition_button)
 
-        if self._parameters["block"]:
-            plt.show(block=True)
-        else:
-            plt.show(block=False)
+        plt.show(self._parameters["block"])
 
         return composition
     
@@ -1582,6 +1584,7 @@ class Clear(Process):
         return super().__rrshift__(operand)
 
 
+
 class Read(Process):
     """`Generic -> Process -> Read`
 
@@ -1596,6 +1599,7 @@ class Read(Process):
         else:
             print(f"Warning: Operand is NOT an `Element` or a `Tempo`!")
         return super().__rrshift__(operand)
+
 
 
 class Top(Process):

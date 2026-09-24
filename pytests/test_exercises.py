@@ -68,6 +68,6 @@ def test_transform_note():
 
     assert simple_cuts[4] % Duration() == Beats(3) - Steps(1)
 
-# test_transform_note()
+test_transform_note()
 
 
