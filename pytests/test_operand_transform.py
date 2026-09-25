@@ -52,11 +52,12 @@ def test_shuffle_locus():
     many_pitch = Note() / 4 << Iterate(1)**Degree()
     assert many_pitch.len() == 4
     
-    shuffle_locus = IShuffleLocus()
-#     many_pitch >> Plot(transform=shuffle_locus)
+    shuffle_locus = IShuffleLocus(no_repetitions=True)
+    # many_pitch >> Plot(transform=shuffle_locus)
 
     many_pitch << shuffle_locus
     # many_pitch >> Plot()
+    assert many_pitch.len() == 4
 
 # test_shuffle_locus()
 
