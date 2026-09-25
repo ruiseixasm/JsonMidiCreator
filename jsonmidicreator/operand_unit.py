@@ -57,6 +57,11 @@ class Unit(o.Operand):
     def unit(self, number: int = None) -> Self:
         return self << od.Pipe( number )
 
+    def __neg__(self):
+        self._unit *= -1
+        return self
+
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract the Unit, because a Unit is an Integer
