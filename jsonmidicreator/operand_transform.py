@@ -1340,26 +1340,26 @@ class ISwapDuration(IterateClip):
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def _single_transform(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
-        candidate: oc.Clip = clip.copy()
-        candidate_elements: list[oe.Element] = candidate.elements_unmasked()
-        candidate_total_elements: int = len(candidate_elements)
-        if candidate_total_elements > 1:
+        iteration_clip: oc.Clip = clip.copy()
+        iteration_clip_elements: list[oe.Element] = iteration_clip.elements_unmasked()
+        iteration_clip_total_elements: int = len(iteration_clip_elements)
+        if iteration_clip_total_elements > 1:
             indexes: list[int] = [
-                i for i in range(candidate_total_elements - 1)  # Has to be paired, last index not considered
+                i for i in range(iteration_clip_total_elements - 1)  # Has to be paired, last index not considered
             ]
             picks: list[int] = []
-            for total_indexes in range(candidate_total_elements - 1, 0, -1):
+            for total_indexes in range(iteration_clip_total_elements - 1, 0, -1):
                 index: int = self.chaos % int() % total_indexes
                 picks.append(indexes.pop(index))
             for left_element_i in picks:
                 swap: int = self.chaos % int() % 2
                 if swap:
-                    left_duration = candidate_elements[left_element_i] % ra.Duration()
-                    right_duration = candidate_elements[left_element_i + 1] % ra.Duration()
+                    left_duration = iteration_clip_elements[left_element_i] % ra.Duration()
+                    right_duration = iteration_clip_elements[left_element_i + 1] % ra.Duration()
                     # Direct setting on `seed_copy` elements
-                    candidate_elements[left_element_i] << right_duration
-                    candidate_elements[left_element_i + 1] << od.Left(left_duration)
-        clip << candidate
+                    iteration_clip_elements[left_element_i] << right_duration
+                    iteration_clip_elements[left_element_i + 1] << od.Left(left_duration)
+        clip << iteration_clip
         return clip._sort_items()
     
 
