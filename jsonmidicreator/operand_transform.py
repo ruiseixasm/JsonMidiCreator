@@ -1108,7 +1108,7 @@ class IterateClip(Transform):
         return self._iterations[iteration].copy()   # Decoupled
     
     
-    def iterate(self) -> Self:
+    def transform(self, clip: 'oc.Clip') -> Self:
         self._index += 1    # Each new_composition is added to the list, so, the index has to increase
         for _ in range(self._max_tries):    # Gets a non-empty iteration
             candidate: oc.Clip = self._single_transform()
@@ -1128,7 +1128,8 @@ class IterateClip(Transform):
             empty_iteration = self._post_process(empty_iteration)
         empty_iteration._index = self._index
         self._iterations.append(empty_iteration)
-        return self
+        return super().transform(clip)
+
     
     def get_clip(self) -> 'oc.Clip':
         """Also applies the post processing on the original iteration"""
@@ -1139,8 +1140,6 @@ class IterateClip(Transform):
             for _ in range(iterations):
                 self.iterate()
         return self._iterations[-1].copy()
-    
-
     
     # CHAINABLE OPERATIONS
 
