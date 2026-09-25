@@ -110,6 +110,7 @@ def test_swap_durations():
     many_durations = Clip() << Line(":1/4, :1/2, :1/8, :1/8") \
         << Iterate(1)**Degree() << Title("ISwapDuration")
     assert many_durations.len() == 4
+    original_elements_duration = many_durations.all_elements_duration()
     
     swap_durations = ISwapDuration(no_repetitions=True)
     # many_durations >> Plot(transform=swap_durations)
@@ -117,6 +118,7 @@ def test_swap_durations():
     many_durations << swap_durations
     # many_durations >> Plot()
     assert many_durations.len() == 4
+    assert many_durations.all_elements_duration() == original_elements_duration
 
 # test_swap_durations()
 

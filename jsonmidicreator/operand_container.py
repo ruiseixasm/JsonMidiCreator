@@ -1141,6 +1141,23 @@ class Composition(Container):
     def all_elements(self) -> list['oe.Element']:
         return []
 
+
+    def all_elements_duration(self) -> 'ra.Duration':
+        elements_duration: ra.Duration = ra.Duration(self)
+        all_elements: list[oe.Element] = self.elements()
+        for single_element in all_elements:
+            elements_duration += single_element % ra.Duration()
+        return elements_duration
+
+    
+    def all_elements_unmasked_duration(self) -> 'ra.Duration':
+        elements_duration: ra.Duration = ra.Duration(self)
+        all_unmasked_elements: list[oe.Element] = self.elements_unmasked()
+        for single_element in all_unmasked_elements:
+            elements_duration += single_element % ra.Duration()
+        return elements_duration
+    
+
     def at_position_elements(self, position: 'ra.Position') -> list['oe.Element']:
         return []
 
