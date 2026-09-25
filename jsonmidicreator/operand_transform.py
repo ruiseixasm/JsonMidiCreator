@@ -1137,7 +1137,7 @@ class IterateClip(Transform):
 class IApplyFunction(IterateClip):
     """`Transform -> IterateClip`
 
-    This class allows the transformation of the `Clip` based on chaotic input in an iterative fashion.
+    This class allows the transformation of the `Clip` based on a given function in an iterative fashion.
 
     Args:
         function (Callable[['oc.Clip'], 'oc.Clip']) : Function to be used to return each solution.
@@ -1164,3 +1164,32 @@ class IApplyFunction(IterateClip):
         return clip.empty_copy()  # No valid Composition made
 
     
+class IShuffleLocus(IterateClip):
+    """`Transform -> IShuffleLocus`
+
+    This class shuffles the multiple locus around.
+
+    Args:
+        function (Callable[['oc.Clip'], 'oc.Clip']) : Function to be used to return each solution.
+        chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
+        post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
+        max_tries (int) : The maximum amount of tries to find a `Clip` solution.
+        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
+    """
+    def _single_transform(self, clip: 'oc.Clip') -> 'oc.Clip':
+        original_loci: list[og.Locus] = [
+            locus for locus in clip.elements_unmasked()
+        ]
+        shuffled_loci: list[og.Locus] = []
+        while original_loci:
+            pick_index: int = self._chaos % int() % len(original_loci)
+            shuffled_loci.append(
+                original_loci.pop(pick_index)
+            )
+        for single_element, locus in zip(clip.elements_unmasked(), shuffled_loci):
+            single_element << locus
+        return clip._sort_items()
+
+
