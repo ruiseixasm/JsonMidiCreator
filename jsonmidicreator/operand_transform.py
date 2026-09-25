@@ -1086,14 +1086,13 @@ class IterateClip(Transform):
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 4, no_repetitions: bool = False, freeze_at: int = -1):
-        self._seed: oc.Clip = oc.Clip() # Read-Only
         self._iterations: list[oc.Clip] = []
-        self._chaos: ch.Chaos = chaos
-        self._pre_filter: Callable[['oc.Clip', 'oc.Clip'], bool] | None = pre_filter
-        self._post_process: Callable[['oc.Clip'], 'oc.Clip'] | None = post_process
-        self._max_tries: int = max_tries
-        self._no_repetitions: bool = no_repetitions
-        self._freeze_at: int = freeze_at
+        self.chaos: ch.Chaos = chaos
+        self.pre_filter: Callable[['oc.Clip', 'oc.Clip'], bool] | None = pre_filter
+        self.post_process: Callable[['oc.Clip'], 'oc.Clip'] | None = post_process
+        self.max_tries: int = max_tries
+        self.no_repetitions: bool = no_repetitions
+        self.freeze_at: int = freeze_at
         super().__init__()
 
         
@@ -1112,14 +1111,14 @@ class IterateClip(Transform):
     
     def transform(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
         self._index += 1    # Each new_composition is added to the list, so, the index has to increase
-        for _ in range(self._max_tries):        # Seeks a non-empty iteration
+        for _ in range(self.max_tries):        # Seeks a non-empty iteration
             candidate: oc.Clip = clip.copy()    # Decouples from clip
             candidate = self._single_transform(candidate)
             if not isinstance(candidate, ol.Null): # Only valid candidates can be considered as solutions
-                if not callable(self._pre_filter) or self._pre_filter(candidate, clip):
-                    if callable(self._post_process):
-                        candidate = self._post_process(candidate)
-                    if not self._no_repetitions or not candidate in self._iterations:
+                if not callable(self.pre_filter) or self.pre_filter(candidate, clip):
+                    if callable(self.post_process):
+                        candidate = self.post_process(candidate)
+                    if not self.no_repetitions or not candidate in self._iterations:
                         if isinstance(self._chained_operand, Transform):
                             candidate = self._chained_operand.transform(candidate)   # Recursive!
                         if isinstance(candidate, ol.Null):
@@ -1151,7 +1150,7 @@ class ISplitDuration(IterateClip):
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
         super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
-        self._durations: int = durations
+        self.durations: int = durations
 
 
     def _single_iteration(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
@@ -1164,8 +1163,8 @@ class ISplitDuration(IterateClip):
             while try_i < 100:
                 iteration_clip: oc.Clip = clip.copy()  # Decouples from the `clip`
                 try_j: int = 0
-                while iteration_clip.len() < self._durations and try_j < 100 * 2:
-                    continuous_split_step: int = self._chaos % int()
+                while iteration_clip.len() < self.durations and try_j < 100 * 2:
+                    continuous_split_step: int = self.chaos % int()
                     continuous_split_beat: Fraction = quantization_beats * continuous_split_step % total_duration_beats
                     continuous_start_beat = Fraction(0)
                     for single_element in iteration_clip.elements_unmasked():
@@ -1177,7 +1176,7 @@ class ISplitDuration(IterateClip):
                                 single_element //= element_split_position
                             break
                         continuous_start_beat = continuous_finish_beat
-                    if iteration_clip.len() == self._durations:
+                    if iteration_clip.len() == self.durations:
                         clip << iteration_clip  # `clip` has to carry the solution
                         return clip._sort_items() # Safe code
                     try_j += 1
@@ -1206,7 +1205,7 @@ class IShuffleLocus(IterateClip):
         ]
         shuffled_loci: list[og.Locus] = []
         while original_loci:
-            pick_index: int = self._chaos % int() % len(original_loci)
+            pick_index: int = self.chaos % int() % len(original_loci)
             shuffled_loci.append(
                 original_loci.pop(pick_index)
             )
