@@ -1133,7 +1133,7 @@ class IterateClip(Transform):
 class ISplitDuration(IterateClip):
     """`Transform -> IterateClip -> ISplitDuration`
 
-    Adds splits to the given Clip elements.
+    Adds splits to the `Clip` elements resulting in the given amount of durations (elements).
 
     Args:
         durations (int) : The amount of durations, or elements, the splitting will result in.
@@ -1212,5 +1212,56 @@ class IShuffleLocus(IterateClip):
         for single_element, locus in zip(unmasked_element, shuffled_loci):
             single_element << locus
         return clip._sort_items()
+
+
+
+class IShuffleDuration(IterateClip):
+    """`Transform -> IterateClip -> IShuffleDuration`
+
+    Moves the existent durations around by keeping the relative positions to them.
+
+    Args:
+        chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
+        post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
+        max_tries (int) : The maximum amount of tries to find a `Clip` solution.
+        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
+    """
+    def _get_unmasked_durations_beats(self, clip: 'oc.Clip') -> list[Fraction]:
+        choosable_durations_beats: list[Fraction] = []
+        for single_element in clip.elements_unmasked():
+            choosable_durations_beats.append(single_element._duration_beats)
+        return choosable_durations_beats
+
+    
+    def _shuffle_durations_beats(self, clip: 'oc.Clip') -> list[Fraction]:
+        durations_beats: list[Fraction] = []
+        pickable_durations_beats: list[Fraction] = self._get_unmasked_durations_beats(clip)
+        while pickable_durations_beats:
+            pick_index: int = self.chaos % int() % len(pickable_durations_beats)
+            durations_beats.append(
+                pickable_durations_beats.pop(pick_index)
+            )
+        return durations_beats
+
+
+    def _single_transform(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
+        shuffled_durations_beats: list[Fraction] = self._shuffle_durations_beats(clip)
+        if shuffled_durations_beats:
+            iteration_clip = clip.copy()
+            position_offset: Fraction = Fraction(0)
+            durations_index: int = 0
+            for single_element in iteration_clip._items:
+                single_element._position_beats += position_offset
+                if not single_element._masked:
+                    duration_beats: Fraction = shuffled_durations_beats[durations_index]
+                    position_offset += duration_beats - single_element._duration_beats
+                    single_element._duration_beats = duration_beats
+                    durations_index += 1
+            clip << iteration_clip
+            return clip._sort_items()
+        return ol.Null()    # Tags as invalid
+    
 
 

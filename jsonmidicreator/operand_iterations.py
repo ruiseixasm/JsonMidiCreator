@@ -223,17 +223,6 @@ class Iterations(o.Operand):
     
 
 
-class I_SplitDuration(Iterations):
-    def __init__(self, durations: int = 8,
-                 chaos: ch.Chaos = ch.SinX(340),
-                 pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
-                 post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
-                 max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
-        self._durations: int = durations
-
-
-
 class I_ShuffleDuration(Iterations):
 
     def _get_available_durations_beats(self) -> list[Fraction]:
