@@ -503,7 +503,7 @@ class Element(o.Operand):
                 add_duration_beats: Fraction = ra.Duration(self, operand._data)._rational
                 if self._duration_beats + add_duration_beats > 0:
                     self._duration_beats += add_duration_beats
-                    if isinstance(operand, od.Left()):
+                    if isinstance(operand, od.Left):
                         self._position_beats -= add_duration_beats
             case tuple():
                 return super().__iadd__(operand)
@@ -527,7 +527,7 @@ class Element(o.Operand):
                 add_duration_beats: Fraction = ra.Duration(self, operand._data)._rational
                 if self._duration_beats - add_duration_beats > 0:
                     self._duration_beats -= add_duration_beats
-                    if isinstance(operand, od.Left()):
+                    if isinstance(operand, od.Left):
                         self._position_beats += add_duration_beats
             case tuple():
                 return super().__isub__(operand)
