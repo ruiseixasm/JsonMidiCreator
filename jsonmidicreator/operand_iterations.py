@@ -245,32 +245,6 @@ class I_ChooseParameter(Iterations):
 
 
 
-class I_SetParameter(Iterations):
-    def __init__(self, parameter: o.Operand = ou.Degree(),
-                 global_setting: bool = False,
-                 chaos: ch.Chaos = ch.SinX(340, ot.Increase(1)**ot.Modulo(7)),
-                 pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
-                 post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
-                 max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
-        self._parameter: o.Operand = parameter
-        self._global_setting: bool = global_setting
-
-
-    def _single_iteration(self) -> 'oc.Clip':
-        seed_copy: oc.Clip = self._seed.copy()
-        if self._global_setting:
-            global_parameter = self._chaos.chaoticize()
-            operand = self._parameter.copy(global_parameter)  # copy guarantees operand decoupling
-            seed_copy << operand
-        else:
-            for element in seed_copy.elements_unmasked():
-                parameter = self._chaos.chaoticize()
-                operand = self._parameter.copy(parameter)     # copy guarantees operand decoupling
-                element << operand
-        return seed_copy._sort_items()   # The Clip is already decoupled
-
-
 class I_AddElements(Iterations):
     
     def _single_iteration(self) -> 'oc.Clip':
