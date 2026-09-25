@@ -1097,13 +1097,11 @@ class IterateClip(Transform):
         super().__init__()
 
         
-    def next(self, clip: 'oc.Clip') -> 'oc.Clip':
+    def next(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
         """`IterateClip` has iterates in an aggregated fashion"""
-        self._index += 1    # Starts at -1
-        transform = self.transform(clip)
+        transform: oc.Clip = self.transform(clip)
         if transform.len() > 0:
             return transform
-        self._index -= 1    # Reverts the iteration
         return ol.Null()
 
 
@@ -1112,12 +1110,12 @@ class IterateClip(Transform):
         return super().reset()
     
     
-    def transform(self, clip: 'oc.Clip') -> Self:
+    def transform(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
         self._index += 1    # Each new_composition is added to the list, so, the index has to increase
         for _ in range(self._max_tries):        # Seeks a non-empty iteration
             candidate: oc.Clip = clip.copy()    # Decouples from clip
-            self._single_transform(candidate)
-            if candidate.len() > 0: # Only non empty candidates can be considered as solutions
+            candidate = self._single_transform(candidate)
+            if not isinstance(candidate, ol.Null): # Only valid candidates can be considered as solutions
                 if not callable(self._pre_filter) or self._pre_filter(candidate, clip):
                     if callable(self._post_process):
                         candidate = self._post_process(candidate)
@@ -1127,14 +1125,8 @@ class IterateClip(Transform):
                         if isinstance(self._chained_operand, Transform):
                             self._chained_operand.transform(candidate)   # Recursive!
                         return clip << candidate
-        empty_iteration: oc.Clip = clip.empty_copy()
-        if callable(self._post_process):
-            empty_iteration = self._post_process(empty_iteration)
-        empty_iteration._index = self._index
-        self._iterations.append(empty_iteration)
-        if isinstance(self._chained_operand, Transform):
-            self._chained_operand.transform(empty_iteration)   # Recursive!
-        return clip << empty_iteration
+        self._index -= 1    # Reverses increment
+        return ol.Null()
 
 
     

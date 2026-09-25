@@ -56,9 +56,9 @@ def test_shuffle_locus():
 #     many_pitch >> Plot(transform=shuffle_locus)
 
     many_pitch << shuffle_locus
-    # many_pitch >> Plot()
+    many_pitch >> Plot()
 
-# test_shuffle_locus()
+test_shuffle_locus()
 
 
 
