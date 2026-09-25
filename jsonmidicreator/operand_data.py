@@ -230,7 +230,7 @@ class NoteSide(Data):
     """
     pass
 
-class Left(Data):
+class Left(NoteSide):
     """`Data -> NoteSide -> Left`
 
     `Left` sets the side as LEFT where the Note Duration will result in extension or contraction. The left side picked.
@@ -241,7 +241,7 @@ class Left(Data):
     """
     pass
 
-class Right(Data):
+class Right(NoteSide):
     """`Data -> NoteSide -> Right`
 
     `Right` sets the side as RIGHT, the default, where the Note Duration will result in extension or contraction. The right side picked.

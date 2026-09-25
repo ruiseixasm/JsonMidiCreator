@@ -118,7 +118,7 @@ def test_swap_durations():
     # many_durations >> Plot()
     assert many_durations.len() == 4
 
-# test_swap_durations()
+test_swap_durations()
 
 
 

@@ -1329,7 +1329,7 @@ class IChooseDuration(IShuffleDuration):
 class ISwapDuration(IterateClip):
     """`Transform -> IterateClip -> ISwapDuration`
 
-    Swaps the elements durations but it doesn't necessarily preserve all relative positions.
+    Swaps subsequent elements durations but it doesn't necessarily preserve all relative positions.
 
     Args:
         chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
@@ -1340,26 +1340,25 @@ class ISwapDuration(IterateClip):
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def _single_transform(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
-        iteration_clip: oc.Clip = clip.copy()
-        iteration_clip_elements: list[oe.Element] = iteration_clip.elements_unmasked()
-        iteration_clip_total_elements: int = len(iteration_clip_elements)
-        if iteration_clip_total_elements > 1:
+        clip_elements: list[oe.Element] = clip.elements_unmasked()
+        clip_total_elements: int = len(clip_elements)
+        if clip_total_elements > 1: # Need at least two in order to do the swapping
             indexes: list[int] = [
-                i for i in range(iteration_clip_total_elements - 1)  # Has to be paired, last index not considered
+                i for i in range(clip_total_elements - 1)  # Has to be paired, last index not considered
             ]
-            picks: list[int] = []
-            for available_indexes in range(iteration_clip_total_elements - 1, 0, -1):
+            index_picks: list[int] = []
+            for available_indexes in range(clip_total_elements - 1, 0, -1):
                 index: int = self.chaos % int() % available_indexes
-                picks.append(indexes.pop(index))
-            for left_element_i in picks:
-                do_swap: int = self.chaos % int() % 2  # Decides the swapping
-                if do_swap:
-                    left_duration = iteration_clip_elements[left_element_i] % ra.Duration()
-                    right_duration = iteration_clip_elements[left_element_i + 1] % ra.Duration()
-                    # Direct setting on `seed_copy` elements
-                    iteration_clip_elements[left_element_i] << right_duration
-                    iteration_clip_elements[left_element_i + 1] << od.Left(left_duration)
-        clip << iteration_clip
+                index_picks.append(indexes.pop(index))
+            for left_element_i in index_picks:
+                if left_element_i + 1 < clip_total_elements:
+                    do_swap: int = self.chaos % int() % 2  # Decides the swapping
+                    if do_swap:
+                        left_duration = clip_elements[left_element_i] % ra.Duration()
+                        right_duration = clip_elements[left_element_i + 1] % ra.Duration()
+                        # Direct setting on `seed_copy` elements
+                        clip_elements[left_element_i] << right_duration
+                        clip_elements[left_element_i + 1] << od.Left(left_duration)
         return clip._sort_items()
     
 

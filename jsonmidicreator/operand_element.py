@@ -384,7 +384,7 @@ class Element(o.Operand):
             case od.NoteSide():
                 new_duration_beats: Fraction = ra.Duration(self, operand._data)._rational
                 if new_duration_beats > 0:
-                    if isinstance(operand, od.Left()):
+                    if isinstance(operand, od.Left):
                         self._position_beats -= new_duration_beats - self._duration_beats
                     self._duration_beats = new_duration_beats
             case ra.Finish():
@@ -1852,9 +1852,6 @@ class ChannelElement(DeviceElement):
                         super().__lshift__(operand)
             case ou.Channel():
                 self._channel_0             = 0x0F & operand._unit - 1
-            case tuple():
-                for single_operand in operand:
-                    self << single_operand
             case _:
                 super().__lshift__(operand)
         return self
