@@ -112,13 +112,13 @@ def test_swap_durations():
     assert many_durations.len() == 4
     
     swap_durations = ISwapDuration(no_repetitions=True)
-    many_durations >> Plot(transform=swap_durations)
+    # many_durations >> Plot(transform=swap_durations)
 
     many_durations << swap_durations
     # many_durations >> Plot()
     assert many_durations.len() == 4
 
-test_swap_durations()
+# test_swap_durations()
 
 
 
