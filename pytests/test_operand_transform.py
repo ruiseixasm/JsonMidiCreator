@@ -72,7 +72,7 @@ def test_shuffle_locus():
     shuffle_locus = IShuffleLocus(no_repetitions=True)
     # many_pitch >> Plot(transform=shuffle_locus)
 
-    many_pitch << shuffle_locus
+    many_pitch << shuffle_locus << shuffle_locus << shuffle_locus
     # many_pitch >> Plot()
     assert many_pitch.len() == 4
     assert many_pitch.all_elements_duration() == original_elements_duration
@@ -89,7 +89,7 @@ def test_shuffle_durations():
     shuffle_durations = IShuffleDuration(no_repetitions=True)
     # many_durations >> Plot(transform=shuffle_durations)
 
-    many_durations << shuffle_durations
+    many_durations << shuffle_durations << shuffle_durations << shuffle_durations
     # many_durations >> Plot()
     assert many_durations.len() == 4
     assert many_durations.all_elements_duration() == original_elements_duration
@@ -106,7 +106,7 @@ def test_choose_durations():
     choose_durations = IChooseDuration(no_repetitions=True)
     # many_durations >> Plot(transform=choose_durations)
 
-    many_durations << choose_durations
+    many_durations << choose_durations << choose_durations << choose_durations
     # many_durations >> Plot()
     assert many_durations.len() == 4
     assert many_durations.all_elements_duration() == original_elements_duration
@@ -123,7 +123,7 @@ def test_swap_durations():
     swap_durations = ISwapDuration(no_repetitions=True)
     # many_durations >> Plot(transform=swap_durations)
 
-    many_durations << swap_durations
+    many_durations << swap_durations << swap_durations << swap_durations
     # many_durations >> Plot()
     assert many_durations.len() == 4
     assert many_durations.all_elements_duration() == original_elements_duration
