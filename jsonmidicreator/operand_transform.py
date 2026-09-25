@@ -1100,9 +1100,9 @@ class IterateClip(Transform):
     def next(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
         """`IterateClip` has iterates in an aggregated fashion"""
         transform: oc.Clip = self.transform(clip)
-        if transform.len() > 0:
-            return transform
-        return ol.Null()
+        if isinstance(transform, ol.Null):
+            return ol.Null()
+        return clip << transform
 
 
     def reset(self) -> Self:
