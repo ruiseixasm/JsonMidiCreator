@@ -233,54 +233,6 @@ class I_SplitDuration(Iterations):
         self._durations: int = durations
 
 
-    def _single_iteration(self) -> 'oc.Clip':
-        quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
-        total_duration_beats = Fraction(0)
-        seed_copy: oc.Clip = self._seed.copy()
-        for single_element in seed_copy.elements_unmasked():
-            total_duration_beats += single_element._duration_beats
-        if total_duration_beats > 0:
-            try_i: int = 0
-            while try_i < 100:
-                iteration_clip: oc.Clip = seed_copy.copy()  # Despite the being already a copy, each iteration needs a new one
-                try_j: int = 0
-                while iteration_clip.len() < self._durations and try_j < 100 * 2:
-                    continuous_split_step: int = self._chaos % int()
-                    continuous_split_beat: Fraction = quantization_beats * continuous_split_step % total_duration_beats
-                    continuous_start_beat = Fraction(0)
-                    for single_element in iteration_clip.elements_unmasked():
-                        continuous_finish_beat = continuous_start_beat + single_element._duration_beats
-                        if continuous_split_beat < continuous_finish_beat:
-                            if continuous_split_beat > continuous_start_beat:
-                                element_split_position: ra.Position = single_element % ra.Position()
-                                element_split_position += continuous_split_beat - continuous_start_beat
-                                single_element //= element_split_position
-                            break
-                        continuous_start_beat = continuous_finish_beat
-                    if iteration_clip.len() == self._durations:
-                        return iteration_clip._sort_items() # Safe code
-                    try_j += 1
-                try_i += 1
-        return self._seed.empty_copy()   # Tags as invalid
-
-
-class I_ShuffleLocus(Iterations):
-
-    def _single_iteration(self) -> 'oc.Clip':
-        original_loci: list[og.Locus] = [
-            locus for locus in self._seed.elements_unmasked()
-        ]
-        shuffled_loci: list[og.Locus] = []
-        while original_loci:
-            pick_index: int = self._chaos % int() % len(original_loci)
-            shuffled_loci.append(
-                original_loci.pop(pick_index)
-            )
-        new_clip = self._seed.copy()
-        for single_element, locus in zip(new_clip.elements_unmasked(), shuffled_loci):
-            single_element << locus
-        return new_clip.sort()
-
 
 class I_ShuffleDuration(Iterations):
 

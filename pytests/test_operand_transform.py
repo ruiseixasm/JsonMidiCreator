@@ -59,7 +59,7 @@ def test_split_duration():
     # many_pitch >> Plot()
     assert many_pitch.len() == 8
 
-# test_shuffle_locus()
+# test_split_duration()
 
 
 def test_shuffle_locus():

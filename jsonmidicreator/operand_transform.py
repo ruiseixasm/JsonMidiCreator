@@ -1153,7 +1153,7 @@ class ISplitDuration(IterateClip):
         self.durations: int = durations
 
 
-    def _single_iteration(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
+    def _single_transform(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
         quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
         total_duration_beats = Fraction(0)
         for single_element in clip.elements_unmasked():
