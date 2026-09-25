@@ -1147,7 +1147,7 @@ class IShuffleLocus(IterateClip):
     """
     def _single_transform(self, clip: 'oc.Clip') -> 'oc.Clip':
         original_loci: list[og.Locus] = [
-            locus for locus in clip.elements_unmasked()
+            single_element % og.Locus() for single_element in clip.elements_unmasked()
         ]
         shuffled_loci: list[og.Locus] = []
         while original_loci:
