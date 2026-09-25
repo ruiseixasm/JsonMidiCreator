@@ -47,7 +47,7 @@ class Transform(o.Operand):
     `Transform` is intended to manipulate a `Clip` based on a given transformation process.
     """
     def _single_transform(self, clip: 'Clip') -> 'Clip':
-        return clip._sort_items()
+        return clip
 
     def transform(self, clip: 'Clip') -> 'Clip':
         self._single_transform(clip)
