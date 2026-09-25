@@ -342,7 +342,7 @@ class Plot(Process):
         else:
             chart_title += " - "
         chart_title += f"{"Masked - " if self._compositions[self._iteration_index].is_masked() else ""}"
-        if self._n_function is not None:
+        if self._n_function is not None or isinstance(self.transform, tr.Transform):
             chart_title += f"Iteration {self._iteration_index} of {len(self._compositions) - 1} - "
         chart_title += f"({checksum_str})"
         self._ax.set_title(chart_title)

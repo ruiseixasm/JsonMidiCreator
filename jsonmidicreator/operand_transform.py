@@ -55,6 +55,7 @@ class Transform(o.Operand):
             self._chained_operand.transform(clip)   # Recursive!
         return clip
 
+
     def next(self, clip: 'oc.Clip') -> 'oc.Clip':
         self._index += 1    # Starts at -1
         transform: Transform = self
