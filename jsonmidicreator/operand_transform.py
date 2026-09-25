@@ -1120,10 +1120,11 @@ class IterateClip(Transform):
                     if callable(self._post_process):
                         candidate = self._post_process(candidate)
                     if not self._no_repetitions or not candidate in self._iterations:
-                        candidate._index = self._index
-                        self._iterations.append(candidate)
                         if isinstance(self._chained_operand, Transform):
-                            self._chained_operand.transform(candidate)   # Recursive!
+                            candidate = self._chained_operand.transform(candidate)   # Recursive!
+                        if isinstance(candidate, ol.Null):
+                            continue
+                        self._iterations.append(candidate)
                         return clip << candidate
         self._index -= 1    # Reverses increment
         return ol.Null()
