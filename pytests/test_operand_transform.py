@@ -131,5 +131,22 @@ def test_swap_durations():
 # test_swap_durations()
 
 
+def test_shuffle_parameter():
+    many_degrees = Clip() << Line(":1/4, :1/2, :1/8, :1/8") \
+        << Iterate(1)**Degree() << Title("IShuffleParameter")
+    assert many_degrees.len() == 4
+    original_elements_duration = many_degrees.all_elements_duration()
+    
+    shuffle_parameter = IShuffleParameter(no_repetitions=True)
+    # many_degrees >> Plot(transform=shuffle_parameter)
+
+    many_degrees << shuffle_parameter << shuffle_parameter << shuffle_parameter
+    # many_degrees >> Plot()
+    assert many_degrees.len() == 4
+    assert many_degrees.all_elements_duration() == original_elements_duration
+
+# test_shuffle_parameter()
+
+
 
 

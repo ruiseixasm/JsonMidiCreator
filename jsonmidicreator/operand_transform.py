@@ -1362,3 +1362,41 @@ class ISwapDuration(IterateClip):
         return clip._sort_items()
     
 
+class IShuffleParameter(IterateClip):
+    """`Transform -> IterateClip -> IShuffleParameter`
+
+    Shuffles a given parameter among the multiple elements in the clip.
+
+    Args:
+        parameter (Any) : The given parameter to shuffle around.
+        chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
+        post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
+        max_tries (int) : The maximum amount of tries to find a `Clip` solution.
+        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
+    """
+    def __init__(self, parameter: Any = ou.Degree(),
+                 chaos: ch.Chaos = ch.SinX(340, ot.Increase(1)**ot.Modulo(7)),
+                 pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
+                 post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
+                 max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
+        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+        self.parameter: Any = parameter
+
+
+    def _single_transform(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
+        unmasked_elements: list[oe.Element] = clip.elements_unmasked()
+        unmasked_len: int = len(unmasked_elements)
+        parameters: list[Any] = [
+            element % self.parameter for element in unmasked_elements
+        ]
+        parameter_picks: list[Any] = []
+        for total_indexes in range(unmasked_len, 0, -1):
+            index: int = self.chaos % int() % total_indexes
+            parameter_picks.append(parameters.pop(index))
+        for element, parameter in zip(unmasked_elements, parameter_picks):
+            element << parameter
+        return clip._sort_items()   # The Clip is already decoupled
+    
+
