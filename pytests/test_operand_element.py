@@ -420,6 +420,11 @@ def test_note_duration():
 
     note << Right(Duration(1/2))
     assert note % Position() == 0.0
+    note << Duration(1/4)
+
+    note << Left(Duration(1/2)) # Can't expand negatively
+    assert note % Position() == NoteValue(-1/4)
+    note << Duration(1/4)
 
 # test_note_duration()
 
