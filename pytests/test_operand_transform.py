@@ -51,6 +51,12 @@ def test_clip_rotate():
 def test_shuffle_locus():
     many_pitch = Note() << Iterate(1)**Degree()
     
+    shuffle_locus = IShuffleLocus()
+#     many_pitch >> Plot(transform=shuffle_locus)
 
 # test_shuffle_locus()
+
+
+
+
 

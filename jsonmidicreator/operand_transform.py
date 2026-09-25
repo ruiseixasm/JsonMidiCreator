@@ -1095,18 +1095,21 @@ class IterateClip(Transform):
         self._no_repetitions: bool = no_repetitions
         self._freeze_at: int = freeze_at
         super().__init__()
+
         
+    def next(self, clip: 'oc.Clip') -> 'oc.Clip':
+        """`IterateClip` has iterates in an aggregated fashion"""
+        self._index += 1    # Starts at -1
+        transform = self.transform(clip)
+        if transform.len() > 0:
+            return transform
+        self._index -= 1    # Reverts the iteration
+        return ol.Null()
+
 
     def reset(self) -> Self:
         self._iterations = []
         return super().reset()
-    
-    def n_function(self, iteration: int) -> 'oc.Clip':
-        extra_iterations = iteration - self._index
-        if extra_iterations > 0:
-            for _ in range(extra_iterations):
-                self.iterate()
-        return self._iterations[iteration].copy()   # Decoupled
     
     
     def transform(self, clip: 'oc.Clip') -> Self:
