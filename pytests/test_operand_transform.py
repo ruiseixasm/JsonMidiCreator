@@ -90,5 +90,19 @@ def test_shuffle_durations():
 # test_shuffle_durations()
 
 
+def test_choose_durations():
+    many_durations = Clip() << Line(":1/4, :1/2, :1/8, :1/8") << Iterate(1)**Degree()
+    assert many_durations.len() == 4
+    
+    choose_durations = IChooseDuration(no_repetitions=True)
+    many_durations >> Plot(transform=choose_durations)
+
+    many_durations << choose_durations
+    # many_durations >> Plot()
+    assert many_durations.len() == 4
+
+# test_choose_durations()
+
+
 
 
