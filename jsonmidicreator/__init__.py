@@ -30,7 +30,6 @@ from .operand_chaos import *
 from .operand_container import *
 from .operand_yielder import *
 from .operand_metrics import *
-from .operand_iterations import *
 from .operand_transform import *
 from .operand_process import *
 from .resource_devices import *
