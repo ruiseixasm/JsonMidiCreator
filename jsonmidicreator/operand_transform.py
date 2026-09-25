@@ -1146,8 +1146,9 @@ class IShuffleLocus(IterateClip):
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def _single_transform(self, clip: 'oc.Clip') -> 'oc.Clip':
+        unmasked_element: list[oe.Element] = clip.elements_unmasked()
         original_loci: list[og.Locus] = [
-            single_element % og.Locus() for single_element in clip.elements_unmasked()
+            single_element % og.Locus() for single_element in unmasked_element
         ]
         shuffled_loci: list[og.Locus] = []
         while original_loci:
@@ -1155,7 +1156,7 @@ class IShuffleLocus(IterateClip):
             shuffled_loci.append(
                 original_loci.pop(pick_index)
             )
-        for single_element, locus in zip(clip.elements_unmasked(), shuffled_loci):
+        for single_element, locus in zip(unmasked_element, shuffled_loci):
             single_element << locus
         return clip._sort_items()
 
