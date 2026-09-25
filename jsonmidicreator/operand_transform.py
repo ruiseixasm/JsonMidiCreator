@@ -1132,36 +1132,6 @@ class IterateClip(Transform):
             self._chained_operand.transform(empty_iteration)   # Recursive!
         return clip << empty_iteration
 
-    
-
-class IApplyFunction(IterateClip):
-    """`Transform -> IterateClip`
-
-    This class allows the transformation of the `Clip` based on a given function in an iterative fashion.
-
-    Args:
-        function (Callable[['oc.Clip'], 'oc.Clip']) : Function to be used to return each solution.
-        chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
-        pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
-        post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
-        max_tries (int) : The maximum amount of tries to find a `Clip` solution.
-        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
-        freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
-    """
-    def __init__(self, function: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
-                 chaos: ch.Chaos = ch.SinX(340),
-                 pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
-                 post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
-                 max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
-        self._function: Callable[['oc.Clip'], 'oc.Clip'] = function
-
-
-    def _single_transform(self, clip: 'oc.Clip') -> 'oc.Clip':
-        if callable(self._function):
-            clip << self._function(clip)
-            return clip._sort_items()  # Safe code
-        return clip.empty_copy()  # No valid Composition made
 
     
 class IShuffleLocus(IterateClip):
