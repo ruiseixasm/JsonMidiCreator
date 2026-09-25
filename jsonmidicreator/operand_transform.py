@@ -1111,19 +1111,19 @@ class IterateClip(Transform):
     def transform(self, clip: 'oc.Clip') -> Self:
         self._index += 1    # Each new_composition is added to the list, so, the index has to increase
         for _ in range(self._max_tries):    # Gets a non-empty iteration
-            candidate: oc.Clip = self._single_transform()
+            candidate: oc.Clip = self._single_transform(clip)
             if isinstance(self._chained_operand, IterateClip):
                 self._chained_operand._seed = candidate
-                candidate = self._chained_operand._single_transform()
+                candidate = self._chained_operand._single_transform(clip)
             if candidate.len() > 0: # Only non empty candidates can be considered as solutions
-                if not callable(self._pre_filter) or self._pre_filter(candidate, self._seed):
+                if not callable(self._pre_filter) or self._pre_filter(candidate, clip):
                     if callable(self._post_process):
                         candidate = self._post_process(candidate)
                     if not self._no_repetitions or not candidate in self._iterations:
                         candidate._index = self._index
                         self._iterations.append(candidate)
                         return self
-        empty_iteration: oc.Clip = self._seed.empty_copy()
+        empty_iteration: oc.Clip = clip.empty_copy()
         if callable(self._post_process):
             empty_iteration = self._post_process(empty_iteration)
         empty_iteration._index = self._index
@@ -1186,10 +1186,10 @@ class IApplyFunction(IterateClip):
         self._function: Callable[['oc.Clip'], 'oc.Clip'] = function
 
 
-    def _single_transform(self) -> 'oc.Clip':
+    def _single_transform(self, clip: 'oc.Clip') -> 'oc.Clip':
         if callable(self._function):
-            new_iteration: oc.Clip = self._function(self._seed.copy())
+            new_iteration: oc.Clip = self._function(clip.copy())
             return new_iteration._sort_items()  # Safe code
-        return self._seed.empty_copy()  # No valid Composition made
+        return clip.empty_copy()  # No valid Composition made
 
     
