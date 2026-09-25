@@ -1068,8 +1068,8 @@ class Quantize(Transform):
 
 
 
-class Iterate(Transform):
-    """`Transform -> Iterate`
+class IterateClip(Transform):
+    """`Transform -> IterateClip`
 
     This class allows the transformation of the `Clip` based on chaotic input in an iterative fashion.
 
@@ -1111,10 +1111,10 @@ class Iterate(Transform):
     def iterate(self) -> Self:
         self._index += 1    # Each new_composition is added to the list, so, the index has to increase
         for _ in range(self._max_tries):    # Gets a non-empty iteration
-            candidate: oc.Clip = self._single_iteration()
-            if isinstance(self._chained_operand, Iterate):
+            candidate: oc.Clip = self._single_transform()
+            if isinstance(self._chained_operand, IterateClip):
                 self._chained_operand._seed = candidate
-                candidate = self._chained_operand._single_iteration()
+                candidate = self._chained_operand._single_transform()
             if candidate.len() > 0: # Only non empty candidates can be considered as solutions
                 if not callable(self._pre_filter) or self._pre_filter(candidate, self._seed):
                     if callable(self._post_process):
@@ -1164,17 +1164,30 @@ class Iterate(Transform):
 
 
 
-class I_ApplyFunction(Iterate):
+class IApplyFunction(IterateClip):
+    """`Transform -> IterateClip`
+
+    This class allows the transformation of the `Clip` based on chaotic input in an iterative fashion.
+
+    Args:
+        function (Callable[['oc.Clip'], 'oc.Clip']) : Function to be used to return each solution.
+        chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
+        post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
+        max_tries (int) : The maximum amount of tries to find a `Clip` solution.
+        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
+    """
     def __init__(self, function: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  chaos: ch.Chaos = ch.SinX(340),
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
         super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
-        self._function: list[Any] = function
+        self._function: Callable[['oc.Clip'], 'oc.Clip'] = function
 
 
-    def _single_iteration(self) -> 'oc.Clip':
+    def _single_transform(self) -> 'oc.Clip':
         if callable(self._function):
             new_iteration: oc.Clip = self._function(self._seed.copy())
             return new_iteration._sort_items()  # Safe code
