@@ -1112,9 +1112,6 @@ class IterateClip(Transform):
         self._index += 1    # Each new_composition is added to the list, so, the index has to increase
         for _ in range(self._max_tries):    # Gets a non-empty iteration
             candidate: oc.Clip = self._single_transform(clip)
-            if isinstance(self._chained_operand, IterateClip):
-                self._chained_operand._seed = candidate
-                candidate = self._chained_operand._single_transform(clip)
             if candidate.len() > 0: # Only non empty candidates can be considered as solutions
                 if not callable(self._pre_filter) or self._pre_filter(candidate, clip):
                     if callable(self._post_process):
@@ -1122,46 +1119,19 @@ class IterateClip(Transform):
                     if not self._no_repetitions or not candidate in self._iterations:
                         candidate._index = self._index
                         self._iterations.append(candidate)
-                        return self
+                        if isinstance(self._chained_operand, Transform):
+                            self._chained_operand.transform(candidate)   # Recursive!
+                        return clip << candidate
         empty_iteration: oc.Clip = clip.empty_copy()
         if callable(self._post_process):
             empty_iteration = self._post_process(empty_iteration)
         empty_iteration._index = self._index
         self._iterations.append(empty_iteration)
-        return super().transform(clip)
+        if isinstance(self._chained_operand, Transform):
+            self._chained_operand.transform(empty_iteration)   # Recursive!
+        return clip << empty_iteration
 
     
-    def get_clip(self) -> 'oc.Clip':
-        """Also applies the post processing on the original iteration"""
-        if self._freeze_at < 0:
-            self.iterate()
-        elif self._freeze_at > self._index: # self._index is the last item
-            iterations: int = self._freeze_at - self._index
-            for _ in range(iterations):
-                self.iterate()
-        return self._iterations[-1].copy()
-    
-    # CHAINABLE OPERATIONS
-
-    def __imul__(self, number: Union['ou.Unit', 'ra.Rational', int, float, Fraction]) -> Self:
-        if self._iterations:
-            number = o.number_to_int(number) # Results in a int, like int(float)
-            for _ in range(number):
-                self.iterate()
-        return self
-    
-    def __getitem__(self, index: int) -> oc.Clip | None:
-        """To set the initial seed, use new_iteration with it"""
-        if isinstance(index, int) and self._iterations:
-            if index > self._index: # self._index is the last item
-                iterations: int = index - self._index
-                seed_composition = self._iterations[0]
-                for _ in range(iterations):
-                    self.iterate(seed_composition)
-            return self._iterations[index]
-        return None
-
-
 
 class IApplyFunction(IterateClip):
     """`Transform -> IterateClip`
