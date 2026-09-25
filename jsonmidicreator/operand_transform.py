@@ -1249,11 +1249,11 @@ class IShuffleDuration(IterateClip):
     def _single_transform(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
         shuffled_durations_beats: list[Fraction] = self._shuffle_durations_beats(clip)
         if shuffled_durations_beats:
-            iteration_clip = clip.copy()
+            iteration_clip: oc.Clip = clip.copy()
             position_offset: Fraction = Fraction(0)
             durations_index: int = 0
             for single_element in iteration_clip._items:
-                single_element._position_beats += position_offset
+                single_element._position_beats += position_offset   # Moves masked elements
                 if not single_element._masked:
                     duration_beats: Fraction = shuffled_durations_beats[durations_index]
                     position_offset += duration_beats - single_element._duration_beats
