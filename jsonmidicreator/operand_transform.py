@@ -1310,19 +1310,17 @@ class IChooseDuration(IShuffleDuration):
             while not durations_beats and max_tries > 0:
                 remaining_duration_beats: Fraction = total_duration_beats
                 for element_i in range(total_elements):
-                    # All `choosable_durations_beats` durations are positive
-                    fitting_durations_beats: list[Fraction] = [
-                        chosen_duration_beats for chosen_duration_beats in choosable_durations_beats
-                        if element_i < total_elements - 1 and chosen_duration_beats < remaining_duration_beats
-                        or element_i == total_elements - 1 and chosen_duration_beats == remaining_duration_beats
-                    ]   # Makes sure the total duration matches that of the `clip`
-                    if not fitting_durations_beats:
-                        durations_beats = []    # Couldn't generate a durations list
-                        break
-                    chosen_duration_index: int = self.chaos % int() % len(fitting_durations_beats)
-                    chosen_duration_beats: Fraction = fitting_durations_beats[chosen_duration_index]
-                    durations_beats.append(chosen_duration_beats)
-                    remaining_duration_beats -= chosen_duration_beats
+                    chosen_duration_index: int = self.chaos % int() % len(choosable_durations_beats)
+                    # Makes sure the total duration matches that of the `clip`
+                    fitting_durations_beats: Fraction = choosable_durations_beats[chosen_duration_index]
+                    if element_i < total_elements - 1 and fitting_durations_beats < remaining_duration_beats \
+                        or element_i == total_elements - 1 and fitting_durations_beats == remaining_duration_beats:
+
+                        durations_beats.append(fitting_durations_beats)
+                        remaining_duration_beats -= fitting_durations_beats
+                    else:
+                        durations_beats = []    # Clears cumulated durations_beats
+                        break   # Couldn't generate a durations list, try again
                 max_tries -= 1  # Avoids endless loop
         return durations_beats
         
