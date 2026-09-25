@@ -1329,7 +1329,7 @@ class IChooseDuration(IShuffleDuration):
 class ISwapDuration(IterateClip):
     """`Transform -> IterateClip -> ISwapDuration`
 
-    Swaps the elements durations while preserving the relative positions.
+    Swaps the elements durations but it doesn't necessarily preserve all relative positions.
 
     Args:
         chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
@@ -1348,12 +1348,12 @@ class ISwapDuration(IterateClip):
                 i for i in range(iteration_clip_total_elements - 1)  # Has to be paired, last index not considered
             ]
             picks: list[int] = []
-            for total_indexes in range(iteration_clip_total_elements - 1, 0, -1):
-                index: int = self.chaos % int() % total_indexes
+            for available_indexes in range(iteration_clip_total_elements - 1, 0, -1):
+                index: int = self.chaos % int() % available_indexes
                 picks.append(indexes.pop(index))
             for left_element_i in picks:
-                swap: int = self.chaos % int() % 2
-                if swap:
+                do_swap: int = self.chaos % int() % 2  # Decides the swapping
+                if do_swap:
                     left_duration = iteration_clip_elements[left_element_i] % ra.Duration()
                     right_duration = iteration_clip_elements[left_element_i + 1] % ra.Duration()
                     # Direct setting on `seed_copy` elements
