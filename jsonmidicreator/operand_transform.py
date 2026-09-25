@@ -1326,8 +1326,8 @@ class IChooseDuration(IShuffleDuration):
         
     
 
-class ISwapDuration(IShuffleDuration):
-    """`Transform -> IterateClip -> IShuffleDuration -> ISwapDuration`
+class ISwapDuration(IterateClip):
+    """`Transform -> IterateClip -> ISwapDuration`
 
     Swaps the elements durations while preserving the relative positions.
 
@@ -1339,40 +1339,27 @@ class ISwapDuration(IShuffleDuration):
         no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
-    def _get_durations_beats(self, clip: 'oc.Clip') -> list[Fraction]:
-        choosable_durations_beats: list[Fraction] = []
-        for duration in self.durations:
-            duration_beats: Fraction = ra.Duration(clip, duration)._rational
-            if duration_beats > 0:
-                choosable_durations_beats.append(duration_beats)
-        return choosable_durations_beats
+    def _single_transform(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
+        candidate: oc.Clip = clip.copy()
+        candidate_elements: list[oe.Element] = candidate.elements_unmasked()
+        candidate_total_elements: int = len(candidate_elements)
+        if candidate_total_elements > 1:
+            indexes: list[int] = [
+                i for i in range(candidate_total_elements - 1)  # Has to be paired, last index not considered
+            ]
+            picks: list[int] = []
+            for total_indexes in range(candidate_total_elements - 1, 0, -1):
+                index: int = self.chaos % int() % total_indexes
+                picks.append(indexes.pop(index))
+            for left_element_i in picks:
+                swap: int = self.chaos % int() % 2
+                if swap:
+                    left_duration = candidate_elements[left_element_i] % ra.Duration()
+                    right_duration = candidate_elements[left_element_i + 1] % ra.Duration()
+                    # Direct setting on `seed_copy` elements
+                    candidate_elements[left_element_i] << right_duration
+                    candidate_elements[left_element_i + 1] << od.Left(left_duration)
+        clip << candidate
+        return clip._sort_items()
     
-    
-    def _shuffle_durations_beats(self, clip: 'oc.Clip') -> list[Fraction]:
-        durations_beats: list[Fraction] = []
-        if self.durations:
-            clip_unmasked_elements: list[oe.Element] = clip.elements_unmasked()
-            clip_total_elements = len(clip_unmasked_elements)
-            clip_total_duration_beats: Fraction = Fraction(0)
-            for single_element in clip_unmasked_elements:
-                clip_total_duration_beats += single_element._duration_beats
-            choosable_durations_beats: list[Fraction] = self._get_durations_beats(clip)
-            max_tries: int = 100
-            while not durations_beats and max_tries > 0:
-                remaining_duration_beats: Fraction = clip_total_duration_beats
-                for element_i in range(clip_total_elements):
-                    chosen_duration_index: int = self.chaos % int() % len(choosable_durations_beats)
-                    # Makes sure the total duration matches that of the `clip`
-                    fitting_durations_beats: Fraction = choosable_durations_beats[chosen_duration_index]
-                    if element_i < clip_total_elements - 1 and fitting_durations_beats < remaining_duration_beats \
-                        or element_i == clip_total_elements - 1 and fitting_durations_beats == remaining_duration_beats:
-
-                        durations_beats.append(fitting_durations_beats)
-                        remaining_duration_beats -= fitting_durations_beats
-                    else:
-                        durations_beats = []    # Clears cumulated durations_beats
-                        break   # Couldn't generate a durations list, try again
-                max_tries -= 1  # Avoids endless loop
-        return durations_beats
-        
 
