@@ -1268,7 +1268,7 @@ class IShuffleDuration(IterateClip):
 class IChooseDuration(IShuffleDuration):
     """`Transform -> IterateClip -> IShuffleDuration -> IChooseDuration`
 
-    Picks the durations from a given list and sets the element durations with it keeping the relative positions.
+    Chooses durations from a given list and sets the element durations with it keeping the relative positions.
 
     Args:
         durations (list) : A given list of durations to pick from.
@@ -1300,27 +1300,27 @@ class IChooseDuration(IShuffleDuration):
     def _shuffle_durations_beats(self, clip: 'oc.Clip') -> list[Fraction]:
         durations_beats: list[Fraction] = []
         if self.durations:
-            unmasked_elements: list[oe.Element] = clip.elements_unmasked()
-            total_elements = len(unmasked_elements)
+            clip_unmasked_elements: list[oe.Element] = clip.elements_unmasked()
+            total_elements = len(clip_unmasked_elements)
             choosable_durations_beats: list[Fraction] = self._get_durations_beats(clip)
-            duration_beats_sum: Fraction = Fraction(0)
-            for single_element in unmasked_elements:
-                duration_beats_sum += single_element._duration_beats
+            total_duration_beats: Fraction = Fraction(0)
+            for single_element in clip_unmasked_elements:
+                total_duration_beats += single_element._duration_beats
             max_tries: int = 100
             while not durations_beats and max_tries > 0:
-                remaining_duration_beats: Fraction = duration_beats_sum
-                for duration_index in range(total_elements):
+                remaining_duration_beats: Fraction = total_duration_beats
+                for element_i in range(total_elements):
                     # All `choosable_durations_beats` durations are positive
-                    available_durations_beats: list[Fraction] = [
-                        duration_beats for duration_beats in choosable_durations_beats
-                        if duration_index < total_elements - 1 and duration_beats < remaining_duration_beats
-                        or duration_index == total_elements - 1 and duration_beats == remaining_duration_beats
-                    ]
-                    if not available_durations_beats:
+                    fitting_durations_beats: list[Fraction] = [
+                        chosen_duration_beats for chosen_duration_beats in choosable_durations_beats
+                        if element_i < total_elements - 1 and chosen_duration_beats < remaining_duration_beats
+                        or element_i == total_elements - 1 and chosen_duration_beats == remaining_duration_beats
+                    ]   # Makes sure the total duration matches that of the `clip`
+                    if not fitting_durations_beats:
                         durations_beats = []    # Couldn't generate a durations list
                         break
-                    chosen_duration_index: int = self.chaos % int() % len(available_durations_beats)
-                    chosen_duration_beats: Fraction = available_durations_beats[chosen_duration_index]
+                    chosen_duration_index: int = self.chaos % int() % len(fitting_durations_beats)
+                    chosen_duration_beats: Fraction = fitting_durations_beats[chosen_duration_index]
                     durations_beats.append(chosen_duration_beats)
                     remaining_duration_beats -= chosen_duration_beats
                 max_tries -= 1  # Avoids endless loop
