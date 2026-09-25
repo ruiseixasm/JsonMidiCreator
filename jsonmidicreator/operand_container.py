@@ -1954,8 +1954,8 @@ class Clip(Composition):  # Just a container of Elements
                 self._set_owner_clip()._sort_items()
 
             case tr.Transform():
-                operand.transform(self)
-                return self # Sorting already included
+                # `transform` always returns self
+                return operand.transform(self) # Sorting already included
 
             case ou.TrackNumber():
                 self._track_number = operand._unit

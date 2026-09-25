@@ -45,6 +45,7 @@ class Transform(o.Operand):
     """`Transform`
 
     `Transform` is intended to manipulate a `Clip` based on a given transformation process.
+    The `transform` method always returns the exact same inputted `Clip`.
     """
     def _single_transform(self, clip: 'Clip') -> 'Clip':
         return clip
@@ -1398,5 +1399,8 @@ class IShuffleParameter(IterateClip):
         for element, parameter in zip(unmasked_elements, parameter_picks):
             element << parameter
         return clip._sort_items()   # The Clip is already decoupled
-    
+
+
+
+
 
