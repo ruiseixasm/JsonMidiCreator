@@ -222,22 +222,6 @@ class Iterations(o.Operand):
         return None
     
 
-class I_ApplyFunction(Iterations):
-    def __init__(self, function: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
-                 chaos: ch.Chaos = ch.SinX(340),
-                 pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
-                 post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
-                 max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
-        self._function: list[Any] = function
-
-
-    def _single_iteration(self) -> 'oc.Clip':
-        if callable(self._function):
-            new_iteration: oc.Clip = self._function(self._seed.copy())
-            return new_iteration._sort_items()  # Safe code
-        return self._seed.empty_copy()  # No valid Composition made
-
 
 class I_SplitDuration(Iterations):
     def __init__(self, durations: int = 8,

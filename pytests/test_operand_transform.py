@@ -48,6 +48,20 @@ def test_clip_rotate():
 # test_clip_rotate()
 
 
+def test_split_duration():
+    many_pitch = Note() / 4 << Iterate(1)**Degree()
+    assert many_pitch.len() == 4
+    
+    split_duration = ISplitDuration(no_repetitions=True)
+    # many_pitch >> Plot(transform=split_duration)
+
+    many_pitch << split_duration
+    # many_pitch >> Plot()
+    assert many_pitch.len() == 8
+
+# test_shuffle_locus()
+
+
 def test_shuffle_locus():
     many_pitch = Note() / 4 << Iterate(1)**Degree()
     assert many_pitch.len() == 4

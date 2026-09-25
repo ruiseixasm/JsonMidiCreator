@@ -1130,14 +1130,14 @@ class IterateClip(Transform):
         return ol.Null()
 
 
-    
-class IShuffleLocus(IterateClip):
-    """`Transform -> IShuffleLocus`
 
-    This class shuffles the multiple locus around.
+class ISplitDuration(IterateClip):
+    """`Transform -> IterateClip -> ISplitDuration`
+
+    Adds splits to the given Clip elements.
 
     Args:
-        function (Callable[['oc.Clip'], 'oc.Clip']) : Function to be used to return each solution.
+        durations (int) : The amount of durations, or elements, the splitting will result in.
         chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
@@ -1145,7 +1145,61 @@ class IShuffleLocus(IterateClip):
         no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
-    def _single_transform(self, clip: 'oc.Clip') -> 'oc.Clip':
+    def __init__(self, durations: int = 8,
+                 chaos: ch.Chaos = ch.SinX(340),
+                 pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
+                 post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
+                 max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
+        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+        self._durations: int = durations
+
+
+    def _single_iteration(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
+        quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
+        total_duration_beats = Fraction(0)
+        for single_element in clip.elements_unmasked():
+            total_duration_beats += single_element._duration_beats
+        if total_duration_beats > 0:
+            try_i: int = 0
+            while try_i < 100:
+                iteration_clip: oc.Clip = clip.copy()  # Decouples from the `clip`
+                try_j: int = 0
+                while iteration_clip.len() < self._durations and try_j < 100 * 2:
+                    continuous_split_step: int = self._chaos % int()
+                    continuous_split_beat: Fraction = quantization_beats * continuous_split_step % total_duration_beats
+                    continuous_start_beat = Fraction(0)
+                    for single_element in iteration_clip.elements_unmasked():
+                        continuous_finish_beat = continuous_start_beat + single_element._duration_beats
+                        if continuous_split_beat < continuous_finish_beat:
+                            if continuous_split_beat > continuous_start_beat:
+                                element_split_position: ra.Position = single_element % ra.Position()
+                                element_split_position += continuous_split_beat - continuous_start_beat
+                                single_element //= element_split_position
+                            break
+                        continuous_start_beat = continuous_finish_beat
+                    if iteration_clip.len() == self._durations:
+                        clip << iteration_clip  # `clip` has to carry the solution
+                        return clip._sort_items() # Safe code
+                    try_j += 1
+                try_i += 1
+        return ol.Null()    # Tags as solution not found
+
+
+
+class IShuffleLocus(IterateClip):
+    """`Transform -> IterateClip -> IShuffleLocus`
+
+    This class shuffles the multiple locus around.
+
+    Args:
+        chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
+        post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
+        max_tries (int) : The maximum amount of tries to find a `Clip` solution.
+        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
+    """
+    def _single_transform(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
         unmasked_element: list[oe.Element] = clip.elements_unmasked()
         original_loci: list[og.Locus] = [
             single_element % og.Locus() for single_element in unmasked_element
