@@ -1110,8 +1110,9 @@ class IterateClip(Transform):
     
     def transform(self, clip: 'oc.Clip') -> Self:
         self._index += 1    # Each new_composition is added to the list, so, the index has to increase
-        for _ in range(self._max_tries):    # Gets a non-empty iteration
-            candidate: oc.Clip = self._single_transform(clip)
+        for _ in range(self._max_tries):        # Seeks a non-empty iteration
+            candidate: oc.Clip = clip.copy()    # Decouples from clip
+            self._single_transform(candidate)
             if candidate.len() > 0: # Only non empty candidates can be considered as solutions
                 if not callable(self._pre_filter) or self._pre_filter(candidate, clip):
                     if callable(self._post_process):
@@ -1158,8 +1159,8 @@ class IApplyFunction(IterateClip):
 
     def _single_transform(self, clip: 'oc.Clip') -> 'oc.Clip':
         if callable(self._function):
-            new_iteration: oc.Clip = self._function(clip.copy())
-            return new_iteration._sort_items()  # Safe code
+            clip << self._function(clip)
+            return clip._sort_items()  # Safe code
         return clip.empty_copy()  # No valid Composition made
 
     
