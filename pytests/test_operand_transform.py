@@ -165,5 +165,22 @@ def test_set_parameter():
 # test_set_parameter()
 
 
+def test_choose_parameter():
+    many_degrees = Clip() << Line(":1/4, :1/2, :1/8, :1/8") \
+        << Iterate(1)**Degree() << Title("IChooseParameter")
+    assert many_degrees.len() == 4
+    original_elements_duration = many_degrees.all_elements_duration()
+    
+    choose_parameter = IChooseParameter(no_repetitions=True)
+    # many_degrees >> Plot(transform=choose_parameter)
+
+    many_degrees << choose_parameter << choose_parameter << choose_parameter
+    # many_degrees >> Plot()
+    assert many_degrees.len() == 4
+    assert many_degrees.all_elements_duration() == original_elements_duration
+
+# test_choose_parameter()
+
+
 
 

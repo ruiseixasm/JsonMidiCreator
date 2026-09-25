@@ -1442,4 +1442,41 @@ class ISetParameter(IterateClip):
 
 
 
+class IChooseParameter(IterateClip):
+    """`Transform -> IterateClip -> IChooseParameter`
+
+    Choses a parameter from parameters for each `Clip` element.
+
+    Args:
+        parameter (Any) : The given parameter to shuffle around.
+        global_setting (bool) : If True applies the single parameter to all at once.
+        chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
+        post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
+        max_tries (int) : The maximum amount of tries to find a `Clip` solution.
+        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
+    """
+    def __init__(self, parameters: list[Any] = o.list_wrap(["1", "3", "5", "6"], ou.Degree()),
+                 chaos: ch.Chaos = ch.SinX(340),
+                 pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
+                 post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
+                 max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
+        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+        self.parameters: list[Any] = parameters
+
+
+    def _single_transform(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
+        if self.parameters:
+            total_parameters: int = len(self.parameters)
+            for element in clip.elements_unmasked():
+                index_choice: int = self.chaos % int() % total_parameters
+                chosen_parameter = self.parameters[index_choice]
+                element << o.deep_copy(chosen_parameter)    # copy guarantees parameter decoupling
+        return clip._sort_items()   # The Clip is already decoupled
+
+
+
+
+
 

@@ -222,25 +222,3 @@ class Iterations(o.Operand):
         return None
     
 
-
-class I_ChooseParameter(Iterations):
-    def __init__(self, parameters: list[Any] = ["1", "3", "5"],
-                 chaos: ch.Chaos = ch.SinX(340),
-                 pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
-                 post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
-                 max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
-        self._parameters: list[Any] = parameters
-
-
-    def _single_iteration(self) -> 'oc.Clip':
-        if self._parameters:
-            seed_copy: oc.Clip = self._seed.copy()
-            total_parameters: int = len(self._parameters)
-            for element in seed_copy.elements_unmasked():
-                index_choice: int = self._chaos % int()
-                chosen_parameter = self._parameters[index_choice % total_parameters]
-                element << o.deep_copy(chosen_parameter)    # copy guarantees parameter decoupling
-        return seed_copy._sort_items()
-
-
