@@ -1301,20 +1301,20 @@ class IChooseDuration(IShuffleDuration):
         durations_beats: list[Fraction] = []
         if self.durations:
             clip_unmasked_elements: list[oe.Element] = clip.elements_unmasked()
-            total_elements = len(clip_unmasked_elements)
-            choosable_durations_beats: list[Fraction] = self._get_durations_beats(clip)
-            total_duration_beats: Fraction = Fraction(0)
+            clip_total_elements = len(clip_unmasked_elements)
+            clip_total_duration_beats: Fraction = Fraction(0)
             for single_element in clip_unmasked_elements:
-                total_duration_beats += single_element._duration_beats
+                clip_total_duration_beats += single_element._duration_beats
+            choosable_durations_beats: list[Fraction] = self._get_durations_beats(clip)
             max_tries: int = 100
             while not durations_beats and max_tries > 0:
-                remaining_duration_beats: Fraction = total_duration_beats
-                for element_i in range(total_elements):
+                remaining_duration_beats: Fraction = clip_total_duration_beats
+                for element_i in range(clip_total_elements):
                     chosen_duration_index: int = self.chaos % int() % len(choosable_durations_beats)
                     # Makes sure the total duration matches that of the `clip`
                     fitting_durations_beats: Fraction = choosable_durations_beats[chosen_duration_index]
-                    if element_i < total_elements - 1 and fitting_durations_beats < remaining_duration_beats \
-                        or element_i == total_elements - 1 and fitting_durations_beats == remaining_duration_beats:
+                    if element_i < clip_total_elements - 1 and fitting_durations_beats < remaining_duration_beats \
+                        or element_i == clip_total_elements - 1 and fitting_durations_beats == remaining_duration_beats:
 
                         durations_beats.append(fitting_durations_beats)
                         remaining_duration_beats -= fitting_durations_beats
