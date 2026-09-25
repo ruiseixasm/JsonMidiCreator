@@ -60,6 +60,12 @@ class Rational(o.Operand):
         self._rational: Fraction = Fraction(0)
         super().__init__(*parameters)
 
+
+    def __neg__(self):
+        self._rational *= -1
+        return self
+
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract the Rational, because a Rational is an Fraction
