@@ -95,7 +95,7 @@ def test_choose_durations():
     assert many_durations.len() == 4
     
     choose_durations = IChooseDuration(no_repetitions=True)
-    many_durations >> Plot(transform=choose_durations)
+    # many_durations >> Plot(transform=choose_durations)
 
     many_durations << choose_durations
     # many_durations >> Plot()

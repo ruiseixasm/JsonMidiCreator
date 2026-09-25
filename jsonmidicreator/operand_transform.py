@@ -1279,7 +1279,7 @@ class IChooseDuration(IShuffleDuration):
         no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
-    def __init__(self, durations: list[Any] = [1/4, 1/8, 1/16],
+    def __init__(self, durations: list[Any] = [1/2, 1/4, 1/8, 1/16],
                  chaos: ch.Chaos = ch.SinX(340),
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
