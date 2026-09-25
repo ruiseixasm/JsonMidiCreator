@@ -1402,5 +1402,45 @@ class IShuffleParameter(IterateClip):
 
 
 
+class ISetParameter(IterateClip):
+    """`Transform -> IterateClip -> ISetParameter`
+
+    Applies to each element the *chaotized* parameter or to all elements at once if `global_setting` is `True`.
+
+    Args:
+        parameter (Any) : The given parameter to shuffle around.
+        global_setting (bool) : If True applies the single parameter to all at once.
+        chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
+        post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
+        max_tries (int) : The maximum amount of tries to find a `Clip` solution.
+        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
+    """
+    def __init__(self, parameter: o.Operand = ou.Degree(),
+                 global_setting: bool = False,
+                 chaos: ch.Chaos = ch.SinX(340, ot.Increase(1)**ot.Modulo(7)),
+                 pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
+                 post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
+                 max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
+        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+        self.parameter: o.Operand = parameter
+        self.global_setting: bool = global_setting
+
+
+    def _single_transform(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
+        if self.global_setting:
+            global_parameter = self.chaos.chaoticize()
+            operand = self.parameter.copy(global_parameter)  # copy guarantees operand decoupling
+            clip << operand
+        else:
+            for element in clip.elements_unmasked():
+                parameter = self.chaos.chaoticize()
+                operand = self.parameter.copy(parameter)     # copy guarantees operand decoupling
+                element << operand
+        return clip._sort_items()   # The Clip is already decoupled
+
+
+
 
 

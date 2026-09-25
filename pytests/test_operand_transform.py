@@ -148,5 +148,22 @@ def test_shuffle_parameter():
 # test_shuffle_parameter()
 
 
+def test_set_parameter():
+    many_degrees = Clip() << Line(":1/4, :1/2, :1/8, :1/8") \
+        << Iterate(1)**Degree() << Title("ISetParameter")
+    assert many_degrees.len() == 4
+    original_elements_duration = many_degrees.all_elements_duration()
+    
+    set_parameter = ISetParameter(no_repetitions=True)
+    # many_degrees >> Plot(transform=set_parameter)
+
+    many_degrees << set_parameter << set_parameter << set_parameter
+    # many_degrees >> Plot()
+    assert many_degrees.len() == 4
+    assert many_degrees.all_elements_duration() == original_elements_duration
+
+# test_set_parameter()
+
+
 
 
