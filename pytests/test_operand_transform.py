@@ -48,3 +48,9 @@ def test_clip_rotate():
 # test_clip_rotate()
 
 
+def test_shuffle_locus():
+    many_pitch = Note() << Iterate(1)**Degree()
+    
+
+# test_shuffle_locus()
+
