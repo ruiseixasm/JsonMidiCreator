@@ -416,14 +416,16 @@ def test_note_duration():
 
     note << Duration(1/2)
     assert note % Position() == 0.0
+    note >> Plot()
     note << Duration(1/4)
 
     note << RightDuration(1/2)  # Can expand negatively
     assert note % Position() == -NoteValue(1/4)
+    note >> Plot()
     note -= RightDuration(1/4)
     assert note % Position() == 0.0
 
-# test_note_duration()
+test_note_duration()
 
 
 def test_note_pitch():

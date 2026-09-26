@@ -233,7 +233,8 @@ class Plot(Process):
             case oc.Composition():
                 return self.plot_composition(operand)
             case oe.Element():
-                element_clip = oc.Clip(operand)
+                element_clip = oc.Clip()
+                element_clip += operand
                 return self.__rrshift__(element_clip)
             case od.Line():
                 line_clip = oc.Clip(operand)
