@@ -53,6 +53,31 @@ def test_locus_length():
 # test_locus_length()
 
 
+def test_locus_duration():
+
+    settings << None
+
+    locus = Locus()
+    assert locus % Position() == 0.0
+
+    locus << Duration(1/2)
+    assert locus % Position() == 0.0
+    # note >> Plot()
+    locus << Duration(1/4)
+
+    locus << RightDuration(1/2)  # Can expand negatively
+    assert locus % Position() == -NoteValue(1/4)
+    # note >> Plot()
+    locus -= RightDuration(1/4)
+    assert locus % Position() == 0.0
+
+    assert locus % Duration() == 1/4
+    locus << (1/2, 1/8)
+    assert locus % Duration() == 1/8
+
+# test_locus_duration()
+
+
 def test_locus_set():
     locus = Locus()
     assert locus % Position() == Beats(0)
