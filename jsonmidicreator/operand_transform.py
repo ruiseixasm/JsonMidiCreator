@@ -1359,7 +1359,7 @@ class ISwapDuration(IterateClip):
                         right_duration = clip_elements[left_element_i + 1] % ra.Duration()
                         # Direct setting on `seed_copy` elements
                         clip_elements[left_element_i] << right_duration
-                        clip_elements[left_element_i + 1] << od.Left(left_duration)
+                        clip_elements[left_element_i + 1] << ra.RightDuration(left_duration)
         return clip._sort_items()
     
 

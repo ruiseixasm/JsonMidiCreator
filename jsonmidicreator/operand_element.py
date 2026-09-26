@@ -383,12 +383,6 @@ class Element(o.Operand):
                     self._duration_beats    = operand._rational
             case ra.TimeValue():
                 self << ra.Duration(self, operand)
-            case od.NoteSide():
-                new_duration_beats: Fraction = ra.Duration(self, operand._data)._rational
-                if new_duration_beats > 0:
-                    if isinstance(operand, od.Left):
-                        self._position_beats -= new_duration_beats - self._duration_beats
-                    self._duration_beats = new_duration_beats
             case ra.Finish():
                 finish: Fraction = operand._rational
                 if finish > self._position_beats:
@@ -494,13 +488,6 @@ class Element(o.Operand):
                 return new_clip
             case oc.Clip():
                 return operand.empty_copy().__iadd__(self).__iadd__(operand)   # Keeps the Clip TimeSignature and integrates self
-            # For efficient reasons
-            case od.NoteSide():
-                add_duration_beats: Fraction = ra.Duration(self, operand._data)._rational
-                if self._duration_beats + add_duration_beats > 0:
-                    self._duration_beats += add_duration_beats
-                    if isinstance(operand, od.Left):
-                        self._position_beats -= add_duration_beats
             case tuple():
                 return super().__iadd__(operand)
             case _:
@@ -512,13 +499,6 @@ class Element(o.Operand):
     def __isub__(self, operand: any) -> Union[TypeElement, 'Clip']:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            # For efficient reasons
-            case od.NoteSide():
-                add_duration_beats: Fraction = ra.Duration(self, operand._data)._rational
-                if self._duration_beats - add_duration_beats > 0:
-                    self._duration_beats -= add_duration_beats
-                    if isinstance(operand, od.Left):
-                        self._position_beats += add_duration_beats
             case tuple():
                 return super().__isub__(operand)
             case _:
