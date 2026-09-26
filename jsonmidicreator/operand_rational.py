@@ -1002,7 +1002,7 @@ class Length(Measurement):
 class Duration(Measurement):
     """`Rational -> Convertible -> Measurement -> Duration`
 
-    Duration() represents the Note Value duration of a `Note`, a `Duration` typically comes as 1/4, 1/8 and 1/16.
+    `Duration` represents the Note Value duration of a `Note`, a `Duration` typically comes as 1/4, 1/8 and 1/16.
 
     It is possible to use 'triplet' note value adding a T to the string version of it, like so:
 
@@ -1032,7 +1032,6 @@ class Duration(Measurement):
     ----------
     Internally, `Duration` values are normalized to `Beats`. However, multiplication and division expect a scalar (float),
     such as 0.5 or 2.0. The scalar modifies the duration proportionally as `NoteValue` instead of the internal `Beats`.
-
     """
     
     def _convert_to_beats(self, self_time: Fraction, other_time_signature: 'TimeSignature' = None) -> Fraction:
@@ -1121,6 +1120,45 @@ class Duration(Measurement):
             case _:
                 super().__itruediv__(operand)
         return self
+
+
+class RightDuration(Duration):
+    """`Rational -> Convertible -> Measurement -> Duration -> RightDuration`
+
+    `RightDuration` represents the `Duration` but on the right side, meaning,
+    it changes the `Element` start position instead of the finish (simple duration setting).
+
+    It is possible to use 'triplet' note value adding a T to the string version of it, like so:
+
+        +---------+------------+
+        | str()   | Note Value |
+        +---------+------------+
+        | "1"     | 1/1        |
+        | "1/2"   | 1/2        |
+        | "1/2T"  | 1/3        |
+        | "1/4"   | 1/4        |
+        | "1/4T"  | 1/6        |
+        | "1/8"   | 1/8        |
+        | "1/8T"  | 1/12       |
+        | "1/16"  | 1/16       |
+        | "1/16T" | 1/24       |
+        | "1/32"  | 1/32       |
+        | "1/32T" | 1/48       |
+        | "1/64"  | 1/64       |
+        | "1/64T" | 1/96       |
+        +---------+------------+
+
+    Parameters
+    ----------
+    Fraction(0) : Duration as 1, 1/2, 1/4, 1/8, 1/16, 1/32.
+
+    Notes
+    ----------
+    Internally, `Duration` values are normalized to `Beats`. However, multiplication and division expect a scalar (float),
+    such as 0.5 or 2.0. The scalar modifies the duration proportionally as `NoteValue` instead of the internal `Beats`.
+    """
+    pass
+
 
 class Quantization(Duration):
     """`Rational -> Convertible -> Measurement -> Duration -> Quantization`
