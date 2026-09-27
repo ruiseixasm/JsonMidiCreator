@@ -608,7 +608,7 @@ class Convertible(Rational):
     def __eq__(self, other: any) -> bool:
         from . import operand_generic as og
         match other:
-            case og.Cursor():  # Segment is a position
+            case og.Cursor():   # Cursor is a position
                 return other == self
             case _:
                 return super().__eq__(other)
