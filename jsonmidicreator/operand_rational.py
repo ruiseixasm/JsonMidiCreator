@@ -605,6 +605,16 @@ class Convertible(Rational):
         return self.copy(self % Step())
 
 
+    def __eq__(self, other: any) -> bool:
+        from . import operand_generic as og
+        match other:
+            case og.Cursor():  # Segment is a position
+                return other == self
+            case _:
+                return super().__eq__(other)
+        return False
+
+
     @staticmethod
     def get_convertible_from_string(string: str) -> Self:
 
@@ -914,15 +924,6 @@ class Position(Measurement):
             timeunit._set_position_value()  # Because for position TimeUnit is relative to Measure!
             timeunit._rational = Fraction(math.floor(timeunit._rational), 1)
         return timeunit
-
-    def __eq__(self, other: any) -> bool:
-        from . import operand_generic as og
-        match other:
-            case og.Segment():
-                return other == self
-            case _:
-                return super().__eq__(other)
-        return False
 
     # CHAINABLE OPERATIONS
 
@@ -1652,7 +1653,7 @@ class TimeUnit(Convertible):
             case Convertible():
                 return self._get_beats(other._time_signature_reference) \
                     == other._get_beats(self._time_signature_reference)
-            case og.Segment():
+            case og.Cursor():
                 return other == self
             case _:
                 return super().__eq__(other)

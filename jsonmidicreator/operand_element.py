@@ -222,7 +222,7 @@ class Element(o.Operand):
             case Element():
                 return self._position_beats == other._position_beats \
                     and self._duration_beats == other._duration_beats
-            case og.Segment():
+            case og.Cursor():
                 return other == self % ra.Position()
             case od.Conditional():
                 return other == self
@@ -295,7 +295,7 @@ class Element(o.Operand):
                 convertible: ra.Convertible = operand._data
                 return self % convertible
             case int():             return self % ra.Measure() % int()
-            case og.Segment():      return operand.copy(self % ra.Position())
+            case og.Cursor():      return operand.copy(self % ra.Position())
             case float():           return self % ra.NoteValue() % float()
             case Fraction():        return self._duration_beats
             case ou.Masked():       return ou.Masked(self._masked)
@@ -402,7 +402,7 @@ class Element(o.Operand):
                 token: str = operand.get_token(0)
                 self << od.Token(token)
 
-            case og.Segment():
+            case og.Cursor():
                 if operand._segment:
                     self << ra.Measure(operand._segment[0])
                     if len(operand._segment) == 2:
@@ -571,9 +571,9 @@ class Element(o.Operand):
                 else:
                     return oc.Clip().__iadd__(self).__imul__(operand)
             case list():
-                segments_list: list[og.Segment] = []
+                segments_list: list[og.Cursor] = []
                 for single_segment in operand:
-                    segments_list.append(og.Segment(self, single_segment))
+                    segments_list.append(og.Cursor(self, single_segment))
                 for target_measure, source_segment in enumerate(segments_list):
                     if self == source_segment:
                         self << ra.Measure(target_measure)  # Stacked by measure *

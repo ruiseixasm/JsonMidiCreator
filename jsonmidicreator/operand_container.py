@@ -2133,8 +2133,8 @@ class Clip(Composition):  # Just a container of Elements
                         self *= time_unit_clip
 
             case list():
-                segments_list: list[og.Segment] = [
-                    og.Segment(self._time_signature, single_segment) for single_segment in operand
+                segments_list: list[og.Cursor] = [
+                    og.Cursor(self._time_signature, single_segment) for single_segment in operand
                 ]
                 base_elements: list[oe.Element] = []
                 for target_measure, source_segment in enumerate(segments_list):
@@ -2220,9 +2220,9 @@ class Clip(Composition):  # Just a container of Elements
                         self += time_unit_clip
 
             case list():
-                if all(isinstance(segment, (int, float, og.Segment)) for segment in operand):
-                    segments_list: list[og.Segment] = [
-                        og.Segment(self, single_segment) for single_segment in operand
+                if all(isinstance(segment, (int, float, og.Cursor)) for segment in operand):
+                    segments_list: list[og.Cursor] = [
+                        og.Cursor(self, single_segment) for single_segment in operand
                     ]
                     clip_segments: Clip = Clip()
                     for single_segment in segments_list:
@@ -2373,8 +2373,8 @@ class Clip(Composition):  # Just a container of Elements
                         self._replace(existent_element, new_element.copy(element_locus)._set_owner_clip(self_base))
 
                 else:
-                    segments_list: list[og.Segment] = [
-                        og.Segment(self, single_segment) for single_segment in operand
+                    segments_list: list[og.Cursor] = [
+                        og.Cursor(self, single_segment) for single_segment in operand
                     ]
                     base_elements: list[oe.Element] = []
                     mask_elements: list[oe.Element] = []
