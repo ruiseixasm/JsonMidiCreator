@@ -2303,20 +2303,6 @@ class Clip(Composition):  # Just a container of Elements
                                 if not any(id(remaining_e) == id(pitch_e) for pitch_e in pitch_elements)
                         ]
 
-            # Divides the Clip `Duration` by the given `Length` amount as denominator
-            case ra.Length():
-                total_segments: int = operand % int()   # Extracts the original imputed integer
-                if total_segments > 1:
-                    new_elements: list[oe.Element] = []
-                    for first_element in self.elements_unmasked():
-                        first_element._duration_beats /= total_segments
-                        first_element_duration: Fraction = first_element._duration_beats
-                        for next_element_i in range(1, total_segments):
-                            next_element: oe.Element = first_element.copy() # already with the right duration
-                            next_element._position_beats += first_element_duration * next_element_i
-                            new_elements.append(next_element)
-                    self._extend(new_elements)
-            # Divides the `Duration` by sections with the given `TimeValue` (ex.: note value)
             case ra.Duration() | ra.TimeValue() | float():
                 new_elements: list[oe.Element] = []
                 for first_element in self.elements_unmasked():
@@ -2339,6 +2325,21 @@ class Clip(Composition):  # Just a container of Elements
                                 next_element._position_beats = next_split  # Just positions the `Element`
                                 next_split += segment_duration_beats
                 self._extend(new_elements)
+            
+            # Divides the Clip `Duration` by the given `Length` amount as denominator
+            case ra.Length():
+                total_segments: int = operand % int()   # Extracts the original imputed integer
+                if total_segments > 1:
+                    new_elements: list[oe.Element] = []
+                    for first_element in self.elements_unmasked():
+                        first_element._duration_beats /= total_segments
+                        first_element_duration: Fraction = first_element._duration_beats
+                        for next_element_i in range(1, total_segments):
+                            next_element: oe.Element = first_element.copy() # already with the right duration
+                            next_element._position_beats += first_element_duration * next_element_i
+                            new_elements.append(next_element)
+                    self._extend(new_elements)
+            # Divides the `Duration` by sections with the given `TimeValue` (ex.: note value)
             
             case ra.Position() | ra.TimeUnit(): # Single point split if Position
                 new_elements: list[oe.Element] = []

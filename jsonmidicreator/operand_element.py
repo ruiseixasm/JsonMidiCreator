@@ -744,20 +744,6 @@ class Element(o.Operand):
                     new_clip: oc.Clip = oc.Clip()
                     return new_clip._extend(new_elements)._set_owner_clip()
 
-            # Divides the Clip `Duration` by the given `Length` amount as denominator
-            case ra.Length():
-                if self._owner_clip is not None:    # Owner clip is always the base container
-                    new_elements: list[Element] = []
-                    total_segments: int = operand % int()   # Extracts the original imputed integer
-                    if total_segments > 1:
-                        self._duration_beats /= total_segments
-                        for next_element_i in range(1, total_segments):
-                            next_element: Element = self.copy()
-                            new_elements.append(next_element)
-                            next_element._position_beats += self._duration_beats * next_element_i
-                    return self._owner_clip._extend(new_elements)._sort_items()   # Allows the chaining of Clip operations
-                else:
-                    return oc.Clip().__iadd__(self).__ifloordiv__(operand)
             # Divides the `Duration` by sections with the given `Duration` (note value)
             case ra.Duration() | ra.NoteValue() | ra.TimeValue() | Fraction() | float():
                 if self._owner_clip is not None:    # Owner clip is always the base container
@@ -784,6 +770,22 @@ class Element(o.Operand):
                     return self._owner_clip._extend(new_elements)._sort_items()   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip().__iadd__(self).__ifloordiv__(operand)
+                
+            # Divides the Clip `Duration` by the given `Length` amount as denominator
+            case ra.Length():
+                if self._owner_clip is not None:    # Owner clip is always the base container
+                    new_elements: list[Element] = []
+                    total_segments: int = operand % int()   # Extracts the original imputed integer
+                    if total_segments > 1:
+                        self._duration_beats /= total_segments
+                        for next_element_i in range(1, total_segments):
+                            next_element: Element = self.copy()
+                            new_elements.append(next_element)
+                            next_element._position_beats += self._duration_beats * next_element_i
+                    return self._owner_clip._extend(new_elements)._sort_items()   # Allows the chaining of Clip operations
+                else:
+                    return oc.Clip().__iadd__(self).__ifloordiv__(operand)
+                
             case ra.Position() | ra.TimeUnit():
                 if self._owner_clip is not None:    # Owner clip is always the base container
                     new_elements: list[Element] = []

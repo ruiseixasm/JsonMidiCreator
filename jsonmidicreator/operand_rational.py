@@ -999,8 +999,8 @@ class Length(Measurement):
         return self << od.Pipe( beats )
 
 
-class Duration(Measurement):
-    """`Rational -> Convertible -> Measurement -> Duration`
+class Duration(Length):
+    """`Rational -> Convertible -> Measurement -> Length -> Duration`
 
     `Duration` represents the Note Value duration of a `Note`, a `Duration` typically comes as 1/4, 1/8 and 1/16.
 
