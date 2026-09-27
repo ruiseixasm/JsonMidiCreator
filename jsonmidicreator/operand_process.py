@@ -299,12 +299,6 @@ class Plot(Process):
         y += key_heigh * key_float
         return y
 
-    @staticmethod
-    def _y_to_pitch(y: float) -> float:
-        pitch: float = 0.0
-    
-        return pitch
-
 
     def _plot_elements(self):
         """
