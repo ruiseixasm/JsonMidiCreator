@@ -1172,10 +1172,10 @@ class Composition(Container):
             # By definition Clips are always at Position 0
             case ra.Position():
                 return operand.copy( ra.Position(self, 0) )
-            case ra.Length():
-                return self.gross_length()
             case ra.Duration():
                 return self.duration()
+            case ra.Length():
+                return self.gross_length()
             case od.CompositionConvertible():
                 convertible: ra.Convertible = operand._data
                 if isinstance(operand, od.Net):
@@ -1184,10 +1184,10 @@ class Composition(Container):
                             return self.net_finish()
                         case ra.Position():
                             return self.start()
-                        case ra.Length():
-                            return self.net_length()
                         case ra.Duration():
                             return self.net_duration()
+                        case ra.Length():
+                            return self.net_length()
                         case _:
                             return ol.Null()
                 else:
