@@ -1328,7 +1328,7 @@ class IChooseDuration(IShuffleDuration):
                             single_duration_beats for single_duration_beats in fitting_durations_beats
                             if single_duration_beats == remaining_duration_beats
                         ]
-                        if fitting_durations_beats:  # Fitting lengths available0
+                        if fitting_durations_beats:  # Fitting lengths available
                             duration_beats: Fraction = fitting_durations_beats[0]
                             shuffled_durations_beats.append(duration_beats)
                             break
