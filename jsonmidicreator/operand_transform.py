@@ -1323,15 +1323,10 @@ class IChooseDuration(IShuffleDuration):
                             shuffled_durations_beats.append(duration_beats)
                             remaining_duration_beats -= duration_beats
                             continue
-                    else:
-                        fitting_durations_beats = [
-                            single_duration_beats for single_duration_beats in fitting_durations_beats
-                            if single_duration_beats == remaining_duration_beats
-                        ]
-                        if fitting_durations_beats:  # Fitting lengths available
-                            # Found `single_duration_beats == remaining_duration_beats`
-                            shuffled_durations_beats.append(remaining_duration_beats)
-                            break
+                    elif remaining_duration_beats in fitting_durations_beats:
+                        # Found `single_duration_beats == remaining_duration_beats`
+                        shuffled_durations_beats.append(remaining_duration_beats)
+                        break
                     shuffled_durations_beats = []    # Clears cumulated durations_beats
                     break   # Couldn't generate a durations list, try again
                 max_tries -= 1  # Avoids endless loop
