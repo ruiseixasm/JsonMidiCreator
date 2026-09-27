@@ -1299,31 +1299,39 @@ class IChooseDuration(IShuffleDuration):
     
     
     def _shuffle_durations_beats(self, clip: 'oc.Clip') -> list[Fraction]:
-        durations_beats: list[Fraction] = []
+        shuffled_durations_beats: list[Fraction] = []
         if self.durations:
             clip_unmasked_elements: list[oe.Element] = clip.elements_unmasked()
             clip_total_elements = len(clip_unmasked_elements)
             clip_total_duration_beats: Fraction = Fraction(0)
             for single_element in clip_unmasked_elements:
                 clip_total_duration_beats += single_element._duration_beats
-            choosable_durations_beats: list[Fraction] = self._get_durations_beats(clip)
+            available_durations_beats: list[Fraction] = self._get_durations_beats(clip)
             max_tries: int = 100
-            while not durations_beats and max_tries > 0:
+            while not shuffled_durations_beats and max_tries > 0:
+                fitting_durations_beats: list[Fraction] = available_durations_beats.copy()
                 remaining_duration_beats: Fraction = clip_total_duration_beats
                 for element_i in range(clip_total_elements):
-                    chosen_duration_index: int = self.chaos % int() % len(choosable_durations_beats)
-                    # Makes sure the total duration matches that of the `clip`
-                    fitting_durations_beats: Fraction = choosable_durations_beats[chosen_duration_index]
-                    if element_i < clip_total_elements - 1 and fitting_durations_beats < remaining_duration_beats \
-                        or element_i == clip_total_elements - 1 and fitting_durations_beats == remaining_duration_beats:
-
-                        durations_beats.append(fitting_durations_beats)
-                        remaining_duration_beats -= fitting_durations_beats
+                    if element_i < clip_total_elements - 1:
+                        fitting_durations_beats = [
+                            single_duration_beats for single_duration_beats in fitting_durations_beats
+                            if single_duration_beats < remaining_duration_beats
+                        ]
                     else:
-                        durations_beats = []    # Clears cumulated durations_beats
+                        fitting_durations_beats = [
+                            single_duration_beats for single_duration_beats in fitting_durations_beats
+                            if single_duration_beats == remaining_duration_beats
+                        ]
+                    if fitting_durations_beats:  # Fitting lengths available
+                        duration_index: int = self.chaos % int() % len(fitting_durations_beats)
+                        duration_beats: Fraction = fitting_durations_beats[duration_index]
+                        shuffled_durations_beats.append(duration_beats)
+                        remaining_duration_beats -= duration_beats
+                    else:
+                        shuffled_durations_beats = []    # Clears cumulated durations_beats
                         break   # Couldn't generate a durations list, try again
                 max_tries -= 1  # Avoids endless loop
-        return durations_beats
+        return shuffled_durations_beats
         
     
 
