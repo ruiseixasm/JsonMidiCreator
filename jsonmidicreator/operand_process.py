@@ -225,7 +225,6 @@ class Plot(Process):
         self._plot_lists: list[list] = []
         self._plot_checksums: list[str] = []
         self._iteration_index: int = 0
-        self._n_function: Callable[[int], 'oc.Clip'] = None
 
 
     def process(self, operand: o.T) -> 'oc.Composition':
@@ -333,7 +332,7 @@ class Plot(Process):
         else:
             chart_title += " - "
         chart_title += f"{"Masked - " if self._compositions[self._iteration_index].is_masked() else ""}"
-        if self._n_function is not None or isinstance(self.transform, tr.Transform):
+        if isinstance(self.transform, tr.Transform):
             chart_title += f"Iteration {self._iteration_index} of {len(self._compositions) - 1} - "
         chart_title += f"({checksum_str})"
         self._ax.set_title(chart_title)
@@ -1157,8 +1156,7 @@ class Plot(Process):
         # Next Button Widget
         self._disable_button(self._next_button)
 
-        if not callable(self._n_function) and not isinstance(self.transform, tr.Transform):
-            # New Button Widget
+        if not isinstance(self.transform, tr.Transform):
             self._disable_button(new_button)
 
         plt.show(block=self.block)
@@ -1218,20 +1216,6 @@ class Plot(Process):
                     self._plot_elements()
                     self._enable_button(self._previous_button)
                     self._disable_button(self._next_button)
-
-        elif callable(self._n_function):
-            # Keeps iterating the root/seed composition
-            new_iteration: oc.Composition = self._n_function(self._iteration_index + 1)
-            if isinstance(new_iteration, oc.Composition):
-                self._iteration_index = len(self._compositions)
-                plotlist: list[dict] = new_iteration.getPlotlist()
-                new_checksum_str: str = o.checksum_to_string(new_iteration.checksum())
-                self._compositions.append(new_iteration)
-                self._plot_lists.append(plotlist)
-                self._plot_checksums.append(new_checksum_str)
-                self._plot_elements()
-                self._enable_button(self._previous_button)
-                self._disable_button(self._next_button)
         return self
 
 
