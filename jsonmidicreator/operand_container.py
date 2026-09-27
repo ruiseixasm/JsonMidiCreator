@@ -1196,13 +1196,10 @@ class Composition(Container):
                 if operand: # Non empty list
                     parameters: list = []
                     for single_item in self.items_unmasked():
-                        if isinstance(single_item, o.Operand):
-                            operand_parameter: any = single_item
-                            for single_parameter in operand:
-                                operand_parameter %= single_parameter
-                            parameters.append( operand_parameter )
-                        else:
-                            parameters.append( ol.Null() )
+                        operand_parameter: any = single_item
+                        for single_parameter in operand:    # Inner list of operands
+                            operand_parameter %= single_parameter
+                        parameters.append( operand_parameter )
                     return parameters
                 return super().__mod__(operand)
             case og.PitchTransitions():
