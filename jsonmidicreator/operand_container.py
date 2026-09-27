@@ -1197,8 +1197,9 @@ class Composition(Container):
                     parameters: list = []
                     for single_item in self.items_unmasked():
                         operand_parameter: any = single_item
-                        for single_parameter in operand:    # Inner list of operands
-                            operand_parameter %= single_parameter
+                        for single_parameter in operand:
+                            if isinstance(operand_parameter, o.Operand):
+                                operand_parameter %= single_parameter
                         parameters.append( operand_parameter )
                     return parameters
                 return super().__mod__(operand)
