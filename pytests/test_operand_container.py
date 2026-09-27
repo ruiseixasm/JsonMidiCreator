@@ -99,6 +99,8 @@ def test_container_mod():
 
 def test_clip_mod():
 
+    settings << None
+
     # Perform the operation
     clip_1 = Clip([Note("A"), Note("B")])
     clip_2 = Note("A") + Note("B")
@@ -137,6 +139,10 @@ def test_clip_mod():
     note_clip = Clip() + single_note
 
     assert note_clip.len() == 1
+
+    four_notes = Note() / 4
+    four_beats = [Fraction(1)] * 4
+    assert four_notes % [Fraction()] == four_beats
 
 # test_clip_mod()
 
