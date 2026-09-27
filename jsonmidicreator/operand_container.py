@@ -378,17 +378,6 @@ class Container(o.Operand):
                     case _:
                         return super().__mod__(operand)
             case list():
-                if operand: # Non empty list
-                    parameters: list = []
-                    for single_item in self.items_unmasked():
-                        if isinstance(single_item, o.Operand):
-                            operand_parameter: any = single_item
-                            for single_parameter in operand:
-                                operand_parameter %= single_parameter
-                            parameters.append( operand_parameter )
-                        else:
-                            parameters.append( ol.Null() )
-                    return parameters
                 return o.deep_copy(self._items)
             case int():
                 return self.len()
@@ -1137,7 +1126,8 @@ class Composition(Container):
         if self._items:
             return ra.Duration(self.net_finish() - self.net_start())
         return ra.Duration(self, 0)
-    
+
+
     def all_elements(self) -> list['oe.Element']:
         return []
 
@@ -1202,6 +1192,19 @@ class Composition(Container):
                     measures_length: ra.Length = ra.Length(last_position_unmasked)
                     return measures_length % ra.Measure() % int()
                 return 0
+            case list():
+                if operand: # Non empty list
+                    parameters: list = []
+                    for single_item in self.items_unmasked():
+                        if isinstance(single_item, o.Operand):
+                            operand_parameter: any = single_item
+                            for single_parameter in operand:
+                                operand_parameter %= single_parameter
+                            parameters.append( operand_parameter )
+                        else:
+                            parameters.append( ol.Null() )
+                    return parameters
+                return super().__mod__(operand)
             case og.PitchTransitions():
                 return og.PitchTransitions()
             case _:

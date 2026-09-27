@@ -1303,9 +1303,7 @@ class IChooseDuration(IShuffleDuration):
         if self.durations:
             clip_unmasked_elements: list[oe.Element] = clip.elements_unmasked()
             clip_total_elements = len(clip_unmasked_elements)
-            clip_total_duration_beats: Fraction = Fraction(0)
-            for single_element in clip_unmasked_elements:
-                clip_total_duration_beats += single_element._duration_beats
+            clip_total_duration_beats: Fraction = clip.all_elements_unmasked_duration() % Fraction()
             available_durations_beats: list[Fraction] = self._get_durations_beats(clip)
             max_tries: int = 100
             while not shuffled_durations_beats and max_tries > 0:
