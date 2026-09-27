@@ -292,7 +292,7 @@ class Locus(Generic):
                 self._position_beats = operand._position_beats
                 self._duration_beats = operand._duration_beats
             case ra.Duration() | ra.Length():
-                if isinstance(operand, ra.RightDuration):
+                if isinstance(operand, (ra.RightLength, ra.RightDuration)):
                     self._position_beats -= operand._rational - self._duration_beats
                 self._duration_beats        = operand._rational
             case ra.TimeValue():

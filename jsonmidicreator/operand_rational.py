@@ -841,7 +841,7 @@ class Position(Measurement):
 
     Parameters
     ----------
-    Fraction(0) : The position on the `TimeSignature` measured in `Measures`.
+    float(0), int : The position on the `TimeSignature` measured in `Measures`.
     
     Examples
     --------
@@ -1001,19 +1001,19 @@ class Length(Measurement):
     """`Rational -> Convertible -> Measurement -> Length`
 
     Length() is a Parameter applicable to `Element` and `Clip` objects. The input and output
-    is given in `Measures` and their `TimeUnit` returns are rounded up to the NEXT one.
+    is given in `Beats` and their `TimeUnit` returns are rounded up to the NEXT one.
     Internally though, the values are in `Beats` and can be directly accessed with the `//` operator.
 
     Parameters
     ----------
-    Fraction(0) : Represents the duration along the `TimeSignature` in `Measures`.
+    float(0), int : Represents the duration along the `TimeSignature` in `Beats`.
     
     Examples
     --------
     Gets the Note default Length from 1/4 NoteValue:
     >>> note = Note()
     >>> note % Length() % float() >> Print()
-    0.25
+    1.0
     >>> note % Length() % Beats() % float() >> Print()
     1.0
     """
@@ -1021,21 +1021,6 @@ class Length(Measurement):
         return self << od.Pipe( beats )
 
     def __mod__(self, operand: o.T) -> o.T:
-        """
-        The % symbol is used to extract a Parameter, in the case of a Time,
-        those Parameters are the respective time unit, like Measure and NoteValue,
-        where Length and Length have a Measure while a Duration has a NoteValue.
-
-        Examples
-        --------
-        >>> position = Length(4.5)
-        >>> position % Measure() % float() >> Print()
-        4.0
-        >>> position % Beat() % float() >> Print()
-        2.0
-        >>> position % Step() % float() >> Print()
-        8.0
-        """
         match operand:
             case int():                 return self % Beat() % int()     # Beat, NOT Beats
             case float():               return self % Beats() % float()
@@ -1109,10 +1094,31 @@ class Length(Measurement):
         return self
 
 
+class RightLength(Length):
+    """`Rational -> Convertible -> Measurement -> Length -> RightLength`
+
+    `RightLength` sets the length of an element by adjusting the start of it.
+
+    Parameters
+    ----------
+    float(0), int : Represents the duration along the `TimeSignature` in `Beats`.
+    
+    Examples
+    --------
+    Gets the Note default Length from 1/4 NoteValue:
+    >>> note = Note()
+    >>> note % Length() % float() >> Print()
+    1.0
+    >>> note % Length() % Beats() % float() >> Print()
+    1.0
+    """
+    pass
+
+
 class Duration(Length):
     """`Rational -> Convertible -> Measurement -> Length -> Duration`
 
-    `Duration` represents the Note Value duration of a `Note`, a `Duration` typically comes as 1/4, 1/8 and 1/16.
+    `Duration` represents the `NoteValue` duration of a `Note`, a `Duration` typically comes as 1/4, 1/8 and 1/16.
 
     It is possible to use 'triplet' note value adding a T to the string version of it, like so:
 
@@ -1136,7 +1142,7 @@ class Duration(Length):
 
     Parameters
     ----------
-    Fraction(0) : Duration as 1, 1/2, 1/4, 1/8, 1/16, 1/32.
+    float(0), int : Duration as 1, 1/2, 1/4, 1/8, 1/16, 1/32.
 
     Notes
     ----------
@@ -1252,7 +1258,7 @@ class RightDuration(Duration):
 
     Parameters
     ----------
-    Fraction(0) : Duration as 1, 1/2, 1/4, 1/8, 1/16, 1/32.
+    float(0), int : Duration as 1, 1/2, 1/4, 1/8, 1/16, 1/32.
 
     Notes
     ----------
@@ -1309,7 +1315,7 @@ class TimeValue(Convertible):  # Works as Absolute Beats
     
     Parameters
     ----------
-    Fraction(0) : The default value is 0.
+    float(0) : The default value is 0.
     """
     def _get_self_time(self) -> Fraction:
         return self._rational
