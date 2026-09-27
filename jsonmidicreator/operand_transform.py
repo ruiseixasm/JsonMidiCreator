@@ -1317,19 +1317,23 @@ class IChooseDuration(IShuffleDuration):
                             single_duration_beats for single_duration_beats in fitting_durations_beats
                             if single_duration_beats < remaining_duration_beats
                         ]
+                        if fitting_durations_beats:  # Fitting lengths available
+                            duration_index: int = self.chaos % int() % len(fitting_durations_beats)
+                            duration_beats: Fraction = fitting_durations_beats[duration_index]
+                            shuffled_durations_beats.append(duration_beats)
+                            remaining_duration_beats -= duration_beats
+                            continue
                     else:
                         fitting_durations_beats = [
                             single_duration_beats for single_duration_beats in fitting_durations_beats
                             if single_duration_beats == remaining_duration_beats
                         ]
-                    if fitting_durations_beats:  # Fitting lengths available
-                        duration_index: int = self.chaos % int() % len(fitting_durations_beats)
-                        duration_beats: Fraction = fitting_durations_beats[duration_index]
-                        shuffled_durations_beats.append(duration_beats)
-                        remaining_duration_beats -= duration_beats
-                    else:
-                        shuffled_durations_beats = []    # Clears cumulated durations_beats
-                        break   # Couldn't generate a durations list, try again
+                        if fitting_durations_beats:  # Fitting lengths available0
+                            duration_beats: Fraction = fitting_durations_beats[0]
+                            shuffled_durations_beats.append(duration_beats)
+                            break
+                    shuffled_durations_beats = []    # Clears cumulated durations_beats
+                    break   # Couldn't generate a durations list, try again
                 max_tries -= 1  # Avoids endless loop
         return shuffled_durations_beats
         
