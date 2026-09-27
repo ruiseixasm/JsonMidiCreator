@@ -2912,7 +2912,7 @@ class Section(Composition):
                 return self.__iadd__(operand)
             case list():
                 if all(isinstance(item, Clip) for item in operand):
-                    self._items = [item.copy() for item in operand]
+                    self._items = o.deep_copy(operand)
                 else:   # Not for me
                     for item in self._items:
                         item << operand
@@ -3481,7 +3481,7 @@ class Part(Composition):
 
             case list():
                 if all(isinstance(item, Section) for item in operand):
-                    self._items = [item.copy() for item in operand]
+                    self._items = o.deep_copy(operand)
                     self._set_owner_part()
                 else:   # Not for me
                     for item in self._items:
