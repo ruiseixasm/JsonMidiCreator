@@ -303,7 +303,7 @@ def test_new_container():
 
 def test_locus_stacking():
     eight_wholes = Note(1/1) / 8 + Iterate()**Degree()
-    assert eight_wholes % Length() == 8
+    assert eight_wholes % Length() == 8 * 4 # Beats
 
     locus_notes = eight_wholes / [[0], [1], [2], [0, "3b"], [3], [5]]
     assert locus_notes.len() == 6
@@ -940,7 +940,7 @@ def test_position_shift():
     print(f"Fifth Length: {fifth_measure_chords % Length() % float()}")
     print(f"Duration: {fifth_measure_chords % Duration() % float()}")
     assert fifth_measure_chords % Position() == 0.0 # Clip has no Position on its own
-    assert fifth_measure_chords % Length() == 5.0   # All Elements became at the same position, 1.0 length each one
+    assert fifth_measure_chords % Length() == 5.0 * 4   # Beats, all Elements became at the same position, 1.0 length each one
     assert fifth_measure_chords % Net(Duration()) == 1.0 # All Elements became at the same position, 1.0 length each one, so, Duration is 1.0 NoteValue
 
     # __add__ is clip position agnostic!
@@ -948,7 +948,7 @@ def test_position_shift():
     print(f"Length: {aggregated_chords % Length() % float()}")
     print(f"Length ADD: {(Steps(3) + Measures(4) + Measures(1)) % Length() % float()}")
     print(f"Duration: {aggregated_chords % Duration() % float()}")
-    assert aggregated_chords % Length() == 5.0
+    assert aggregated_chords % Length() == 5.0 * 4  # Beats
     assert aggregated_chords % Net(Duration()) == Steps(3) + Measures(4) + Measures(1)   # 5.1875
 
 # test_position_shift()
@@ -989,7 +989,7 @@ def test_clip_duration():
 
     single_beat_note = Clip() + Note(Beats(1))
     print(f"single_beat_note Length: {single_beat_note % Length() % float()}")
-    assert single_beat_note % Length() == 1.0
+    assert single_beat_note % Length() == 1.0 * 4   # Beats
 
 # test_clip_duration()
 
@@ -1043,12 +1043,12 @@ def test_clip_operations():
 
     # NOT at Position 0.0, so length != net_duration
     three_notes_net_length: Length = Length( three_notes.net_finish() - three_notes.net_start() )
-    assert three_notes_net_length == 1.25
+    assert three_notes_net_length == 1.25 * 4   # Beats
     assert three_notes[0] % Position() == 1.0
 
     three_notes << Reverse()
     reversed_notes_net_length: Length = Length( three_notes.net_finish() - three_notes.net_start() )
-    assert reversed_notes_net_length == 1.25
+    assert reversed_notes_net_length == 1.25 * 4   # Beats
     print(three_notes[0] % Position() % float())
 
 # test_clip_operations()

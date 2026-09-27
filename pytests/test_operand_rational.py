@@ -185,22 +185,22 @@ def test_length_unit():
     length: Length = Length()
     assert length % Measure() == 0
 
-    assert length + Steps(1/2) == 1/32          # Measures
+    assert length + Steps(1/2) == 1/32 * 4      # Beats
     print(f"Length Measure: {(length + Steps(1/2)) % Measure() % Fraction()}")
     assert length + Steps(1/2) == Measure(1)    # Measure
     assert length + Steps(1/2) == Beat(1)       # Beat
     assert length + Steps(1/2) == Step(1)       # Step
 
     # Test if length as Length was round up
-    assert (length + Steps(1/2)).roundMeasures() == 1           # 1 Measure (int)
+    assert (length + Steps(1/2)).roundMeasures() == 4           # 1 Beat (int)
     assert (length + Steps(1/2)).roundMeasures() == Measure(1)  # 1 Measure
     assert (length + Steps(1/2)).roundBeats() == Beat(1)        # 1 Beat
     assert (length + Steps(1/2)).roundSteps() == Step(1)        # 1 Step
 
     two_beats_length = Length(Beats(2))
-    assert two_beats_length % int() == 1    # Rounds to 1 Measure
+    assert two_beats_length % int() == 2    # Rounds to 2 Beat
     two_beats_position = Position(Beats(2))
-    assert two_beats_position % int() == 0    # Rounds to 0 Measure, on the Measure 0
+    assert two_beats_position % int() == 0    # Rounds to 0 Beat, on the Measure 0
     two_beats_duration = Duration(Beats(2))
     print(f"two_beats_duration % int(): {two_beats_duration % int()}")
     assert two_beats_duration % int() == 8  # Rounds to 8 Steps, a length of 8 Steps
@@ -231,12 +231,16 @@ def test_length_round():
     length: Length = Length()
     assert length.roundMeasures() == 0.0    # Common behavior
     length += Beat(1)
-    print(f"Measure: {length.roundMeasures() % float()}")
-    assert length.roundMeasures() == 1.0
-    length += 1.0 # Measure
-    assert length.roundMeasures() == 2.0
+    print(f"length % Measure(): {length % Measure() % float()}")
+    assert length % Measure() == 1.0
+    print(f"Length(length % Measure()): {Length(length % Measure()) % float()}")
+    assert Length(length % Measure()) == 4.0    # 1 Measure == 4 Beats
+    print(f"length.roundMeasures(): {length.roundMeasures() % float()}")
+    assert length.roundMeasures() == 1.0 * 4    # Returns in Beats
+    length += 4.0 # Beats
+    assert length.roundMeasures() == 2.0 * 4    # Returns in Beats
     length -= Beat(1)
-    assert length.roundMeasures() == 1.0    # Common behavior
+    assert length.roundMeasures() == 1.0 * 4    # Common behavior
 
 # test_length_round()
 
@@ -415,8 +419,8 @@ def test_div_time():
     assert position == measures
 
     position = Position(5)      # Position is in Measures
-    measures = Measures(2.5)
-    position /= Length(2)   # Length is in Measures
+    measures = Measures(Measures(2.5))
+    position /= Length(Measures(2))   # Length in Measures
     # position /= Length(2 * 4)   # Length is in Beats
     assert position == measures
 
@@ -426,8 +430,8 @@ def test_div_time():
     assert position == measures
 
     position = Position(1/4)
-    length = Length(1/1)
-    assert position / length % float() == 1/4   # Measures
+    length = Length(Beats(1/1))
+    assert position / (length % Measure()) % float() == 1/4   # Measures
 
 
 # test_div_time()
@@ -468,14 +472,14 @@ def test_basic_conversions():
 
     length = Length(10.5)
 
-    assert length % Measures() % Fraction() == 10.5
+    assert length % Beats() % Fraction() == 10.5
     print(f"Length Measure: {length % Measure() % Fraction()}")
-    assert length % Measure() % Fraction() == 11
-    assert length % Beats() % Fraction() == 10.5 * 4
+    assert length % Measure() % Fraction() == int(10.5 / 4) + 1
+    assert length % Beats() % Fraction() == 10.5
     print(f"Length Beat: {length % Beat() % Fraction()}")
-    assert length % Beat() % Fraction() == 10.5 * 4      # Second beat in the Measure 10
-    assert length % Steps() % Fraction() == 10.5 * 4 * 4
-    assert length % Step() % Fraction() == 10.5 * 4 * 4  # Eight step in the Measure 10
+    assert length % Beat() % Fraction() == 11      # Rounds to beat above
+    assert length % Steps() % Fraction() == 10.5 * 4
+    assert length % Step() % Fraction() == 10.5 * 4  # Eight step in the Measure 10
 
 # test_basic_conversions()
 
@@ -500,7 +504,7 @@ def test_full_conversions():
         assert time_unit % Step(        ) == 10 * 4 * 4
         assert time_unit % Duration(    ) == 10 * (1/1)
 
-    for measurement in (Position(10)):
+    for measurement in (Position(10)):  # Position is in Measures
         assert measurement % Measures(  ) == 10
         assert measurement % Measure(   ) == 10
         assert measurement % Beats(     ) == 10 * 4
@@ -510,7 +514,17 @@ def test_full_conversions():
         assert measurement % Duration(  ) == 10 * (1/1)
         assert measurement % Length(    ) == 10.0
 
-    for measurement in (Length(10.5), Duration(10.5)):
+    for measurement in (Length(10.5)):  # Length is in Beats
+        assert measurement % Measures(  ) == 10.5
+        assert measurement % Measure(   ) == 11   # Considers entire Measure where it's present
+        assert measurement % Beats(     ) == 10.5 * 4
+        assert measurement % Beat(      ) == 10.5 * 4
+        assert measurement % Steps(     ) == 10.5 * 4 * 4
+        assert measurement % Step(      ) == 10.5 * 4 * 4
+        assert measurement % Duration(  ) == 10 * (1/1) + 2 * (1/4)
+        assert measurement % Length(    ) == 10.5
+
+    for measurement in (Duration(10.5)):  # Duration is in NoteValue
         assert measurement % Measures(  ) == 10.5
         assert measurement % Measure(   ) == 11   # Considers entire Measure where it's present
         assert measurement % Beats(     ) == 10.5 * 4

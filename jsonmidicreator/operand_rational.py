@@ -793,6 +793,86 @@ class Measurement(Convertible):
             timeunit._rational = round_timeunit
         return timeunit
 
+    def __str__(self):
+        return f'Span Beats = {self._rational}'
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case TimeUnit():
+                if self._time_signature_reference is None:
+                    self._time_signature_reference = operand._time_signature_reference
+                self._rational = operand % Beats(self._time_signature_reference) % Fraction()
+            case _:
+                super().__lshift__(operand)
+        return self
+
+    def __iadd__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Measurement() | Beats() | Beat():
+                self._rational += operand._rational  # Both are in beats
+            case Convertible():  # Implicit Measurement conversion
+                self._rational += operand % Beats(self._time_signature_reference) % Fraction()
+            case _:
+                super().__iadd__(operand)
+        return self
+    
+    def __isub__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Measurement() | Beats() | Beat():
+                self._rational -= operand._rational  # Both are in beats
+            case Convertible():  # Implicit Measurement conversion
+                self._rational -= operand % Beats(self._time_signature_reference) % Fraction()
+            case _:
+                super().__isub__(operand)
+        return self
+    
+
+class Position(Measurement):
+    """`Rational -> Convertible -> Measurement -> Position`
+
+    Position() is a Parameter applicable to `Element` and `Clip` objects. The input and output
+    is given in `Measures` and their `TimeUnit` returns are rounded up to the SAME one.
+    Internally though, the values are in `Beats` and can be directly accessed with the `//` operator.
+
+    Parameters
+    ----------
+    Fraction(0) : The position on the `TimeSignature` measured in `Measures`.
+    
+    Examples
+    --------
+    Gets the Note default Position from 1/4 NoteValue:
+    >>> note = Note()
+    >>> note % Position() % float() >> Print()
+    0.25
+    >>> note % Position() % Beats() % float() >> Print()
+    1.0
+    """
+    def position(self, beats: float = None) -> Self:
+        return self << od.Pipe( beats )
+
+    @staticmethod
+    def _round_timeunit(timeunit: o.T) -> o.T:
+        if isinstance(timeunit, TimeUnit):
+            timeunit._set_position_value()  # Because for position TimeUnit is relative to Measure!
+            timeunit._rational = Fraction(math.floor(timeunit._rational), 1)
+        return timeunit
+
+
+    def __eq__(self, other: any) -> bool:
+        from . import operand_generic as og
+        match other:
+            case og.Cursor():   # Cursor is a position
+                return other == self
+            case _:
+                return super().__eq__(other)
+        return False
+
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Time,
@@ -815,18 +895,27 @@ class Measurement(Convertible):
             case str():                 return str(self % Measures() % Fraction())
             case _:                     return super().__mod__(operand)
 
-    def __str__(self):
-        return f'Span Beats = {self._rational}'
 
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case TimeUnit():
+            case od.Pipe():
+                match operand._data:
+                    case TimeUnit():    # Strict Positioning
+                        if self._time_signature_reference is None:
+                            self._time_signature_reference = operand._data._time_signature_reference
+                        operand_beats: Fraction = operand._data % Beats() % Fraction()
+                        self_beats: Fraction = self % Beats() % Fraction()
+                        self += operand_beats - self_beats
+                    case _:
+                        super().__lshift__(operand)
+            case TimeUnit():    # Relative Positioning
                 if self._time_signature_reference is None:
                     self._time_signature_reference = operand._time_signature_reference
-                self._rational = operand % Beats(self._time_signature_reference) % Fraction()
+                # This preserves the position in the Measure
+                self += operand - self % operand    # operand >= actual_unit
             case int() | float():
                 self << Measures(operand)
             case _:
@@ -836,10 +925,6 @@ class Measurement(Convertible):
     def __iadd__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case Measurement() | Beats() | Beat():
-                self._rational += operand._rational  # Both are in beats
-            case Convertible():  # Implicit Measurement conversion
-                self._rational += operand % Beats(self._time_signature_reference) % Fraction()
             case int() | float():
                 self += Measures(operand)
             case _:
@@ -884,71 +969,6 @@ class Measurement(Convertible):
                 super().__itruediv__(operand)
         return self
 
-
-class Position(Measurement):
-    """`Rational -> Convertible -> Measurement -> Position`
-
-    Position() is a Parameter applicable to `Element` and `Clip` objects. The input and output
-    is given in `Measures` and their `TimeUnit` returns are rounded up to the SAME one.
-    Internally though, the values are in `Beats` and can be directly accessed with the `//` operator.
-
-    Parameters
-    ----------
-    Fraction(0) : The position on the `TimeSignature` measured in `Measures`.
-    
-    Examples
-    --------
-    Gets the Note default Position from 1/4 NoteValue:
-    >>> note = Note()
-    >>> note % Position() % float() >> Print()
-    0.25
-    >>> note % Position() % Beats() % float() >> Print()
-    1.0
-    """
-    def position(self, beats: float = None) -> Self:
-        return self << od.Pipe( beats )
-
-    @staticmethod
-    def _round_timeunit(timeunit: o.T) -> o.T:
-        if isinstance(timeunit, TimeUnit):
-            timeunit._set_position_value()  # Because for position TimeUnit is relative to Measure!
-            timeunit._rational = Fraction(math.floor(timeunit._rational), 1)
-        return timeunit
-
-
-    def __eq__(self, other: any) -> bool:
-        from . import operand_generic as og
-        match other:
-            case og.Cursor():   # Cursor is a position
-                return other == self
-            case _:
-                return super().__eq__(other)
-        return False
-
-
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case TimeUnit():    # Strict Positioning
-                        if self._time_signature_reference is None:
-                            self._time_signature_reference = operand._data._time_signature_reference
-                        operand_beats: Fraction = operand._data % Beats() % Fraction()
-                        self_beats: Fraction = self % Beats() % Fraction()
-                        self += operand_beats - self_beats
-                    case _:
-                        super().__lshift__(operand)
-            case TimeUnit():    # Relative Positioning
-                if self._time_signature_reference is None:
-                    self._time_signature_reference = operand._time_signature_reference
-                # This preserves the position in the Measure
-                self += operand - self % operand    # operand >= actual_unit
-            case _:
-                super().__lshift__(operand)
-        return self
 
     # Measurement round type: [...)
     def roundMeasures(self) -> Self:
@@ -999,6 +1019,94 @@ class Length(Measurement):
     """
     def length(self, beats: float = None) -> Self:
         return self << od.Pipe( beats )
+
+    def __mod__(self, operand: o.T) -> o.T:
+        """
+        The % symbol is used to extract a Parameter, in the case of a Time,
+        those Parameters are the respective time unit, like Measure and NoteValue,
+        where Length and Length have a Measure while a Duration has a NoteValue.
+
+        Examples
+        --------
+        >>> position = Length(4.5)
+        >>> position % Measure() % float() >> Print()
+        4.0
+        >>> position % Beat() % float() >> Print()
+        2.0
+        >>> position % Step() % float() >> Print()
+        8.0
+        """
+        match operand:
+            case int():                 return self % Beat() % int()     # Beat, NOT Beats
+            case float():               return self % Beats() % float()
+            case str():                 return str(self % Beats() % Fraction())
+            case _:                     return super().__mod__(operand)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case TimeUnit():
+                if self._time_signature_reference is None:
+                    self._time_signature_reference = operand._time_signature_reference
+                self._rational = operand % Beats(self._time_signature_reference) % Fraction()
+            case int() | float():
+                self << Beats(operand)
+            case _:
+                super().__lshift__(operand)
+        return self
+
+    def __iadd__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Measurement() | Beats() | Beat():
+                self._rational += operand._rational  # Both are in beats
+            case Convertible():  # Implicit Measurement conversion
+                self._rational += operand % Beats(self._time_signature_reference) % Fraction()
+            case int() | float():
+                self += Beats(operand)
+            case _:
+                super().__iadd__(operand)
+        return self
+    
+    def __isub__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Measurement() | Beats() | Beat():
+                self._rational -= operand._rational  # Both are in beats
+            case Convertible():  # Implicit Measurement conversion
+                self._rational -= operand % Beats(self._time_signature_reference) % Fraction()
+            case int() | float():
+                self -= Beats(operand)
+            case _:
+                super().__isub__(operand)
+        return self
+    
+    # THE DEFAULT INTERPRETATION OF MEASUREMENTS IS IN MEASURES (RELEVANT FOR MULTIPLICATION AND DIVISION)
+    def __imul__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Convertible():  # Implicit Measurement conversion
+                self_beats: Beats = self % Beats()
+                operand_beats: Beats = operand % Beats(self._time_signature_reference)
+                self << self_beats * operand_beats
+            case _:
+                super().__imul__(operand)
+        return self
+    
+    # THE DEFAULT INTERPRETATION OF MEASUREMENTS IS IN MEASURES (RELEVANT FOR MULTIPLICATION AND DIVISION)
+    def __itruediv__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Convertible():  # Implicit Measurement conversion
+                self_beats: Beats = self % Beats()
+                operand_beats: Beats = operand % Beats(self._time_signature_reference)
+                if operand_beats != Beats(0):
+                    self << self_beats / operand_beats
+            case _:
+                super().__itruediv__(operand)
+        return self
 
 
 class Duration(Length):

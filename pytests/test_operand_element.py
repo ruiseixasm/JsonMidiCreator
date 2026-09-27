@@ -129,16 +129,16 @@ def test_note_lshift():
 def test_note_length():
 
     note: Note = Note()
-    assert note % Length() == 0.25  # Measures
+    assert note % Length() == 1.0  # Beats
 
     rest: Rest = Rest()
-    assert rest % Length() == 0.25  # Measures
+    assert rest % Length() == 1.0  # Beats
 
     eight_note = Note(1/8)
-    assert eight_note % Length() == 1/8   # Measures
+    assert eight_note % Length() == 0.5   # Beats
 
     half_note = Note(NoteValue(1/2))
-    assert half_note % Length() == 1/2   # Measures
+    assert half_note % Length() == 2.0   # Beats
 
 # test_note_length()
 
@@ -176,7 +176,7 @@ def test_note_mul():
     assert type(mul_clip[1]) == type(Note())
     assert type(mul_clip[2]) == type(Rest())
 
-test_note_mul()
+# test_note_mul()
 
 
 def test_note_shift():
@@ -396,16 +396,16 @@ def test_note3_element():
 
 def test_note_position():
 
-    note: Note = Note()
+    note: Note = Note() # 1 beat length
     assert note % Position() == 0.0
 
     note << Position(1.0)
     assert note % Position() == 1.0
 
-    measure_length: Length = Length(1)
+    measure_length: Length = Length(4)  # 4 beats == 1 Measure
     note += measure_length
     assert note % Position() == 1.0
-    assert note % Length() == 1.0 + 1/4
+    assert note % Length() == 4.0 + 1.0 # in Beats
 
 # test_note_position()
 
@@ -653,6 +653,9 @@ def test_center_pitch():
 
 
 def test_element_token():
+
+    settings << None
+
     assert oe._get_element_from_token("") == Null()
     assert oe._get_element_from_token(":") == Note()
     assert oe._get_element_from_token("N") == Note()
@@ -661,7 +664,7 @@ def test_element_token():
     assert oe._get_element_from_token("n_9:1/8::75") == Note(Channel(9), 1/8, Velocity(75))
     assert oe._get_element_from_token("._9::3.0") == Note(Channel(9), Degree(3))
     assert oe._get_element_from_token("_9::5") == Note(Channel(9), Octave(5))
-    assert oe._get_element_from_token(":1/8:D5") == Length(1/8)
+    assert oe._get_element_from_token(":1/8:D5") == Length(1/2) # 1/8 == 1/2 Beats
 
 # test_element_token()
 
@@ -770,10 +773,10 @@ def test_element_multi():
     assert third_degree_1 == third_degree_2
     assert third_degree_1 == third_degree_3
 
-    assert Note() % Length() == 1/4
-    assert ControlChange() % Length() == 1/16
-    assert Aftertouch() % Length() == 1/16
-    assert PitchBend() % Length() == 1/16
+    assert Note() % Length() == 1.0 # 1 Beats
+    assert ControlChange() % Length() == 1/4
+    assert Aftertouch() % Length() == 1/4
+    assert PitchBend() % Length() == 1/4
     assert ControlChange(1/4) == 1/4
 
 # test_element_multi()
