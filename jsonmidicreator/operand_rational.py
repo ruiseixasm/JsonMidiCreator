@@ -1156,9 +1156,7 @@ class Duration(Length):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case int():
-                return self % Steps() % operand
-            case float():
+            case float() | int():
                 return self % NoteValue() % operand
             case str():
                 return str(self % NoteValue() % Fraction())
@@ -1170,9 +1168,7 @@ class Duration(Length):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case int():
-                self << Steps(operand)
-            case float() | str():
+            case float() | int() | str():
                 self << NoteValue(operand)
             case _:
                 super().__lshift__(operand)
@@ -1185,9 +1181,7 @@ class Duration(Length):
                 self_notevalue: NoteValue = self % NoteValue()
                 operand_notevalue: NoteValue = operand % NoteValue()
                 self << self_notevalue + operand_notevalue
-            case int():
-                self += Steps(operand)
-            case float():
+            case float() | int():
                 self += NoteValue(operand)
             case _:
                 super().__iadd__(operand)
@@ -1200,9 +1194,7 @@ class Duration(Length):
                 self_notevalue: NoteValue = self % NoteValue()
                 operand_notevalue: NoteValue = operand % NoteValue()
                 self << self_notevalue - operand_notevalue
-            case int():
-                self -= Steps(operand)
-            case float():
+            case float() | int():
                 self -= NoteValue(operand)
             case _:
                 super().__isub__(operand)

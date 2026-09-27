@@ -203,9 +203,9 @@ def test_length_unit():
     assert two_beats_position % int() == 0    # Rounds to 0 Beat, on the Measure 0
     two_beats_duration = Duration(Beats(2))
     print(f"two_beats_duration % int(): {two_beats_duration % int()}")
-    assert two_beats_duration % int() == 8  # Rounds to 8 Steps, a length of 8 Steps
-    assert two_beats_duration == 8          # Rounds to 8 Steps, a length of 8 Steps
-    assert two_beats_duration == 1/2        # Rounds to 1/2 NoteValue, float is in NoteValue
+    assert two_beats_duration % int() == 0      # Rounds to 0 NoteValue, a rounded duration of 1/2 NoteValue
+    assert two_beats_duration == Step(8)        # Rounds to 8 Steps, a length of 8 Steps
+    assert two_beats_duration == 1/2            # Rounds to 1/2 NoteValue, float is in NoteValue
 
 # test_length_unit()
 
