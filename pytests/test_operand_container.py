@@ -207,6 +207,14 @@ def test_measurements_composition():
 
 # test_measurements_composition()
 
+def test_mod_clip():
+    four_notes = Note() / 4
+    four_lengths = four_notes % [Fraction()]
+    assert len(four_lengths) == 4
+    assert sum(four_lengths) == 4   # Beats
+
+# test_mod_clip()
+
 
 def test_or_clip():
 
