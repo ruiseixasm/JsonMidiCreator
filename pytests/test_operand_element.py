@@ -102,6 +102,14 @@ def test_note_mod():
 # test_note_mod()
 
 
+def test_mote_div():
+    note = Note(1/1)
+    assert note // Duration(2) == 1/2
+    assert note // Length(2) == 1/2
+
+# test_mote_div()s
+
+
 def test_note_lshift():
     
     note: Note = Note()
