@@ -219,6 +219,8 @@ class OperandType(Data):
     Any() : Any operand.
     """
     def __eq__(self, other: o.Operand) -> bool:
+        if isinstance(other, OperandType):
+            return self._data == other._data
         return isinstance(other, type(self._data))
 
 
