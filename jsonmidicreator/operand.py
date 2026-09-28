@@ -107,7 +107,7 @@ class Operand:
                 return False
             case ol.Full():
                 return True
-            case od.Conditional():
+            case od.Conditional() | od.OperandType():
                 return other == self
             case self.__class__():
                 return True

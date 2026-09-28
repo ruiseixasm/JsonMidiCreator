@@ -206,7 +206,22 @@ class Pipe(Data):
             case _:
                 self._data = operand
         return self
+
+
+
+class OperandType(Data):
+    """`Data -> OperandType`
+
+    Represents the type of an operand.
     
+    Parameters
+    ----------
+    Any() : Any operand.
+    """
+    def __eq__(self, other: o.Operand) -> bool:
+        return isinstance(other, type(self._data))
+
+
 class AsIs(Data):
     """`Data -> AsIs`
 
