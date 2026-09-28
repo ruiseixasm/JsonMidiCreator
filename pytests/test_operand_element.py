@@ -39,6 +39,10 @@ def test_element_equal():
     assert Note(1/1) != Rest(1/1)
     assert Rest(1/1) != Note(1/1)
 
+    assert Note() == OperandType(Note())
+    assert Rest() != OperandType(Note())
+
+
 
 def test_note_mod():
 

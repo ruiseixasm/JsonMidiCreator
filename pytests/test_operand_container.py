@@ -811,7 +811,16 @@ def test_lshift_clip():
     assert filtered_notes % At(2) % Position() == 0.50
     assert filtered_notes % At(3) % Position() == 0.75
 
+
+    two_rests = Rest() / 2
+    assert OperandType(two_rests[0]) == Rest()
+    assert OperandType(two_rests[0]) != Note()
+    two_rests << Note()
+    assert OperandType(two_rests[0]) != Rest()
+    assert OperandType(two_rests[0]) == Note()
+
 # test_lshift_clip()
+
 
 
 def test_clip_filter():
