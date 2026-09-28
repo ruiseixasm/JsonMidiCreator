@@ -2976,6 +2976,7 @@ class Settings(Generic):
                     case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
                     case oc.MMCDevices():       return oc.MMCDevices(self._mmc_devices)
                     case oc.MTCDevices():       return oc.MTCDevices(self._mtc_devices)
+                    case ou.MtcFps():           return ou.MtcFps(self._mtc_fps)
                     case oc.Devices():          return oc.Devices(self._devices)
                     case _:                     return super().__mod__(operand)
             case oc.Tempos():           return self._tempos.copy()
@@ -3008,6 +3009,7 @@ class Settings(Generic):
             case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
             case oc.MMCDevices():       return oc.MMCDevices(self._mmc_devices)
             case oc.MTCDevices():       return oc.MTCDevices(self._mtc_devices)
+            case ou.MtcFps():           return ou.MtcFps(self._mtc_fps)
             case oc.Devices():          return oc.Devices(self._devices)
             case Settings():
                 return operand.copy(self)
@@ -3024,15 +3026,19 @@ class Settings(Generic):
             and self._diatonic_mode_0       == other._diatonic_mode_0 \
             and self._tonic_key             == other._tonic_key \
             and self._devices               == other._devices \
-            and self._clocked_devices       == other._clocked_devices
+            and self._clocked_devices       == other._clocked_devices \
+            and self._mmc_devices           == other._mmc_devices \
+            and self._mtc_devices           == other._mtc_devices \
+            and self._mtc_fps               == other._mtc_fps
     
 
     def getClocking(self, length_beats: Fraction) -> dict[str, list]:
         return {
             "length_beats": [length_beats.numerator, length_beats.denominator],
-            "devices": self._clocked_devices,
-            "mmc_devices": self._mmc_devices,
-            "mtc_devices": self._mtc_devices,
+            "devices":      self._clocked_devices,
+            "mmc_devices":  self._mmc_devices,
+            "mtc_devices":  self._mtc_devices,
+            "mtc_fps":      self._mtc_fps,
             "tempos": [
                 tempo % dict() for tempo in self._tempos
             ]
@@ -3049,6 +3055,7 @@ class Settings(Generic):
         serialization["parameters"]["clocked_devices"]      = o.serialize( self._clocked_devices )
         serialization["parameters"]["mmc_devices"]          = o.serialize( self._mmc_devices )
         serialization["parameters"]["mtc_devices"]          = o.serialize( self._mtc_devices )
+        serialization["parameters"]["mtc_fps"]              = o.serialize( self._mtc_fps )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -3058,7 +3065,8 @@ class Settings(Generic):
             "tempos" in serialization["parameters"] and "quantization" in serialization["parameters"] and
             "time_signature" in serialization["parameters"] and "diatonic_mode_0" in serialization["parameters"] and
             "tonic_key_0" in serialization["parameters"] and "devices" in serialization["parameters"] and
-            "clocked_devices" in serialization["parameters"] and "mmc_devices" in serialization["parameters"] and "mtc_devices" in serialization["parameters"]):
+            "clocked_devices" in serialization["parameters"] and "mmc_devices" in serialization["parameters"] and "mtc_devices" in serialization["parameters"] and
+            "mtc_fps" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._tempos                = o.deserialize( serialization["parameters"]["tempos"] )
@@ -3070,6 +3078,7 @@ class Settings(Generic):
             self._clocked_devices       = o.deserialize( serialization["parameters"]["clocked_devices"] )
             self._mmc_devices           = o.deserialize( serialization["parameters"]["mmc_devices"] )
             self._mtc_devices           = o.deserialize( serialization["parameters"]["mtc_devices"] )
+            self._mtc_fps               = o.deserialize( serialization["parameters"]["mtc_fps"] )
         return self
     
     def __lshift__(self, operand: any) -> Self:
@@ -3088,6 +3097,7 @@ class Settings(Generic):
                 self._clocked_devices       = operand._clocked_devices.copy()
                 self._mmc_devices           = operand._mmc_devices.copy()
                 self._mtc_devices           = operand._mtc_devices.copy()
+                self._mtc_fps               = operand._mtc_fps
             case od.Pipe():
                 match operand._data:
                     case oc.Tempos():               self._tempos = operand._data._items
@@ -3106,6 +3116,7 @@ class Settings(Generic):
                     case oc.ClockedDevices():       self._clocked_devices = operand._data % od.Pipe( list() )
                     case oc.MMCDevices():           self._mmc_devices = operand._data % od.Pipe( list() )
                     case oc.MTCDevices():           self._mtc_devices = operand._data % od.Pipe( list() )
+                    case ou.MtcFps():               self._mtc_fps = operand._data % od.Pipe( int() )
                     case oc.Devices():              self._devices = operand._data % od.Pipe( list() )
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
@@ -3133,6 +3144,7 @@ class Settings(Generic):
             case oc.ClockedDevices():   self._clocked_devices = operand % list()
             case oc.MMCDevices():       self._mmc_devices = operand % list()
             case oc.MTCDevices():       self._mtc_devices = operand % list()
+            case ou.MtcFps():           self._mtc_fps = operand % int()
             case oc.Devices():          self._devices = operand % list()
             case od.Device():           self._devices = [ operand._data ]
             case None:  # Does a Reset!
