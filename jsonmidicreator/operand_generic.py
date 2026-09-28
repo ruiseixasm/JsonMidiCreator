@@ -191,7 +191,7 @@ class Locus(Generic):
             case self.__class__():
                 return self._position_beats == other._position_beats \
                     and self._duration_beats == other._duration_beats
-            case Cursor():
+            case Segment():
                 return other == self % ra.Position()
             case od.Conditional():
                 return other == self
@@ -241,7 +241,7 @@ class Locus(Generic):
                 return operand.copy(ra.Beats(self._time_signature_reference, self._duration_beats))
             case list():            return [self._position_beats, self._duration_beats]
             case int():             return self % ra.Measure() % int()
-            case Cursor():         return operand.copy(self % ra.Position())
+            case Segment():         return operand.copy(self % ra.Position())
             case float():           return self % ra.NoteValue() % float()
             case Fraction():        return self._duration_beats
             case Locus():           return operand.copy(self)
@@ -316,7 +316,7 @@ class Locus(Generic):
 
             case int():
                 self._position_beats        = ra.Measure(self._time_signature_reference, operand) % ra.Beats() % Fraction()
-            case Cursor():
+            case Segment():
                 if operand._segment:
                     self << ra.Measure(operand._segment[0])
                     if len(operand._segment) == 2:
@@ -2632,10 +2632,10 @@ class OctaveExpansion(NoteEffect):
         return self
 
 
-class Cursor(Generic):
-    """`Generic -> Cursor`
+class Segment(Generic):
+    """`Generic -> Segment`
 
-    A Cursor concerns a single unitary positional section of Time, meaning, a single Measure, a single Beat,
+    A Segment concerns a single unitary positional **unit** as a section of Time, meaning, a single Measure, a single Beat,
     or a single Step, where the order is set by Measure, Beat, Step.
 
     Parameters
@@ -2705,14 +2705,14 @@ class Cursor(Generic):
                 if len(self._segment) == 2:
                     return "Measure.Beat"
                 return "Measure.Step"
-            case Cursor():
+            case Segment():
                 return operand.copy(self)
             case _:
                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
         match other:
-            case Cursor():
+            case Segment():
                 if len(self._segment) == 3:
                     return self._segment[0] == other._segment[0] and self._segment[2] == other._segment[2]
                 return self._segment == other._segment
@@ -2758,7 +2758,7 @@ class Cursor(Generic):
                         elif len(self._segment) == 3:
                             position_segment.append( 0 )    # No Beat defined
                             position_segment.append( other % ra.Step() % int() )
-                    return self == Cursor(position_segment)
+                    return self == Segment(position_segment)
                 else:
                     return True
             case od.Conditional():
@@ -2788,7 +2788,7 @@ class Cursor(Generic):
         from . import operand_container as oc
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case Cursor():
+            case Segment():
                 super().__lshift__(operand)
                 if self._time_signature_reference is None:
                     self._time_signature_reference = operand._time_signature_reference

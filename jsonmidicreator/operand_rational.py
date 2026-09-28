@@ -866,7 +866,7 @@ class Position(Measurement):
     def __eq__(self, other: any) -> bool:
         from . import operand_generic as og
         match other:
-            case og.Cursor():   # Cursor is a position
+            case og.Segment():   # Cursor is a position
                 return other == self
             case _:
                 return super().__eq__(other)
@@ -1760,7 +1760,7 @@ class TimeUnit(Convertible):
             case Convertible():
                 return self._get_beats(other._time_signature_reference) \
                     == other._get_beats(self._time_signature_reference)
-            case og.Cursor():
+            case og.Segment():
                 return other == self
             case _:
                 return super().__eq__(other)
