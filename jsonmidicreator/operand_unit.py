@@ -405,6 +405,30 @@ class Tempo(Unit):
         return self
 
 
+class MtcFps(Unit):
+    """`Unit -> MtcFps`
+    
+    This class represents the Frames Per Second of the MIDI Timecode (MTC) clocking protocol.
+
+    MTC Frame Rate Translation Table:
+
+    +---------------+----------+-----------+-------------------------+--------------------------+
+    | Input (fps)   | fps_type | fps_value | ms_per_quarter_frame    | Description              |
+    +---------------+----------+-----------+-------------------------+--------------------------+
+    | 24            | 0        | 24        | 10.4167 ms              | Film / Cinema            |
+    | 25            | 1        | 25        | 10.0000 ms              | PAL Video (Europe / TV)  |
+    | 29            | 2        | 30        | 8.3417 ms               | NTSC Video Drop-Frame    |
+    | 30 (Default)  | 3        | 30        | 8.3333 ms               | Pure Audio / NTSC Non-DR |
+    | Any other int | 3        | 30        | 8.3333 ms               | Fallback to Default      |
+    +---------------+----------+-----------+-------------------------+--------------------------+
+
+    Parameters
+    ----------
+    int(0), Fraction, float : Sets the respective fps.
+    """
+    pass
+
+
 class Port(Unit):
     """`Unit -> Port`
     """
