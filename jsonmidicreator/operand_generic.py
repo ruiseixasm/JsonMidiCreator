@@ -2926,7 +2926,8 @@ class Settings(Generic):
     TimeSignature(4, 4) : Represents the typical Time Signature of a staff.
     KeySignature() : Follows the Circle of Fifths with the setting of the amount of `Sharps` or `Flats`.
     Devices(["VMPK", "FLUID", "MIDI", "Microsoft", "IAC Bus", "Apple"]) : Devices that are used by default in order of trying to connect by the `JsonMidiPlayer`.
-    ClockedDevices([]) : By default no devices are set to receive clocking messages.
+    ClockedDevices([]) : The devices set to receive typical clocking messages.
+    MTCDevices([]) : The devices set to receive clocking MIDI time code (MTC).
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -2937,6 +2938,7 @@ class Settings(Generic):
         self._tonic_key: int                        = 0
         self._devices: list[str]                    = ["VMPK", "FLUID", "MIDI", "Microsoft", "IAC Bus", "Apple"]
         self._clocked_devices: list[str]            = []
+        self._mtc_devices: list[str]                = []
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -2970,6 +2972,7 @@ class Settings(Generic):
                         return operand._data << self._diatonic_mode_0
                     case ou.TonicKey():         return operand._data << self._tonic_key
                     case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
+                    case oc.MTCDevices():       return oc.MTCDevices(self._mtc_devices)
                     case oc.Devices():          return oc.Devices(self._devices)
                     case _:                     return super().__mod__(operand)
             case oc.Tempos():           return self._tempos.copy()
@@ -3000,6 +3003,7 @@ class Settings(Generic):
             case ou.Key() | ou.Accidentals() | ou.Quality() | int() | float() | Fraction() | str():
                                         return self % ou.KeySignature() % operand
             case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
+            case oc.MTCDevices():       return oc.MTCDevices(self._mtc_devices)
             case oc.Devices():          return oc.Devices(self._devices)
             case Settings():
                 return operand.copy(self)
@@ -3022,7 +3026,8 @@ class Settings(Generic):
     def getClocking(self, length_beats: Fraction) -> dict[str, list]:
         return {
             "length_beats": [length_beats.numerator, length_beats.denominator],
-            "devices": self._clocked_devices,
+            "clocked_devices": self._clocked_devices,
+            "mtc_devices": self._mtc_devices,
             "tempos": [
                 tempo % dict() for tempo in self._tempos
             ]
@@ -3037,6 +3042,7 @@ class Settings(Generic):
         serialization["parameters"]["tonic_key_0"]          = o.serialize( self._tonic_key )
         serialization["parameters"]["devices"]              = o.serialize( self._devices )
         serialization["parameters"]["clocked_devices"]      = o.serialize( self._clocked_devices )
+        serialization["parameters"]["mtc_devices"]          = o.serialize( self._mtc_devices )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -3045,7 +3051,8 @@ class Settings(Generic):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "tempos" in serialization["parameters"] and "quantization" in serialization["parameters"] and
             "time_signature" in serialization["parameters"] and "diatonic_mode_0" in serialization["parameters"] and
-            "tonic_key_0" in serialization["parameters"] and "devices" in serialization["parameters"] and "clocked_devices" in serialization["parameters"]):
+            "tonic_key_0" in serialization["parameters"] and "devices" in serialization["parameters"] and
+            "clocked_devices" in serialization["parameters"] and "mtc_devices" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._tempos                = o.deserialize( serialization["parameters"]["tempos"] )
@@ -3055,6 +3062,7 @@ class Settings(Generic):
             self._tonic_key             = o.deserialize( serialization["parameters"]["tonic_key_0"] )
             self._devices               = o.deserialize( serialization["parameters"]["devices"] )
             self._clocked_devices       = o.deserialize( serialization["parameters"]["clocked_devices"] )
+            self._mtc_devices           = o.deserialize( serialization["parameters"]["mtc_devices"] )
         return self
     
     def __lshift__(self, operand: any) -> Self:
@@ -3071,6 +3079,7 @@ class Settings(Generic):
                 self._tonic_key             = operand._tonic_key
                 self._devices               = operand._devices.copy()
                 self._clocked_devices       = operand._clocked_devices.copy()
+                self._mtc_devices           = operand._mtc_devices.copy()
             case od.Pipe():
                 match operand._data:
                     case oc.Tempos():               self._tempos = operand._data._items
@@ -3087,6 +3096,7 @@ class Settings(Generic):
                         self._tonic_key = operand._data._unit % 12
 
                     case oc.ClockedDevices():       self._clocked_devices = operand._data % od.Pipe( list() )
+                    case oc.MTCDevices():           self._mtc_devices = operand._data % od.Pipe( list() )
                     case oc.Devices():              self._devices = operand._data % od.Pipe( list() )
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
@@ -3112,6 +3122,7 @@ class Settings(Generic):
             case ou.Quality() | ou.Key() | int() | float() | Fraction() | str():
                                         self << ou.KeySignature(operand)
             case oc.ClockedDevices():   self._clocked_devices = operand % list()
+            case oc.MTCDevices():       self._mtc_devices = operand % list()
             case oc.Devices():          self._devices = operand % list()
             case od.Device():           self._devices = [ operand._data ]
             case None:  # Does a Reset!
