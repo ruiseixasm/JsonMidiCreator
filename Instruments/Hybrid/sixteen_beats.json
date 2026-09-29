@@ -10,6 +10,7 @@
             "MIDI"
         ],
         "mmc_devices": [],
+        "mmc_as_cc": false,
         "mtc_devices": [],
         "mtc_fps": 30,
         "tempos": [

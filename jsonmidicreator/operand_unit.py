@@ -1448,6 +1448,19 @@ class Boolean(Unit):
     def __init__(self, *parameters):
         super().__init__(True, *parameters)
 
+
+class MmcAsCC(Boolean):
+    """`Unit -> Boolean -> MmcAsCC`
+
+    Sets the MIDI Machine Control (MMC) control as CC Messages
+    
+    Parameters
+    ----------
+    bool(True), int : `True` for masked and `False` for selected (not masked).
+    """
+    pass
+
+
 class Masked(Boolean):
     """`Unit -> Boolean -> Masked`
 
