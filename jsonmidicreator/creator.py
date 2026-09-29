@@ -77,7 +77,7 @@ def loadLibrary():
                 # Load the shared library
                 lib = ctypes.CDLL(lib_path)
                 # Define the argument and return types for the C function
-                lib.PlayList_ctypes.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_int]
+                lib.PlayList_ctypes.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_int]
                 lib.PlayList_ctypes.restype = ctypes.c_int
                 
             except FileNotFoundError:
@@ -105,11 +105,11 @@ not_found_talkie_library = False
 
 
 # Function to run the DLL in a separate thread
-def run_dll(json_str, loops, verbose):
+def run_dll(json_str, loops, rec_transport, verbose):
     if lib:
         try:
             # Call the C++ function with the JSON string
-            lib.PlayList_ctypes(json_str.encode('utf-8'), loops, 1 if verbose else 0)
+            lib.PlayList_ctypes(json_str.encode('utf-8'), loops, 1 if rec_transport else 0, 1 if verbose else 0)
         except Exception as e:
             print(f"An error occurred when calling the function 'PlayList_ctypes': {e}")
 
@@ -142,7 +142,7 @@ def loadTalkieLibrary():
                 not_found_talkie_library = True
 
 
-def playJsonMidiPlay(clocking: dict[str, list], playlist: list[dict], loops: int = 1, verbose: bool = False, talkie_delay_ms: int = 500):
+def playJsonMidiPlay(clocking: dict[str, list], playlist: list[dict], loops: int = 1, rec_transport: bool = False, verbose: bool = False, talkie_delay_ms: int = 500):
     global lib
     global not_found_library_message_already_shown
     if not lib and not not_found_library_message_already_shown: loadLibrary()
@@ -159,7 +159,7 @@ def playJsonMidiPlay(clocking: dict[str, list], playlist: list[dict], loops: int
         json_str = json.dumps([ json_file_dict ])
 
         # Create and start a new thread to run the DLL
-        dll_thread = threading.Thread(target=run_dll, args=(json_str, loops, verbose))
+        dll_thread = threading.Thread(target=run_dll, args=(json_str, loops, rec_transport, verbose))
         talkie_dll_thread = threading.Thread(target=run_talkie_dll, args=(json_str, talkie_delay_ms, verbose))
         
         talkie_dll_thread.start()   # Starts the talkie right away

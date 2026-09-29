@@ -1225,9 +1225,10 @@ class Play(Process):
         plot (bool): Plots a chart before playing it.
         block (bool): Blocks the Plot until is closed and then plays the plotted content.
     """
-    def __init__(self, loops: int = 1, verbose: bool = False, plot: bool = False, block: bool = False, talkie_delay_ms: int = 500):
+    def __init__(self, loops: int = 1, rec_transport: bool = False, verbose: bool = False, plot: bool = False, block: bool = False, talkie_delay_ms: int = 500):
         super().__init__()
         self.loops = loops
+        self.rec_transport = rec_transport
         self.verbose = verbose
         self.plot = plot
         self.block = block
@@ -1248,6 +1249,7 @@ class Play(Process):
                         process = threading.Thread(target=c.playJsonMidiPlay,
                                                    args=(clocking, playlist,
                                                          self.loops,
+                                                         self.rec_transport,
                                                          self.verbose,
                                                          self.talkie_delay_ms))
                         process.start()
@@ -1257,6 +1259,7 @@ class Play(Process):
                             operand >> Plot(self.block)
                         c.playJsonMidiPlay(clocking, playlist,
                                             self.loops,
+                                            self.rec_transport,
                                             self.verbose,
                                             self.talkie_delay_ms)
                 else:
@@ -1272,6 +1275,7 @@ class Play(Process):
                     process = threading.Thread(target=c.playJsonMidiPlay,
                                                args=(clocking, playlist,
                                                          self.loops,
+                                                         self.rec_transport,
                                                          self.verbose,
                                                          self.talkie_delay_ms))
                     process.start()
@@ -1281,6 +1285,7 @@ class Play(Process):
                         operand >> Plot(self.block)
                     c.playJsonMidiPlay(clocking, playlist,
                                             self.loops,
+                                            self.rec_transport,
                                             self.verbose,
                                             self.talkie_delay_ms)
                 return operand
