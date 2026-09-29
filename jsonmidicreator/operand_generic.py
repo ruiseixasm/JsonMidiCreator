@@ -2927,7 +2927,10 @@ class Settings(Generic):
     KeySignature() : Follows the Circle of Fifths with the setting of the amount of `Sharps` or `Flats`.
     Devices(["VMPK", "FLUID", "MIDI", "Microsoft", "IAC Bus", "Apple"]) : Devices that are used by default in order of trying to connect by the `JsonMidiPlayer`.
     ClockedDevices([]) : The devices set to receive typical clocking messages.
+    TransportDevices([]) : The devices set to receive the CC control transport play and stop messaged.
+    MMCDevices([]) : The devices set to receive the MMC control transport play and stop messaged.
     MTCDevices([]) : The devices set to receive clocking MIDI time code (MTC).
+    MtcFps(30) : The frame rate for the clocking MIDI time code (MTC) messages.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -2938,8 +2941,8 @@ class Settings(Generic):
         self._tonic_key: int                        = 0
         self._devices: list[str]                    = ["VMPK", "FLUID", "MIDI", "Microsoft", "IAC Bus", "Apple"]
         self._clocked_devices: list[str]            = []
+        self._transport_devices: list[str]          = []
         self._mmc_devices: list[str]                = []
-        self._mmc_as_cc: bool                       = False
         self._mtc_devices: list[str]                = []
         self._mtc_fps: int                          = 30
         for single_parameter in parameters: # Faster than passing a tuple
@@ -2975,8 +2978,8 @@ class Settings(Generic):
                         return operand._data << self._diatonic_mode_0
                     case ou.TonicKey():         return operand._data << self._tonic_key
                     case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
+                    case oc.TransportDevices(): return oc.TransportDevices(self._transport_devices)
                     case oc.MMCDevices():       return oc.MMCDevices(self._mmc_devices)
-                    case ou.MmcAsCC():          return ou.MmcAsCC(self._mmc_as_cc)
                     case oc.MTCDevices():       return oc.MTCDevices(self._mtc_devices)
                     case ou.MtcFps():           return ou.MtcFps(self._mtc_fps)
                     case oc.Devices():          return oc.Devices(self._devices)
@@ -3009,8 +3012,8 @@ class Settings(Generic):
             case ou.Key() | ou.Accidentals() | ou.Quality() | int() | float() | Fraction() | str():
                                         return self % ou.KeySignature() % operand
             case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
+            case oc.TransportDevices(): return oc.TransportDevices(self._transport_devices)
             case oc.MMCDevices():       return oc.MMCDevices(self._mmc_devices)
-            case ou.MmcAsCC():          return ou.MmcAsCC(self._mmc_as_cc)
             case oc.MTCDevices():       return oc.MTCDevices(self._mtc_devices)
             case ou.MtcFps():           return ou.MtcFps(self._mtc_fps)
             case oc.Devices():          return oc.Devices(self._devices)
@@ -3030,20 +3033,20 @@ class Settings(Generic):
             and self._tonic_key             == other._tonic_key \
             and self._devices               == other._devices \
             and self._clocked_devices       == other._clocked_devices \
+            and self._transport_devices     == other._transport_devices \
             and self._mmc_devices           == other._mmc_devices \
-            and self._mmc_as_cc             == other._mmc_as_cc \
             and self._mtc_devices           == other._mtc_devices \
             and self._mtc_fps               == other._mtc_fps
     
 
     def getClocking(self, length_beats: Fraction) -> dict[str, list]:
         return {
-            "length_beats": [length_beats.numerator, length_beats.denominator],
-            "devices":      self._clocked_devices,
-            "mmc_devices":  self._mmc_devices,
-            "mmc_as_cc":    self._mmc_as_cc,
-            "mtc_devices":  self._mtc_devices,
-            "mtc_fps":      self._mtc_fps,
+            "length_beats":         [length_beats.numerator, length_beats.denominator],
+            "devices":              self._clocked_devices,
+            "transport_devices":    self._transport_devices,
+            "mmc_devices":          self._mmc_devices,
+            "mtc_devices":          self._mtc_devices,
+            "mtc_fps":              self._mtc_fps,
             "tempos": [
                 tempo % dict() for tempo in self._tempos
             ]
@@ -3058,8 +3061,8 @@ class Settings(Generic):
         serialization["parameters"]["tonic_key_0"]          = o.serialize( self._tonic_key )
         serialization["parameters"]["devices"]              = o.serialize( self._devices )
         serialization["parameters"]["clocked_devices"]      = o.serialize( self._clocked_devices )
+        serialization["parameters"]["transport_devices"]    = o.serialize( self._transport_devices )
         serialization["parameters"]["mmc_devices"]          = o.serialize( self._mmc_devices )
-        serialization["parameters"]["mmc_as_cc"]            = o.serialize( self._mmc_as_cc )
         serialization["parameters"]["mtc_devices"]          = o.serialize( self._mtc_devices )
         serialization["parameters"]["mtc_fps"]              = o.serialize( self._mtc_fps )
         return serialization
@@ -3072,7 +3075,7 @@ class Settings(Generic):
             "time_signature" in serialization["parameters"] and "diatonic_mode_0" in serialization["parameters"] and
             "tonic_key_0" in serialization["parameters"] and "devices" in serialization["parameters"] and
             "clocked_devices" in serialization["parameters"] and "mmc_devices" in serialization["parameters"] and "mtc_devices" in serialization["parameters"] and
-            "mmc_as_cc" in serialization["parameters"] and "mtc_fps" in serialization["parameters"]):
+            "transport_devices" in serialization["parameters"] and "mtc_fps" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._tempos                = o.deserialize( serialization["parameters"]["tempos"] )
@@ -3082,8 +3085,8 @@ class Settings(Generic):
             self._tonic_key             = o.deserialize( serialization["parameters"]["tonic_key_0"] )
             self._devices               = o.deserialize( serialization["parameters"]["devices"] )
             self._clocked_devices       = o.deserialize( serialization["parameters"]["clocked_devices"] )
+            self._transport_devices     = o.deserialize( serialization["parameters"]["transport_devices"] )
             self._mmc_devices           = o.deserialize( serialization["parameters"]["mmc_devices"] )
-            self._mmc_as_cc             = o.deserialize( serialization["parameters"]["mmc_as_cc"] )
             self._mtc_devices           = o.deserialize( serialization["parameters"]["mtc_devices"] )
             self._mtc_fps               = o.deserialize( serialization["parameters"]["mtc_fps"] )
         return self
@@ -3102,8 +3105,8 @@ class Settings(Generic):
                 self._tonic_key             = operand._tonic_key
                 self._devices               = operand._devices.copy()
                 self._clocked_devices       = operand._clocked_devices.copy()
+                self._transport_devices     = operand._transport_devices.copy()
                 self._mmc_devices           = operand._mmc_devices.copy()
-                self._mmc_as_cc             = operand._mmc_as_cc
                 self._mtc_devices           = operand._mtc_devices.copy()
                 self._mtc_fps               = operand._mtc_fps
             case od.Pipe():
@@ -3122,8 +3125,8 @@ class Settings(Generic):
                         self._tonic_key = operand._data._unit % 12
 
                     case oc.ClockedDevices():       self._clocked_devices = operand._data % od.Pipe( list() )
+                    case oc.TransportDevices():     self._transport_devices = operand._data % od.Pipe( list() )
                     case oc.MMCDevices():           self._mmc_devices = operand._data % od.Pipe( list() )
-                    case ou.MmcAsCC():              self._mmc_as_cc = operand._data % od.Pipe( bool() )
                     case oc.MTCDevices():           self._mtc_devices = operand._data % od.Pipe( list() )
                     case ou.MtcFps():               self._mtc_fps = operand._data % od.Pipe( int() )
                     case oc.Devices():              self._devices = operand._data % od.Pipe( list() )
@@ -3151,8 +3154,8 @@ class Settings(Generic):
             case ou.Quality() | ou.Key() | int() | float() | Fraction() | str():
                                         self << ou.KeySignature(operand)
             case oc.ClockedDevices():   self._clocked_devices = operand % list()
+            case oc.TransportDevices(): self._transport_devices = operand % list()
             case oc.MMCDevices():       self._mmc_devices = operand % list()
-            case ou.MmcAsCC():          self._mmc_as_cc = operand % bool()
             case oc.MTCDevices():       self._mtc_devices = operand % list()
             case ou.MtcFps():           self._mtc_fps = operand % int()
             case oc.Devices():          self._devices = operand % list()
