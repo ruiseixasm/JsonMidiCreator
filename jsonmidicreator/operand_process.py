@@ -1227,7 +1227,8 @@ class Play(Process):
     """
     def __init__(self, loops: int = 1, verbose: bool = False, plot: bool = False, block: bool = False, talkie_delay_ms: int = 500):
         super().__init__()
-        self._rec_transport = False
+        self._rec_transport: bool = False
+        self._mtc_fps: int = og.settings._mtc_fps
         self.loops = loops
         self.verbose = verbose
         self.plot = plot
@@ -1250,6 +1251,7 @@ class Play(Process):
                                                    args=(clocking, playlist,
                                                          self.loops,
                                                          self._rec_transport,
+                                                         self._mtc_fps,
                                                          self.verbose,
                                                          self.talkie_delay_ms))
                         process.start()
@@ -1260,6 +1262,7 @@ class Play(Process):
                         c.playJsonMidiPlay(clocking, playlist,
                                             self.loops,
                                             self._rec_transport,
+                                            self._mtc_fps,
                                             self.verbose,
                                             self.talkie_delay_ms)
                 else:
@@ -1276,6 +1279,7 @@ class Play(Process):
                                                args=(clocking, playlist,
                                                          self.loops,
                                                          self._rec_transport,
+                                                         self._mtc_fps,
                                                          self.verbose,
                                                          self.talkie_delay_ms))
                     process.start()
@@ -1286,6 +1290,7 @@ class Play(Process):
                     c.playJsonMidiPlay(clocking, playlist,
                                             self.loops,
                                             self._rec_transport,
+                                            self._mtc_fps,
                                             self.verbose,
                                             self.talkie_delay_ms)
                 return operand
