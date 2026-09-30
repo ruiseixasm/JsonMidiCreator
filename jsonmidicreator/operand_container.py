@@ -800,8 +800,21 @@ class ClockedDevices(Devices):
 class TransportDevices(Devices):
     """`Container -> Devices -> TransportDevices`
 
-    These devices will have Transport commands, like `play` and `stop`, sent via CC commands
-    with the same CC commands as the *Arturia KeyStep*, meaning `54` and `51` respectively.
+    These devices will have Transport commands, like `play` and `stop`, sent via CC commands.
+
+    These are the used CC messages per transport action:
+
+        +----+--------------+
+        | CC | Action       |
+        +-----+-------------+
+        | 54 | Play         |
+        | 51 | Stop         |
+        | 50 | Record       |
+        | 52 | Rewind       |
+        | 53 | Fast Forward |
+        +------+------------+
+
+    Note: In the folder `/support` you can find the Waveform Surface Controller configuration file.
 
     Parameters
     ----------
@@ -810,6 +823,7 @@ class TransportDevices(Devices):
     int : Returns the len of the list.
     """
     pass
+
 
 
 class MMCDevices(Devices):
