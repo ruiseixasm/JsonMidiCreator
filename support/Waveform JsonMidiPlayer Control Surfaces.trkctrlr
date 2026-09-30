@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<MIDICUSTOMCONTROLSURFACE name="JsonMidiPlayer" protocol="midi" eatsMidi="0" channels="8"
+                          parameters="18" pickUpMode="0" followsSelection="0">
+  <MAPPING id="65590" addr="" channel="1" function="1" note="-1"/>
+  <MAPPING id="65587" addr="" channel="1" function="2" note="-1"/>
+  <MAPPING id="65586" addr="" channel="1" function="3" note="-1"/>
+  <MAPPING id="65588" addr="" channel="1" function="4" note="-1"/>
+  <MAPPING id="65589" addr="" channel="1" function="5" note="-1"/>
+</MIDICUSTOMCONTROLSURFACE>
