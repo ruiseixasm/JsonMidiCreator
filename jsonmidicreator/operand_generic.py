@@ -3046,7 +3046,6 @@ class Settings(Generic):
             "transport_devices":    self._transport_devices,
             "mmc_devices":          self._mmc_devices,
             "mtc_devices":          self._mtc_devices,
-            "mtc_fps":              self._mtc_fps,
             "tempos": [
                 tempo % dict() for tempo in self._tempos
             ]
