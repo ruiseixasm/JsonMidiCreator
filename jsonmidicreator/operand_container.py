@@ -802,7 +802,7 @@ class TransportDevices(Devices):
 
     These devices will have Transport commands, like `play` and `stop`, sent via CC commands.
 
-    These are the used CC messages per transport action:
+    These are the used CC messages per transport action on Channel 1:
 
         +----+--------------+
         | CC | Action       |
