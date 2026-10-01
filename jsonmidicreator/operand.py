@@ -227,9 +227,9 @@ class Operand:
             case od.AsIs():
                 self.__lshift__(operand._data)
             case od.Reset():
-                self.reset(*operand._data)
+                self.reset(operand._data)
             case od.Clear():
-                self.clear(*operand._data)
+                self.clear(operand._data)
             case Operand():
                 if isinstance(operand, ch.Chaos) and not isinstance(self, ch.Chaos):
                     self << operand.chaoticize()
