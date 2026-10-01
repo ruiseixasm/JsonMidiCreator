@@ -1410,30 +1410,6 @@ class Proxy(Process):
 
 
 
-class Clear(Process):
-    """`Process -> Clear`
-
-    Besides doing a reset of the Operand's slate parameters and its volatile ones,
-    sets the default parameters associated with an empty Operand (blank slate).
-
-    Parameters
-    ----------
-    Any(None) : The Parameters to be set on the cleared `Operand`.
-
-    Returns:
-        Operand: Returns the same cleared operand.
-    """
-    def __init__(self, *parameters):
-        super().__init__()
-        self.parameters = parameters
-
-    def process(self, operand: o.T) -> o.T:
-        if isinstance(operand, o.Operand):
-            return operand.clear(*self.parameters)
-        return super().__rrshift__(operand)
-
-
-
 class Read(Process):
     """`Process -> Read`
 

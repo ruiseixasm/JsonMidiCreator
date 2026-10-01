@@ -989,3 +989,21 @@ class Reset(Data):
     pass
 
 
+
+class Clear(Data):
+    """`Data -> Clear`
+
+    Besides doing a reset of the Operand's slate parameters and its volatile ones,
+    sets the default parameters associated with an empty Operand (blank slate).
+
+    Parameters
+    ----------
+    Any(None) : The Parameters to be set on the cleared `Operand`.
+
+    Returns:
+        Operand: Returns the same cleared operand.
+    """
+    pass
+
+
+
