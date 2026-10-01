@@ -229,7 +229,8 @@ class Operand:
             case od.Reset():
                 self.reset(operand._data)
             case od.Clear():
-                self.clear(operand._data)
+                if not isinstance(self, od.Clear):  # Avoids infinite recursion
+                    self.clear(operand._data)
             case Operand():
                 if isinstance(operand, ch.Chaos) and not isinstance(self, ch.Chaos):
                     self << operand.chaoticize()
