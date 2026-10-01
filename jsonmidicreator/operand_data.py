@@ -974,3 +974,18 @@ class Device(Data):
 
 
 
+class Reset(Data):
+    """`Data -> Reset`
+
+    Does a reset of the Operand's original parameters and its volatile ones.
+
+    Parameters
+    ----------
+    Any(None) : The Parameters to be set on the reset `Operand`.
+
+    Returns:
+        Operand: Returns the same reset operand.
+    """
+    pass
+
+
