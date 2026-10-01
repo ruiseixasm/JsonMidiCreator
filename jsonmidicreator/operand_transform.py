@@ -1107,6 +1107,7 @@ class IteratedTransform(Transform):
 
     def reset(self) -> Self:
         self._iterations = []
+        self.chaos.reset()
         return super().reset()
     
     
