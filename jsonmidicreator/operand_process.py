@@ -1365,28 +1365,6 @@ class Print(Process):
         return operand
 
 
-class Copy(Process):
-    """`Process -> Copy`
-
-    Creates and returns a copy of the left side `>>` operand.
-
-    Parameters
-    ----------
-    Any(None) : The Parameters to be set on the copied `Operand`.
-
-    Returns:
-        Operand: Returns a copy of the left side `>>` operand.
-    """
-    def __init__(self, *parameters):
-        super().__init__()
-        self.parameters = parameters
-
-    def process(self, operand: o.T) -> o.T:
-        if isinstance(operand, o.Operand):
-            return operand.copy(*self.parameters)
-        return o.deep_copy(operand)
-
-
 
 class Read(Process):
     """`Process -> Read`

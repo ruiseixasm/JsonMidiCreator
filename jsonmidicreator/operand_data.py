@@ -1007,3 +1007,18 @@ class Clear(Data):
 
 
 
+class Copy(Data):
+    """`Data -> Copy`
+
+    Creates and returns a copy of the left side `>>` operand.
+
+    Parameters
+    ----------
+    Any(None) : The Parameters to be set on the copied `Operand`.
+
+    Returns:
+        Operand: Returns a copy of the left side `>>` operand.
+    """
+
+
+

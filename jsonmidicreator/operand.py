@@ -151,6 +151,8 @@ class Operand:
         match operand:
             case od.Pipe():
                 return self.__mod__( operand % Operand() )
+            case od.Copy():
+                return self.copy(operand._data)
             case od.Serialization():
                 return od.Serialization(self)
             case ra.Index():
