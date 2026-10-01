@@ -1387,28 +1387,6 @@ class Copy(Process):
         return o.deep_copy(operand)
 
 
-class Proxy(Process):
-    """`Process -> Proxy`
-
-    Creates and returns a shallow copy of the left side `>>` Container.
-
-    Parameters
-    ----------
-    Any(None) : The Parameters to be set on the shallow copied `Container`.
-
-    Returns:
-        Container: Returns a shallow copy of the left side `>>` operand.
-    """
-    def __init__(self, *parameters):
-        super().__init__()
-        self.parameters = parameters
-
-    def process(self, operand: o.T) -> o.T:
-        if isinstance(operand, oc.Container):
-            return operand.shallow_copy(*self.parameters)
-        return super().__rrshift__(operand)
-
-
 
 class Read(Process):
     """`Process -> Read`

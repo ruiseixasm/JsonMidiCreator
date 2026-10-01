@@ -1407,27 +1407,6 @@ def test_element_split():
     assert sixteenth_notes[15] % Duration() == 1/16
     assert sixteenth_notes[15] % Position() == 1.0 - 1/16
 
-def test_clip_proxy():
-    four_notes = Note() / 4
-
-    notes_proxy = four_notes >> Proxy()
-    assert notes_proxy is not four_notes
-
-    inline_notes = Inline(four_notes)
-    assert inline_notes % Pipe() is four_notes
-    assert four_notes.len() == 4
-    inline_notes * 2
-    assert four_notes.len() == 8
-
-    inline_mask = inline_notes << Mask(Nth(1, 2))
-    assert inline_mask % Pipe() is inline_notes % Pipe()
-    assert inline_notes % Pipe() % bool()   # True means masked
-
-    joined_mask = inline_mask << Join()
-    assert joined_mask % Pipe() is inline_notes % Pipe()
-
-# test_clip_proxy()
-
 
 def test_chord_smooth():
     chords_G_C = Clip("c::G, c::C")
