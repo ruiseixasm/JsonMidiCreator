@@ -57,7 +57,7 @@ class Transform(o.Operand):
         return clip
 
 
-    def next(self, clip: 'oc.Clip') -> 'oc.Clip':
+    def new_iteration(self, clip: 'oc.Clip') -> 'oc.Clip':
         self._index += 1    # Starts at -1
         transform: Transform = self
         for _ in range(self._index):
@@ -1097,7 +1097,7 @@ class IteratedTransform(Transform):
         super().__init__()
 
         
-    def next(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
+    def new_iteration(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
         """`IteratedTransform` has iterates in an aggregated fashion"""
         transform: oc.Clip = self.transform(clip)
         if isinstance(transform, ol.Null):
