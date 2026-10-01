@@ -1070,8 +1070,8 @@ class Quantize(Transform):
 
 
 
-class IterateClip(Transform):
-    """`Transform -> IterateClip`
+class IterateTransform(Transform):
+    """`Transform -> IterateTransform`
 
     This class allows the transformation of the `Clip` based on chaotic input in an iterative fashion.
 
@@ -1098,7 +1098,7 @@ class IterateClip(Transform):
 
         
     def next(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
-        """`IterateClip` has iterates in an aggregated fashion"""
+        """`IterateTransform` has iterates in an aggregated fashion"""
         transform: oc.Clip = self.transform(clip)
         if isinstance(transform, ol.Null):
             return ol.Null()
@@ -1131,8 +1131,8 @@ class IterateClip(Transform):
 
 
 
-class ISplitDuration(IterateClip):
-    """`Transform -> IterateClip -> ISplitDuration`
+class ISplitDuration(IterateTransform):
+    """`Transform -> IterateTransform -> ISplitDuration`
 
     Adds splits to the `Clip` elements resulting in the given amount of durations (elements).
 
@@ -1186,8 +1186,8 @@ class ISplitDuration(IterateClip):
 
 
 
-class IShuffleLocus(IterateClip):
-    """`Transform -> IterateClip -> IShuffleLocus`
+class IShuffleLocus(IterateTransform):
+    """`Transform -> IterateTransform -> IShuffleLocus`
 
     This class shuffles the multiple locus around.
 
@@ -1216,8 +1216,8 @@ class IShuffleLocus(IterateClip):
 
 
 
-class IShuffleDuration(IterateClip):
-    """`Transform -> IterateClip -> IShuffleDuration`
+class IShuffleDuration(IterateTransform):
+    """`Transform -> IterateTransform -> IShuffleDuration`
 
     Moves the existent durations around while preserving the relative positions to them.
 
@@ -1267,7 +1267,7 @@ class IShuffleDuration(IterateClip):
 
 
 class IChooseDuration(IShuffleDuration):
-    """`Transform -> IterateClip -> IShuffleDuration -> IChooseDuration`
+    """`Transform -> IterateTransform -> IShuffleDuration -> IChooseDuration`
 
     Chooses durations from a given list and sets the element durations with it while preserving the relative positions.
 
@@ -1333,8 +1333,8 @@ class IChooseDuration(IShuffleDuration):
         
     
 
-class ISwapDuration(IterateClip):
-    """`Transform -> IterateClip -> ISwapDuration`
+class ISwapDuration(IterateTransform):
+    """`Transform -> IterateTransform -> ISwapDuration`
 
     Swaps subsequent elements durations but it doesn't necessarily preserve all relative positions.
 
@@ -1369,8 +1369,8 @@ class ISwapDuration(IterateClip):
         return clip._sort_items()
     
 
-class IShuffleParameter(IterateClip):
-    """`Transform -> IterateClip -> IShuffleParameter`
+class IShuffleParameter(IterateTransform):
+    """`Transform -> IterateTransform -> IShuffleParameter`
 
     Shuffles a given parameter among the multiple elements in the clip.
 
@@ -1408,8 +1408,8 @@ class IShuffleParameter(IterateClip):
 
 
 
-class ISetParameter(IterateClip):
-    """`Transform -> IterateClip -> ISetParameter`
+class ISetParameter(IterateTransform):
+    """`Transform -> IterateTransform -> ISetParameter`
 
     Applies to each element the *chaotized* parameter or to all elements at once if `global_setting` is `True`.
 
@@ -1448,8 +1448,8 @@ class ISetParameter(IterateClip):
 
 
 
-class IChooseParameter(IterateClip):
-    """`Transform -> IterateClip -> IChooseParameter`
+class IChooseParameter(IterateTransform):
+    """`Transform -> IterateTransform -> IChooseParameter`
 
     Choses a parameter from parameters for each `Clip` element.
 
