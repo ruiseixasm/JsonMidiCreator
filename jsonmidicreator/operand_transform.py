@@ -57,7 +57,7 @@ class Transform(o.Operand):
         return clip
 
 
-    def new_iteration(self, clip: 'oc.Clip') -> 'oc.Clip':
+    def new_iteration(self, iterations: list['oc.Clip']) -> Union['oc.Clip', 'ol.Null']:
         self._index += 1    # Starts at -1
         transform: Transform = self
         for _ in range(self._index):
@@ -66,7 +66,7 @@ class Transform(o.Operand):
             else:
                 self._index -= 1    # Reverts the previous increment
                 return ol.Null()
-        return transform._single_transform(clip)
+        return transform._single_transform(iterations[-1].copy()) # Decouples
 
     
     def copy(self, *parameters) -> Self:
@@ -1097,12 +1097,12 @@ class IteratedTransform(Transform):
         super().__init__()
 
         
-    def new_iteration(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
+    def new_iteration(self, iterations: list['oc.Clip']) -> Union['oc.Clip', 'ol.Null']:
         """`IteratedTransform` has iterates in an aggregated fashion"""
-        transform: oc.Clip = self.transform(clip)
+        transform: oc.Clip = self.transform(iterations[0].copy()) # Decouples
         if isinstance(transform, ol.Null):
             return ol.Null()
-        return clip << transform
+        return transform
 
 
     def reset(self) -> Self:

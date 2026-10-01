@@ -1200,7 +1200,7 @@ class Plot(Process):
         if isinstance(self.transform, tr.Transform):
             clip: oc.Composition = self._compositions[-1]    # It has always at least one
             if isinstance(clip, oc.Clip):
-                new_iteration = self.transform.new_iteration(clip.copy()) # Decouples
+                new_iteration = self.transform.new_iteration(self._compositions)
                 if isinstance(new_iteration, oc.Clip):
                     self._iteration_index = len(self._compositions)
                     plotlist: list[dict] = new_iteration.getPlotlist()
