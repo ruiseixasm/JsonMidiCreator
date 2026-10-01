@@ -161,3 +161,26 @@ class Dummy(Label):
     """
     pass
 
+
+
+class Reset(Label):
+    """`Label -> Reset`
+
+    Does a reset of the Operand's original parameters and its volatile ones.
+
+    Parameters
+    ----------
+    Any(None) : The Parameters to be set on the reset `Operand`.
+
+    Returns:
+        Operand: Returns the same reset operand.
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self.parameters = parameters
+
+    def process(self, operand: o.T) -> o.T:
+        if isinstance(operand, o.Operand):
+            return operand.reset(*self.parameters)
+        return super().__rrshift__(operand)
+

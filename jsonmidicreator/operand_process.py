@@ -53,7 +53,7 @@ class Process(o.Operand):
 
 
 class Save(Process):
-    """`Generic -> Process -> Save`
+    """`Process -> Save`
 
     Saves all parameters' `Serialization` of a given `Operand` into a file.
 
@@ -84,7 +84,7 @@ class Save(Process):
 
 
 class Export(Process):
-    """`Generic -> Process -> Export`
+    """`Process -> Export`
 
     Exports a file playable by the `JsonMidiPlayer` program.
 
@@ -129,7 +129,7 @@ class Export(Process):
 
 
 class Render(Process):
-    """`Generic -> Process -> Render`
+    """`Process -> Render`
 
     Renders a midi file playable by any Midi player.
 
@@ -190,7 +190,7 @@ except ImportError:
 
 
 class Plot(Process):
-    """`Generic -> Process -> Plot`
+    """`Process -> Plot`
 
     Plots the `Composition` content, Notes or the `Automation` if existent.
 
@@ -1216,7 +1216,7 @@ class Plot(Process):
 
 
 class Play(Process):
-    """`Generic -> Process -> Play`
+    """`Process -> Play`
 
     Plays an `Element` or a `Composition` straight on into the `JsonMidiPlayer` program.
 
@@ -1310,7 +1310,7 @@ class Play(Process):
 
 
 class Rec(Play):
-    """`Generic -> Process -> Play -> Rec`
+    """`Process -> Play -> Rec`
 
     Sets the transport control in record mode while playing.
 
@@ -1326,7 +1326,7 @@ class Rec(Play):
         
 
 class Print(Process):
-    """`Generic -> Process -> Print`
+    """`Process -> Print`
 
     Prints the Operand's parameters in a JSON alike layout if it's an `Operand` being given,
     otherwise prints directly like the common `print` function.
@@ -1366,7 +1366,7 @@ class Print(Process):
 
 
 class Copy(Process):
-    """`Generic -> Process -> Copy`
+    """`Process -> Copy`
 
     Creates and returns a copy of the left side `>>` operand.
 
@@ -1388,7 +1388,7 @@ class Copy(Process):
 
 
 class Proxy(Process):
-    """`Generic -> Process -> Proxy`
+    """`Process -> Proxy`
 
     Creates and returns a shallow copy of the left side `>>` Container.
 
@@ -1409,30 +1409,9 @@ class Proxy(Process):
         return super().__rrshift__(operand)
 
 
-class Reset(Process):
-    """`Generic -> Process -> Reset`
-
-    Does a reset of the Operand's original parameters and its volatile ones.
-
-    Parameters
-    ----------
-    Any(None) : The Parameters to be set on the reset `Operand`.
-
-    Returns:
-        Operand: Returns the same reset operand.
-    """
-    def __init__(self, *parameters):
-        super().__init__()
-        self.parameters = parameters
-
-    def process(self, operand: o.T) -> o.T:
-        if isinstance(operand, o.Operand):
-            return operand.reset(*self.parameters)
-        return super().__rrshift__(operand)
-
 
 class Clear(Process):
-    """`Generic -> Process -> Clear`
+    """`Process -> Clear`
 
     Besides doing a reset of the Operand's slate parameters and its volatile ones,
     sets the default parameters associated with an empty Operand (blank slate).
@@ -1456,7 +1435,7 @@ class Clear(Process):
 
 
 class Read(Process):
-    """`Generic -> Process -> Read`
+    """`Process -> Read`
 
     Reads the keyboard input. Press and release SHIFT for each Element. Press ENTER to stop.
 
