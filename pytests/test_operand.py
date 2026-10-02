@@ -92,6 +92,12 @@ def test_operand_mod():
     for single_class in list_all_classes:
         print(f"Culprit new: {single_class.__name__}")
         class_object: Operand = single_class()
+        if isinstance(class_object, Clip):
+            class_object << [Note(), Rest()]
+        if isinstance(class_object, Part):
+            class_object << [Section([Clip([Note(), Rest()]), Clip([Note(), Rest()])])]
+        if class_object is not None:
+            ...
         
     
 
@@ -117,7 +123,7 @@ def test_operand_copy():
         if isinstance(class_object, Clip):
             class_object << [Note(), Rest()]
         if isinstance(class_object, Part):
-            class_object << Section(Clip([Note(), Rest()]), Clip([Note(), Rest()]))
+            class_object << [Section([Clip([Note(), Rest()]), Clip([Note(), Rest()])])]
         if class_object is not None:
             class_object << basic_parameters
             class_copy = class_object.copy()
@@ -145,7 +151,7 @@ def test_operand_copy():
         if isinstance(class_object, Clip):
             class_object << Note() << Rest()
         if isinstance(class_object, Part):
-            class_object << Section(Clip(Note(),Rest()), Clip(Note(),Rest()))
+            class_object << [Section([Clip([Note(), Rest()]), Clip([Note(), Rest()])])]
         if class_object is not None:
             list_unit_classes: list[Type[Unit]] = list_all_operand_classes(Unit)
             for single_unit_class in list_unit_classes:
