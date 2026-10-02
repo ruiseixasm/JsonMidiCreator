@@ -1070,8 +1070,8 @@ class Quantize(Transform):
 
 
 
-class IteratedTransform(Transform):
-    """`Transform -> IteratedTransform`
+class IterateTransform(Transform):
+    """`Transform -> IterateTransform`
 
     This class allows the transformation of the `Clip` based on chaotic input in an iterative fashion.
 
@@ -1098,7 +1098,7 @@ class IteratedTransform(Transform):
 
         
     def new_iteration(self, iterations: list['oc.Clip']) -> Union['oc.Clip', 'ol.Null']:
-        """`IteratedTransform` has iterates in an aggregated fashion"""
+        """`IterateTransform` uses the same starting clip as seed"""
         transform: oc.Clip = self.transform(iterations[0].copy()) # Decouples
         if isinstance(transform, ol.Null):
             return ol.Null()
@@ -1131,9 +1131,26 @@ class IteratedTransform(Transform):
         return ol.Null()
 
 
+class IVariate(IterateTransform):
+    """`Transform -> IterateTransform -> IterateTransform -> IVariate`
 
-class ISplitDuration(IteratedTransform):
-    """`Transform -> IteratedTransform -> ISplitDuration`
+    This transformation respects the topology. The note count and relationships stay untouched;
+    it only changes continuous space (pitch, timing, velocity), **only** the `Element` parameters.
+
+    Args:
+        chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
+        post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
+        max_tries (int) : The maximum amount of tries to find a `Clip` solution.
+        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
+    """
+    pass
+
+
+
+class ISplitDuration(IVariate):
+    """`Transform -> IterateTransform -> IVariate -> ISplitDuration`
 
     Adds splits to the `Clip` elements resulting in the given amount of durations (elements).
 
@@ -1187,8 +1204,8 @@ class ISplitDuration(IteratedTransform):
 
 
 
-class IShuffleLocus(IteratedTransform):
-    """`Transform -> IteratedTransform -> IShuffleLocus`
+class IShuffleLocus(IVariate):
+    """`Transform -> IterateTransform -> IVariate -> IShuffleLocus`
 
     This class shuffles the multiple locus around.
 
@@ -1217,8 +1234,8 @@ class IShuffleLocus(IteratedTransform):
 
 
 
-class IShuffleDuration(IteratedTransform):
-    """`Transform -> IteratedTransform -> IShuffleDuration`
+class IShuffleDuration(IVariate):
+    """`Transform -> IterateTransform -> IVariate -> IShuffleDuration`
 
     Moves the existent durations around while preserving the relative positions to them.
 
@@ -1268,7 +1285,7 @@ class IShuffleDuration(IteratedTransform):
 
 
 class IChooseDuration(IShuffleDuration):
-    """`Transform -> IteratedTransform -> IShuffleDuration -> IChooseDuration`
+    """`Transform -> IterateTransform -> IVariate -> IShuffleDuration -> IChooseDuration`
 
     Chooses durations from a given list and sets the element durations with it while preserving the relative positions.
 
@@ -1334,8 +1351,8 @@ class IChooseDuration(IShuffleDuration):
         
     
 
-class ISwapDuration(IteratedTransform):
-    """`Transform -> IteratedTransform -> ISwapDuration`
+class ISwapDuration(IVariate):
+    """`Transform -> IterateTransform -> IVariate -> ISwapDuration`
 
     Swaps subsequent elements durations but it doesn't necessarily preserve all relative positions.
 
@@ -1370,8 +1387,8 @@ class ISwapDuration(IteratedTransform):
         return clip._sort_items()
     
 
-class IShuffleParameter(IteratedTransform):
-    """`Transform -> IteratedTransform -> IShuffleParameter`
+class IShuffleParameter(IVariate):
+    """`Transform -> IterateTransform -> IVariate -> IShuffleParameter`
 
     Shuffles a given parameter among the multiple elements in the clip.
 
@@ -1409,8 +1426,8 @@ class IShuffleParameter(IteratedTransform):
 
 
 
-class ISetParameter(IteratedTransform):
-    """`Transform -> IteratedTransform -> ISetParameter`
+class ISetParameter(IVariate):
+    """`Transform -> IterateTransform -> IVariate -> ISetParameter`
 
     Applies to each element the *chaotized* parameter or to all elements at once if `global_setting` is `True`.
 
@@ -1449,8 +1466,8 @@ class ISetParameter(IteratedTransform):
 
 
 
-class IChooseParameter(IteratedTransform):
-    """`Transform -> IteratedTransform -> IChooseParameter`
+class IChooseParameter(IVariate):
+    """`Transform -> IterateTransform -> IVariate -> IChooseParameter`
 
     Choses a parameter from parameters for each `Clip` element.
 
