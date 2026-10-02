@@ -193,6 +193,21 @@ class Pipe(Data):
         super().__init__()
         self._data: any = operand
 
+    def __eq__(self, other: o.Operand) -> bool:
+        if isinstance(other, Data):
+            return self._data == other._data
+        return self._data == other
+    
+    def __lt__(self, other: o.Operand) -> bool:
+        if isinstance(other, Data):
+            return self._data < other._data
+        return self._data < other
+    
+    def __gt__(self, other: o.Operand) -> bool:
+        if isinstance(other, Data):
+            return self._data > other._data
+        return self._data > other
+    
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:

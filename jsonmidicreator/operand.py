@@ -149,8 +149,6 @@ class Operand:
         from . import operand_unit as ou
         from . import operand_rational as ra
         match operand:
-            case self.__class__():
-                return self.copy()
             case od.Pipe():
                 return self.__mod__( operand % Operand() )
             case od.Copy():
@@ -159,6 +157,8 @@ class Operand:
                 return od.Serialization(self)
             case ra.Index():
                 return ra.Index(self._index)
+            case self.__class__():
+                return self.copy()
             case tuple():
                 results: list = []
                 for single_parameter in operand:

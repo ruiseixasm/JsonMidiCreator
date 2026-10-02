@@ -128,3 +128,7 @@ def test_copy_operand():
     assert two_notes % Copy(three_notes_elements) == three_notes
 
 
+def test_copy_data():
+    pipe = Pipe(2)
+    assert pipe == 2
+
