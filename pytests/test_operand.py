@@ -86,7 +86,6 @@ def test_operand_mod():
 
     assert instantiated_note.copy() == instantiated_note
 
-
     basic_parameters: tuple = (None, 6, "minor", "##", [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1], True, 6.2)
     list_all_classes: list[Type[Operand]] = list_all_operand_classes(Operand)
     for single_class in list_all_classes:
@@ -97,11 +96,11 @@ def test_operand_mod():
         if isinstance(class_object, Part):
             class_object << [Section([Clip([Note(), Rest()]), Clip([Note(), Rest()])])]
         if class_object is not None:
-            ...
+            class_object << basic_parameters
+            assert class_object % single_class() == class_object
         
-    
 
-
+   
 @pytest.mark.heavy
 def test_operand_copy():
 

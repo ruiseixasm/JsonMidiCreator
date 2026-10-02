@@ -149,6 +149,8 @@ class Operand:
         from . import operand_unit as ou
         from . import operand_rational as ra
         match operand:
+            case self.__class__():
+                return self.copy()
             case od.Pipe():
                 return self.__mod__( operand % Operand() )
             case od.Copy():
