@@ -114,3 +114,17 @@ def test_inline_operations():
     assert many_notes is four_notes
     assert many_notes.len() == 7
 
+
+def test_copy_operand():
+    three_notes = Note(1/3) / 3
+    assert ~three_notes == three_notes
+    assert three_notes % Copy() == three_notes
+
+    three_notes_elements = three_notes % list()
+    assert Clip(three_notes_elements) == three_notes
+
+    two_notes = Note(1/2) / 2
+    assert two_notes != three_notes
+    assert two_notes % Copy(three_notes_elements) == three_notes
+
+

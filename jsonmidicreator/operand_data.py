@@ -216,8 +216,14 @@ class Parameters(Data):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, parameters: any) -> Self:
-        self._data = parameters
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Parameters():
+                super().__lshift__(operand)
+                self._data = operand._data
+            case _:
+                self._data = operand
         return self
 
 
