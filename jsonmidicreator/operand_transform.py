@@ -1131,8 +1131,9 @@ class IterateTransform(Transform):
         return ol.Null()
 
 
+
 class IVariate(IterateTransform):
-    """`Transform -> IterateTransform -> IterateTransform -> IVariate`
+    """`Transform -> IterateTransform -> IVariate`
 
     This transformation respects the topology. The note count and relationships stay untouched;
     it only changes continuous space (pitch, timing, velocity), **only** the `Element` parameters.
@@ -1499,6 +1500,41 @@ class IChooseParameter(IVariate):
                 element << o.deep_copy(chosen_parameter)    # copy guarantees parameter decoupling
         return clip._sort_items()   # The Clip is already decoupled
 
+
+
+class IMutate(IterateTransform):
+    """`Transform -> IterateTransform -> IMutate`
+
+    This transformation changes the topology. The note count and relationships are changed;
+    Type of Element, Note, Rest or ControlChange are possibly changed, and the number of elements too.
+
+    Args:
+        chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
+        post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
+        max_tries (int) : The maximum amount of tries to find a `Clip` solution.
+        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
+    """
+    pass
+
+
+
+class IYield(IterateTransform):
+    """`Transform -> IterateTransform -> IYield`
+
+    This transformation overrides the topology with a new one. All the `Clip` content is replaced
+    by a self generated, iterated, new one.
+
+    Args:
+        chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
+        post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
+        max_tries (int) : The maximum amount of tries to find a `Clip` solution.
+        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
+    """
+    pass
 
 
 
