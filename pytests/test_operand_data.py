@@ -147,6 +147,11 @@ def test_copy_data():
     assert inline % Copy() == inline
     assert inline % Inline() == inline
 
-# test_copy_data()
+    serialization = Serialization(6.2)
+    assert serialization.copy() == serialization
+    assert serialization % Copy() == serialization
+    assert serialization % Serialization() == serialization
+
+test_copy_data()
 
 

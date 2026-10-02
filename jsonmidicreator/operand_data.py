@@ -905,18 +905,10 @@ class Serialization(Data):
         """
         if isinstance(self._data, o.Operand):
             match operand:
-                case Pipe():
-                    return self._data % operand # Already includes the DataSource wrapper
-                    # # WHY NOT JUST THIS?
-                    # return self._data
                 case dict():
                     if isinstance(self._data, o.Operand):
                         return self._data.getSerialization()
                     return dict()
-                case _:
-                    return self._data % operand
-                    # # WHY NOT JUST THIS?
-                    # return self._data.copy()
         return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand | dict) -> bool:
