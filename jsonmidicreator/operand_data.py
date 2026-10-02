@@ -208,6 +208,14 @@ class Pipe(Data):
 
 
 class Parameters(Data):
+    """`Data -> Parameters`
+
+    Wraps parameters in it.
+
+    Parameters
+    ----------
+    Any(None) : The Parameters to be set on the targeted `Operand`.
+    """
     def __init__(self, parameters: any = None):
         super().__init__()
         self._data: any = parameters
@@ -223,6 +231,54 @@ class Parameters(Data):
             case _:
                 self._data = operand
         return self
+
+
+
+class Reset(Parameters):
+    """`Data -> Parameters -> Reset`
+
+    Does a reset of the Operand's original parameters and its volatile ones.
+
+    Parameters
+    ----------
+    Any(None) : The Parameters to be set on the reset `Operand`.
+
+    Returns:
+        Operand: Returns the same reset operand.
+    """
+    pass
+
+
+
+class Clear(Parameters):
+    """`Data -> Parameters -> Clear`
+
+    Besides doing a reset of the Operand's slate parameters and its volatile ones,
+    sets the default parameters associated with an empty Operand (blank slate).
+
+    Parameters
+    ----------
+    Any(None) : The Parameters to be set on the cleared `Operand`.
+
+    Returns:
+        Operand: Returns the same cleared operand.
+    """
+    pass
+
+
+
+class Copy(Parameters):
+    """`Data -> Parameters -> Copy`
+
+    Creates and returns a copy of the left side `>>` operand.
+
+    Parameters
+    ----------
+    Any(None) : The Parameters to be set on the copied `Operand`.
+
+    Returns:
+        Operand: Returns a copy of the left side `>>` operand.
+    """
 
 
 
@@ -988,54 +1044,5 @@ class Device(Data):
     """
     def __init__(self, device: str = "Synth"):
         super().__init__( device if isinstance(device, str) else "Synth" )
-
-
-
-class Reset(Data):
-    """`Data -> Reset`
-
-    Does a reset of the Operand's original parameters and its volatile ones.
-
-    Parameters
-    ----------
-    Any(None) : The Parameters to be set on the reset `Operand`.
-
-    Returns:
-        Operand: Returns the same reset operand.
-    """
-    pass
-
-
-
-class Clear(Data):
-    """`Data -> Clear`
-
-    Besides doing a reset of the Operand's slate parameters and its volatile ones,
-    sets the default parameters associated with an empty Operand (blank slate).
-
-    Parameters
-    ----------
-    Any(None) : The Parameters to be set on the cleared `Operand`.
-
-    Returns:
-        Operand: Returns the same cleared operand.
-    """
-    pass
-
-
-
-class Copy(Data):
-    """`Data -> Copy`
-
-    Creates and returns a copy of the left side `>>` operand.
-
-    Parameters
-    ----------
-    Any(None) : The Parameters to be set on the copied `Operand`.
-
-    Returns:
-        Operand: Returns a copy of the left side `>>` operand.
-    """
-
 
 
