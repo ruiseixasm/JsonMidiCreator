@@ -152,6 +152,11 @@ def test_copy_data():
     assert serialization % Copy() == serialization
     assert serialization % Serialization() == serialization
 
-test_copy_data()
+    tempos = Tempos(6.2)
+    assert tempos.copy() == tempos
+    assert tempos % Copy() == tempos
+    assert tempos % Tempos() == tempos
+
+# test_copy_data()
 
 

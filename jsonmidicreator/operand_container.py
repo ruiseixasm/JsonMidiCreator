@@ -383,8 +383,6 @@ class Container(o.Operand):
                 return self.len()
             case bool():
                 return self._is_masked()
-            case Container():
-                return operand.copy().__iadd__(self)
             case of.Frame():    # Works as a Selector, returns the Item, NOT the parameter passed (NOT a reversal of `<<`)
                 # One to One, NOT One to Many (return)
                 operand._set_inside_container(self)
