@@ -703,6 +703,8 @@ class Inline(Data):
         match operand:
             case Pipe():
                 return self._data
+            case Inline() | Copy():
+                return super().__mod__(operand)
             case _:
                 if isinstance(self._data, o.Operand):
                     return self._data % operand

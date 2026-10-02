@@ -89,7 +89,7 @@ def test_operand_mod():
     basic_parameters: tuple = (None, 6, "minor", "##", [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1], True, 6.2)
     list_all_classes: list[Type[Operand]] = list_all_operand_classes(Operand)
     for single_class in list_all_classes:
-        print(f"Culprit new: {single_class.__name__}")
+        print(f"Culprit _mod_: {single_class.__name__}")
         class_object: Operand = single_class()
         if isinstance(class_object, Clip):
             class_object << [Note(), Rest()]

@@ -142,6 +142,11 @@ def test_copy_data():
     assert pipe % Copy() == pipe
     assert pipe % Pipe() == pipe
 
+    inline = Inline(6.2)
+    assert inline.copy() == inline
+    assert inline % Copy() == inline
+    assert inline % Inline() == inline
+
 # test_copy_data()
 
 
