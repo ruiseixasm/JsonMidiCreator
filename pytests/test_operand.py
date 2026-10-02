@@ -39,18 +39,6 @@ def test_tail_recur():
 # test_tail_recur()
 
 
-def test_operand_mod():
-
-    # Perform the operation
-    generated_note = find_class_by_name(Operand, "Note")()
-    instantiated_note = Note()
-    assert generated_note == instantiated_note
-
-    unknown_class = find_class_by_name(Operand, "Unknown")
-    assert not unknown_class
-
-    assert instantiated_note.copy() == instantiated_note
-
 
 def test_classes_getters():
 
@@ -84,6 +72,30 @@ def test_floordiv_sequence():
 # Execute only the heavy testing with:
 #     pytest -m heavy
 
+
+@pytest.mark.heavy
+def test_operand_mod():
+
+    # Perform the operation
+    generated_note = find_class_by_name(Operand, "Note")()
+    instantiated_note = Note()
+    assert generated_note == instantiated_note
+
+    unknown_class = find_class_by_name(Operand, "Unknown")
+    assert not unknown_class
+
+    assert instantiated_note.copy() == instantiated_note
+
+
+    basic_parameters: tuple = (None, 6, "minor", "##", [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1], True, 6.2)
+    list_all_classes: list[Type[Operand]] = list_all_operand_classes(Operand)
+    for single_class in list_all_classes:
+        print(f"Culprit new: {single_class.__name__}")
+        class_object: Operand = single_class()
+        
+    
+
+
 @pytest.mark.heavy
 def test_operand_copy():
 
@@ -103,10 +115,10 @@ def test_operand_copy():
         print(f"Culprit new: {single_class.__name__}")
         class_object: Operand = single_class()
         if isinstance(class_object, Clip):
-            class_object << Note() << Rest()
+            class_object << [Note(), Rest()]
         if isinstance(class_object, Part):
-            class_object << Section(Clip(Note(),Rest()), Clip(Note(),Rest()))
-        if class_object and not isinstance(class_object, (int)):
+            class_object << Section(Clip([Note(), Rest()]), Clip([Note(), Rest()]))
+        if class_object is not None:
             class_object << basic_parameters
             class_copy = class_object.copy()
             if class_object != class_copy:
@@ -134,7 +146,7 @@ def test_operand_copy():
             class_object << Note() << Rest()
         if isinstance(class_object, Part):
             class_object << Section(Clip(Note(),Rest()), Clip(Note(),Rest()))
-        if class_object and not isinstance(class_object, (int)):
+        if class_object is not None:
             list_unit_classes: list[Type[Unit]] = list_all_operand_classes(Unit)
             for single_unit_class in list_unit_classes:
                 unit_class_object: Unit = single_unit_class() << basic_parameters
