@@ -168,6 +168,7 @@ class Data(o.Operand):
         return self
 
 
+
 class Pipe(Data):
     """
     Pipe() allows the direct extraction (%) or setting (<<)
@@ -192,9 +193,6 @@ class Pipe(Data):
         super().__init__()
         self._data: any = operand
 
-    def __mod__(self, operand: o.T) -> o.T:
-        return self._data
-    
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
