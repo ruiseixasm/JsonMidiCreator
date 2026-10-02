@@ -114,6 +114,12 @@ def test_inline_operations():
     assert many_notes is four_notes
     assert many_notes.len() == 7
 
+    four_notes = Note() / 4
+    inline_notes = Inline(four_notes)
+    assert four_notes.len() == 4
+    inline_notes * 2
+    four_notes.len() == 8
+
 
 def test_copy_operand():
     three_notes = Note(1/3) / 3
@@ -136,6 +142,6 @@ def test_copy_data():
     assert pipe % Copy() == pipe
     assert pipe % Pipe() == pipe
 
-test_copy_data()
+# test_copy_data()
 
 
