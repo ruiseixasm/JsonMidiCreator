@@ -132,3 +132,10 @@ def test_copy_data():
     pipe = Pipe(2)
     assert pipe == 2
 
+    assert pipe.copy() == pipe
+    assert pipe % Copy() == pipe
+    assert pipe % Pipe() == pipe
+
+test_copy_data()
+
+

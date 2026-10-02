@@ -111,11 +111,7 @@ class Data(o.Operand):
         {'class': 'Bend', 'parameters': {'unit': 8191}}
         """
         match operand:
-            case Pipe():
-                match operand._data:
-                    case Data():                    return self
-                    case ol.Null() | None:          return ol.Null()
-                    case _:                         return self._data
+            case Pipe():                    return self._data
             case Serialization():           return self.getSerialization()
             case dict():
                 serialization: dict = self.getSerialization()
