@@ -209,6 +209,19 @@ class Pipe(Data):
 
 
 
+class Parameters(Data):
+    def __init__(self, parameters: any = None):
+        super().__init__()
+        self._data: any = parameters
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, parameters: any) -> Self:
+        self._data = parameters
+        return self
+
+
+
 class OperandType(Data):
     """`Data -> OperandType`
 
