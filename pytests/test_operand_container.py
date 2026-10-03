@@ -798,18 +798,18 @@ def test_lshift_clip():
     filtered_notes = eight_notes << Select(Measure(1))
 
     assert filtered_notes.len_unmasked() == 4
-    assert filtered_notes % At(0) % Position() == 1.0
-    assert filtered_notes % At(1) % Position() == 1.25
-    assert filtered_notes % At(2) % Position() == 1.50
-    assert filtered_notes % At(3) % Position() == 1.75
+    assert filtered_notes[At(0)] % Position() == 1.0
+    assert filtered_notes[At(1)] % Position() == 1.25
+    assert filtered_notes[At(2)] % Position() == 1.50
+    assert filtered_notes[At(3)] % Position() == 1.75
 
     filtered_notes << Measure(0)
 
     assert filtered_notes.len_unmasked() == 4
-    assert filtered_notes % At(0) % Position() == 0.0
-    assert filtered_notes % At(1) % Position() == 0.25
-    assert filtered_notes % At(2) % Position() == 0.50
-    assert filtered_notes % At(3) % Position() == 0.75
+    assert filtered_notes[At(0)] % Position() == 0.0
+    assert filtered_notes[At(1)] % Position() == 0.25
+    assert filtered_notes[At(2)] % Position() == 0.50
+    assert filtered_notes[At(3)] % Position() == 0.75
 
 
     two_rests = Rest() / 2
@@ -1315,10 +1315,10 @@ def test_mul_list():
     same_as_long_clip = long_clip.select(Beat(3))
     assert same_as_long_clip.len_unmasked() == 1 * 8
     new_clip = same_as_long_clip * [1, 0]   # Picks by Measure, where 0 is the first Measure
-    print(f'new_clip % At(0) % Velocity(): {new_clip % At(0) % Velocity() % int()}')
-    print(f'new_clip % At(1) % Velocity(): {new_clip % At(1) % Velocity() % int()}')
-    assert new_clip % At(0) % Velocity() % int() == 100 - 8 + 1
-    assert new_clip % At(1) % Velocity() % int() == 100 - 4 + 1
+    print(f'new_clip % At(0) % Velocity(): {new_clip[At(0)] % Velocity() % int()}')
+    print(f'new_clip % At(1) % Velocity(): {new_clip[At(1)] % Velocity() % int()}')
+    assert new_clip[At(0)] % Velocity() % int() == 100 - 8 + 1
+    assert new_clip[At(1)] % Velocity() % int() == 100 - 4 + 1
     same_as_new_clip = new_clip.unmask()
     assert same_as_new_clip.len_unmasked() == 4 * 2
 
@@ -1353,7 +1353,7 @@ def test_floordiv_clip():
     assert just_rests_mask == Rest(1/2) / 2
     just_rests_mask //= just_notes
     # Using a % Frame() given that index is for the entire `Container` list
-    assert just_rests_mask % First() == Note(Beat(1))
+    assert just_rests_mask[First()] == Note(Beat(1))
     just_rests = just_rests_mask.unmask()
     assert just_rests[0] == Rest(1/2)
     assert just_rests[1] == Note(Beat(1))
