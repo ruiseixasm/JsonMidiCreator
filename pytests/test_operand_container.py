@@ -214,6 +214,10 @@ def test_mod_clip():
     assert len(four_lengths) == 4
     assert sum(four_lengths) == 4   # Beats
 
+    two_notes = four_notes % Bellow(Beat(2))
+    print(f"two_notes % int(): {two_notes % int()}")
+    assert two_notes % int() == 2
+
 # test_mod_clip()
 
 

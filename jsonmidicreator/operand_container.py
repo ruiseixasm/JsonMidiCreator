@@ -1251,12 +1251,6 @@ class Composition(Container):
                 return od.Name(self._name)
             case og.TimeSignature():
                 return self._get_time_signature().copy()
-            case int():
-                last_position_unmasked: ra.Position = self._last_position_unmasked()
-                if last_position_unmasked is not None:
-                    measures_length: ra.Length = ra.Length(last_position_unmasked)
-                    return measures_length % ra.Measure() % int()
-                return 0
             case list():
                 if operand: # Non empty list
                     parameters: list = []
