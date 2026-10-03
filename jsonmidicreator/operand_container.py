@@ -373,9 +373,9 @@ class Container(o.Operand):
                         # Attention: This Container shares the items if they are Operands, NO copy done
                         framed_items: list = []
                         # One to One, NOT One to Many (return)
-                        operand._set_inside_container(self)
+                        operand._data._set_inside_container(self)
                         for single_item in self.items_unmasked():
-                            if single_item == operand:
+                            if single_item == operand._data:
                                 framed_items.append(single_item)    # NO COPY DONE HERE
                         return self.empty_copy(framed_items)
                     case _:
