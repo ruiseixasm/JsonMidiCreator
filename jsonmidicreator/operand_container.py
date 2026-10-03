@@ -369,7 +369,7 @@ class Container(o.Operand):
                 match operand._data:
                     case list():
                         return self._items
-                    case of.Frame():    # Works as a Selector, returns the Item, NOT the parameter passed (NOT a reversal of `<<`)
+                    case of.Frame():    # Works as a Selector, returns the Self container copy but with the Frame applied
                         # One to One, NOT One to Many (return)
                         operand._data._set_inside_container(self)
                         for single_item in self.items_unmasked():
@@ -383,14 +383,17 @@ class Container(o.Operand):
                 return self.len()
             case bool():
                 return self._is_masked()
-            case of.Frame():    # Works as a Selector, returns the Item, NOT the parameter passed (NOT a reversal of `<<`)
+            case of.Frame():    # Works as a Selector, returns the Self container copy but with the Frame applied
+                framed_items: list = []
                 # One to One, NOT One to Many (return)
                 operand._set_inside_container(self)
                 for single_item in self.items_unmasked():
                     if single_item == operand:
                         if isinstance(single_item, o.Operand):
-                            return single_item.copy()
-                        return single_item
+                            framed_items.append(single_item.copy())
+                        else:
+                            framed_items.append(single_item)
+                return self.empty_copy(framed_items)
             case _:
                 return super().__mod__(operand)
 

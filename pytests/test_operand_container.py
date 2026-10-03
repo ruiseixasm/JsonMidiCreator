@@ -622,13 +622,13 @@ def test_mul_clip():
     assert hi_hat.len_unmasked() == 4
     assert hi_hat._test_owner_clip()
     hi_hat % At(0) % Position() % Steps() % float() >> Print()
-    assert hi_hat % At(0) % Position() % Steps() == 2.0
-    hi_hat % At(1) % Position() % Steps() % float() >> Print()
-    assert hi_hat % At(1) % Position() % Steps() == 6.0
-    hi_hat % At(2) % Position() % Steps() % float() >> Print()
-    assert hi_hat % At(2) % Position() % Steps() == 10.0
-    hi_hat % At(3) % Position() % Steps() % float() >> Print()
-    assert hi_hat % At(3) % Position() % Steps() == 14.0
+    assert hi_hat[At(0)] % Position() % Steps() == 2.0
+    hi_hat[At(1)] % Position() % Steps() % float() >> Print()
+    assert hi_hat[At(1)] % Position() % Steps() == 6.0
+    hi_hat[At(2)] % Position() % Steps() % float() >> Print()
+    assert hi_hat[At(2)] % Position() % Steps() == 10.0
+    hi_hat[At(3)] % Position() % Steps() % float() >> Print()
+    assert hi_hat[At(3)] % Position() % Steps() == 14.0
 
     # Test empty Clip
     empty_clip = hi_hat * 0 << Pipe(TimeSignature(2, 4))
