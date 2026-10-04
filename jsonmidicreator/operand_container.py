@@ -392,10 +392,8 @@ class Container(o.Operand):
                 operand._set_inside_container(self)
                 for single_item in self.items_unmasked():
                     if single_item == operand:
-                        if isinstance(single_item, o.Operand):
-                            framed_items.append(single_item.copy())
-                        else:
-                            framed_items.append(single_item)
+                        item_copy: any = o.deep_copy(single_item)
+                        framed_items.append(item_copy)
                 return self.empty_copy(framed_items)
             case _:
                 return super().__mod__(operand)
