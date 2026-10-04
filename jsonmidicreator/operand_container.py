@@ -2117,6 +2117,7 @@ class Clip(Composition):  # Just a container of Elements
                 super().__iadd__(operand)
         return self._sort_items()  # Shall be sorted!
 
+
     def __isub__(self, operand: any) -> Self:
         match operand:
             case Clip():
@@ -2152,7 +2153,7 @@ class Clip(Composition):  # Just a container of Elements
                 super().__isub__(operand)
         return self._sort_items()  # Shall be sorted!
 
-    # in-place multiply (NO COPY!)
+
     def __imul__(self, operand: any) -> Self:
         match operand:
             case Clip():
@@ -2317,16 +2318,22 @@ class Clip(Composition):  # Just a container of Elements
                 super().__itruediv__(operand)
         return self._sort_items()  # Shall be sorted!
 
+
     def __ifloordiv__(self, operand: any) -> Self:
         match operand:
             # New Clip/Element results in an insertion at the respective operand position
             case Clip():
-                split_position: ra.Position = operand.net_start()
-                if split_position is not None:
-                    position_offset: ra.Position = operand.net_finish() - split_position
-                    self //= split_position
-                    self += of.DownTo(split_position)**position_offset
-                    self += operand # Finally adds the Clip elements
+                elements_to_add: list[oe.Element] = []
+                for operand_element in operand.elements_unmasked():
+                    add_element: bool = True
+                    for self_element in self.elements_unmasked():
+                        if self_element.overlap(operand_element):
+                            add_element = False
+                            break
+                    if add_element:
+                        elements_to_add.append(operand_element)
+                self += elements_to_add # Implicit copy of elements
+
             case oe.Element():
                 split_position: ra.Position = operand.start()
                 position_offset: ra.Position = operand.finish() - split_position

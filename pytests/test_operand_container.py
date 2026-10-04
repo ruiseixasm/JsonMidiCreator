@@ -1326,42 +1326,10 @@ def test_mul_list():
     same_as_new_clip = new_clip.unmask()
     assert same_as_new_clip.len_unmasked() == 4 * 2
 
-# test_floor_div()
+# test_mul_list()
 
 
-def test_floordiv_clip():
-    just_notes = Note() / 4
-    just_rests = Rest() / 4
-    assert just_notes != just_rests
-
-    just_rests //= Note()   # single note insertion at position 0
-    assert just_rests == Note() / Rest()**4
-
-    just_rests = Rest(1/2) / 2 # <--- RESET HERE
-    assert just_notes != just_rests
-    assert just_notes[0] == Note()
-    assert just_rests[0] == Rest(1/2)
-
-    just_notes += Beat(1)
-    just_rests //= just_notes
-    
-    assert just_rests == Rest() / Note()**4 / Rest() / Rest(1/2)
-
-    just_rests = Rest(1/2) / 2
-    just_rests_mask = Rest(1/2) / 2 << Select(Beat(2))  # 1st beat masked, meaning, 2nd Rest
-    assert just_rests_mask == just_rests
-    assert just_rests.len_unmasked() == 2
-    assert just_rests_mask.len_unmasked() == 1
-
-    assert just_notes == Note(Beat(1)) / Note()**3
-    assert just_rests_mask == Rest(1/2) / 2
-    just_rests_mask //= just_notes
-    # Using a % Frame() given that index is for the entire `Container` list
-    assert just_rests_mask[First()] == Note(Beat(1))
-    just_rests = just_rests_mask.unmask()
-    assert just_rests[0] == Rest(1/2)
-    assert just_rests[1] == Note(Beat(1))
-
+def test_truediv_clip():
     eight_notes = Note() / [1/8, 7]
     assert eight_notes.len_unmasked() == 8
     assert eight_notes[0] == Position(0)
@@ -1374,7 +1342,25 @@ def test_floordiv_clip():
     print(f"eight_notes % Length(): {eight_notes % Length() % float()}")
     assert eight_notes % Net(Finish()) == 1.0 + 1/8    # Duration in Measures
 
+# test_truediv_clip()
+
+
+def test_floordiv_clip():
+    just_notes = Note() / 4
+    just_rests = Rest() / 4
+    
+    assert just_notes != just_rests
+    assert just_notes[0] == Note()
+    assert just_rests[0] == Rest()
+
+    just_rests += Above(Beat(0))**Beat(3)
+    just_rests //= just_notes
+
+    # just_rests >> Plot()
+    assert just_rests == Rest() / Note()**3 / Rest()**3
+
 # test_floordiv_clip()
+
 
 def test_element_split():
 
