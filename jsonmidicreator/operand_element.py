@@ -527,7 +527,12 @@ class Element(o.Operand):
             case int():
                 if operand >= 0:
                     self_elements: list = [self] * operand
-                    return oc.Clip(self._get_time_signature(), self_elements, tr.Stack())
+                    if self._owner_clip is not None:    # Owner clip is always the base container
+                        self._owner_clip._remove(operand, True) # Starts by removing the actual element
+                        self._owner_clip += self_elements
+                        return self._owner_clip
+                    else:
+                        return oc.Clip(self._get_time_signature(), self_elements, tr.Stack())
                 
             case str():
                 elements_place: list[int] = o.string_to_list(operand)
