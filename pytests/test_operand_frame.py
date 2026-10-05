@@ -38,7 +38,7 @@ def test_foreach_mod():
     frame = Foreach(1, 2, 3, 4, 5)**Degree()   # ints represent Degrees
     notes = Note() * 7  # default degree 1 relative to the note C
     notes += frame  # Increases the Degree for each **stacked** element
-    
+
     clip = Clip() * Note("D") * Note("E") * Note("F") * Note("G") * Note("A") * Note("D") * Note("E")  # Makes sure the notes are **staked**
               #       1      2      3      4      5      1      2
               # +     1      1      1      1      1      1      1
@@ -132,7 +132,7 @@ def test_every():
         assert measure_notes[2] == Octave(6)    # 3rd
         assert measure_notes[3] == Octave(4)    # 4th
 
-# test_every()
+test_every()
 
 
 def test_each():

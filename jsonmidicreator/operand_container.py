@@ -2194,31 +2194,22 @@ class Clip(Composition):  # Just a container of Elements
                         self *= time_unit_clip
 
             case list():
-                if all(isinstance(segment, (int, float, og.Segment)) for segment in operand):
-                    segments_list: list[og.Segment] = [
-                        og.Segment(self._time_signature, single_segment) for single_segment in operand
-                    ]
-                    base_elements: list[oe.Element] = []
-                    for target_measure, source_segment in enumerate(segments_list):
-                        self_segment: Clip = self.copy().filter(source_segment)._set_owner_clip(self)
-                        self_segment << ra.Measure(target_measure)   # Stacked by measure *
-                        base_elements.extend(self_segment._items)
-                    self._items = base_elements
-                else:   # Locus stacking
-                    clip_elements: list[oe.Element] = []
-                    clip_start: ra.Position = ra.Position(self, 0)
-                    for locus_data in operand:
-                        locus: og.Locus = og.Locus(self, locus_data)
-                        locus_elements: list[oe.Element] = []
-                        for single_element in self._items:
-                            if single_element.overlap(locus):
-                                locus_elements.append(single_element.copy())    # decoupling element copy
-                        for single_element in locus_elements:   # Elements trimming
-                            single_element.trim(locus)
-                            single_element -= locus.start() - clip_start   # Places each element
-                        clip_elements.extend(locus_elements)
-                        clip_start += locus._duration_beats
-                    self._items = clip_elements
+                clip_elements: list[oe.Element] = []
+                clip_start: ra.Position = ra.Position(self, 0)
+                for locus_data in operand:
+                    locus: og.Locus = og.Locus(self, locus_data)
+                    if isinstance(locus_data, int):
+                        locus << ra.Measures(self._get_time_signature(), 1)
+                    locus_elements: list[oe.Element] = []
+                    for single_element in self._items:
+                        if single_element.overlap(locus):
+                            locus_elements.append(single_element.copy())    # decoupling element copy
+                    for single_element in locus_elements:   # Elements trimming
+                        single_element.trim(locus)
+                        single_element -= locus.start() - clip_start   # Places each element
+                    clip_elements.extend(locus_elements)
+                    clip_start += locus._duration_beats
+                self._items = clip_elements
 
             case str():
                 self.__imul__(od.Line(operand))
