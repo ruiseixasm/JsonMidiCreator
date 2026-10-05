@@ -909,6 +909,14 @@ class Plot(Process):
         threading.Thread(target=Play.play, args=(iteration_self, loops)).start()
         return self
 
+
+    def _run_rec(self, even = None, loops: int = 1) -> Self:
+        import threading
+        iteration_self: oc.Composition = self._compositions[self._iteration_index]
+        threading.Thread(target=Rec.play, args=(iteration_self, loops)).start()
+        return self
+
+
     def _run_composition(self, even = None, loops: int = 1) -> Self:
         import threading
         if isinstance(self.composition, oc.Composition):
@@ -916,6 +924,7 @@ class Plot(Process):
             iteration_composition: oc.Composition = self.composition + iteration_self
             threading.Thread(target=Play.play, args=(iteration_composition, loops)).start()
         return self
+
 
     def _plot_filename(self, composition: 'oc.Composition') -> str:
         # Process title separately (replace whitespace with underscores)
@@ -936,11 +945,13 @@ class Plot(Process):
         # 2. Join with single underscore (no leading/trailing/double underscores)
         return "_".join(filtered_strings)
 
+
     def _run_save(self, even = None) -> Self:
         composition = self._compositions[self._iteration_index]
         file_name: str = self._plot_filename(composition) + "_save.json"
         composition >> Save(file_name)
         return self
+
 
     def _run_export(self, even = None) -> Self:
         composition = self._compositions[self._iteration_index]
@@ -948,11 +959,13 @@ class Plot(Process):
         composition >> Export(file_name)
         return self
 
+
     def _run_render(self, even = None) -> Self:
         composition = self._compositions[self._iteration_index]
         file_name: str = self._plot_filename(composition) + "_render.mid"
         composition >> Render(file_name)
         return self
+
 
     @staticmethod
     def _disable_button(button: Button) -> Button:
@@ -964,6 +977,7 @@ class Plot(Process):
             spine.set_color('lightgray')
         return button
 
+
     @staticmethod
     def _enable_button(button: Button) -> Button:
         # Set enabled style
@@ -974,10 +988,12 @@ class Plot(Process):
             spine.set_color('black')
         return button
 
+
     def _on_move(self, event: MouseEvent) -> Self:
         if event.inaxes == self._ax:
             print(f"x = {event.xdata}, y = {event.ydata}")
         return self
+
 
     def _on_key(self, event: MouseEvent) -> Self:
         match event.key:
@@ -985,6 +1001,8 @@ class Plot(Process):
                 self._run_play(event, 4)
             case 'p' | 'enter':
                 self._run_play(event)
+            case 'c':
+                self._run_rec(event)
             case 'ctrl+c' | 'ctrl+space' | 'ctrl+ ':
                 self._run_composition(event, 4)
             case 'c' | ' ':
@@ -1006,7 +1024,8 @@ class Plot(Process):
             case '/' | "-" | ";":
                 self._run_last(event)
         return self
-    
+
+
     def _onclick(self, event: MouseEvent) -> Self:
         import threading
         if event.button == 3 and event.xdata is not None and event.ydata is not None:   # 1=left, 2=middle, 3=right
@@ -1322,6 +1341,10 @@ class Rec(Play):
     def __init__(self, loops: int = 1, verbose: bool = False, plot: bool = False, block: bool = False, talkie_delay_ms: int = 500):
         super().__init__(loops, verbose, plot, block, talkie_delay_ms)
         self._rec_transport = True  # Enables the transport control in Record mode
+
+    @staticmethod
+    def play(operand: o.T, *parameters) -> o.T:
+        return Rec(*parameters).__rrshift__(operand)
 
         
 
