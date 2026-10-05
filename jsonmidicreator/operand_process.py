@@ -1118,45 +1118,59 @@ class Plot(Process):
         # Avoids too thick hatch lines
         plt.rcParams['hatch.linewidth'] = 3.00  # Where the HATCH thickness is set
 
+        # Buttons are vertically spaced by 0.060
+
         # Play Button Widget
-        ax_button = plt.axes([0.979, 0.888, 0.015, 0.05])
-        play_button = Button(ax_button, 'P', color='white', hovercolor='grey')
+        y_position: float = 0.888
+        ax_button = plt.axes([0.979, y_position, 0.015, 0.05])
+        play_button = Button(ax_button, 'p', color='white', hovercolor='grey')
         play_button.on_clicked(self._run_play)
 
+        # Rec Button Widget
+        y_position -= 0.060
+        ax_button = plt.axes([0.979, y_position, 0.015, 0.05])
+        rec_button = Button(ax_button, 'r', color='white', hovercolor='grey')
+        rec_button.on_clicked(self._run_play)
+
         # Composition Button Widget
-        ax_button = plt.axes([0.979, 0.828, 0.015, 0.05])
-        composition_button = Button(ax_button, 'C', color='white', hovercolor='grey')
+        y_position -= 0.060
+        ax_button = plt.axes([0.979, y_position, 0.015, 0.05])
+        composition_button = Button(ax_button, 'c', color='white', hovercolor='grey')
         composition_button.on_clicked(self._run_composition)
 
         # Previous Button Widget
-        ax_button = plt.axes([0.979, 0.768, 0.015, 0.05])
+        y_position -= 0.060
+        ax_button = plt.axes([0.979, y_position, 0.015, 0.05])
         self._previous_button = Button(ax_button, '<', color='white', hovercolor='grey')
         self._previous_button.on_clicked(self._run_previous)
 
         # Next Button Widget
-        ax_button = plt.axes([0.979, 0.708, 0.015, 0.05])
+        y_position -= 0.060
+        ax_button = plt.axes([0.979, y_position, 0.015, 0.05])
         self._next_button = Button(ax_button, '>', color='white', hovercolor='grey')
         self._next_button.on_clicked(self._run_next)
 
         # New Button Widget
-        ax_button = plt.axes([0.979, 0.648, 0.015, 0.05])
+        y_position -= 0.060
+        ax_button = plt.axes([0.979, y_position, 0.015, 0.05])
         new_button = Button(ax_button, 'N', color='white', hovercolor='grey')
         new_button.on_clicked(self._run_new)
 
-        # Buttons are vertically spaced by 0.060
-
         # Save Button Widget
-        ax_button = plt.axes([0.979, 0.528, 0.015, 0.05])
+        y_position = 0.528
+        ax_button = plt.axes([0.979, y_position, 0.015, 0.05])
         save_button = Button(ax_button, 'S', color='white', hovercolor='grey')
         save_button.on_clicked(self._run_save)
 
         # Execution Button Widget
-        ax_button = plt.axes([0.979, 0.468, 0.015, 0.05])
+        y_position -= 0.060
+        ax_button = plt.axes([0.979, y_position, 0.015, 0.05])
         export_button = Button(ax_button, 'E', color='white', hovercolor='grey')
         export_button.on_clicked(self._run_export)
 
         # Render Button Widget
-        ax_button = plt.axes([0.979, 0.408, 0.015, 0.05])
+        y_position -= 0.060
+        ax_button = plt.axes([0.979, y_position, 0.015, 0.05])
         render_button = Button(ax_button, 'R', color='white', hovercolor='grey')
         render_button.on_clicked(self._run_render)
 
