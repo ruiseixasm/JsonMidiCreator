@@ -316,7 +316,8 @@ class Locus(Generic):
                         self._duration_beats = ra.Beats(locus_duration)._rational
 
             case int():
-                self._position_beats        = ra.Measure(self._time_signature_reference, operand) % ra.Beats() % Fraction()
+                self._position_beats = ra.Measure(self._time_signature_reference, operand) % ra.Beats() % Fraction()
+                # self._duration_beats = ra.Measure(self._time_signature_reference, 1) % ra.Beats() % Fraction()
             case Segment():
                 if operand._segment:
                     self << ra.Measure(operand._segment[0])
