@@ -513,9 +513,9 @@ class Element(o.Operand):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element():
-                new_clip = oc.Clip(self._get_time_signature())
-                new_clip += self
-                return new_clip.__imul__(operand)
+                right_element_copy = operand.copy()
+                right_element_copy << self.finish() # Places the right element at the right
+                return oc.Clip(self._get_time_signature(), od.Pipe([self.copy(), right_element_copy]))
             case oc.Clip():
                 return operand.empty_copy().__iadd__(self).__imul__(operand)   # Keeps the Clip TimeSignature and integrates self
             # Can be applied to owned elements
