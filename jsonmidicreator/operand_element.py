@@ -518,7 +518,9 @@ class Element(o.Operand):
                 right_element_copy << self.finish() # Places the right element at the right
                 return oc.Clip(self._get_time_signature(), od.Pipe([self.copy(), right_element_copy]))
             case oc.Clip():
-                return operand.empty_copy().__iadd__(self).__imul__(operand)   # Keeps the Clip TimeSignature and integrates self
+                add_position = self % ra.Length() % ra.Position()
+                return operand + add_position + self
+            
             # Can be applied to owned elements
             case int():
                 if operand >= 0:
