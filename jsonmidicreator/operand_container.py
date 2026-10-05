@@ -2194,15 +2194,31 @@ class Clip(Composition):  # Just a container of Elements
                         self *= time_unit_clip
 
             case list():
-                segments_list: list[og.Segment] = [
-                    og.Segment(self._time_signature, single_segment) for single_segment in operand
-                ]
-                base_elements: list[oe.Element] = []
-                for target_measure, source_segment in enumerate(segments_list):
-                    self_segment: Clip = self.copy().filter(source_segment)._set_owner_clip(self)
-                    self_segment << ra.Measure(target_measure)   # Stacked by measure *
-                    base_elements.extend(self_segment._items)
-                self._items = base_elements
+                if all(isinstance(segment, (int, float, og.Segment)) for segment in operand):
+                    segments_list: list[og.Segment] = [
+                        og.Segment(self._time_signature, single_segment) for single_segment in operand
+                    ]
+                    base_elements: list[oe.Element] = []
+                    for target_measure, source_segment in enumerate(segments_list):
+                        self_segment: Clip = self.copy().filter(source_segment)._set_owner_clip(self)
+                        self_segment << ra.Measure(target_measure)   # Stacked by measure *
+                        base_elements.extend(self_segment._items)
+                    self._items = base_elements
+                else:   # Locus stacking
+                    clip_elements: list[oe.Element] = []
+                    clip_start: ra.Position = ra.Position(self, 0)
+                    for locus_data in operand:
+                        locus: og.Locus = og.Locus(self, locus_data)
+                        locus_elements: list[oe.Element] = []
+                        for single_element in self._items:
+                            if single_element.overlap(locus):
+                                locus_elements.append(single_element.copy())    # decoupling element copy
+                        for single_element in locus_elements:   # Elements trimming
+                            single_element.trim(locus)
+                            single_element -= locus.start() - clip_start   # Places each element
+                        clip_elements.extend(locus_elements)
+                        clip_start += locus._duration_beats
+                    self._items = clip_elements
 
             case str():
                 self.__imul__(od.Line(operand))
@@ -2235,24 +2251,18 @@ class Clip(Composition):  # Just a container of Elements
     def __itruediv__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                # Only the operand unmasked items are considered
-                operand_elements: list[oe.Element] = [
-                    element.copy()._set_owner_clip(self) for element in operand
-                ]
+                # Merge WITHOUT overlapping
+                elements_to_add: list[oe.Element] = []
+                for operand_element in operand.elements_unmasked():
+                    add_element: bool = True
+                    for self_element in self.elements_unmasked():
+                        if self_element.overlap(operand_element):
+                            add_element = False
+                            break
+                    if add_element:
+                        elements_to_add.append(operand_element)
+                self += elements_to_add # Implicit copy of elements
 
-                if operand_elements:
-
-                    left_finish_position: ra.Position = self.net_finish()
-                    if left_finish_position is None:
-                        left_finish_position = ra.Position(self)
-                        
-                    # operand_elements already sorted by position
-                    left_finish_position_beats: Fraction = left_finish_position._rational
-                    right_start_position_beats: Fraction = operand_elements[0]._position_beats  # Same as Start Position
-                    position_shift: Fraction = left_finish_position_beats - right_start_position_beats
-                    for new_element in operand_elements:
-                        new_element._position_beats += position_shift
-                    self._extend(operand_elements)
             case oe.Element():
                 self.__itruediv__(
                         Clip().__iadd__(operand)
@@ -2280,33 +2290,6 @@ class Clip(Composition):  # Just a container of Elements
                         time_unit_clip += ra.Position(offset_beats) # Fraction is direct, no conversion
                         self += time_unit_clip
 
-            case list():
-                if all(isinstance(segment, (int, float, og.Segment)) for segment in operand):
-                    segments_list: list[og.Segment] = [
-                        og.Segment(self, single_segment) for single_segment in operand
-                    ]
-                    clip_segments: Clip = Clip()
-                    for single_segment in segments_list:
-                        clip_segments /= self.copy().filter(single_segment) # Stacked notes /
-                    self._delete()
-                    self /= clip_segments
-                    self._set_owner_clip()
-                else:   # Locus stacking
-                    clip_elements: list[oe.Element] = []
-                    clip_start: ra.Position = ra.Position(self, 0)
-                    for locus_data in operand:
-                        locus: og.Locus = og.Locus(self, locus_data)
-                        locus_elements: list[oe.Element] = []
-                        for single_element in self._items:
-                            if single_element.overlap(locus):
-                                locus_elements.append(single_element.copy())    # decoupling element copy
-                        for single_element in locus_elements:   # Elements trimming
-                            single_element.trim(locus)
-                            single_element -= locus.start() - clip_start   # Places each element
-                        clip_elements.extend(locus_elements)
-                        clip_start += locus._duration_beats
-                    self._items = clip_elements
-
             case og.Locus():    # Extract out the Locus are and trims everything else
                 self *= operand
                 # Makes sure all elements after cropping are placed at the beginning of the clip
@@ -2321,18 +2304,6 @@ class Clip(Composition):  # Just a container of Elements
 
     def __ifloordiv__(self, operand: any) -> Self:
         match operand:
-            # New Clip/Element results in an insertion at the respective operand position
-            case Clip():
-                elements_to_add: list[oe.Element] = []
-                for operand_element in operand.elements_unmasked():
-                    add_element: bool = True
-                    for self_element in self.elements_unmasked():
-                        if self_element.overlap(operand_element):
-                            add_element = False
-                            break
-                    if add_element:
-                        elements_to_add.append(operand_element)
-                self += elements_to_add # Implicit copy of elements
 
             case oe.Element():
                 split_position: ra.Position = operand.start()

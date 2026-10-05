@@ -501,6 +501,7 @@ class Element(o.Operand):
                 self << self_operand
         return self
 
+
     def __imul__(self, operand: any) -> Union[TypeElement, 'Clip']:
         from . import operand_container as oc
         from . import operand_yielder as oy
@@ -526,7 +527,7 @@ class Element(o.Operand):
                 if operand >= 0:
                     self_elements: list = [self] * operand
                     if self._owner_clip is not None:    # Owner clip is always the base container
-                        self._owner_clip._remove(operand, True) # Starts by removing the actual element
+                        self._owner_clip._remove(self, True) # Starts by removing the actual element
                         self._owner_clip += self_elements
                         return self._owner_clip
                     else:
@@ -564,17 +565,33 @@ class Element(o.Operand):
                     return self._owner_clip._extend(new_elements)   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip().__iadd__(self).__imul__(operand)
+                
             case list():
-                segments_list: list[og.Segment] = []
-                for single_segment in operand:
-                    segments_list.append(og.Segment(self, single_segment))
-                for target_measure, source_segment in enumerate(segments_list):
-                    if self == source_segment:
-                        self << ra.Measure(target_measure)  # Stacked by measure *
-                        if self._owner_clip is not None:    # Owner clip is always the base container
-                            return self._owner_clip._set_owner_clip()._sort_items()
-                        return oc.Clip().__iadd__(self)
-                return oc.Clip()    # Empty Clip, self excluded
+                if all(isinstance(segment, (int, float, og.Segment)) for segment in operand):
+                    segments_list: list[og.Segment] = [
+                        og.Segment(self._time_signature, single_segment) for single_segment in operand
+                    ]
+                    base_elements: list[oe.Element] = []
+                    for target_measure, source_segment in enumerate(segments_list):
+                        self_segment: Clip = self.copy().filter(source_segment)._set_owner_clip(self)
+                        self_segment << ra.Measure(target_measure)   # Stacked by measure *
+                        base_elements.extend(self_segment._items)
+                    self._items = base_elements
+                else:   # Locus stacking
+                    clip_elements: list[oe.Element] = []
+                    clip_start: ra.Position = ra.Position(self, 0)
+                    for locus_data in operand:
+                        locus: og.Locus = og.Locus(self, locus_data)
+                        locus_elements: list[oe.Element] = []
+                        for single_element in self._items:
+                            if single_element.overlap(locus):
+                                locus_elements.append(single_element.copy())    # decoupling element copy
+                        for single_element in locus_elements:   # Elements trimming
+                            single_element.trim(locus)
+                            single_element -= locus.start() - clip_start   # Places each element
+                        clip_elements.extend(locus_elements)
+                        clip_start += locus._duration_beats
+                    self._items = clip_elements
             case oy.Sequencer():
                 return operand * self
             case tuple():
@@ -584,6 +601,7 @@ class Element(o.Operand):
                 self_operand *= operand # Generic `self_operand`
                 self << self_operand
         return self
+
 
     def __itruediv__(self, operand: any) -> Union[TypeElement, 'Clip']:
         from . import operand_container as oc

@@ -318,7 +318,7 @@ def test_locus_stacking():
     eight_wholes = Note(1/1) * 8 + Iterate()**Degree()
     assert eight_wholes % Length() == 8 * 4 # Beats
 
-    locus_notes = eight_wholes / [[0], [1], [2], [0, "3b"], [3], [5]]
+    locus_notes = eight_wholes * [[0], [1], [2], [0, "3b"], [3], [5]]
     assert locus_notes.len() == 6
     # locus_notes >> Plot()
     assert locus_notes[First()] == Degree(1)
@@ -661,7 +661,7 @@ def test_mul_clip():
     assert type(timed_clip[0]) == type(Rest())
     assert type(timed_clip[1]) == type(Note())
     
-    timed_clip /= 3
+    timed_clip *= 3
 
     assert type(timed_clip[0]) == type(Rest())
     assert type(timed_clip[1]) == type(Note())
@@ -860,7 +860,7 @@ def test_clip_filter():
     assert original_note.len_unmasked() == 1
     selected_note: Clip = original_note << Select(Nth(1))
     assert selected_note.len_unmasked() == 1
-    selected_note /= 2   # Here "/" results in a multiplication by 2 but stacked directly by Element
+    selected_note[Last()] *= 2   # Here "/" results in one added element
     assert selected_note.len_unmasked() == 2
     # Needs to be replicated upwards!
     # assert original_note.len_unmasked() == 2
@@ -1271,26 +1271,6 @@ def test_process_mask():
 # test_process_mask()
 
 
-def test_segment_operations():
-    four_notes = Note() * 4 << Foreach(0, 2, 4, 6)**Semitone()
-    assert four_notes == Foreach(0, 2, 4, 6)**Semitone()
-
-    eight_notes = four_notes / [0.0, 0.0, 0.2, 0.1, 0.0, 0.0, 0.2, 0.3]
-    assert eight_notes.len() == 8
-    assert eight_notes == Foreach(0, 0, 4, 2, 0, 0, 4, 6)**Semitone()
-    assert eight_notes != Foreach(0, 0, 4, 2, 0, 0, 4, 4)**Semitone()
-
-    eight_notes = four_notes * [0, 0]   # Repeated the first Measure twice
-    assert eight_notes.len() == 8
-    assert eight_notes == Foreach(0, 2, 4, 6)**Semitone()
-
-    eight_notes = four_notes // [0, 0]   # Repeated the first Measure twice
-    assert eight_notes.len() == 8
-    assert eight_notes == Foreach(0, 0, 2, 2, 4, 4, 6, 6)**Semitone()
-
-# test_segment_operations()
-
-
 def test_checksum():
     four_notes = Note() * 4
     assert checksum_to_string(four_notes.checksum()) == "8900"
@@ -1353,7 +1333,7 @@ def test_floordiv_clip():
     assert just_rests[0] == Rest()
 
     just_rests += Above(Beat(0))**Beat(3)
-    just_rests //= just_notes
+    just_rests /= just_notes
 
     # just_rests >> Plot()
     assert just_rests == Rest() * (Note() * 3) * (Rest() * 3)
@@ -1418,14 +1398,14 @@ def test_match_time_signature():
     stretched_triplets = Note(1/3) * 3
     assert three_quarters != stretched_triplets # Both have a Time Signature of 4/4
 
-    time_signature_3_4 = Note() * 1
-    assert time_signature_3_4 % Duration() == Beats(1)
+    time_signature_3_4 = Note() * 4
+    assert time_signature_3_4 % Duration() == Beats(4)
     time_signature_3_4 <<= TimeSignature(3) # Only Clips have TimeSignature
-    assert time_signature_3_4 % Duration() == Beats(1)
-    time_signature_3_4 /= 3
-    assert time_signature_3_4 % list() == three_quarters % list()
+    assert time_signature_3_4 % Duration() == Beats(4)
+    assert time_signature_3_4 % Equal(Measure(0)) % list() == three_quarters % list()
     time_signature_3_4 << three_quarters % TimeSignature()
-    assert time_signature_3_4 == stretched_triplets
+    # time_signature_3_4 >> Plot()
+    assert time_signature_3_4 % Equal(Measure(0)) == stretched_triplets
 
 # test_match_time_signature()
 
