@@ -519,7 +519,9 @@ class Element(o.Operand):
                 return oc.Clip(self._get_time_signature(), od.Pipe([self.copy(), right_element_copy]))
             case oc.Clip():
                 add_position = self % ra.Length() % ra.Position()
-                return operand + add_position + self
+                new_clip = operand + add_position
+                new_clip += self
+                return new_clip
             
             # Can be applied to owned elements
             case int():
