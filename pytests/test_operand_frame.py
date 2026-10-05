@@ -132,7 +132,7 @@ def test_every():
         assert measure_notes[2] == Octave(6)    # 3rd
         assert measure_notes[3] == Octave(4)    # 4th
 
-test_every()
+# test_every()
 
 
 def test_each():
