@@ -1356,7 +1356,7 @@ def test_floordiv_clip():
     just_rests //= just_notes
 
     # just_rests >> Plot()
-    assert just_rests == Rest() * Note()**3 * Rest()**3
+    assert just_rests == Rest() * (Note() * 3) * (Rest() * 3)
 
 # test_floordiv_clip()
 

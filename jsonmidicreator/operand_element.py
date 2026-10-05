@@ -439,12 +439,6 @@ class Element(o.Operand):
         return self
 
 
-    def __ipow__(self, operand: Any) -> Union[TypeElement, 'Clip']:
-        if isinstance(operand, (int, list)):
-            return self.__imul__(operand)
-        return super().__ipow__(operand)
-    
-
     def __add__(self, operand: any) -> Union[TypeElement, 'Clip']:
         return self.copy().__iadd__(operand)
     
