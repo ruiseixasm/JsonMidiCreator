@@ -2305,6 +2305,19 @@ class Clip(Composition):  # Just a container of Elements
     def __ifloordiv__(self, operand: any) -> Self:
         match operand:
 
+            case Clip():
+                # Merge ONLY overlapping
+                elements_to_add: list[oe.Element] = []
+                for operand_element in operand.elements_unmasked():
+                    add_element: bool = False
+                    for self_element in self.elements_unmasked():
+                        if self_element.overlap(operand_element):
+                            add_element = True
+                            break
+                    if add_element:
+                        elements_to_add.append(operand_element)
+                self += elements_to_add # Implicit copy of elements
+
             case oe.Element():
                 split_position: ra.Position = operand.start()
                 position_offset: ra.Position = operand.finish() - split_position
