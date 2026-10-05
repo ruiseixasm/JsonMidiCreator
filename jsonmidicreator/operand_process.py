@@ -1153,11 +1153,11 @@ class Plot(Process):
         # New Button Widget
         y_position -= 0.060
         ax_button = plt.axes([0.979, y_position, 0.015, 0.05])
-        new_button = Button(ax_button, 'N', color='white', hovercolor='grey')
+        new_button = Button(ax_button, 'n', color='white', hovercolor='grey')
         new_button.on_clicked(self._run_new)
 
         # Save Button Widget
-        y_position = 0.528
+        y_position -= 0.060 * 3
         ax_button = plt.axes([0.979, y_position, 0.015, 0.05])
         save_button = Button(ax_button, 'S', color='white', hovercolor='grey')
         save_button.on_clicked(self._run_save)
