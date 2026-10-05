@@ -1001,7 +1001,7 @@ class Plot(Process):
                 self._run_play(event, 4)
             case 'p' | 'enter':
                 self._run_play(event)
-            case 'c':
+            case 'r':
                 self._run_rec(event)
             case 'ctrl+c' | 'ctrl+space' | 'ctrl+ ':
                 self._run_composition(event, 4)
