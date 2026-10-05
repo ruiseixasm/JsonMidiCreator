@@ -31,7 +31,7 @@ import sys
 
 
 def test_vectors_distance():
-    single_pitch = Note() / 4
+    single_pitch = Note() * 4
     different_pitch = ~single_pitch << Iterate(1)**Degree()
     clips_distance = Vectors(different_pitch) - Vectors(single_pitch)
     print(f"Distance: {clips_distance % str()}")
@@ -44,7 +44,7 @@ def test_vectors_distance():
 
 
 def test_vectors_keys():
-    single_pitch = Note() / 4
+    single_pitch = Note() * 4
     single_vectors = Vectors(single_pitch)
     all_keys = single_vectors % set()
     print(f"Keys: {all_keys}")
@@ -54,8 +54,8 @@ def test_vectors_keys():
 
 
 def test_new_key():
-    four_notes = Note() / 4
-    two_notes = Note() / 2
+    four_notes = Note() * 4
+    two_notes = Note() * 2
     # Adding
     added_vectors_1 = Vectors(four_notes) + Vectors(two_notes)
     assert added_vectors_1 % Distance({"new"}) == 2

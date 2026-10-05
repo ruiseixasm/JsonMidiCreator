@@ -101,20 +101,20 @@ def test_operand_type():
 
 
 def test_inline_operations():
-    four_notes = Note() / 4
-    five_notes = four_notes / Note()
+    four_notes = Note() * 4
+    five_notes = four_notes * Note()
     assert five_notes is not four_notes
     assert four_notes.len() == 4
     assert five_notes.len() == 5
 
-    four_notes.inline() / Note()
+    four_notes.inline() * Note()
     assert four_notes.len() == 5
 
-    many_notes = four_notes.inline() / Note() / Note() % Pipe()
+    many_notes = four_notes.inline() * Note() * Note() % Pipe()
     assert many_notes is four_notes
     assert many_notes.len() == 7
 
-    four_notes = Note() / 4
+    four_notes = Note() * 4
     inline_notes = Inline(four_notes)
     assert four_notes.len() == 4
     inline_notes * 2
@@ -122,14 +122,14 @@ def test_inline_operations():
 
 
 def test_copy_operand():
-    three_notes = Note(1/3) / 3
+    three_notes = Note(1/3) * 3
     assert ~three_notes == three_notes
     assert three_notes % Copy() == three_notes
 
     three_notes_elements = three_notes % list()
     assert Clip(three_notes_elements) == three_notes
 
-    two_notes = Note(1/2) / 2
+    two_notes = Note(1/2) * 2
     assert two_notes != three_notes
     assert two_notes % Copy(three_notes_elements) == three_notes
 

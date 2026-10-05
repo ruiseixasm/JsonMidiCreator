@@ -441,7 +441,7 @@ class Element(o.Operand):
 
     def __ipow__(self, operand: Any) -> Union[TypeElement, 'Clip']:
         if isinstance(operand, (int, list)):
-            return self.__itruediv__(operand)
+            return self.__imul__(operand)
         return super().__ipow__(operand)
     
 
@@ -597,26 +597,7 @@ class Element(o.Operand):
                 return new_clip.__itruediv__(operand)
             case oc.Clip():
                 return operand.empty_copy().__iadd__(self).__itruediv__(operand)   # Keeps the Clip TimeSignature and integrates self
-            # Can be applied to owned elements
-            case int():
-                if self._owner_clip is not None:    # Owner clip is always the base container
-                    new_elements: list[Element] = []
-                    if operand > 1:
-                        for next_element_i in range(1, operand):
-                            next_position: Element = self.copy()
-                            new_elements.append(next_position)
-                            next_position._position_beats += self._duration_beats * next_element_i
-                    return self._owner_clip._extend(new_elements)._sort_items() # Allows the chaining of Clip operations
-                else:
-                    new_clip: oc.Clip = oc.Clip(self._get_time_signature())
-                    new_clip += self
-                    if operand > 1:
-                        for _ in range(operand - 1):
-                            new_clip.__itruediv__(self)
-                    return new_clip
-                
-            case Fraction() | float():
-                self << self % og.Locus() / operand
+            
             case str():
                 elements_place: list[int] = o.string_to_list(operand)
                 place_position_beats: Fraction = self._position_beats

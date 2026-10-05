@@ -2167,9 +2167,12 @@ class Clip(Composition):  # Just a container of Elements
                     self._items.extend(operand_copy._items)
 
             case oe.Element():
-                self.__imul__(
-                    Clip().__iadd__(operand)
-                )
+                if self._items:
+                    net_finish = self.net_finish()
+                    new_element = operand.copy(net_finish)
+                    self += new_element
+                else:
+                    self += operand
 
             case int():
                 if operand > 1:

@@ -31,7 +31,7 @@ import sys
 
 
 def test_clip_rotate():
-    three_notes = Note() / 3 << Iterate(1)**Degree() << Last()**Beats(2)
+    three_notes = Note() * 3 << Iterate(1)**Degree() << Last()**Beats(2)
     assert three_notes % Duration() == Beats(4)
 
     simple_rotation = ~three_notes << Rotate(1, False)
@@ -49,7 +49,7 @@ def test_clip_rotate():
 
 
 def test_split_duration():
-    many_pitch = Note() / 4 << Iterate(1)**Degree() << Title("ISplitDuration")
+    many_pitch = Note() * 4 << Iterate(1)**Degree() << Title("ISplitDuration")
     assert many_pitch.len() == 4
     original_elements_duration = many_pitch.all_elements_duration()
     
@@ -65,7 +65,7 @@ def test_split_duration():
 
 
 def test_shuffle_locus():
-    many_pitch = Note() / 4 << Iterate(1)**Degree() << Title("IShuffleLocus")
+    many_pitch = Note() * 4 << Iterate(1)**Degree() << Title("IShuffleLocus")
     assert many_pitch.len() == 4
     original_elements_duration = many_pitch.all_elements_duration()
     

@@ -36,10 +36,10 @@ def test_foreach_mod():
     settings << None
 
     frame = Foreach(1, 2, 3, 4, 5)**Degree()   # ints represent Degrees
-    notes = Note() / 7  # default degree 1 relative to the note C
-
+    notes = Note() * 7  # default degree 1 relative to the note C
     notes += frame  # Increases the Degree for each **stacked** element
-    clip = Clip() / Note("D") / Note("E") / Note("F") / Note("G") / Note("A") / Note("D") / Note("E")  # Makes sure the notes are **staked**
+    
+    clip = Clip() * Note("D") * Note("E") * Note("F") * Note("G") * Note("A") * Note("D") * Note("E")  # Makes sure the notes are **staked**
               #       1      2      3      4      5      1      2
               # +     1      1      1      1      1      1      1
               # =     2      3      4      5      6      2      3
@@ -62,7 +62,7 @@ def test_foreach_mod():
     assert notes == clip
 
     # Beats are for Duration while Beat is for Position, so, it should be used Beat
-    four_notes = Note() / 4
+    four_notes = Note() * 4
     assert four_notes[0] == Beat(0)
     assert four_notes[1] == Beat(1)
     assert four_notes[2] == Beat(2)
@@ -119,7 +119,7 @@ def test_foreach_mod():
 
 def test_every():
 
-    many_notes = Note() / 4 * 4 # 4 Measures long
+    many_notes = Note() * 4 * 4 # 4 Measures long
     assert many_notes % Duration() == Measures(4)
     assert many_notes[2] == Octave(4)
 
@@ -137,7 +137,7 @@ def test_every():
 
 def test_each():
 
-    many_notes = Note() / 4 * 4 # 4 Measures long
+    many_notes = Note() * 4 * 4 # 4 Measures long
     assert many_notes % Duration() == Measures(4)
     assert many_notes[2] == Octave(4)
 
@@ -163,7 +163,7 @@ def test_conditional_clip_note():
     clip_note += Match(Step(0))**Octave(1)
     assert clip_note[0] % Octave() == 4
 
-    four_notes: Clip = Note() / 4
+    four_notes: Clip = Note() * 4
     
     assert four_notes[0] % Octave() == 4
     assert four_notes[1] % Octave() == 4
@@ -191,7 +191,7 @@ def test_conditional_clip_note():
 
 def test_even_odd():
 
-    two_notes = 2 / Note()
+    two_notes = 2 * Note()
 
     two_notes << Even()**Velocity(40)
     print(two_notes[1] % Velocity() % int())
@@ -200,7 +200,7 @@ def test_even_odd():
     print(two_notes[0] % Velocity() % int())
     assert two_notes[0] % Velocity() == 90
 
-    four_notes = 4 / Note()
+    four_notes = 4 * Note()
 
     assert four_notes.len_unmasked() == 4
     four_notes << Select(Even())
@@ -216,8 +216,8 @@ def test_input_clip():
 
     settings << None
 
-    clip = Note() / 4
-    clip_G = Note("G") / 4
+    clip = Note() * 4
+    clip_G = Note("G") * 4
 
     for note in clip:
         assert note % Key() == "C"
@@ -251,7 +251,7 @@ def test_off_beat():
 
 
 def test_chained_operands():
-    two_notes = Note() / 2
+    two_notes = Note() * 2
     channel_frame = Iterate(4, 2)**Pipe()**Channel()
     assert two_notes[0] % Channel() == 1
     two_notes << channel_frame
