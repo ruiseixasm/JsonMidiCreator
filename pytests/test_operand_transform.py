@@ -90,7 +90,7 @@ def test_shuffle_durations():
     # many_durations >> Plot(transform=shuffle_durations)
 
     many_durations << shuffle_durations << shuffle_durations << shuffle_durations
-    many_durations >> Plot()
+    # many_durations >> Plot()
     assert many_durations.len() == 4
     assert many_durations.all_elements_duration() == original_elements_duration
 
@@ -104,7 +104,7 @@ def test_choose_durations():
     original_elements_duration = many_durations.all_elements_duration()
     
     choose_durations = IChooseDuration(no_repetitions=True)
-    # many_durations >> Plot(transform=choose_durations)
+    many_durations >> Plot(transform=choose_durations)
 
     many_durations << choose_durations << choose_durations << choose_durations
     # many_durations >> Plot()
