@@ -510,6 +510,7 @@ class Element(o.Operand):
     def __imul__(self, operand: any) -> Union[TypeElement, 'Clip']:
         from . import operand_container as oc
         from . import operand_yielder as oy
+        from . import operand_transform as tr
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element():
@@ -520,24 +521,10 @@ class Element(o.Operand):
                 return operand.empty_copy().__iadd__(self).__imul__(operand)   # Keeps the Clip TimeSignature and integrates self
             # Can be applied to owned elements
             case int():
-                if self._owner_clip is not None:    # Owner clip is always the base container
-                    new_elements: list[Element] = []
-                    if operand > 1:
-                        for next_element_i in range(1, operand):
-                            next_element: Element = self.copy()
-                            new_elements.append(next_element)
-                            next_element._position_beats += ra.Beats(ra.Measures(self._owner_clip, 1) * next_element_i)._rational
-                    return self._owner_clip._extend(new_elements)   # Allows the chaining of Clip operations
-                else:
-                    new_clip: oc.Clip = oc.Clip(self._get_time_signature())
-                    new_clip += self
-                    if operand > 1:
-                        for _ in range(operand - 1):
-                            new_clip.__imul__(self)
-                    return new_clip
+                if operand >= 0:
+                    self_elements: list = [self] * operand
+                    return oc.Clip(self._get_time_signature(), self_elements, tr.Stack())
                 
-            case Fraction() | float():
-                self << self % og.Locus() * operand
             case str():
                 elements_place: list[int] = o.string_to_list(operand)
                 place_measure: ra.Measure = self % ra.Measure()
