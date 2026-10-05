@@ -265,6 +265,7 @@ class Locus(Generic):
             self._duration_beats    = o.deserialize(serialization["parameters"]["duration_beats"])
         return self
 
+
     def __lshift__(self, operand: any) -> Self:
         from . import operand_element as oe
         from . import operand_container as oc
