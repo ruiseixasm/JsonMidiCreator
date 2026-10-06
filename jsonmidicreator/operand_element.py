@@ -525,13 +525,15 @@ class Element(o.Operand):
             # Can be applied to owned elements
             case int():
                 if operand >= 0:
-                    self_elements: list = [self] * operand
+                    self_elements: list = [
+                        self + self % ra.Length() * i % ra.Position() for i in range(operand)
+                    ]
                     if self._owner_clip is not None:    # Owner clip is always the base container
                         self._owner_clip._remove(self, True) # Starts by removing the actual element
                         self._owner_clip += self_elements
                         return self._owner_clip
                     else:
-                        return oc.Clip(self._get_time_signature(), self_elements, tr.Stack())
+                        return oc.Clip(self._get_time_signature(), self_elements)
                 
             case str():
                 elements_place: list[int] = o.string_to_list(operand)
@@ -566,32 +568,6 @@ class Element(o.Operand):
                 else:
                     return oc.Clip().__iadd__(self).__imul__(operand)
                 
-            case list():
-                if all(isinstance(segment, (int, float, og.Segment)) for segment in operand):
-                    segments_list: list[og.Segment] = [
-                        og.Segment(self._time_signature, single_segment) for single_segment in operand
-                    ]
-                    base_elements: list[oe.Element] = []
-                    for target_measure, source_segment in enumerate(segments_list):
-                        self_segment: Clip = self.copy().filter(source_segment)._set_owner_clip(self)
-                        self_segment << ra.Measure(target_measure)   # Stacked by measure *
-                        base_elements.extend(self_segment._items)
-                    self._items = base_elements
-                else:   # Locus stacking
-                    clip_elements: list[oe.Element] = []
-                    clip_start: ra.Position = ra.Position(self, 0)
-                    for locus_data in operand:
-                        locus: og.Locus = og.Locus(self, locus_data)
-                        locus_elements: list[oe.Element] = []
-                        for single_element in self._items:
-                            if single_element.overlap(locus):
-                                locus_elements.append(single_element.copy())    # decoupling element copy
-                        for single_element in locus_elements:   # Elements trimming
-                            single_element.trim(locus)
-                            single_element -= locus.start() - clip_start   # Places each element
-                        clip_elements.extend(locus_elements)
-                        clip_start += locus._duration_beats
-                    self._items = clip_elements
             case oy.Sequencer():
                 return operand * self
             case tuple():
@@ -649,44 +625,7 @@ class Element(o.Operand):
                     return self._owner_clip._extend(new_elements)   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip().__iadd__(self)._set_owner_clip().__itruediv__(operand)
-            case list():
-                new_elements: list[Element] = []
-                next_position: ra.Position = self.start()
-                for element_parameter in operand:
-                    match element_parameter:
-                        case int():
-                            if element_parameter == 0:
-                                new_elements.append( self.copy(next_position) )
-                            elif element_parameter < 0:
-                                source_element: Element = new_elements[element_parameter]
-                                new_elements.append( source_element.copy(parameter, next_position) )
-                            else:
-                                source_element: Element = self
-                                if new_elements:
-                                    source_element = new_elements[-1]
-                                for _ in range(element_parameter):
-                                    new_elements.append( source_element.copy(next_position) )
-                                    next_position += new_elements[-1]._duration_beats
-                                continue    # avoids the extra position increment done bellow
-                        case dict():
-                            for index, parameter in element_parameter.items():
-                                source_element: Element = new_elements[index]
-                                new_elements.append( source_element.copy(parameter, next_position) )
-                                next_position += new_elements[-1]._duration_beats
-                            continue    # avoids the extra position increment done bellow
-                        case Element(): # does an element wrapping
-                            new_elements.append( element_parameter.copy(next_position) )
-                        case _:
-                            source_element: Element = self
-                            if new_elements:
-                                source_element = new_elements[-1]
-                            new_elements.append( source_element.copy(element_parameter, next_position) )
-                    next_position += new_elements[-1]._duration_beats
-
-                if self._owner_clip is not None:    # Owner clip is always the base container
-                    return self._owner_clip._delete(self, True)._extend(new_elements)._sort_items()
-                else:
-                    return oc.Clip()._extend(new_elements)._set_owner_clip()
+                
             case tuple():
                 return super().__itruediv__(operand)
             case _:

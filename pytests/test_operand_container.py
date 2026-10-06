@@ -562,6 +562,18 @@ def test_sub_clip():
 
 def test_mul_clip():
 
+    eight_notes = Note(1/8) * 8
+    assert eight_notes.len_unmasked() == 8
+    assert eight_notes[0] == Position(0)
+    assert eight_notes % Duration() == 1.0  # 1 Measures
+
+    eight_notes = Note(1/8, Position(1/8)) * 8
+    assert eight_notes.len_unmasked() == 8
+    print(f"eight_notes[0] % Position(): {eight_notes[0] % Position() % float()}")
+    assert eight_notes[0] == Position(1/8)
+    print(f"eight_notes % Length(): {eight_notes % Length() % float()}")
+    assert eight_notes % Net(Finish()) == 1.0 + 1/8    # Duration in Measures
+
     two_notes: Clip = Note() * 2
     four_notes: Clip = Note() * 4
 
@@ -1306,22 +1318,6 @@ def test_mul_list():
     assert same_as_new_clip.len_unmasked() == 4 * 2
 
 # test_mul_list()
-
-
-def test_truediv_clip():
-    eight_notes = Note() / [1/8, 7]
-    assert eight_notes.len_unmasked() == 8
-    assert eight_notes[0] == Position(0)
-    assert eight_notes % Duration() == 1.0  # 1 Measures
-
-    eight_notes = Note(Position(1/8)) / [1/8, 7]
-    assert eight_notes.len_unmasked() == 8
-    print(f"eight_notes[0] % Position(): {eight_notes[0] % Position() % float()}")
-    assert eight_notes[0] == Position(1/8)
-    print(f"eight_notes % Length(): {eight_notes % Length() % float()}")
-    assert eight_notes % Net(Finish()) == 1.0 + 1/8    # Duration in Measures
-
-# test_truediv_clip()
 
 
 def test_floordiv_clip():
