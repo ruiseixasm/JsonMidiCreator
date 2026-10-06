@@ -1753,8 +1753,6 @@ class TimeUnit(Convertible):
             case Convertible():
                 return self._get_beats(other._time_signature_reference) \
                     == other._get_beats(self._time_signature_reference)
-            case og.Segment():
-                return other == self
             case _:
                 return super().__eq__(other)
         return False

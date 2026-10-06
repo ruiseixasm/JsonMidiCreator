@@ -219,11 +219,9 @@ class Element(o.Operand):
     def __eq__(self, other: o.Operand) -> bool:
         from . import operand_frame as of
         match other:
-            case Element():
+            case Element() | og.Locus():
                 return self._position_beats == other._position_beats \
                     and self._duration_beats == other._duration_beats
-            case og.Segment():
-                return other == self % ra.Position()
             case od.Conditional():
                 return other == self
             case of.Frame():
@@ -402,13 +400,6 @@ class Element(o.Operand):
                 token: str = operand.get_token(0)
                 self << od.Token(token)
 
-            case og.Segment():
-                if operand._segment:
-                    self << ra.Measure(operand._segment[0])
-                    if len(operand._segment) == 2:
-                        self << ra.Beat(operand._segment[1])
-                    elif len(operand._segment) > 2:
-                        self << ra.Step(operand._segment[2])
             case float():
                 self << ra.NoteValue(self, operand)
             case Fraction():
