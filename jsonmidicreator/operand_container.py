@@ -2405,32 +2405,6 @@ class Clip(Composition):  # Just a container of Elements
                 if self._items: # Uses the item Clip instead
                     self._items[0]._owner_clip._extend(new_elements)._sort_items()
 
-            case list():
-                
-                if all(isinstance(item, oe.Element) for item in operand):
-                    # Preserves the Structure (Locus), Wraps the content (Element)
-                    self_base: Clip = self
-                    for existent_element, new_element in zip(self_base, operand):
-                        element_locus: og.Locus = existent_element % og.Locus()
-                        self._replace(existent_element, new_element.copy(element_locus)._set_owner_clip(self_base))
-
-                else:
-                    segments_list: list[og.Segment] = [
-                        og.Segment(self, single_segment) for single_segment in operand
-                    ]
-                    base_elements: list[oe.Element] = []
-                    mask_elements: list[oe.Element] = []
-                    for _, source_segment in enumerate(segments_list):
-                        # Preserves masked elements by id in base and mask containers
-                        segment_clip: Clip = self.copy().filter(source_segment)
-                        segment_clip << ra.Measure(0)   # Side by Side
-                        base_elements.extend(segment_clip._items)
-                        mask_elements.extend(segment_clip._items)
-                    self._delete()
-                    self._extend(mask_elements)
-                    self._items = base_elements
-                    self._set_owner_clip()
-
             case og.Locus():    # Cuts out the Locus are and trims any overlap
                 overlapping_elements: list[oe.Element] = [
                     single_element for single_element in self._items

@@ -293,7 +293,6 @@ class Element(o.Operand):
                 convertible: ra.Convertible = operand._data
                 return self % convertible
             case int():             return self % ra.Measure() % int()
-            case og.Segment():      return operand.copy(self % ra.Position())
             case float():           return self % ra.NoteValue() % float()
             case Fraction():        return self._duration_beats
             case ou.Masked():       return ou.Masked(self._masked)
