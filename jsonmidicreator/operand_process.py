@@ -727,28 +727,30 @@ class Plot(Process):
             # Solid line at y = 64
             self._ax.axhline(y=64, color='gray', linestyle='-', linewidth=1.5)
 
-            automation_channels: list[int] = []
+            automation_channel_groups: list[tuple[int, int]] = []
             for single_automation in automation_plotlist:
-                if single_automation["channel"] not in automation_channels:
-                    automation_channels.append(single_automation["channel"])
+                channel_group = (
+                    single_automation["channel"],
+                    single_automation["group_id"]
+                )
+                if channel_group not in automation_channel_groups:
+                    automation_channel_groups.append(channel_group)
 
             # Plot automations
-            for channel in automation_channels:
-                channel_color = Plot._channel_colors[channel]
-                channel_plotlist = [
+            for channel_group in automation_channel_groups:
+                channel_color = Plot._channel_colors[channel_group[0]]
+                channel_group_plotlist = [
                     channel_automation for channel_automation in automation_plotlist
-                    if channel_automation["channel"] == channel
+                    if channel_automation["channel"] == channel_group[0]
+                    and channel_automation["group_id"] == channel_group[1]
                 ]
 
-                if channel_plotlist:
-
-                    # Because the can be from multiple CC numbers (need to aggregate)
-                    channel_plotlist.sort(key=lambda a: a['position'])
+                if channel_group_plotlist:
 
                     # Plotting point lists
                     x: list[float]  = []
                     y: list[int]    = []
-                    for automation in channel_plotlist:
+                    for automation in channel_group_plotlist:
                         x.append( float(automation["position"]) )
                         y.append( automation["value"] )
 
@@ -766,7 +768,7 @@ class Plot(Process):
                     
                     # Actual data points
                     marker: str = 'o'
-                    info: str = str(channel + 1)
+                    info: str = str(channel_group[0] + 1)
                     match automation["self"]:
                         case oe.ControlChange():
                             info += f".{automation["self"]._number}"
@@ -780,12 +782,12 @@ class Plot(Process):
 
                     # Add the tailed line up to the end of the chart
                     x = [
-                        float(channel_plotlist[-1]["position"]),
+                        float(channel_group_plotlist[-1]["position"]),
                         float(last_position_measure * beats_per_measure)
                     ]
                     y = [
-                        channel_plotlist[-1]["value"],
-                        channel_plotlist[-1]["value"]
+                        channel_group_plotlist[-1]["value"],
+                        channel_group_plotlist[-1]["value"]
                     ]
 
                     # Stepped line connecting the points
