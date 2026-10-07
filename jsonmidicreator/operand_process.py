@@ -378,7 +378,7 @@ class Plot(Process):
 
                     
         # Plot Notes
-        if note_channels or not automation_channels:
+        if note_plotlist:
 
             # As Channels (Drums)
             if self.by_channel:
@@ -507,48 +507,18 @@ class Plot(Process):
                 # Solid line at y = 60 the Middle C
                 self._ax.axhline(y=60 - 0.5, color='gray', linestyle='-', linewidth=1.0)
 
-                if note_plotlist:
+                # Updates X-Axis data
+                last_position = max(note["position_off"] for note in note_plotlist)
+                last_position_measures = last_position / beats_per_measure
+                last_position_measure = int(last_position_measures) # Trims extra length
+                if last_position_measure != last_position_measures: # Includes the trimmed length
+                    last_position_measure += 1  # Adds only if the end doesn't coincide
 
-                    # Updates X-Axis data
-                    last_position = max(note["position_off"] for note in note_plotlist)
-                    last_position_measures = last_position / beats_per_measure
-                    last_position_measure = int(last_position_measures) # Trims extra length
-                    if last_position_measure != last_position_measures: # Includes the trimmed length
-                        last_position_measure += 1  # Adds only if the end doesn't coincide
+                # PITCHES VERTICAL AXIS
 
-                    # PITCHES VERTICAL AXIS
-
-                    # Get pitch range
-                    min_pitch: int = int(min(note["pitch"] for note in note_plotlist) // 12 * 12)
-                    max_pitch: int = int(max(note["pitch"] for note in note_plotlist) // 12 * 12 + 12)
-
-                else:  # Empty watermark
-
-                    # Updates X-Axis data
-                    last_position_measures = last_position / beats_per_measure
-                    last_position_measure = int(last_position_measures) # Trims extra length
-                    if last_position_measure != last_position_measures: # Includes the trimmed length
-                        last_position_measure += 1  # Adds only if the end doesn't coincide
-
-                    # PITCHES VERTICAL AXIS
-
-                    # Get pitch range
-                    min_pitch: int = 60
-                    max_pitch: int = 60
-
-                    # Add watermark text in the center of the plot
-                    self._ax.text(0.5, 0.5, 'EMPTY', 
-                                transform=self._ax.transAxes,
-                                fontsize=20,
-                                color='gray',
-                                alpha=0.5,
-                                ha='center',
-                                va='center',
-                                fontweight='bold',
-                                fontstyle='italic')
-                    
-                    # Optional: Add a subtle rectangle watermark
-                    self._ax.axhspan(-0.5, 16.5, color='lightgray', alpha=0.1)
+                # Get pitch range
+                min_pitch: int = int(min(note["pitch"] for note in note_plotlist) // 12 * 12)
+                max_pitch: int = int(max(note["pitch"] for note in note_plotlist) // 12 * 12 + 12)
 
 
                 pitch_range: int = max_pitch - min_pitch
@@ -756,7 +726,7 @@ class Plot(Process):
                       
                                  
         # Plot Automations
-        else:
+        elif automation_plotlist:
 
             self._ax.set_ylabel("Automation Values (MSB)")
             # Where the corner Coordinates are defined
@@ -775,96 +745,122 @@ class Plot(Process):
                     if "automation" in element_dict and isinstance(element_dict["automation"]["self"], oe.Automatable)
                 ]
 
-            if automation_plotlist:
+            # Updates X-Axis data
+            last_position = max(automation["position_beats"] for automation in automation_plotlist)
+            last_position_measures = last_position / beats_per_measure
+            last_position_measure = int(last_position_measures)
+            if last_position_measure != last_position_measures:
+                last_position_measure += 1
 
-                # Updates X-Axis data
-                last_position = max(automation["position_beats"] for automation in automation_plotlist)
-                last_position_measures = last_position / beats_per_measure
-                last_position_measure = int(last_position_measures)
-                if last_position_measure != last_position_measures:
-                    last_position_measure += 1
+            # Axis limits
+            self._ax.set_ylim(-1, 128)
+            # Ticks
+            self._ax.set_yticks(range(0, 129, 8))
 
-                # Axis limits
-                self._ax.set_ylim(-1, 128)
-                # Ticks
-                self._ax.set_yticks(range(0, 129, 8))
+            # Dashed horizontal lines at multiples of 16 (except 64)
+            for i in range(0, 129, 16):
+                if i != 64:
+                    self._ax.axhline(y=i, color='gray', linestyle='--', linewidth=1)
+            # Dashed line at y = 127
+            self._ax.axhline(y=127, color='gray', linestyle='--', linewidth=1)
+            # Solid line at y = 64
+            self._ax.axhline(y=64, color='gray', linestyle='-', linewidth=1.5)
 
-                # Dashed horizontal lines at multiples of 16 (except 64)
-                for i in range(0, 129, 16):
-                    if i != 64:
-                        self._ax.axhline(y=i, color='gray', linestyle='--', linewidth=1)
-                # Dashed line at y = 127
-                self._ax.axhline(y=127, color='gray', linestyle='--', linewidth=1)
-                # Solid line at y = 64
-                self._ax.axhline(y=64, color='gray', linestyle='-', linewidth=1.5)
+            # Plot automations
+            for channel_0 in automation_channels:
+                channel_color = Plot._channel_colors[channel_0]
+                channel_plotlist = [
+                    channel_automation for channel_automation in automation_plotlist
+                    if channel_automation["channel"] == channel_0
+                ]
 
-                # Plot automations
-                for channel_0 in automation_channels:
-                    channel_color = Plot._channel_colors[channel_0]
-                    channel_plotlist = [
-                        channel_automation for channel_automation in automation_plotlist
-                        if channel_automation["channel"] == channel_0
+                if channel_plotlist:
+
+                    channel_plotlist.sort(key=lambda a: a['position'])
+
+                    # Plotting point lists
+                    x: list[float]  = []
+                    y: list[int]    = []
+                    for automation in channel_plotlist:
+                        x.append( float(automation["position_beats"]) )
+                        y.append( automation["value"] )
+
+                    # Stepped line connecting the points
+                    self._ax.plot(x, y, linestyle='-', drawstyle='steps-post', color=channel_color, linewidth=0.5)
+                    
+                    if automation["masked"]:
+                        color_alpha = 0.2
+                    else:
+                        color_alpha = 1.0
+
+                    edge_color: str = 'black'
+                    if not automation["enabled"]:
+                        edge_color = 'white'
+                    
+                    # Actual data points
+                    marker: str = 'o'
+                    info: str = str(channel_0 + 1)
+                    match automation["self"]:
+                        case oe.ControlChange():
+                            info += f".{automation["self"]._controller._number_msb}"
+                        case oe.Aftertouch():
+                            marker = 'v'
+                        case _: # PitchBend
+                            marker = 'P'
+
+                    self._ax.plot(x, y, marker=marker, linestyle='None', color=channel_color,
+                                markeredgecolor=edge_color, markeredgewidth=1, markersize=6, alpha = color_alpha)
+
+                    # Add the tailed line up to the end of the chart
+                    x = [
+                        float(channel_plotlist[-1]["position_beats"]),
+                        float(last_position_measure * beats_per_measure)
+                    ]
+                    y = [
+                        channel_plotlist[-1]["value"],
+                        channel_plotlist[-1]["value"]
                     ]
 
-                    if channel_plotlist:
+                    # Stepped line connecting the points
+                    self._ax.plot(x, y, linestyle='-', drawstyle='steps-post', color=channel_color, linewidth=0.5)
+                    # Actual data points
+                    self._ax.plot(x, y, marker='None', linestyle='None', color=channel_color, markersize=6)
 
-                        channel_plotlist.sort(key=lambda a: a['position'])
+                    y_pos: int = automation["value"] + 2
+                    x_pos = automation["position_beats"]
+                    self._ax.text(x_pos, y_pos, info, ha='center', va='bottom', fontsize=8,
+                        color='black',  # Outline color
+                        path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
+                        alpha=color_alpha)
 
-                        # Plotting point lists
-                        x: list[float]  = []
-                        y: list[int]    = []
-                        for automation in channel_plotlist:
-                            x.append( float(automation["position_beats"]) )
-                            y.append( automation["value"] )
+        else:  # Empty watermark
 
-                        # Stepped line connecting the points
-                        self._ax.plot(x, y, linestyle='-', drawstyle='steps-post', color=channel_color, linewidth=0.5)
-                        
-                        if automation["masked"]:
-                            color_alpha = 0.2
-                        else:
-                            color_alpha = 1.0
+            # Updates X-Axis data
+            last_position_measures = last_position / beats_per_measure
+            last_position_measure = int(last_position_measures) # Trims extra length
+            if last_position_measure != last_position_measures: # Includes the trimmed length
+                last_position_measure += 1  # Adds only if the end doesn't coincide
 
-                        edge_color: str = 'black'
-                        if not automation["enabled"]:
-                            edge_color = 'white'
-                        
-                        # Actual data points
-                        marker: str = 'o'
-                        info: str = str(channel_0 + 1)
-                        match automation["self"]:
-                            case oe.ControlChange():
-                                info += f".{automation["self"]._controller._number_msb}"
-                            case oe.Aftertouch():
-                                marker = 'v'
-                            case _: # PitchBend
-                                marker = 'P'
+            # PITCHES VERTICAL AXIS
 
-                        self._ax.plot(x, y, marker=marker, linestyle='None', color=channel_color,
-                                    markeredgecolor=edge_color, markeredgewidth=1, markersize=6, alpha = color_alpha)
+            # Get pitch range
+            min_pitch: int = 60
+            max_pitch: int = 60
 
-                        # Add the tailed line up to the end of the chart
-                        x = [
-                            float(channel_plotlist[-1]["position_beats"]),
-                            float(last_position_measure * beats_per_measure)
-                        ]
-                        y = [
-                            channel_plotlist[-1]["value"],
-                            channel_plotlist[-1]["value"]
-                        ]
-
-                        # Stepped line connecting the points
-                        self._ax.plot(x, y, linestyle='-', drawstyle='steps-post', color=channel_color, linewidth=0.5)
-                        # Actual data points
-                        self._ax.plot(x, y, marker='None', linestyle='None', color=channel_color, markersize=6)
-
-                        y_pos: int = automation["value"] + 2
-                        x_pos = automation["position_beats"]
-                        self._ax.text(x_pos, y_pos, info, ha='center', va='bottom', fontsize=8,
-                            color='black',  # Outline color
-                            path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
-                            alpha=color_alpha)
-                                        
+            # Add watermark text in the center of the plot
+            self._ax.text(0.5, 0.5, 'EMPTY', 
+                        transform=self._ax.transAxes,
+                        fontsize=20,
+                        color='gray',
+                        alpha=0.5,
+                        ha='center',
+                        va='center',
+                        fontweight='bold',
+                        fontstyle='italic')
+            
+            # Optional: Add a subtle rectangle watermark
+            self._ax.axhspan(-0.5, 16.5, color='lightgray', alpha=0.1)
+                         
 
         # Draw vertical grid lines based on beats and measures
         one_extra_subdivision: float = quantization_beats
