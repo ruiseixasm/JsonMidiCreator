@@ -1911,7 +1911,7 @@ class Trigger(ChannelElement):
                     "trigger": {
                         "position_on": position_on,
                         "position_off": position_off,
-                        "enabled": True if self._owner_clip is None else self._owner_clip._enabled,
+                        "enabled": self._owner_clip._enabled,
                         "pitch": pitch_int,
                         "velocity": self._velocity,
                         "channel": self._channel_0,
