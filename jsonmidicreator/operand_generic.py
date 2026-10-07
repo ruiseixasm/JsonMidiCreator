@@ -616,7 +616,7 @@ class Dots(Generic):
                         dot + number._value for dot in self._dots
                     ]
                 else:
-                    for dot in enumerate(self._dots):
+                    for dot in self._dots:
                         if number._position_beats == dot._position_beats:
                             dot._value += number._value
                             return self
@@ -640,7 +640,7 @@ class Dots(Generic):
                         dot - number._value for dot in self._dots
                     ]
                 else:
-                    for dot in enumerate(self._dots):
+                    for dot in self._dots:
                         if number._position_beats == dot._position_beats:
                             dot._value -= number._value
                             return self
