@@ -758,7 +758,7 @@ class Plot(Process):
                 info: str = ""
                 if single_trigger["self"]._tied:
                     info += " Tied"
-                self._ax.text(float(single_trigger["position_on"]), single_trigger["pitch"] + 0.3, info, ha='left', va='bottom', fontsize=4,
+                self._ax.text(float(single_trigger["position_on"]), single_trigger["sample_id"] + 1, info, ha='left', va='bottom', fontsize=4,
                     color='black',  # Outline color
                     path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
                     alpha=color_alpha)
