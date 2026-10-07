@@ -762,10 +762,6 @@ class Plot(Process):
                     color='black',  # Outline color
                     path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
                     alpha=color_alpha)
-        
-                if "middle_pitch" in single_trigger:
-                    self._ax.hlines(y=single_trigger["channel"] + 1, xmin=float(single_trigger["position_on"]), xmax=float(single_trigger["position_off"]), 
-                                    color='black', linewidth=0.5, alpha=color_alpha)
 
             # Plot rests
             for single_rest in rest_plotlist:
