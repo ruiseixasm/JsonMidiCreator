@@ -696,9 +696,13 @@ class Plot(Process):
             # Set MIDI channel ticks with Middle C in bold
             self._ax.set_yticks(range(17))  # Needs to accommodate all labels, so, it's 17
             self._ax.tick_params(axis='y', which='both', length=0)
-            y_labels = ['R'] + [
-                channel_0 + 1 for channel_0 in range(16)
+            y_labels = ['Rest'] + [
+                
             ]
+            if len(y_labels) < 17:
+                y_labels.extend(
+                    sample_i for sample_i in range(len(y_labels), 17)
+                )
             self._ax.set_yticklabels(y_labels, fontsize=7, fontweight='bold')
             self._ax.set_ylim(0 - 0.5, 16 + 0.5)  # Ensure all channels fit
 
