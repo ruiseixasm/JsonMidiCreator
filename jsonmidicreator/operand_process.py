@@ -737,11 +737,11 @@ class Plot(Process):
             self._ax.axhline(y=64, color='gray', linestyle='-', linewidth=1.5)
 
             # Plot automations
-            for single_note in automation_channels:
-                channel_color = Plot._channel_colors[single_note]
+            for channel in automation_channels:
+                channel_color = Plot._channel_colors[channel]
                 channel_plotlist = [
                     channel_automation for channel_automation in automation_plotlist
-                    if channel_automation["channel"] == single_note
+                    if channel_automation["channel"] == channel
                 ]
 
                 if channel_plotlist:
@@ -769,7 +769,7 @@ class Plot(Process):
                     
                     # Actual data points
                     marker: str = 'o'
-                    info: str = str(single_note + 1)
+                    info: str = str(channel + 1)
                     match automation["self"]:
                         case oe.ControlChange():
                             info += f".{automation["self"]._number}"
