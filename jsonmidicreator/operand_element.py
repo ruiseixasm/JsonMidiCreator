@@ -1739,7 +1739,12 @@ class Trigger(ChannelElement):
         self._gate: Fraction        = Fraction(1)
         self._tied: bool            = False
         self._sample: str           = "Kick"
-        super().__init__(*parameters)
+        super().__init__()
+        # Equivalent to one Step
+        self._duration_beats = og.settings._quantization    # Quantization is a Beats value already
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+    
 
     def velocity(self, velocity: int = 100) -> Self:
         self._velocity = velocity
