@@ -996,10 +996,9 @@ class Plot(Process):
         
         self._ax.set_xlabel(
             f"Measures played at {round(composition_tempo, 1)}bpm for "
-            f"{length_beats}beats "
-            f"({int(length_beats / composition_tempo * 60 // 60)}'"
+            f"{int(length_beats / composition_tempo * 60 // 60)}'"
             f"{int(length_beats / composition_tempo * 60 % 60)}''"
-            f"{int(length_beats / composition_tempo * 60_000 % 1000)}ms) "
+            f"{int(length_beats / composition_tempo * 60_000 % 1000)}ms "
             f"with a Length of {length_beats} Beats "
             f"a Time Signature of {time_signature._top}/{time_signature._bottom} "
             f"and a Quantization of {quantization_beats} Beat"
