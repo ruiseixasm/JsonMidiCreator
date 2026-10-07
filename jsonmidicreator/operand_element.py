@@ -3336,11 +3336,14 @@ class Chord(KeyScale):
                     case _:                         super().__lshift__(operand)
             case ou.Size():                 self._size = operand._unit
             case str():
-                operand = operand.strip()
-                # Set Pitch parameters with the string
-                self._pitch << operand
-                # Set Chord size
-                self._size = ou.Size(od.Pipe( self._size ), operand)._unit
+                if ":" in operand:  # It's a Token
+                    super().__lshift__(operand)
+                else:
+                    operand = operand.strip()
+                    # Set Pitch parameters with the string
+                    self._pitch << operand
+                    # Set Chord size
+                    self._size = ou.Size(od.Pipe( self._size ), operand)._unit
             case ou.Dominant():
                 if operand:
                     self.set_all()
@@ -3830,7 +3833,10 @@ class ControlChange(Automatable):
             case ou.Number():
                 self._number = operand._unit
             case str():
-                self._number = ou.Number(operand)._unit
+                if ":" in operand:  # It's a Token
+                    super().__lshift__(operand)
+                else:
+                    self._number = ou.Number(operand)._unit
             case ou.Value():
                 self._value = operand._unit
             case ou.Value14bit():
