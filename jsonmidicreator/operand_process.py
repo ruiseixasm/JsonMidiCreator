@@ -405,53 +405,54 @@ class Plot(Process):
                 for single_note in note_plotlist:
                     note_channel = single_note["channel"]
                     channel_color = Plot._channel_colors[note_channel]
-                    if type(single_note["self"]) is oe.Rest:
-                        # Available hatch patterns: '/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'
-                        color_alpha: float = 1.0
-                        if single_note["masked"]:
-                            color_alpha = 0.2
-                        self._ax.barh(y = 0.0, width = float(single_note["position_off"] - single_note["position_on"]), left = float(single_note["position_on"]),
-                            height=0.30, color='none', hatch='', edgecolor='black', linewidth=1.0, linestyle='solid', alpha = color_alpha)
-                    else:
-                        bar_hatch: str = ''
-                        line_style: str = 'solid'
-                        if isinstance(single_note["self"], oe.KeyScale):
-                            line_style = 'dashed'
-                        elif isinstance(single_note["self"], (oe.Rhythm, oe.Tuplet)):
-                            line_style = 'dotted'
-                        edge_color: str = 'black'
-                        if not single_note["enabled"]:
-                            edge_color = 'white'
 
-                        color_alpha: float = round(0.3 + 0.7 * (single_note["velocity"] / 127), 2)
+                    bar_hatch: str = ''
+                    line_style: str = 'solid'
+                    if isinstance(single_note["self"], oe.KeyScale):
+                        line_style = 'dashed'
+                    elif isinstance(single_note["self"], (oe.Rhythm, oe.Tuplet)):
+                        line_style = 'dotted'
+                    edge_color: str = 'black'
+                    if not single_note["enabled"]:
+                        edge_color = 'white'
 
-                        if single_note["velocity"] > 127:
-                            edge_color = 'red'
-                            color_alpha = 1.0
-                        elif single_note["velocity"] < 0:
-                            edge_color = 'blue'
-                            color_alpha = 1.0
+                    color_alpha: float = round(0.3 + 0.7 * (single_note["velocity"] / 127), 2)
 
-                        if single_note["masked"]:
-                            color_alpha = 0.2
-                            
-                        self._ax.barh(y = single_note["channel"] + 1, width = float(single_note["position_off"] - single_note["position_on"]), left = float(single_note["position_on"]), 
-                                height=0.3, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.0, linestyle=line_style, alpha=color_alpha)
+                    if single_note["velocity"] > 127:
+                        edge_color = 'red'
+                        color_alpha = 1.0
+                    elif single_note["velocity"] < 0:
+                        edge_color = 'blue'
+                        color_alpha = 1.0
 
-                        info: str = ""
-                        if single_note["self"]._tied:
-                            info += " Tied"
-                        if isinstance(single_note["self"]._note_effect, og.NoteEffect):
-                            info += " FX"
-                        self._ax.text(float(single_note["position_on"]), single_note["pitch"] + 0.3, info, ha='left', va='bottom', fontsize=4,
-                            color='black',  # Outline color
-                            path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
-                            alpha=color_alpha)
-                
-                        if "middle_pitch" in single_note:
-                            self._ax.hlines(y=single_note["channel"] + 1, xmin=float(single_note["position_on"]), xmax=float(single_note["position_off"]), 
-                                            color='black', linewidth=0.5, alpha=color_alpha)
+                    if single_note["masked"]:
+                        color_alpha = 0.2
+                        
+                    self._ax.barh(y = single_note["channel"] + 1, width = float(single_note["position_off"] - single_note["position_on"]), left = float(single_note["position_on"]), 
+                            height=0.3, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.0, linestyle=line_style, alpha=color_alpha)
 
+                    info: str = ""
+                    if single_note["self"]._tied:
+                        info += " Tied"
+                    if isinstance(single_note["self"]._note_effect, og.NoteEffect):
+                        info += " FX"
+                    self._ax.text(float(single_note["position_on"]), single_note["pitch"] + 0.3, info, ha='left', va='bottom', fontsize=4,
+                        color='black',  # Outline color
+                        path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
+                        alpha=color_alpha)
+            
+                    if "middle_pitch" in single_note:
+                        self._ax.hlines(y=single_note["channel"] + 1, xmin=float(single_note["position_on"]), xmax=float(single_note["position_off"]), 
+                                        color='black', linewidth=0.5, alpha=color_alpha)
+
+                # Plot rests
+                for single_rest in rest_plotlist:
+                    # Available hatch patterns: '/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'
+                    color_alpha: float = 1.0
+                    if single_rest["masked"]:
+                        color_alpha = 0.2
+                    self._ax.barh(y = 0.0, width = float(single_rest["position_off"] - single_rest["position_on"]), left = float(single_rest["position_on"]),
+                        height=0.30, color='none', hatch='', edgecolor='black', linewidth=1.0, linestyle='solid', alpha = color_alpha)
                                  
             # As Chromatic keys (Notes)
             else:
