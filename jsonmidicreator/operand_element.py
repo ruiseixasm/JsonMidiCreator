@@ -1921,7 +1921,8 @@ class Trigger(ChannelElement):
                         "velocity": self._velocity,
                         "channel": self._channel_0,
                         "masked": self._masked,
-                        "self": self_to_plot
+                        "self": self_to_plot,
+                        "owner": self._owner_clip
                     }
                 }
             )
