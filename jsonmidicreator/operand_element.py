@@ -309,7 +309,7 @@ class Element(o.Operand):
         }
 
     def getPlotlist(self, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None, derived_element: 'Element' = None) -> list[dict]:
+            derived_element: 'Element' = None) -> list[dict]:
         return []
 
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True,
@@ -843,7 +843,7 @@ class Subclip(Element):
         return self._subclip.get_component_elements()
 
 
-    def getPlotlist(self, position_beats: Fraction | None = None, channels: dict[str, set[int]] = None) -> list[dict]:
+    def getPlotlist(self, position_beats: Fraction | None = None) -> list[dict]:
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
@@ -1030,14 +1030,14 @@ class Unison(Element):
             single_element << self_locus
         return self._elements
 
-    def getPlotlist(self, position_beats: Fraction | None = None, channels: dict[str, set[int]] = None) -> list[dict]:
+    def getPlotlist(self, position_beats: Fraction | None = None) -> list[dict]:
         self_playlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
         for single_element in self.get_component_elements():
-            self_playlist.extend(single_element.getPlotlist(position_beats, channels))
+            self_playlist.extend(single_element.getPlotlist(position_beats))
         return self_playlist
     
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
@@ -1137,7 +1137,7 @@ class Rest(Element):
                 return super().__eq__(other)
     
 
-    def getPlotlist(self, position_beats: Fraction | None = None, channels: dict[str, set[int]] = None) -> list[dict]:
+    def getPlotlist(self, position_beats: Fraction | None = None) -> list[dict]:
         
         if self._duration_beats == 0:
             return []
@@ -1888,7 +1888,7 @@ class Trigger(ChannelElement):
 
     # CREATION VS REPRESENTATION
     def getPlotlist(self, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None, derived_note: 'Note' = None) -> list[dict]:
+            derived_note: 'Note' = None) -> list[dict]:
         
         if self._duration_beats == 0:
             return []
@@ -1905,9 +1905,6 @@ class Trigger(ChannelElement):
 
         position_off: Fraction = position_on + self._duration_beats
         self_to_plot: Note = self if derived_note is None else derived_note # Info to be represented
-
-        if channels is not None:
-            channels["trigger"].add(self._channel_0)
 
         self_plotlist.append(
             {
@@ -2292,7 +2289,7 @@ class Note(ChannelElement):
 
     # CREATION VS REPRESENTATION
     def getPlotlist(self, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None, derived_note: 'Note' = None) -> list[dict]:
+            derived_note: 'Note' = None) -> list[dict]:
         
         self_plotlist: list[dict] = []
         component_notes: list[Note] = self.get_component_elements()
@@ -2312,9 +2309,6 @@ class Note(ChannelElement):
 
             position_off: Fraction = position_on + single_note._duration_beats
             self_to_plot: Note = self if derived_note is None else derived_note # Info to be represented
-
-            if channels is not None:
-                channels["note"].add(single_note._channel_0)
 
             self_plotlist.append(
                 {
@@ -2534,14 +2528,14 @@ class Rhythm(Note):
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
-    def getPlotlist(self, position_beats: Fraction | None = None, channels: dict[str, set[int]] = None) -> list[dict]:
+    def getPlotlist(self, position_beats: Fraction | None = None) -> list[dict]:
         self_plotlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
         for single_note in self.get_component_elements():
-            self_plotlist.extend(single_note.getPlotlist(position_beats, channels, self))
+            self_plotlist.extend(single_note.getPlotlist(position_beats, self))
         for plot_dict in self_plotlist:
             plot_dict["self"] = self # Makes sure it's identified as `Rhythm`
         return self_plotlist
@@ -2907,14 +2901,14 @@ class KeyScale(Note):
         return scale_notes
     
 
-    def getPlotlist(self, position_beats: Fraction | None = None, channels: dict[str, set[int]] = None) -> list[dict]:
+    def getPlotlist(self, position_beats: Fraction | None = None) -> list[dict]:
         self_plotlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
         for single_note in self.get_component_elements():
-            self_plotlist.extend(single_note.getPlotlist(position_beats, channels, self))
+            self_plotlist.extend(single_note.getPlotlist(position_beats, self))
         # Makes sure the self middle pitch os passed once and only once to the last dict to be added on top of it
         if self_plotlist:
             self_plotlist[-1]["note"]["middle_pitch"] = self.get_absolute_pitch()
@@ -3476,14 +3470,14 @@ class Tuplet(Note):
             retrigger_notes = self._note_effect.apply(retrigger_notes)
         return retrigger_notes
 
-    def getPlotlist(self, position_beats: Fraction | None = None, channels: dict[str, set[int]] = None) -> list[dict]:
+    def getPlotlist(self, position_beats: Fraction | None = None) -> list[dict]:
         self_plotlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
         for single_note in self.get_component_elements():
-            self_plotlist.extend(single_note.getPlotlist(position_beats, channels, self))
+            self_plotlist.extend(single_note.getPlotlist(position_beats, self))
         return self_plotlist
     
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
@@ -3724,14 +3718,11 @@ class ControlChange(Automatable):
         return vectordict
 
     def getPlotlist(self, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None, derived_element: 'Element' = None) -> list[dict]:
+            derived_element: 'Element' = None) -> list[dict]:
         
         if self.is_clipped():
             return []
         
-        if channels is not None:
-            channels["automation"].add(self._channel_0)
-
         self_plotlist: list[dict] = []
         
         position_on: Fraction = Fraction(0)
@@ -4570,13 +4561,10 @@ class Aftertouch(Automatable):
 
 
     def getPlotlist(self, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None, derived_element: 'Element' = None) -> list[dict]:
+            derived_element: 'Element' = None) -> list[dict]:
         
         if self.is_clipped():
             return []
-
-        if channels is not None:
-            channels["automation"].add(self._channel_0)
 
         self_plotlist: list[dict] = []
         
@@ -4954,13 +4942,10 @@ class PitchBend(Automatable):
         return vectordict
 
     def getPlotlist(self, position_beats: Fraction | None = None,
-            channels: dict[str, set[int]] = None, derived_element: 'Element' = None) -> list[dict]:
+            derived_element: 'Element' = None) -> list[dict]:
         
         if self.is_clipped():
             return []
-
-        if channels is not None:
-            channels["automation"].add(self._channel_0)
 
         self_plotlist: list[dict] = []
         
@@ -5320,14 +5305,14 @@ class Automation(Element):
             case _:                 return super().__mod__(operand)
 
 
-    def getPlotlist(self, position_beats: Fraction | None = None, channels: dict[str, set[int]] = None) -> list[dict]:
+    def getPlotlist(self, position_beats: Fraction | None = None) -> list[dict]:
         self_playlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
         for single_element in self.get_component_elements():
-            self_playlist.extend(single_element.getPlotlist(position_beats, channels))
+            self_playlist.extend(single_element.getPlotlist(position_beats))
         return self_playlist
     
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:

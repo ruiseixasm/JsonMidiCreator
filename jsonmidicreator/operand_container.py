@@ -1819,28 +1819,19 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             list[dict]: A list with multiple Plot configuration dictionaries.
         """
-        self_plotlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0, 1)
 
-        channels: dict[str, set[int]] = {
-            "note":         set(),
-            "automation":   set()
-        }
-
-        self_plotlist.extend(
+        self_plotlist: list[dict] = [
             single_playlist
                 for single_element in self._items
-                    for single_playlist in single_element.getPlotlist(position_beats, channels)
-        )
+                    for single_playlist in single_element.getPlotlist(position_beats)
+        ]
+        
         # sorted(set) returns the sorted list from set
         # list_none = list(set).sort() doesn't return anything but None !
         self_plotlist.insert(0,
             {
-                "channels": {
-                    "note":         sorted(channels["note"]),
-                    "automation":   sorted(channels["automation"])
-                },
                 "tempo": og.settings._tempos
             }
         )
