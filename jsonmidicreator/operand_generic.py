@@ -1214,10 +1214,6 @@ class Pitch(Generic):
                 for octave, value in operand.items():
                     self << value << ou.Octave(octave)
 
-            case ou.DrumKit():
-                self << ou.Degree()     # Makes sure no Degree different of Tonic is in use
-                self.set_absolute_pitch(ou.Key(operand)._unit) # Sets the key number regardless KeySignature or Scale!
-
             case ou.Accidental() | ou.Natural():
                 self._accidental = ou.Degree(operand)._accidental
             

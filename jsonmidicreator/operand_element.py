@@ -2496,10 +2496,6 @@ class Note(ChannelElement):
             case od.Remove():
                 if isinstance(operand._data, og.NoteEffect):
                     self._note_effect = None
-
-            case ou.DrumKit():
-                self._channel_0 = operand._channel_0
-                self._pitch << operand
             case _:
                 super().__lshift__(operand)
         return self
