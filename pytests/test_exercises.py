@@ -43,10 +43,10 @@ def test_cutting_note():
     simple_cuts[Beat(0)] //= Steps(1)
     simple_cuts *= Rest(1/1)    # Add a simple rest
     # simple_cuts[4] % Duration() >> Print()
-    # simple_cuts >> Plot()
+    simple_cuts >> Plot()
     assert simple_cuts[4] % Duration() == Beats(3) - Steps(1)
 
-# test_cutting_note()
+test_cutting_note()
 
 
 def test_transform_note():

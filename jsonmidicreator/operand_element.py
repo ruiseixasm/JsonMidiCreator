@@ -1183,24 +1183,21 @@ class Rest(Element):
         if self._duration_beats == 0:
             return []
 
-        if channels is not None:
-            channels["note"].add(-1)
-
-        self_plotlist: list[dict] = []
-    
         position_on: Fraction = Fraction(0)
         if position_beats is not None:
             position_on = position_beats + self._position_beats
 
         position_off: Fraction = position_on + self._duration_beats
 
+        self_plotlist: list[dict] = []
+    
         self_plotlist.append(
             {
-                "note": {
+                "rest": {
                     "position_on": position_on,
                     "position_off": position_off,
-                    "channel": -1,  # Rests have no Channel
-                    "pitch": 59.5,  # Just to place the Rest
+                    # "channel": -1,  # Rests have no Channel
+                    # "pitch": 59.5,  # Just to place the Rest
                     "masked": self._masked,
                     "self": self
                 }
