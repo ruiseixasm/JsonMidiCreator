@@ -1990,6 +1990,10 @@ class Clip(Composition):  # Just a container of Elements
                         self._enabled = bool(operand._data._unit)
                     case ou.Disable():
                         self._enabled = operand._data._unit == 0
+                    case og.DrumKit():
+                        self._drum_kit = operand._data._drum_kit
+                    case dict():
+                        self._drum_kit = operand._data
 
                     case list():
                         if all(isinstance(item, oe.Element) for item in operand._data):
@@ -2033,6 +2037,10 @@ class Clip(Composition):  # Just a container of Elements
                 self._enabled = bool(operand._unit)
             case ou.Disable():
                 self._enabled = operand._unit == 0
+            case og.DrumKit():
+                self._drum_kit = operand % dict()
+            case dict():
+                self._drum_kit = o.deep_copy(operand)
                 
             case oe.Element():  # Element wapping (wrap)
                 for single_element in self.elements_unmasked():
