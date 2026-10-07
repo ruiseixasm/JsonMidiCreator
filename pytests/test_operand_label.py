@@ -44,9 +44,20 @@ def test_null_mod():
     assert Null() == Null()
     assert Null() % Position() == Null()
 
+    assert isinstance(Dummy() % Null(), Null)
+
+# test_null_mod()
+
+
+def test_full_mod():
+    assert isinstance(Dummy() % Full(), Dummy)
+
+# test_full_mod()
+
 
 def test_non_null():
     assert Full() == Full()
+
 
 def test_not_equal():
     assert Null() == Null()

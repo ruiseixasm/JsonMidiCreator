@@ -51,9 +51,6 @@ class Label(o.Operand):
     def __not__(self) -> bool:
         return False
     
-    def __mod__(self, operand: o.T) -> o.T:
-        return operand
-    
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:

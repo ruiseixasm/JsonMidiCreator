@@ -157,6 +157,10 @@ class Operand:
                 return od.Serialization(self)
             case ra.Index():
                 return ra.Index(self._index)
+            case ol.Null():
+                return ol.Null()
+            case ol.Full():
+                return self.copy()
             case self.__class__():
                 return self.copy()
             case tuple():
