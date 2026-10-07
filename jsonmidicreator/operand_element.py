@@ -1951,11 +1951,11 @@ class Trigger(ChannelElement):
         self_to_plot: Note = self if derived_note is None else derived_note # Info to be represented
 
         if channels is not None:
-            channels["note"].add(self._channel_0)
+            channels["trigger"].add(self._channel_0)
 
         self_plotlist.append(
             {
-                "note": {
+                "trigger": {
                     "position_on": position_on,
                     "position_off": position_off,
                     "enabled": True if self._owner_clip is None else self._owner_clip._enabled,
