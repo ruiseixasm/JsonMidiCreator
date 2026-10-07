@@ -1955,6 +1955,7 @@ class Note(ChannelElement):
                     case og.Pitch():        return self._pitch
                     case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
                                             return self._pitch % operand
+                    case od.Trigger():      return operand._data << self._trigger
                     case og.NoteEffect():   return self._note_effect
                     case _:                 return super().__mod__(operand)
             case ou.Velocity():     return ou.Velocity() << od.Pipe(self._velocity)
@@ -1963,6 +1964,7 @@ class Note(ChannelElement):
             case og.Pitch():        return self._pitch.copy()
             case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale() | ou.Mode():
                                     return self._pitch % operand
+            case od.Trigger():      return od.Trigger(self._trigger)
             case og.NoteEffect():   return o.deep_copy(self._note_effect)
             case ou.Order() | ra.Swing() | ch.Chaos():
                 if isinstance(self._note_effect, og.NoteEffect):
@@ -2126,6 +2128,8 @@ class Note(ChannelElement):
         serialization["parameters"]["tied_to_previous"]     = o.serialize( self._tied )
         serialization["parameters"]["pitch"]    = o.serialize( self._pitch )
         serialization["parameters"]["note_effect"] = o.serialize( self._note_effect )
+        if self._trigger:
+            serialization["parameters"]["trigger"] = o.serialize( self._trigger )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -2141,6 +2145,8 @@ class Note(ChannelElement):
             self._tied      = o.deserialize( serialization["parameters"]["tied_to_previous"] )
             self._pitch     = o.deserialize( serialization["parameters"]["pitch"] )
             self._note_effect = o.deserialize( serialization["parameters"]["note_effect"] )
+            if "trigger" in serialization["parameters"]:
+                self._trigger = o.deserialize( serialization["parameters"]["trigger"] )
         return self
 
 
@@ -2153,6 +2159,7 @@ class Note(ChannelElement):
                 self._gate          = operand._gate
                 self._tied          = operand._tied
                 self._pitch         << operand._pitch
+                self._trigger       = operand._trigger
                 self._note_effect   = o.deep_copy(operand._note_effect)
             case od.Pipe():
                 match operand._data:
@@ -2162,6 +2169,7 @@ class Note(ChannelElement):
                     case og.Pitch():        self._pitch     = operand._data
                     case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
                                             self._pitch << operand
+                    case od.Trigger():      self._trigger == operand._data._data
                     case og.NoteEffect():   self._note_effect = operand._data
                     case _:                 super().__lshift__(operand)
             case ou.Velocity():     self._velocity = operand._unit
@@ -2175,6 +2183,8 @@ class Note(ChannelElement):
                     self._pitch << operand
             case og.Pitch() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale() | ou.Mode():
                 self._pitch << operand
+            case od.Trigger():
+                self._trigger == operand._data
             case og.NoteEffect():
                 self._note_effect = o.deep_copy(operand)
             case ou.Order() | ra.Swing() | ch.Chaos():
