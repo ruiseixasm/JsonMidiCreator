@@ -1784,9 +1784,7 @@ class Trigger(ChannelElement):
         self._velocity: int         = 100
         self._gate: Fraction        = Fraction(1)
         self._tied: bool            = False
-        self._pitch: og.Pitch       = og.Pitch()
         self._sample: str           = "Kick"
-        self._note_effect: og.NoteEffect | None = None
         super().__init__(*parameters)
 
     def velocity(self, velocity: int = 100) -> Self:
@@ -1826,14 +1824,6 @@ class Trigger(ChannelElement):
     def pitch_centroid(self) -> int:
         return self.get_absolute_pitch()
 
-    def increase_pitch_centroid(self) -> Self:
-        self._pitch += ou.Octave(1)
-        return self
-
-    def decrease_pitch_centroid(self) -> Self:
-        self._pitch -= ou.Octave(1)
-        return self
-
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:
@@ -1849,7 +1839,7 @@ class Trigger(ChannelElement):
                 # Makes a playlist comparison
                 return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
             case str():
-                return self._pitch == other
+                return self._sample == other
             case _:
                 return super().__eq__(other)
 
@@ -2094,14 +2084,12 @@ class Trigger(ChannelElement):
                 self._gate          = operand._gate
                 self._tied          = operand._tied
                 self._sample        = operand._sample
-                self._note_effect   = o.deep_copy(operand._note_effect)
             case od.Pipe():
                 match operand._data:
                     case ou.Velocity():     self._velocity  = operand._data._unit
                     case ra.Gate():         self._gate      = operand._data._rational
                     case ou.Tied():         self._tied      = operand._data.__mod__(od.Pipe( bool() ))
                     case str():             self._sample == operand._data
-                    case og.NoteEffect():   self._note_effect = operand._data
                     case _:                 super().__lshift__(operand)
             case ou.Velocity():     self._velocity = operand._unit
             case ra.Gate():         self._gate = operand._rational
@@ -2112,14 +2100,6 @@ class Trigger(ChannelElement):
                     super().__lshift__(operand)
                 else:
                     self._sample = operand
-            case og.NoteEffect():
-                self._note_effect = o.deep_copy(operand)
-            case ou.Order() | ra.Swing() | ch.Chaos():
-                if isinstance(self._note_effect, og.NoteEffect):
-                    self._note_effect << operand
-            case od.Remove():
-                if isinstance(operand._data, og.NoteEffect):
-                    self._note_effect = None
             case _:
                 super().__lshift__(operand)
         return self
