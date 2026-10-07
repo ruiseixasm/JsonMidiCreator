@@ -1895,8 +1895,6 @@ class Trigger(ChannelElement):
         if self.is_clipped(pitch_int):
             return []
 
-        self_plotlist: list[dict] = []
-
         position_on: Fraction = Fraction(0)
         if position_beats is not None:
             position_on = position_beats + self._position_beats
@@ -1904,20 +1902,24 @@ class Trigger(ChannelElement):
         position_off: Fraction = position_on + self._duration_beats
         self_to_plot: Note = self if derived_note is None else derived_note # Info to be represented
 
-        self_plotlist.append(
-            {
-                "trigger": {
-                    "position_on": position_on,
-                    "position_off": position_off,
-                    "enabled": True if self._owner_clip is None else self._owner_clip._enabled,
-                    "pitch": pitch_int,
-                    "velocity": self._velocity,
-                    "channel": self._channel_0,
-                    "masked": self._masked,
-                    "self": self_to_plot
+        self_plotlist: list[dict] = []
+
+        if self._owner_clip is not None:
+
+            self_plotlist.append(
+                {
+                    "trigger": {
+                        "position_on": position_on,
+                        "position_off": position_off,
+                        "enabled": True if self._owner_clip is None else self._owner_clip._enabled,
+                        "pitch": pitch_int,
+                        "velocity": self._velocity,
+                        "channel": self._channel_0,
+                        "masked": self._masked,
+                        "self": self_to_plot
+                    }
                 }
-            }
-        )
+            )
 
         return self_plotlist
 
