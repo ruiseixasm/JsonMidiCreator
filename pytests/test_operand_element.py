@@ -699,7 +699,9 @@ def test_channel_setting():
 
 
 def test_parameter_automation():
-    parameter = Parameter(ControlChange("Pan"))
+    control_change = ControlChange("Pan")
+    assert control_change % Number() == 10
+    parameter = Parameter(control_change)
     dots = Dots() + Dot(1.0, 100)
     automation = Automation(parameter, dots, Duration(1/32))
     print(f"automation.len(): {automation.len()}")
