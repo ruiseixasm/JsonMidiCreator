@@ -1728,7 +1728,7 @@ class Trigger(ChannelElement):
     Velocity(100), int : Sets the velocity of the note being pressed.
     Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
     Tied(False) : Sets a `Note` as tied if set as `True`.
-    str("") : In case it is a `DrumKit` sample to be played, set the name of that sample via `Trigger`.
+    Sample("Kick"), str : In case it is a `DrumKit` sample to be played, set the name of that sample via `Trigger`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(1) : The Midi channel where the midi message will be sent to.
@@ -1871,11 +1871,13 @@ class Trigger(ChannelElement):
                     case ou.Velocity():     return ou.Velocity() << od.Pipe(self._velocity)
                     case ra.Gate():         return ra.Gate() << od.Pipe(self._gate)
                     case ou.Tied():         return ou.Tied() << od.Pipe( self._tied )
+                    case od.Sample():       return operand._data << self._sample
                     case str():             return self._sample
                     case _:                 return super().__mod__(operand)
             case ou.Velocity():     return ou.Velocity() << od.Pipe(self._velocity)
             case ra.Gate():         return ra.Gate() << od.Pipe(self._gate)
             case ou.Tied():         return ou.Tied() << od.Pipe( self._tied )
+            case od.Sample():       return operand.copy() << self._sample
             case str():             return self._sample
             case ou.PitchCentroid():
                 return ou.PitchCentroid(self.pitch_centroid())
@@ -2052,12 +2054,14 @@ class Trigger(ChannelElement):
                     case ou.Velocity():     self._velocity  = operand._data._unit
                     case ra.Gate():         self._gate      = operand._data._rational
                     case ou.Tied():         self._tied      = operand._data.__mod__(od.Pipe( bool() ))
+                    case od.Sample():       self._sample == operand._data._data
                     case str():             self._sample == operand._data
                     case _:                 super().__lshift__(operand)
             case ou.Velocity():     self._velocity = operand._unit
             case ra.Gate():         self._gate = operand._rational
             case ou.Tied():
                 self._tied = operand % bool()
+            case od.Sample():       self._sample == operand._data
             case str():
                 if ":" in operand:  # It's a Token
                     super().__lshift__(operand)

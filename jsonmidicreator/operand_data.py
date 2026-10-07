@@ -880,6 +880,19 @@ class Name(String):
         super().__init__(track_name)
 
 
+class Sample(String):
+    """`Data -> String -> Sample`
+
+    The name of the sample being used by the `DrumKit` in the `Clip`.
+
+    Parameters
+    ----------
+    str("Kick") : Name of the sample in the clip's drum kit.
+    """
+    def __init__(self, track_name: str = "Kick"):
+        super().__init__(track_name)
+
+
 class Serialization(Data):
     """`Data -> Serialization`
 
