@@ -841,9 +841,20 @@ class Elements(DataMany):
     """
     pass
 
+class String(Data):
+    """`Data -> String`
 
-class To(Data):
-    """`Data -> To`
+    Keeps a string and not any other type of data.
+    """
+    def __init__(self, string: str = ""):
+        if isinstance(string, str):
+            super().__init__(string)
+        else:
+            super().__init__()
+
+
+class To(String):
+    """`Data -> String -> To`
 
     Sets the destination name Device in a `JsonTalkie` communication.
 
@@ -855,8 +866,8 @@ class To(Data):
         super().__init__(to)
 
 
-class Name(Data):
-    """`Data -> Name`
+class Name(String):
+    """`Data -> String -> Name`
 
     `Clip` parameter that sets the name of the track for the Midilist exporting.
     Basically works like a tag on a `Clip`, where multiple clips can share the same track name.
@@ -867,6 +878,19 @@ class Name(Data):
     """
     def __init__(self, track_name: str = "Track 1"):    # By default is "Track 1"
         super().__init__(track_name)
+
+
+class Trigger(String):
+    """`Data -> String -> Trigger`
+
+    In a Drum Kit it's the name of the sample to be triggered.
+
+    Parameters
+    ----------
+    str("Kick") : Name of the `DrumKit` sample.
+    """
+    def __init__(self, sample: str = "Kick"):
+        super().__init__(sample)
 
 
 class Serialization(Data):
