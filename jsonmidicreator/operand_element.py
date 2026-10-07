@@ -1922,7 +1922,7 @@ class Trigger(ChannelElement):
                         "channel": self._channel_0,
                         "masked": self._masked,
                         "self": self_to_plot,
-                        "owner": self._owner_clip
+                        "owner_clip": self._owner_clip
                     }
                 }
             )

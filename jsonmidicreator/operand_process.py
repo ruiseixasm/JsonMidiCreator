@@ -697,7 +697,7 @@ class Plot(Process):
             self._ax.set_yticks(range(17))  # Needs to accommodate all labels, so, it's 17
             self._ax.tick_params(axis='y', which='both', length=0)
             y_labels = ['Rest'] + [
-                
+                key for key in trigger_plotlist[0]["owner_clip"]._drum_kit.keys()
             ]
             if len(y_labels) < 17:
                 y_labels.extend(
