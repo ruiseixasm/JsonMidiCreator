@@ -690,8 +690,87 @@ class Plot(Process):
                         
         # Plot Triggers
         elif trigger_plotlist or rest_plotlist:
-            ...
 
+            self._ax.set_ylabel("Samples")
+
+            # Set MIDI channel ticks with Middle C in bold
+            self._ax.set_yticks(range(17))  # Needs to accommodate all labels, so, it's 17
+            self._ax.tick_params(axis='y', which='both', length=0)
+            y_labels = ['R'] + [
+                channel_0 + 1 for channel_0 in range(16)
+            ]
+            self._ax.set_yticklabels(y_labels, fontsize=7, fontweight='bold')
+            self._ax.set_ylim(0 - 0.5, 16 + 0.5)  # Ensure all channels fit
+
+            # Where the corner Coordinates are defined
+            self._ax.format_coord = lambda x, y: (
+                f"Time = {int(x / composition_tempo * 60 // 60)}'"
+                f"{int(x / composition_tempo * 60 % 60)}''"
+                f"{int(x / composition_tempo * 60_000 % 1000)}ms, "
+                f"Measure = {int(x / beats_per_measure)}, "
+                f"Beat = {int(x % beats_per_measure)}, "
+                f"Step = {int(x / beats_per_measure * steps_per_measure % steps_per_measure)}, "
+                f"Channel = {round(y)}"
+            )
+
+            # Shade Odd Channels (1 based) VERTICAL AXIS
+            for single_trigger in range(16):
+                if single_trigger % 2 == 1:
+                    self._ax.axhspan(single_trigger - 0.5, single_trigger + 0.5, color='lightgray', alpha=0.5)
+
+            # Updates X-Axis data
+            last_position = max(note["position_off"] for note in trigger_plotlist)
+            last_position_measures = last_position / beats_per_measure
+            last_position_measure = int(last_position_measures) # Trims extra length
+            if last_position_measure != last_position_measures: # Includes the trimmed length
+                last_position_measure += 1  # Adds only if the end doesn't coincide
+
+            # Plot triggers
+            for single_trigger in trigger_plotlist:
+                note_channel = single_trigger["channel"]
+                channel_color = Plot._channel_colors[note_channel]
+
+                bar_hatch: str = ''
+                line_style: str = 'solid'
+                edge_color: str = 'black'
+                if not single_trigger["enabled"]:
+                    edge_color = 'white'
+
+                color_alpha: float = round(0.3 + 0.7 * (single_trigger["velocity"] / 127), 2)
+
+                if single_trigger["velocity"] > 127:
+                    edge_color = 'red'
+                    color_alpha = 1.0
+                elif single_trigger["velocity"] < 0:
+                    edge_color = 'blue'
+                    color_alpha = 1.0
+
+                if single_trigger["masked"]:
+                    color_alpha = 0.2
+                    
+                self._ax.barh(y = single_trigger["channel"] + 1, width = float(single_trigger["position_off"] - single_trigger["position_on"]), left = float(single_trigger["position_on"]), 
+                        height=0.3, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.0, linestyle=line_style, alpha=color_alpha)
+
+                info: str = ""
+                if single_trigger["self"]._tied:
+                    info += " Tied"
+                self._ax.text(float(single_trigger["position_on"]), single_trigger["pitch"] + 0.3, info, ha='left', va='bottom', fontsize=4,
+                    color='black',  # Outline color
+                    path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
+                    alpha=color_alpha)
+        
+                if "middle_pitch" in single_trigger:
+                    self._ax.hlines(y=single_trigger["channel"] + 1, xmin=float(single_trigger["position_on"]), xmax=float(single_trigger["position_off"]), 
+                                    color='black', linewidth=0.5, alpha=color_alpha)
+
+            # Plot rests
+            for single_rest in rest_plotlist:
+                # Available hatch patterns: '/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'
+                color_alpha: float = 1.0
+                if single_rest["masked"]:
+                    color_alpha = 0.2
+                self._ax.barh(y = 0.0, width = float(single_rest["position_off"] - single_rest["position_on"]), left = float(single_rest["position_on"]),
+                    height=0.30, color='none', hatch='', edgecolor='black', linewidth=1.0, linestyle='solid', alpha = color_alpha)
 
                                  
         # Plot Automations
