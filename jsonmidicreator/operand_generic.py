@@ -2056,6 +2056,32 @@ class DrumKit(Generic):
         return self
 
 
+    def __iadd__(self, other: any) -> Self:
+        other = self._tail_wrap(other)      # Processes the tailed self operands if existent
+        match other:
+            case DrumKit():
+                self += other._drum_kit
+            case dict():
+                for key, value in other.items():
+                    self._drum_kit[key] = o.deep_copy(value)
+            case _:
+                super().__iadd__(other)
+        return self
+
+
+    def __isub__(self, other: any) -> Self:
+        other = self._tail_wrap(other)      # Processes the tailed self operands if existent
+        match other:
+            case DrumKit():
+                self -= other._drum_kit
+            case dict():
+                for key in other.keys():
+                    self._drum_kit.pop(key, None)   # The second argument is mandatory to prevent a KeyError.
+            case _:
+                super().__isub__(other)
+        return self
+
+
 
     _drum_kit: dict = {
         "Acoustic Bass Drum":       35,
