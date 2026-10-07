@@ -745,47 +745,6 @@ class Element(o.Operand):
                     return self << self_operand
         return self
 
-    def plot(self, by_channel: bool = False, block: bool = True, pause: float = 0, iterations: int = 0,
-            n_button: Optional[Callable[['Composition'], 'Composition']] = None,
-            composition: Optional['Composition'] = None, title: str | None = None) -> Self:
-        """
-        Plots the `Note`s in a `Composition`, if it has no Notes it plots the existing `Automation` instead.
-
-        Args:
-            by_channel: Allows the visualization in a Drum Machine alike instead of by Pitch.
-            block (bool): Suspends the program until the chart is closed.
-            pause (float): Sets a time in seconds before the chart is closed automatically.
-            iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
-                this is dependent on a n_button being given.
-            n_button (Callable): A function that takes a Composition to be used to generate a new iteration.
-            composition (Composition): A composition to be played together with the plotted one.
-            title (str): A title to give to the chart in order to identify it.
-
-        Returns:
-            Element: Returns the presently plotted element.
-        """
-        from . import operand_container as oc
-        oc.Clip().__iadd__(self).plot(by_channel, block, pause, iterations, n_button, composition, title)
-        return self
-
-
-    def call(self, iterations: int = 1, n_button: Optional[Callable[['Composition'], 'Composition']] = None) -> Self:
-        """
-        `Call` a given callable function passed as `n_button`. This is to be used instead of `Plot` whenever \
-            a given iteration was already chosen bypassing this way the process of plotting.
-
-        Args:
-            iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
-                this is dependent on a n_button being given.
-            n_button (Callable): A function that takes a Composition to be used to generate a new iteration.
-
-        Returns:
-            Element: Returns the presently plotted element.
-        """
-        from . import operand_container as oc
-        oc.Clip().__iadd__(self).call(iterations, n_button)
-        return self
-
 
     def read(self) -> 'Clip':
         from . import operand_container as oc

@@ -45,8 +45,15 @@ def test_cutting_note():
     simple_cuts *= Rest(1/1)    # Add a simple rest
     # simple_cuts[4] % Duration() >> Print()
     simple_cuts >> Plot(title="By Pitch", block=False)
-    simple_cuts >> Plot(by_channel=True, title="By Channel")
+    simple_cuts >> Plot(by_channel=True, title="By Channel", block=False)
     assert simple_cuts[4] % Duration() == Beats(3) - Steps(1)
+
+    parameter = Parameter(ControlChange("Pan"))
+    dots = Dots() + Dot(1.0, 100)
+    automation = Automation(parameter, dots, Duration(1/32))
+    print(f"automation.len(): {automation.len()}")
+    automation >> Plot(title="Automation of a ControlChange")
+    assert automation.len() == 32 + 1
 
 test_cutting_note()
 

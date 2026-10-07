@@ -722,7 +722,7 @@ class Plot(Process):
                 ]
 
             # Updates X-Axis data
-            last_position = max(automation["position_beats"] for automation in automation_plotlist)
+            last_position = max(automation["position"] for automation in automation_plotlist)
             last_position_measures = last_position / beats_per_measure
             last_position_measure = int(last_position_measures)
             if last_position_measure != last_position_measures:
@@ -758,7 +758,7 @@ class Plot(Process):
                     x: list[float]  = []
                     y: list[int]    = []
                     for automation in channel_plotlist:
-                        x.append( float(automation["position_beats"]) )
+                        x.append( float(automation["position"]) )
                         y.append( automation["value"] )
 
                     # Stepped line connecting the points
@@ -778,7 +778,7 @@ class Plot(Process):
                     info: str = str(single_note + 1)
                     match automation["self"]:
                         case oe.ControlChange():
-                            info += f".{automation["self"]._controller._number_msb}"
+                            info += f".{automation["self"]._number}"
                         case oe.Aftertouch():
                             marker = 'v'
                         case _: # PitchBend
@@ -789,7 +789,7 @@ class Plot(Process):
 
                     # Add the tailed line up to the end of the chart
                     x = [
-                        float(channel_plotlist[-1]["position_beats"]),
+                        float(channel_plotlist[-1]["position"]),
                         float(last_position_measure * beats_per_measure)
                     ]
                     y = [
@@ -803,7 +803,7 @@ class Plot(Process):
                     self._ax.plot(x, y, marker='None', linestyle='None', color=channel_color, markersize=6)
 
                     y_pos: int = automation["value"] + 2
-                    x_pos = automation["position_beats"]
+                    x_pos = automation["position"]
                     self._ax.text(x_pos, y_pos, info, ha='center', va='bottom', fontsize=8,
                         color='black',  # Outline color
                         path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
