@@ -1710,7 +1710,7 @@ class Trigger(ChannelElement):
 
     A `Trigger` element is to be used in conjugation with a `DrumKit` resulting in a Midi note message on the given pitch.
 
-    The applicable fields(:) for each token(,) in a `Line`, like in `":1/8:C5#, n_9:1/8::75"`:
+    The applicable fields(:) for each token(,) in a `Line`, like in `":1/8:Kick, n_9:1/8::75"`:
 
         +-------+-----------+----------------------------------------------------------------------------------+
         | Field | Parameter | Parameter Values                                                                 |
@@ -1788,7 +1788,7 @@ class Trigger(ChannelElement):
                     and self._velocity  == other._velocity \
                     and self._gate      == other._gate \
                     and self._tied      == other._tied \
-                    and self._sample   == other._sample
+                    and self._sample    == other._sample
             case Element():
                 # Makes a playlist comparison
                 return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
