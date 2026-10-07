@@ -1409,6 +1409,24 @@ class Clip(Composition):  # Just a container of Elements
         self._track_number: int         = 1 # Only useful to render .midi files
         self._enabled: bool             = True
         self._items: list[oe.Element]   = []
+        self._drum_kit: dict[str, Any]  = {
+                "Kick": 0,
+                "Snare": 1,
+                "ClosedHat": 2,
+                "OpenHat": 3,
+                "LowTom": 4,
+                "MidTom": 5,
+                "HighTom": 6,
+                "Crash": 7,
+                "Ride": 8,
+                "Rim": 9,
+                "Clap": 10,
+                "Cowbell": 11,
+                "Shaker": 12,
+                "Claves": 13,
+                "LowPerc": 14,
+                "HighPerc": 15,
+            }
         for single_operand in operands:
             self << single_operand
 
