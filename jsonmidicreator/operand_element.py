@@ -1776,6 +1776,7 @@ class Note(ChannelElement):
     Tied(False) : Sets a `Note` as tied if set as `True`.
     Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
         `Scale`, `Degree` and `KeySignature`.
+    Trigger("") : In case it is a `DrumKit` sample to be played, set the name of that sample via `Trigger`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(1) : The Midi channel where the midi message will be sent to.
@@ -1786,6 +1787,7 @@ class Note(ChannelElement):
         self._gate: Fraction        = Fraction(1)
         self._tied: bool            = False
         self._pitch: og.Pitch       = og.Pitch()
+        self._trigger: str          = ""
         self._note_effect: og.NoteEffect | None = None
         super().__init__(*parameters)
 
@@ -1808,7 +1810,7 @@ class Note(ChannelElement):
 
     def checksum(self) -> int:
         """16-bit checksum for a `Note`."""
-        master: int = self._velocity << 7 + 4 | self._pitch.get_absolute_pitch() << 4 | self._channel_0
+        master: int = self._velocity << 7 + 4 | self.get_absolute_pitch() << 4 | self._channel_0
         master ^= self._position_beats.numerator << 8 | self._position_beats.denominator
         master ^= self._duration_beats.numerator << 8 | self._duration_beats.denominator
         return master & 0xFFFF  # 16-bit
@@ -1819,7 +1821,7 @@ class Note(ChannelElement):
             or pitch < 0 or pitch > 128
 
     def pitch_centroid(self) -> int:
-        return self._pitch.get_absolute_pitch()
+        return self.get_absolute_pitch()
 
     def increase_pitch_centroid(self) -> Self:
         self._pitch += ou.Octave(1)
@@ -1829,6 +1831,10 @@ class Note(ChannelElement):
         self._pitch -= ou.Octave(1)
         return self
 
+
+    def get_absolute_pitch(self) -> int:
+        return self._pitch.get_absolute_pitch()
+    
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:
@@ -1840,6 +1846,7 @@ class Note(ChannelElement):
                     and self._gate      == other._gate \
                     and self._tied      == other._tied \
                     and self._pitch     == other._pitch \
+                    and self._trigger   == other._trigger \
                     and self._note_effect == other._note_effect
             case Element():
                 # Makes a playlist comparison
@@ -1854,8 +1861,8 @@ class Note(ChannelElement):
             case Note():
                 # Adds predictability in sorting and consistency in clipping
                 if self._position_beats == other._position_beats:
-                    self_pitch: int = self._pitch.get_absolute_pitch()
-                    other_pitch: int = other._pitch.get_absolute_pitch()
+                    self_pitch: int = self.get_absolute_pitch()
+                    other_pitch: int = other.get_absolute_pitch()
                     if self_pitch == other_pitch:
                         return super().__lt__(other)
                     return self_pitch < other_pitch
@@ -1868,8 +1875,8 @@ class Note(ChannelElement):
             case Note():
                 # Adds predictability in sorting and consistency in clipping
                 if self._position_beats == other._position_beats:
-                    self_pitch: int = self._pitch.get_absolute_pitch()
-                    other_pitch: int = other._pitch.get_absolute_pitch()
+                    self_pitch: int = self.get_absolute_pitch()
+                    other_pitch: int = other.get_absolute_pitch()
                     if self_pitch == other_pitch:
                         return super().__gt__(other)
                     return self_pitch > other_pitch
@@ -1965,7 +1972,7 @@ class Note(ChannelElement):
             case ou.PitchCentroid():
                 return ou.PitchCentroid(self.pitch_centroid())
             case ou.DrumKit():
-                return ou.DrumKit(self._pitch.get_absolute_pitch(), ou.Channel(self._channel_0 + 1))
+                return ou.DrumKit(self.get_absolute_pitch(), ou.Channel(self._channel_0 + 1))
             case _:                 return super().__mod__(operand)
 
 
@@ -2602,7 +2609,7 @@ class KeyScale(Note):
             self_plotlist.extend(single_note.getPlotlist(position_beats, channels, self))
         # Makes sure the self middle pitch os passed once and only once to the last dict to be added on top of it
         if self_plotlist:
-            self_plotlist[-1]["note"]["middle_pitch"] = self._pitch.get_absolute_pitch()
+            self_plotlist[-1]["note"]["middle_pitch"] = self.get_absolute_pitch()
         return self_plotlist
     
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
@@ -4413,6 +4420,10 @@ class PolyAftertouch(Aftertouch):
         self._pitch << ou.Key(key) << ou.Octave(octave)
         return self
 
+    def get_absolute_pitch(self) -> int:
+        return self._pitch.get_absolute_pitch()
+    
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a PolyAftertouch,
@@ -4461,7 +4472,7 @@ class PolyAftertouch(Aftertouch):
 
         if absolute_position_beats >= 0:
 
-            pitch_int: int = self._pitch.get_absolute_pitch()
+            pitch_int: int = self.get_absolute_pitch()
 
             # Midi validation is done in the JsonMidiPlayer program
             self_playlist: list[dict] = []
