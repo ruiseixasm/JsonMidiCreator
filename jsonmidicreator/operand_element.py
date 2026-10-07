@@ -1947,7 +1947,7 @@ class Trigger(ChannelElement):
         if self._duration_beats == 0:
             return []
 
-        pitch_int: int = self._pitch.get_absolute_pitch()
+        pitch_int: int = self.get_absolute_pitch()
         if self.is_clipped(pitch_int):
             return []
 
@@ -1990,7 +1990,7 @@ class Trigger(ChannelElement):
         if absolute_position_beats < 0 or self._duration_beats <= 0:
             return []
 
-        pitch_int: int = self._pitch.get_absolute_pitch()
+        pitch_int: int = self.get_absolute_pitch()
         if self.is_clipped(pitch_int):
             return []
 
@@ -2043,7 +2043,7 @@ class Trigger(ChannelElement):
         if self_duration == 0:
             return []    # Next note
 
-        pitch_int: int = self._pitch.get_absolute_pitch()
+        pitch_int: int = self.get_absolute_pitch()
         if self.is_clipped(pitch_int):
             return []    # Next note
 
