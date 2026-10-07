@@ -2289,8 +2289,6 @@ class Note(ChannelElement):
                     return ol.Null()
             case ou.PitchCentroid():
                 return ou.PitchCentroid(self.pitch_centroid())
-            case ou.DrumKit():
-                return ou.DrumKit(self.get_absolute_pitch(), ou.Channel(self._channel_0 + 1))
             case _:                 return super().__mod__(operand)
 
 

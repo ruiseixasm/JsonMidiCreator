@@ -65,7 +65,7 @@ def test_cutting_note():
     # automation_clip >> Plot(title="Automation of a ControlChange")
 
     triggers_16 = Trigger() * 16 + Rest(1/1)
-    triggers_16 >> Plot(by_channel=True, title="Triggers")
+    # triggers_16 >> Plot(by_channel=True, title="Triggers")
 
 # test_cutting_note()
 
