@@ -774,8 +774,10 @@ class Plot(Process):
                             info += f".{automation["self"]._number}"
                         case oe.Aftertouch():
                             marker = 'v'
+                            info += f".A"
                         case _: # PitchBend
                             marker = 'P'
+                            info += f".P"
 
                     self._ax.plot(x, y, marker=marker, linestyle='None', color=channel_color,
                                 markeredgecolor=edge_color, markeredgewidth=1, markersize=6, alpha = color_alpha)
