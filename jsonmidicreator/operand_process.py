@@ -742,6 +742,7 @@ class Plot(Process):
 
                 if channel_plotlist:
 
+                    # Because the can be from multiple CC numbers (need to aggregate)
                     channel_plotlist.sort(key=lambda a: a['position'])
 
                     # Plotting point lists
