@@ -44,8 +44,8 @@ def test_cutting_note():
     simple_cuts[Last()] << Channel(3)
     simple_cuts *= Rest(1/1)    # Add a simple rest
     # simple_cuts[4] % Duration() >> Print()
-    # simple_cuts >> Plot(title="By Pitch", block=False)
-    # simple_cuts >> Plot(by_channel=True, title="By Channel", block=False)
+    simple_cuts >> Plot(title="By Pitch", block=False)
+    simple_cuts >> Plot(by_channel=True, title="By Channel")
     assert simple_cuts[4] % Duration() == Beats(3) - Steps(1)
 
     parameter_1 = Parameter(ControlChange("Pan"))
