@@ -3733,6 +3733,7 @@ class ControlChange(Automatable):
         self_plotlist.append(
             {
                 "automation": {
+                    "group_id": self._number,
                     "position": position_on,
                     "enabled": True if self._owner_clip is None else self._owner_clip._enabled,
                     "value": clamp_value_128(self._value),
@@ -4576,6 +4577,7 @@ class Aftertouch(Automatable):
         self_plotlist.append(
             {
                 "automation": {
+                    "group_id": 128,    # Above 127 of the Control Change number
                     "position": position_on,
                     "enabled": True if self._owner_clip is None else self._owner_clip._enabled,
                     "value": clamp_value_128(self._pressure),
@@ -4957,6 +4959,7 @@ class PitchBend(Automatable):
         self_plotlist.append(
             {
                 "automation": {
+                    "group_id": 129,    # Above 127 of the Control Change number
                     "position": position_on,
                     "enabled": True if self._owner_clip is None else self._owner_clip._enabled,
                     "value": clamp_value_128(round(self.get_value())),
