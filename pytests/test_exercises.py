@@ -44,24 +44,27 @@ def test_cutting_note():
     simple_cuts[Last()] << Channel(3)
     simple_cuts *= Rest(1/1)    # Add a simple rest
     # simple_cuts[4] % Duration() >> Print()
-    simple_cuts >> Plot(title="By Pitch", block=False)
-    simple_cuts >> Plot(by_channel=True, title="By Channel", block=False)
+    # simple_cuts >> Plot(title="By Pitch", block=False)
+    # simple_cuts >> Plot(by_channel=True, title="By Channel", block=False)
     assert simple_cuts[4] % Duration() == Beats(3) - Steps(1)
 
     parameter_1 = Parameter(ControlChange("Pan"))
     parameter_3 = Parameter(ControlChange("Pan", Channel(3)))
     parameter_M = Parameter(ControlChange("Modulation"))
+    parameter_P = Parameter(PitchBend())
     dots_1 = Dots() + Dot(1.0, 100)
     dots_3 = Dots() + Dot(0.0, 100) + Dot(1.0, 0)
     dots_M = Dots() + Dot(0.0, 70) + Dot(1.0, 30)
+    dots_P = Dots() + Dot(0.0, 30) + Dot(2.0, 70)
     automation_1 = Automation(parameter_1, dots_1, Duration(1/32))
     automation_3 = Automation(parameter_3, dots_3, Duration(1/32))
     automation_M = Automation(parameter_M, dots_M, Duration(1/32))
-    automation_clip = Clip() << [automation_1, automation_3, automation_M]
+    automation_P = Automation(parameter_P, dots_P, Duration(1/32))
+    automation_clip = Clip() << [automation_1, automation_3, automation_M, automation_P]
     print(f"automation_clip.len(): {automation_clip.len()}")
-    automation_clip >> Plot(title="Automation of a ControlChange")
+    # automation_clip >> Plot(title="Automation of a ControlChange")
 
-test_cutting_note()
+# test_cutting_note()
 
 
 def test_transform_note():

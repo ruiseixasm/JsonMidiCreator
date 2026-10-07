@@ -3829,6 +3829,8 @@ class ControlChange(Automatable):
                 self._value = operand
             case ou.Number():
                 self._number = operand._unit
+            case str():
+                self._number = ou.Number(operand)._unit
             case ou.Value():
                 self._value = operand._unit
             case ou.Value14bit():
