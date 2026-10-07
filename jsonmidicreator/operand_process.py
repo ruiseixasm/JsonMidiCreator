@@ -409,86 +409,65 @@ class Plot(Process):
                     if single_note % 2 == 1:
                         self._ax.axhspan(single_note - 0.5, single_note + 0.5, color='lightgray', alpha=0.5)
 
-                if note_plotlist:
+                # Updates X-Axis data
+                last_position = max(note["position_off"] for note in note_plotlist)
+                last_position_measures = last_position / beats_per_measure
+                last_position_measure = int(last_position_measures) # Trims extra length
+                if last_position_measure != last_position_measures: # Includes the trimmed length
+                    last_position_measure += 1  # Adds only if the end doesn't coincide
 
-                    # Updates X-Axis data
-                    last_position = max(note["position_off"] for note in note_plotlist)
-                    last_position_measures = last_position / beats_per_measure
-                    last_position_measure = int(last_position_measures) # Trims extra length
-                    if last_position_measure != last_position_measures: # Includes the trimmed length
-                        last_position_measure += 1  # Adds only if the end doesn't coincide
+                # Plot notes
+                for single_note in note_plotlist:
+                    note_channel = single_note["channel"]
+                    channel_color = Plot._channel_colors[note_channel]
+                    if type(single_note["self"]) is oe.Rest:
+                        # Available hatch patterns: '/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'
+                        color_alpha: float = 1.0
+                        if single_note["masked"]:
+                            color_alpha = 0.2
+                        self._ax.barh(y = 0.0, width = float(single_note["position_off"] - single_note["position_on"]), left = float(single_note["position_on"]),
+                            height=0.30, color='none', hatch='', edgecolor='black', linewidth=1.0, linestyle='solid', alpha = color_alpha)
+                    else:
+                        bar_hatch: str = ''
+                        line_style: str = 'solid'
+                        if isinstance(single_note["self"], oe.KeyScale):
+                            line_style = 'dashed'
+                        elif isinstance(single_note["self"], (oe.Rhythm, oe.Tuplet)):
+                            line_style = 'dotted'
+                        edge_color: str = 'black'
+                        if not single_note["enabled"]:
+                            edge_color = 'white'
 
-                    # Plot notes
-                    for single_note in note_channels:
-                        channel_color = Plot._channel_colors[single_note]
-                        channel_plotlist = [
-                            channel_note for channel_note in note_plotlist
-                            if channel_note["channel"] == single_note
-                        ]
+                        color_alpha: float = round(0.3 + 0.7 * (single_note["velocity"] / 127), 2)
 
-                        for single_note in channel_plotlist:
-                            if type(single_note["self"]) is oe.Rest:
-                                # Available hatch patterns: '/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'
-                                color_alpha: float = 1.0
-                                if single_note["masked"]:
-                                    color_alpha = 0.2
-                                self._ax.barh(y = 0.0, width = float(single_note["position_off"] - single_note["position_on"]), left = float(single_note["position_on"]),
-                                    height=0.30, color='none', hatch='', edgecolor='black', linewidth=1.0, linestyle='solid', alpha = color_alpha)
-                            else:
-                                bar_hatch: str = ''
-                                line_style: str = 'solid'
-                                if isinstance(single_note["self"], oe.KeyScale):
-                                    line_style = 'dashed'
-                                elif isinstance(single_note["self"], (oe.Rhythm, oe.Tuplet)):
-                                    line_style = 'dotted'
-                                edge_color: str = 'black'
-                                if not single_note["enabled"]:
-                                    edge_color = 'white'
+                        if single_note["velocity"] > 127:
+                            edge_color = 'red'
+                            color_alpha = 1.0
+                        elif single_note["velocity"] < 0:
+                            edge_color = 'blue'
+                            color_alpha = 1.0
 
-                                color_alpha: float = round(0.3 + 0.7 * (single_note["velocity"] / 127), 2)
+                        if single_note["masked"]:
+                            color_alpha = 0.2
+                            
+                        self._ax.barh(y = single_note["channel"] + 1, width = float(single_note["position_off"] - single_note["position_on"]), left = float(single_note["position_on"]), 
+                                height=0.3, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.0, linestyle=line_style, alpha=color_alpha)
 
-                                if single_note["velocity"] > 127:
-                                    edge_color = 'red'
-                                    color_alpha = 1.0
-                                elif single_note["velocity"] < 0:
-                                    edge_color = 'blue'
-                                    color_alpha = 1.0
-
-                                if single_note["masked"]:
-                                    color_alpha = 0.2
-                                    
-                                self._ax.barh(y = single_note["channel"] + 1, width = float(single_note["position_off"] - single_note["position_on"]), left = float(single_note["position_on"]), 
-                                        height=0.3, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.0, linestyle=line_style, alpha=color_alpha)
-
-                                info: str = ""
-                                if single_note["self"]._tied:
-                                    info += " Tied"
-                                if isinstance(single_note["self"]._note_effect, og.NoteEffect):
-                                    info += " FX"
-                                self._ax.text(float(single_note["position_on"]), single_note["pitch"] + 0.3, info, ha='left', va='bottom', fontsize=4,
-                                    color='black',  # Outline color
-                                    path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
-                                    alpha=color_alpha)
-                        
-                                if "middle_pitch" in single_note:
-                                    self._ax.hlines(y=single_note["channel"] + 1, xmin=float(single_note["position_on"]), xmax=float(single_note["position_off"]), 
-                                                    color='black', linewidth=0.5, alpha=color_alpha)
-                                    
-                else:  # Empty watermark
-                    # Add watermark text in the center of the plot
-                    self._ax.text(0.5, 0.5, 'EMPTY', 
-                                transform=self._ax.transAxes,
-                                fontsize=20,
-                                color='gray',
-                                alpha=0.5,
-                                ha='center',
-                                va='center',
-                                fontweight='bold',
-                                fontstyle='italic')
-                    
-                    # Optional: Add a subtle rectangle watermark
-                    self._ax.axhspan(-0.5, 16.5, color='lightgray', alpha=0.1)
+                        info: str = ""
+                        if single_note["self"]._tied:
+                            info += " Tied"
+                        if isinstance(single_note["self"]._note_effect, og.NoteEffect):
+                            info += " FX"
+                        self._ax.text(float(single_note["position_on"]), single_note["pitch"] + 0.3, info, ha='left', va='bottom', fontsize=4,
+                            color='black',  # Outline color
+                            path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
+                            alpha=color_alpha)
                 
+                        if "middle_pitch" in single_note:
+                            self._ax.hlines(y=single_note["channel"] + 1, xmin=float(single_note["position_on"]), xmax=float(single_note["position_off"]), 
+                                            color='black', linewidth=0.5, alpha=color_alpha)
+
+                                 
             # As Chromatic keys (Notes)
             else:
 
