@@ -880,19 +880,6 @@ class Name(String):
         super().__init__(track_name)
 
 
-class Trigger(String):
-    """`Data -> String -> Trigger`
-
-    In a Drum Kit it's the name of the sample to be triggered.
-
-    Parameters
-    ----------
-    str("Kick") : Name of the `DrumKit` sample.
-    """
-    def __init__(self, sample: str = "Kick"):
-        super().__init__(sample)
-
-
 class Serialization(Data):
     """`Data -> Serialization`
 

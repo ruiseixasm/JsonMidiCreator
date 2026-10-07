@@ -1751,10 +1751,10 @@ class ChannelElement(DeviceElement):
         return self
 
 
-class Note(ChannelElement):
-    """`Element -> DeviceElement -> ChannelElement -> Note`
+class Trigger(ChannelElement):
+    """`Element -> DeviceElement -> ChannelElement -> Trigger`
 
-    A `Note` element is the most important `Element` and basically represents a Midi note message including Note On and Note Off.
+    A `Trigger` element is to be used in conjugation with a `DrumKit` resulting in a Midi note message on the given pitch.
 
     The applicable fields(:) for each token(,) in a `Line`, like in `":1/8:C5#, n_9:1/8::75"`:
 
@@ -1765,7 +1765,7 @@ class Note(ChannelElement):
         |       | 1         | Channel: int(channel)                                                            |
         | 1     | 0         | Duration: int(beats), float(note_value), "d" Dotted, "m" Measures, "b" Beats     |
         |       | n         | Position: int(beat), float(measures), "m" Measure, "b" Beat                      |
-        | 2     | n         | Pitch: int(octave), float(degree), "A"-"G" Key, "#" Sharp, "b" Flat, "n" Natural |
+        | 2     | n         | Sample: str(sample)                                                              |
         | 3     | 0         | Velocity: int(velocity)                                                          |
         +-------+-----------+----------------------------------------------------------------------------------+
 
@@ -1774,9 +1774,7 @@ class Note(ChannelElement):
     Velocity(100), int : Sets the velocity of the note being pressed.
     Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
     Tied(False) : Sets a `Note` as tied if set as `True`.
-    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
-        `Scale`, `Degree` and `KeySignature`.
-    Trigger("") : In case it is a `DrumKit` sample to be played, set the name of that sample via `Trigger`.
+    str("") : In case it is a `DrumKit` sample to be played, set the name of that sample via `Trigger`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
     Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(1) : The Midi channel where the midi message will be sent to.
@@ -1787,7 +1785,7 @@ class Note(ChannelElement):
         self._gate: Fraction        = Fraction(1)
         self._tied: bool            = False
         self._pitch: og.Pitch       = og.Pitch()
-        self._trigger: str          = ""
+        self._sample: str           = "Kick"
         self._note_effect: og.NoteEffect | None = None
         super().__init__(*parameters)
 
@@ -1846,7 +1844,392 @@ class Note(ChannelElement):
                     and self._gate      == other._gate \
                     and self._tied      == other._tied \
                     and self._pitch     == other._pitch \
-                    and self._trigger   == other._trigger \
+                    and self._sample   == other._sample \
+                    and self._note_effect == other._note_effect
+            case Element():
+                # Makes a playlist comparison
+                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
+            case str():
+                return self._pitch == other
+            case _:
+                return super().__eq__(other)
+
+    def __lt__(self, other: 'o.Operand') -> bool:
+        match other:
+            case Note():
+                # Adds predictability in sorting and consistency in clipping
+                if self._position_beats == other._position_beats:
+                    self_pitch: int = self.get_absolute_pitch()
+                    other_pitch: int = other.get_absolute_pitch()
+                    if self_pitch == other_pitch:
+                        return super().__lt__(other)
+                    return self_pitch < other_pitch
+                return super().__lt__(other)
+            case _:
+                return super().__lt__(other)
+    
+    def __gt__(self, other: 'o.Operand') -> bool:
+        match other:
+            case Note():
+                # Adds predictability in sorting and consistency in clipping
+                if self._position_beats == other._position_beats:
+                    self_pitch: int = self.get_absolute_pitch()
+                    other_pitch: int = other.get_absolute_pitch()
+                    if self_pitch == other_pitch:
+                        return super().__gt__(other)
+                    return self_pitch > other_pitch
+                return super().__gt__(other)
+            case _:
+                return super().__gt__(other)
+    
+
+    def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
+        super()._set_element_from_token(token, previous_element)
+        token = od._normalize_dsl(token)
+        token_operand = od.Token(token)
+        # Set Pitch
+        field_2: str = token_operand.get_field(2)
+        if field_2 is not None:
+            self._sample = od.Field(field_2)
+        # Set Velocity
+        field_3: str = token_operand.get_field(3)
+        if field_3 is not None:
+            number = o.string_to_number(field_3)
+            if isinstance(number, int):
+                self << ou.Velocity(number)
+        return self
+
+    def get_component_elements(self) -> list['Note']:
+        """Returns the elements directly, NO decoupling guaranteed (no copy)"""
+        if isinstance(self._note_effect, og.NoteEffect):
+            return self._note_effect.apply([self])
+        return [self]
+    
+
+    def __mod__(self, operand: o.T) -> o.T:
+        """
+        The % symbol is used to extract a Parameter, in the case of a Note,
+        those Parameters are the ones of the Element, like Position and Duration,
+        plus the Rest's Duration and Pitch, Velocity and Gate, the last one
+        with a value of 0.90 by default.
+
+        Examples
+        --------
+        >>> note = Note("F")
+        >>> note % Key() % str() >> Print()
+        F
+        """
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case ou.Velocity():     return ou.Velocity() << od.Pipe(self._velocity)
+                    case ra.Gate():         return ra.Gate() << od.Pipe(self._gate)
+                    case ou.Tied():         return ou.Tied() << od.Pipe( self._tied )
+                    case str():             return self._sample
+                    case _:                 return super().__mod__(operand)
+            case ou.Velocity():     return ou.Velocity() << od.Pipe(self._velocity)
+            case ra.Gate():         return ra.Gate() << od.Pipe(self._gate)
+            case ou.Tied():         return ou.Tied() << od.Pipe( self._tied )
+            case str():             return self._sample
+            case ou.PitchCentroid():
+                return ou.PitchCentroid(self.pitch_centroid())
+            case _:                 return super().__mod__(operand)
+
+
+    def getVectordict(self) -> dict[str, int]:
+        vectordict: dict[str, int] = super().getVectordict()
+        vectordict["pitch"] = self.pitch_centroid()
+        vectordict["velocity"] = self._velocity
+        return vectordict
+
+
+    # CREATION VS REPRESENTATION
+    def getPlotlist(self, position_beats: Fraction | None = None,
+            channels: dict[str, set[int]] = None, derived_note: 'Note' = None) -> list[dict]:
+        
+        self_plotlist: list[dict] = []
+        component_notes: list[Note] = self.get_component_elements()
+
+        for single_note in component_notes:
+
+            if single_note._duration_beats == 0:
+                continue    # Next note
+
+            pitch_int: int = single_note._pitch.get_absolute_pitch()
+            if single_note.is_clipped(pitch_int):
+                continue    # Next note
+
+            position_on: Fraction = Fraction(0)
+            if position_beats is not None:
+                position_on = position_beats + single_note._position_beats
+
+            position_off: Fraction = position_on + single_note._duration_beats
+            self_to_plot: Note = self if derived_note is None else derived_note # Info to be represented
+
+            if channels is not None:
+                channels["note"].add(single_note._channel_0)
+
+            self_plotlist.append(
+                {
+                    "note": {
+                        "position_on": position_on,
+                        "position_off": position_off,
+                        "enabled": True if self._owner_clip is None else self._owner_clip._enabled,
+                        "pitch": pitch_int,
+                        "velocity": single_note._velocity,
+                        "channel": single_note._channel_0,
+                        "masked": single_note._masked,
+                        "self": self_to_plot
+                    }
+                }
+            )
+
+        return self_plotlist
+
+
+    def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+
+        self_playlist: list[dict] = []
+        component_notes: list[Note] = self.get_component_elements()
+
+        for single_note in component_notes:
+
+            absolute_position_beats: Fraction = Fraction(0)
+            if position_beats is not None:
+                absolute_position_beats = position_beats + single_note._position_beats
+
+            if absolute_position_beats < 0 or single_note._duration_beats <= 0:
+                continue    # Next note
+
+            pitch_int: int = single_note._pitch.get_absolute_pitch()
+            if single_note.is_clipped(pitch_int):
+                continue    # Next note
+
+            if devices_header:
+                devices: list[str] = og.settings._devices
+                if self._owner_clip is not None:
+                    devices = self._owner_clip._devices
+                self_playlist.append(
+                    {"devices": devices}
+                )
+
+            # Midi validation is done in the JsonMidiPlayer program
+            self_playlist.append(
+                {
+                    "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
+                    "midi_message": {
+                        "status_byte": 0x90 | single_note._channel_0,
+                        "data_byte_1": pitch_int,
+                        "data_byte_2": single_note._velocity
+                    }
+                }
+            )
+            finish_position_beats: Fraction = absolute_position_beats + single_note._duration_beats * single_note._gate
+            self_playlist.append(
+                {
+                    "position_beats": [finish_position_beats.numerator, finish_position_beats.denominator],
+                    "midi_message": {
+                        "status_byte": 0x80 | single_note._channel_0,
+                        "data_byte_1": pitch_int,
+                        "data_byte_2": 0
+                    }
+                }
+            )
+
+            # Already with a Playlist at this point
+
+        return self_playlist
+
+
+    def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
+        
+        self_midilist: list[dict] = []
+        component_notes: list[Note] = self.get_component_elements()
+
+        for single_note in component_notes:
+
+            absolute_position_beats: Fraction = Fraction(0)
+            if position_beats is not None:
+                absolute_position_beats = position_beats + single_note._position_beats
+
+            self_duration_beats: Fraction = single_note._duration_beats * single_note._gate
+            self_duration: float = float(self_duration_beats)
+            if self_duration == 0:
+                continue    # Next note
+
+            pitch_int: int = single_note._pitch.get_absolute_pitch()
+            if single_note.is_clipped(pitch_int):
+                continue    # Next note
+
+            # Validation is done by midiutil Midi Range Validation
+            note_dict: dict = super().getMidilist(position_beats)[0]
+            note_dict["event"]          = "Note"
+            note_dict["duration"]       = self_duration
+            note_dict["velocity"]       = single_note._velocity
+            note_dict["pitch"]          = pitch_int
+            note_dict["position_on"]    = absolute_position_beats
+
+            self_midilist.append(note_dict)
+
+        return self_midilist
+
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["velocity"] = o.serialize( self._velocity )
+        serialization["parameters"]["gate"]     = o.serialize( self._gate )
+        serialization["parameters"]["tied_to_previous"]     = o.serialize( self._tied )
+        serialization["parameters"]["sample"] = o.serialize( self._sample )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Note':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "velocity" in serialization["parameters"] and "gate" in serialization["parameters"] and "tied_to_previous" in serialization["parameters"] and
+            "sample" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._velocity  = o.deserialize( serialization["parameters"]["velocity"] )
+            self._gate      = o.deserialize( serialization["parameters"]["gate"] )
+            self._tied      = o.deserialize( serialization["parameters"]["tied_to_previous"] )
+            self._sample = o.deserialize( serialization["parameters"]["sample"] )
+        return self
+
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Note():
+                super().__lshift__(operand)
+                self._velocity      = operand._velocity
+                self._gate          = operand._gate
+                self._tied          = operand._tied
+                self._sample        = operand._sample
+                self._note_effect   = o.deep_copy(operand._note_effect)
+            case od.Pipe():
+                match operand._data:
+                    case ou.Velocity():     self._velocity  = operand._data._unit
+                    case ra.Gate():         self._gate      = operand._data._rational
+                    case ou.Tied():         self._tied      = operand._data.__mod__(od.Pipe( bool() ))
+                    case str():             self._sample == operand._data
+                    case og.NoteEffect():   self._note_effect = operand._data
+                    case _:                 super().__lshift__(operand)
+            case ou.Velocity():     self._velocity = operand._unit
+            case ra.Gate():         self._gate = operand._rational
+            case ou.Tied():
+                self._tied = operand % bool()
+            case str():
+                if ":" in operand:  # It's a Token
+                    super().__lshift__(operand)
+                else:
+                    self._sample = operand
+            case og.NoteEffect():
+                self._note_effect = o.deep_copy(operand)
+            case ou.Order() | ra.Swing() | ch.Chaos():
+                if isinstance(self._note_effect, og.NoteEffect):
+                    self._note_effect << operand
+            case od.Remove():
+                if isinstance(operand._data, og.NoteEffect):
+                    self._note_effect = None
+            case _:
+                super().__lshift__(operand)
+        return self
+
+
+class Note(ChannelElement):
+    """`Element -> DeviceElement -> ChannelElement -> Note`
+
+    A `Note` element is the most important `Element` and basically represents a Midi note message including Note On and Note Off.
+
+    The applicable fields(:) for each token(,) in a `Line`, like in `":1/8:C5#, n_9:1/8::75"`:
+
+        +-------+-----------+----------------------------------------------------------------------------------+
+        | Field | Parameter | Parameter Values                                                                 |
+        +-------+-----------+----------------------------------------------------------------------------------+
+        | 0     | 0         | Tag: "n" (optional)                                                              |
+        |       | 1         | Channel: int(channel)                                                            |
+        | 1     | 0         | Duration: int(beats), float(note_value), "d" Dotted, "m" Measures, "b" Beats     |
+        |       | n         | Position: int(beat), float(measures), "m" Measure, "b" Beat                      |
+        | 2     | n         | Pitch: int(octave), float(degree), "A"-"G" Key, "#" Sharp, "b" Flat, "n" Natural |
+        | 3     | 0         | Velocity: int(velocity)                                                          |
+        +-------+-----------+----------------------------------------------------------------------------------+
+
+    Parameters
+    ----------
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(1) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        self._velocity: int         = 100
+        self._gate: Fraction        = Fraction(1)
+        self._tied: bool            = False
+        self._pitch: og.Pitch       = og.Pitch()
+        self._note_effect: og.NoteEffect | None = None
+        super().__init__(*parameters)
+
+    def velocity(self, velocity: int = 100) -> Self:
+        self._velocity = velocity
+        return self
+
+    def gate(self, gate: float = None) -> Self:
+        self._gate = ra.Gate(gate)._rational
+        return self
+
+    def tied(self, tied: bool = True) -> Self:
+        self._tied = tied
+        return self
+
+    def pitch(self, key: Optional[int] = 0, octave: Optional[int] = 4) -> Self:
+        self._pitch << ou.Key(key) << ou.Octave(octave)
+        return self
+
+
+    def checksum(self) -> int:
+        """16-bit checksum for a `Note`."""
+        master: int = self._velocity << 7 + 4 | self.get_absolute_pitch() << 4 | self._channel_0
+        master ^= self._position_beats.numerator << 8 | self._position_beats.denominator
+        master ^= self._duration_beats.numerator << 8 | self._duration_beats.denominator
+        return master & 0xFFFF  # 16-bit
+
+    def is_clipped(self, pitch: int) -> bool:
+        return super().is_clipped() \
+            or self._velocity < 0 or self._velocity > 128 \
+            or pitch < 0 or pitch > 128
+
+    def pitch_centroid(self) -> int:
+        return self.get_absolute_pitch()
+
+    def increase_pitch_centroid(self) -> Self:
+        self._pitch += ou.Octave(1)
+        return self
+
+    def decrease_pitch_centroid(self) -> Self:
+        self._pitch -= ou.Octave(1)
+        return self
+
+
+    def get_absolute_pitch(self) -> int:
+        return self._pitch.get_absolute_pitch()
+    
+
+    def __eq__(self, other: o.Operand) -> bool:
+        match other:
+            case self.__class__():
+                if not isinstance(self, other.__class__):   # Note subclasses need to be exhaustively compared to mismatch classes
+                    return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
+                return super().__eq__(other) \
+                    and self._velocity  == other._velocity \
+                    and self._gate      == other._gate \
+                    and self._tied      == other._tied \
+                    and self._pitch     == other._pitch \
                     and self._note_effect == other._note_effect
             case Element():
                 # Makes a playlist comparison
@@ -1955,7 +2338,6 @@ class Note(ChannelElement):
                     case og.Pitch():        return self._pitch
                     case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
                                             return self._pitch % operand
-                    case od.Trigger():      return operand._data << self._trigger
                     case og.NoteEffect():   return self._note_effect
                     case _:                 return super().__mod__(operand)
             case ou.Velocity():     return ou.Velocity() << od.Pipe(self._velocity)
@@ -1964,7 +2346,6 @@ class Note(ChannelElement):
             case og.Pitch():        return self._pitch.copy()
             case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale() | ou.Mode():
                                     return self._pitch % operand
-            case od.Trigger():      return od.Trigger(self._trigger)
             case og.NoteEffect():   return o.deep_copy(self._note_effect)
             case ou.Order() | ra.Swing() | ch.Chaos():
                 if isinstance(self._note_effect, og.NoteEffect):
@@ -2128,8 +2509,6 @@ class Note(ChannelElement):
         serialization["parameters"]["tied_to_previous"]     = o.serialize( self._tied )
         serialization["parameters"]["pitch"]    = o.serialize( self._pitch )
         serialization["parameters"]["note_effect"] = o.serialize( self._note_effect )
-        if self._trigger:
-            serialization["parameters"]["trigger"] = o.serialize( self._trigger )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -2145,8 +2524,6 @@ class Note(ChannelElement):
             self._tied      = o.deserialize( serialization["parameters"]["tied_to_previous"] )
             self._pitch     = o.deserialize( serialization["parameters"]["pitch"] )
             self._note_effect = o.deserialize( serialization["parameters"]["note_effect"] )
-            if "trigger" in serialization["parameters"]:
-                self._trigger = o.deserialize( serialization["parameters"]["trigger"] )
         return self
 
 
@@ -2159,7 +2536,6 @@ class Note(ChannelElement):
                 self._gate          = operand._gate
                 self._tied          = operand._tied
                 self._pitch         << operand._pitch
-                self._trigger       = operand._trigger
                 self._note_effect   = o.deep_copy(operand._note_effect)
             case od.Pipe():
                 match operand._data:
@@ -2169,7 +2545,6 @@ class Note(ChannelElement):
                     case og.Pitch():        self._pitch     = operand._data
                     case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
                                             self._pitch << operand
-                    case od.Trigger():      self._trigger == operand._data._data
                     case og.NoteEffect():   self._note_effect = operand._data
                     case _:                 super().__lshift__(operand)
             case ou.Velocity():     self._velocity = operand._unit
@@ -2183,8 +2558,6 @@ class Note(ChannelElement):
                     self._pitch << operand
             case og.Pitch() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale() | ou.Mode():
                 self._pitch << operand
-            case od.Trigger():
-                self._trigger == operand._data
             case og.NoteEffect():
                 self._note_effect = o.deep_copy(operand)
             case ou.Order() | ra.Swing() | ch.Chaos():
@@ -2218,6 +2591,7 @@ class Note(ChannelElement):
                 return self
             case _:
                 return super().__isub__(operand)
+
 
 class Rhythm(Note):
     """`Element -> DeviceElement -> ChannelElement -> Note -> Rhythm`
