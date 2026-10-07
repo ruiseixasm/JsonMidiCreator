@@ -689,11 +689,6 @@ class Plot(Process):
         # Plot Automations
         elif automation_plotlist:
 
-            automation_channels: list[int] = []
-            for single_automation in automation_plotlist:
-                if single_automation["channel"] not in automation_channels:
-                    automation_channels.append(single_automation["channel"])
-
             self._ax.set_ylabel("Automation Values (MSB)")
             # Where the corner Coordinates are defined
             self._ax.format_coord = lambda x, y: (
@@ -731,6 +726,11 @@ class Plot(Process):
             self._ax.axhline(y=127, color='gray', linestyle='--', linewidth=1)
             # Solid line at y = 64
             self._ax.axhline(y=64, color='gray', linestyle='-', linewidth=1.5)
+
+            automation_channels: list[int] = []
+            for single_automation in automation_plotlist:
+                if single_automation["channel"] not in automation_channels:
+                    automation_channels.append(single_automation["channel"])
 
             # Plot automations
             for channel in automation_channels:
