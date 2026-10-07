@@ -50,11 +50,14 @@ def test_cutting_note():
 
     parameter_1 = Parameter(ControlChange("Pan"))
     parameter_3 = Parameter(ControlChange("Pan", Channel(3)))
+    parameter_M = Parameter(ControlChange("Modulation"))
     dots_1 = Dots() + Dot(1.0, 100)
     dots_3 = Dots() + Dot(0.0, 100) + Dot(1.0, 0)
+    dots_M = Dots() + Dot(0.0, 70) + Dot(1.0, 30)
     automation_1 = Automation(parameter_1, dots_1, Duration(1/32))
     automation_3 = Automation(parameter_3, dots_3, Duration(1/32))
-    automation_clip = Clip() << [automation_1, automation_3]
+    automation_M = Automation(parameter_M, dots_M, Duration(1/32))
+    automation_clip = Clip() << [automation_1, automation_3, automation_M]
     print(f"automation_clip.len(): {automation_clip.len()}")
     automation_clip >> Plot(title="Automation of a ControlChange")
 
