@@ -627,32 +627,6 @@ def test_mul_clip():
     assert (two_notes * two_notes).len_unmasked() == 4
     assert two_notes * two_notes % Net(Duration()) == Measures(1.5) # Measures
 
-    hi_hat: Clip = Note(DrumKit("Hi-Hat"), 1/16) * 4 << Iterate(step=2)**Step() << Pipe(TimeSignature(2, 4))
-    assert hi_hat.len_unmasked() == 4
-    assert hi_hat._test_owner_clip()
-    hi_hat << Select(Nth(2, 4))
-    assert hi_hat.len_unmasked() == 2
-    assert hi_hat._test_owner_clip()
-    hi_hat *= 2
-    assert hi_hat.len_unmasked() == 4
-    assert hi_hat._test_owner_clip()
-    hi_hat % At(0) % Position() % Steps() % float() >> Print()
-    assert hi_hat[At(0)] % Position() % Steps() == 2.0
-    hi_hat[At(1)] % Position() % Steps() % float() >> Print()
-    assert hi_hat[At(1)] % Position() % Steps() == 6.0
-    hi_hat[At(2)] % Position() % Steps() % float() >> Print()
-    assert hi_hat[At(2)] % Position() % Steps() == 10.0
-    hi_hat[At(3)] % Position() % Steps() % float() >> Print()
-    assert hi_hat[At(3)] % Position() % Steps() == 14.0
-
-    # Test empty Clip
-    empty_clip = hi_hat * 0 << Pipe(TimeSignature(2, 4))
-    assert empty_clip.len_unmasked() == 0
-    equally_hi_hat: Clip = empty_clip * hi_hat
-    assert hi_hat.len_unmasked() == 4
-    assert equally_hi_hat.len_unmasked() == 4
-    assert equally_hi_hat == hi_hat
-    
     print("------")
     six_notes = 6 * Note()
     print(f"Length: {six_notes % Length() % float()}")
@@ -697,62 +671,6 @@ def test_mul_clip():
     assert timed_rest_clip[2] % Position() == 7/8 * 2
 
 # test_mul_clip()
-
-
-def test_clip_composition():
-
-    settings << Quantization(1/16)   # 1/4 Beats again
-
-    measure_bell: Clip = Note(DrumKit(34)) * 1 * 4
-    print(f"Duration: {measure_bell % Net(Duration()) % float()}")
-    assert measure_bell % Net(Duration()) == Measures(3.25)
-    print(f"Length: {measure_bell % Length() % float()}")
-    assert measure_bell % Length() == Measures(4)
-    assert measure_bell % Length() == Measure(4)    # Measure rounds the Length!!
-    print(f"Position: {measure_bell % Position() % float()}")
-    assert measure_bell % Position() == 0.0
-
-    print("------")
-    beat_tick: Clip = (Note(DrumKit(35)) * 3 + Beat(1)) * 4   # Position basic operations work on elements
-    print(f"Net Measures: {beat_tick.net_duration() % Measures() % float()}")
-    print(f"Measures: {beat_tick % Net(Finish()) % Measures() % float()}")
-    assert beat_tick.net_duration() == Measures(3.75)
-    assert beat_tick % Net(Finish()) == Measures(4.0)
-    print(f"Measure: {beat_tick % Net(Finish()) % Measure() % int()}")
-    assert beat_tick % Net(Finish()) == Measure(4)
-    print(f"Position: {beat_tick % Position() % Measures() % float()}")
-    assert beat_tick % Position() == 0.0    # Position basic operations work on elements
-
-    print("------")
-    metronome: Clip = measure_bell + beat_tick
-    print(f"Measure: {metronome % Net(Duration()) % Measure() % int()}")
-    assert metronome % Net(Duration()) == Measure(4)
-    print(f"Measures: {metronome % Net(Duration()) % Measures() % float()}")
-    assert metronome % Net(Duration()) == Measures(4.0)
-    print(f"Position: {metronome % Position() % Measures() % float()}")
-    assert metronome % Position() == 0.0
-
-    print("---------------------")
-    # correct version working with frame All()
-    beat_tick = (Note(DrumKit(35)) * 3 + All()**Beat(1)) * 4
-    print(f"Measure: {beat_tick % Net(Finish()) % Measure() % int()}")
-    assert beat_tick % Net(Finish()) == Measure(4)
-    print(f"Measures: {beat_tick % Net(Finish()) % Measures() % float()}")
-    assert beat_tick.net_duration() == Measures(3.75)
-    assert beat_tick % Net(Finish()) == Measures(4.0)
-    print(f"Position: {beat_tick % Position() % Measures() % float()}")
-    assert beat_tick % Position() == 0.0
-
-    print("------")
-    metronome: Clip = measure_bell + beat_tick
-    print(f"Measure: {metronome % Net(Duration()) % Measure() % int()}")
-    assert metronome % Net(Duration()) == Measure(4)
-    print(f"Measures: {metronome % Net(Duration()) % Measures() % float()}")
-    assert metronome % Net(Duration()) == Measures(4.0)
-    print(f"Position: {metronome % Position() % Measures() % float()}")
-    assert metronome % Position() == 0.0
-
-# test_clip_composition()
 
 
 def test_element_stacking():

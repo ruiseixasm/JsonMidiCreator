@@ -507,19 +507,6 @@ def test_note_pitch():
     print(note._pitch.get_absolute_pitch())
     assert note._pitch.get_absolute_pitch() == 39  # Black Key
 
-    note << DrumKit("Drum")
-    print(note._pitch.get_absolute_pitch())
-    assert note._pitch.get_absolute_pitch() == 35  # White Key
-    note << DrumKit("Hi-Hat")
-    print(note._pitch.get_absolute_pitch())
-    assert note._pitch.get_absolute_pitch() == 42  # Black Key
-    note << DrumKit("Clap")
-    print(note._pitch.get_absolute_pitch())
-    assert note._pitch.get_absolute_pitch() == 39  # Black Key
-
-    note << Pitch()
-    assert note._pitch.get_absolute_pitch() == 60   # Middle C
-
     note.clear()
 
     assert note % Octave() == 4

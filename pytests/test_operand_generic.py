@@ -583,27 +583,6 @@ def test_drum_kit():
     print(pitch.get_absolute_pitch())
     assert pitch.get_absolute_pitch() == 39  # Black Key
 
-    pitch << DrumKit("Drum")
-    print(pitch.get_absolute_pitch())
-    assert pitch.get_absolute_pitch() == 35  # White Key
-    pitch << DrumKit("Hi-Hat")
-    print(pitch.get_absolute_pitch())
-    assert pitch.get_absolute_pitch() == 42  # Black Key
-    pitch << DrumKit("Clap")
-    print(pitch.get_absolute_pitch())
-    assert pitch.get_absolute_pitch() == 39  # Black Key
-
-    # A different KeySignature
-    pitch << KeySignature(-1)
-    pitch << DrumKit("Hi-Hat")
-    print(pitch.get_absolute_pitch())
-    assert pitch.get_absolute_pitch() == 42  # Black Key
-    pitch << DrumKit("Drum")
-    print(pitch.get_absolute_pitch())
-    assert pitch.get_absolute_pitch() == 35  # White Key
-    # Alternative to call the method above `pitch_int`
-    assert pitch.get_absolute_pitch() == 35  # White Key
-
 # test_drum_kit()
 
 

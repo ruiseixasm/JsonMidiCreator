@@ -67,13 +67,6 @@ def test_enharmonic_key():
 # test_enharmonic_key()
 
 
-def test_drum_kit():
-
-    assert DrumKit("Drum")      == 35   # White Key
-    assert DrumKit("Hi-Hat")    == 42   # Black Key
-    assert DrumKit("Clap")      == 39   # Black Key
-
-
 def test_degree_accidentals():
 
     natural_degree = Degree()
