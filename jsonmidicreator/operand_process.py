@@ -689,14 +689,10 @@ class Plot(Process):
         # Plot Automations
         elif automation_plotlist:
 
-            # Vertical Y-Axis, Pitch/Value related (SPECIFIC)
-            plot_channels: list[dict] = [ channel_dict["channels"] for channel_dict in plotlist if "channels" in channel_dict ]
-
             automation_channels: list[int] = []
-            for element_channel in plot_channels:
-                for automation_channel in element_channel["automation"]:
-                    if automation_channel not in automation_channels:
-                        automation_channels.append(automation_channel)
+            for single_automation in automation_plotlist:
+                if single_automation["channel"] not in automation_channels:
+                    automation_channels.append(single_automation["channel"])
 
             self._ax.set_ylabel("Automation Values (MSB)")
             # Where the corner Coordinates are defined
