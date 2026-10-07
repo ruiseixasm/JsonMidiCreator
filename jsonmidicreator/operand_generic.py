@@ -2023,33 +2023,39 @@ class DrumKit(Generic):
         match operand:
             case od.Pipe():
                 match operand._data:
+                    case dict():                    return self._drum_kit
                     case _:                         return super().__mod__(operand)
-            case str():                 return DrumKit.numberToName(self._unit)
+            case dict():                return o.deep_copy(self._drum_kit)
             case _:                     return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["channel_0"] = o.serialize(self._channel_0)
+        serialization["parameters"]["drum_kit"] = o.serialize(self._drum_kit)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "channel_0" in serialization["parameters"]):
+            "drum_kit" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._channel_0 = o.deserialize(serialization["parameters"]["channel_0"])
+            self._drum_kit = o.deserialize(serialization["parameters"]["drum_kit"])
         return self
-        
+
+
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case od.Pipe():
                 match operand._data:
+                    case dict():                    self._drum_kit = operand._data
                     case _:                         super().__lshift__(operand)
+            case dict():            self._drum_kit = o.deep_copy(operand._data)
             case _:                 super().__lshift__(operand)
         return self
+
+
 
     _drum_kit: dict = {
         "Acoustic Bass Drum":       35,
