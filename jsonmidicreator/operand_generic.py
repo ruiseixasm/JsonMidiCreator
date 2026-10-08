@@ -2893,6 +2893,8 @@ class Settings(Generic):
                     case ou.Quality() | ou.Mode():
                         return operand._data << self._diatonic_mode_0
                     case ou.TonicKey():         return operand._data << self._tonic_key
+                    case od.FilePath():         return operand._data << self._drum_kits_file
+                    case str():                 return self._drum_kits_file
                     case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
                     case oc.TransportDevices(): return oc.TransportDevices(self._transport_devices)
                     case oc.MMCDevices():       return oc.MMCDevices(self._mmc_devices)
@@ -2927,6 +2929,8 @@ class Settings(Generic):
                 return operand.copy(sum(sharps_or_flats))
             case ou.Key() | ou.Accidentals() | ou.Quality() | int() | float() | Fraction() | str():
                                         return self % ou.KeySignature() % operand
+            case od.FilePath():         return operand.copy() << self._drum_kits_file
+            case str():                 return self._drum_kits_file
             case oc.ClockedDevices():   return oc.ClockedDevices(self._clocked_devices)
             case oc.TransportDevices(): return oc.TransportDevices(self._transport_devices)
             case oc.MMCDevices():       return oc.MMCDevices(self._mmc_devices)
@@ -2947,6 +2951,7 @@ class Settings(Generic):
             and self._time_signature        == other._time_signature \
             and self._diatonic_mode_0       == other._diatonic_mode_0 \
             and self._tonic_key             == other._tonic_key \
+            and self._drum_kits_file        == other._drum_kits_file \
             and self._devices               == other._devices \
             and self._clocked_devices       == other._clocked_devices \
             and self._transport_devices     == other._transport_devices \
@@ -2974,6 +2979,7 @@ class Settings(Generic):
         serialization["parameters"]["time_signature"]       = o.serialize( self._time_signature )
         serialization["parameters"]["diatonic_mode_0"]      = o.serialize( self._diatonic_mode_0 )
         serialization["parameters"]["tonic_key_0"]          = o.serialize( self._tonic_key )
+        serialization["parameters"]["drum_kits_file"]       = o.serialize( self._drum_kits_file )
         serialization["parameters"]["devices"]              = o.serialize( self._devices )
         serialization["parameters"]["clocked_devices"]      = o.serialize( self._clocked_devices )
         serialization["parameters"]["transport_devices"]    = o.serialize( self._transport_devices )
@@ -2988,7 +2994,7 @@ class Settings(Generic):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "tempos" in serialization["parameters"] and "quantization" in serialization["parameters"] and
             "time_signature" in serialization["parameters"] and "diatonic_mode_0" in serialization["parameters"] and
-            "tonic_key_0" in serialization["parameters"] and "devices" in serialization["parameters"] and
+            "tonic_key_0" in serialization["parameters"] and "drum_kits_file" in serialization["parameters"] and "devices" in serialization["parameters"] and
             "clocked_devices" in serialization["parameters"] and "mmc_devices" in serialization["parameters"] and "mtc_devices" in serialization["parameters"] and
             "transport_devices" in serialization["parameters"] and "mtc_fps" in serialization["parameters"]):
 
@@ -2998,6 +3004,7 @@ class Settings(Generic):
             self._time_signature        = o.deserialize( serialization["parameters"]["time_signature"] )
             self._diatonic_mode_0       = o.deserialize( serialization["parameters"]["diatonic_mode_0"] )
             self._tonic_key             = o.deserialize( serialization["parameters"]["tonic_key_0"] )
+            self._drum_kits_file        = o.deserialize( serialization["parameters"]["drum_kits_file"] )
             self._devices               = o.deserialize( serialization["parameters"]["devices"] )
             self._clocked_devices       = o.deserialize( serialization["parameters"]["clocked_devices"] )
             self._transport_devices     = o.deserialize( serialization["parameters"]["transport_devices"] )
@@ -3005,7 +3012,8 @@ class Settings(Generic):
             self._mtc_devices           = o.deserialize( serialization["parameters"]["mtc_devices"] )
             self._mtc_fps               = o.deserialize( serialization["parameters"]["mtc_fps"] )
         return self
-    
+
+
     def __lshift__(self, operand: any) -> Self:
         from . import operand_element as oe
         from . import operand_container as oc
@@ -3018,6 +3026,7 @@ class Settings(Generic):
                 self._time_signature        << operand._time_signature
                 self._diatonic_mode_0       = operand._diatonic_mode_0
                 self._tonic_key             = operand._tonic_key
+                self._drum_kits_file        = operand._drum_kits_file
                 self._devices               = operand._devices.copy()
                 self._clocked_devices       = operand._clocked_devices.copy()
                 self._transport_devices     = operand._transport_devices.copy()
@@ -3038,6 +3047,10 @@ class Settings(Generic):
                         self._diatonic_mode_0 = operand._data._unit - 1
                     case ou.TonicKey():
                         self._tonic_key = operand._data._unit % 12
+                    case od.FilePath():
+                        self._drum_kits_file = operand._data._data
+                    case str():
+                        self._drum_kits_file = operand._data
 
                     case oc.ClockedDevices():       self._clocked_devices = operand._data % od.Pipe( list() )
                     case oc.TransportDevices():     self._transport_devices = operand._data % od.Pipe( list() )
@@ -3068,6 +3081,10 @@ class Settings(Generic):
                 self._tonic_key = Scale.sharps_to_tonic(self._diatonic_mode_0, sharps)
             case ou.Quality() | ou.Key() | int() | float() | Fraction() | str():
                                         self << ou.KeySignature(operand)
+            case od.FilePath():
+                self._drum_kits_file = operand._data
+            case str():
+                self._drum_kits_file = operand
             case oc.ClockedDevices():   self._clocked_devices = operand % list()
             case oc.TransportDevices(): self._transport_devices = operand % list()
             case oc.MMCDevices():       self._mmc_devices = operand % list()
@@ -3099,6 +3116,7 @@ class Settings(Generic):
                 return self
         return super().__iadd__(operand)
 
+
     def __isub__(self, operand: any) -> Self:
         from . import operand_container as oc
         match operand:
@@ -3113,6 +3131,7 @@ class Settings(Generic):
                 self._tempos = tempos._items
                 return self
         return super().__isub__(operand)
+
 
 
 # Instantiate the Global Settings here.
