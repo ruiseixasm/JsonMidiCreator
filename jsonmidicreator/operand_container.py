@@ -1963,6 +1963,7 @@ class Clip(Composition):  # Just a container of Elements
                 self._time_signature << operand._time_signature
                 self._track_number  = operand._track_number
                 self._enabled       = operand._enabled
+                self._drum_kit      = o.deep_copy(operand._drum_kit)
                 self._set_owner_clip()
 
             case od.Pipe():

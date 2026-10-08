@@ -1760,7 +1760,7 @@ class Trigger(ChannelElement):
 
 
     def get_absolute_pitch(self) -> int:
-        if self._owner_clip is not None and self._sample in self._owner_clip._drum_kit:
+        if self._owner_clip is not None:
             drum_kit = og.DrumKit(self._owner_clip._drum_kit)
             pitch = drum_kit % self._sample
             if isinstance(pitch, int):
@@ -1898,7 +1898,7 @@ class Trigger(ChannelElement):
         
         self_plotlist: list[dict] = []
 
-        if self._owner_clip is not None and self._sample in self._owner_clip._drum_kit:
+        if self._owner_clip is not None:
 
             if self._duration_beats == 0:
                 return []
