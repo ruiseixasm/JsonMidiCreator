@@ -148,10 +148,16 @@ class Element(o.Operand):
 
                         if 'm' in parameter:
                             duration << ra.Measures(parameter_number)
+                        elif 'M' in parameter:
+                            duration << ra.Measure(parameter_number)
                         elif 'b' in parameter:
                             duration << ra.Beats(parameter_number)
+                        elif 'B' in parameter:
+                            duration << ra.Beat(parameter_number)
                         elif 's' in parameter:
                             duration << ra.Steps(parameter_number)
+                        elif 'S' in parameter:
+                            duration << ra.Step(parameter_number)
                         else:
                             match parameter_number:
                                 case int():
@@ -169,10 +175,16 @@ class Element(o.Operand):
 
                         if 'm' in parameter:
                             position << ra.Measures(parameter_number)
+                        elif 'M' in parameter:
+                            position << ra.Measure(parameter_number)
                         elif 'b' in parameter:
                             position << ra.Beats(parameter_number)
+                        elif 'B' in parameter:
+                            position << ra.Beat(parameter_number)
                         elif 's' in parameter:
                             position << ra.Steps(parameter_number)
+                        elif 'S' in parameter:
+                            position << ra.Step(parameter_number)
                         else:
                             match parameter_number:
                                 case int():
