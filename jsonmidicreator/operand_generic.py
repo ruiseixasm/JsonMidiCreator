@@ -2854,6 +2854,7 @@ class Settings(Generic):
         self._time_signature: TimeSignature         = TimeSignature(4, 4)
         self._diatonic_mode_0: int                  = 0
         self._tonic_key: int                        = 0
+        self._drum_kits_file: str                   = "/drum_kits/default.json"
         self._devices: list[str]                    = ["VMPK", "FLUID", "MIDI", "Microsoft", "IAC Bus", "Apple"]
         self._clocked_devices: list[str]            = []
         self._transport_devices: list[str]          = []

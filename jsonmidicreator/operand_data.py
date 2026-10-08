@@ -893,6 +893,19 @@ class Sample(String):
         super().__init__(track_name)
 
 
+class FilePath(String):
+    """`Data -> String -> FilePath`
+
+    The File path to a given file, like, "/drum_kits/default.json".
+
+    Parameters
+    ----------
+    str("/drum_kits/default.json") : The filepath to a given file.
+    """
+    def __init__(self, file_path: str = "/drum_kits/default.json"):
+        super().__init__(file_path)
+
+
 class Serialization(Data):
     """`Data -> Serialization`
 

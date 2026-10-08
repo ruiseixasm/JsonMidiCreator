@@ -65,7 +65,7 @@ def test_cutting_note():
     # automation_clip >> Plot(title="Automation of a ControlChange")
 
     triggers_16 = Trigger() * 16 + Rest(1/1) << DrumKit("waveform") << Velocity(50)
-    triggers_16 >> Plot(by_channel=True, title="Waveform Triggers")
+    # triggers_16 >> Plot(by_channel=True, title="Waveform Triggers")
 
 # test_cutting_note()
 
