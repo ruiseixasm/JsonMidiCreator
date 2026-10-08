@@ -2172,8 +2172,6 @@ class DrumKit(Generic):
     }
 
 
-    _drum_kit: dict = 
-
     def nameToNumber(self, name: str = "Snare"):
         # Convert input words to lowercase
         name_split = name.lower().split()
