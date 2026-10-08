@@ -141,59 +141,50 @@ class Element(o.Operand):
             locus_parameters: list[str] = field_1.split("_")
             for nth, parameter in enumerate(locus_parameters):
                 parameter_number = o.string_to_number(parameter)
+                duration: ra.Duration = self % ra.Duration()
+                position: ra.Position = self % ra.Position()
+
+                if 'm' in parameter:
+                    measures = ra.Measures(parameter_number)
+                    duration << measures
+                    position << measures
+                elif 'M' in parameter:
+                    measure = ra.Measure(parameter_number)
+                    duration << measure
+                    position << measure
+                elif 'b' in parameter:
+                    beats = ra.Beats(parameter_number)
+                    duration << beats
+                    position << beats
+                elif 'B' in parameter:
+                    beat = ra.Beat(parameter_number)
+                    duration << beat
+                    position << beat
+                elif 's' in parameter:
+                    steps = ra.Steps(parameter_number)
+                    duration << steps
+                    position << steps
+                elif 'S' in parameter:
+                    step = ra.Step(parameter_number)
+                    duration << step
+                    position << step
+                else:
+                    match parameter_number:
+                        case int():
+                            duration << ra.Steps(parameter_number)
+                            position << ra.Step(parameter_number)
+                        case float():
+                            duration << ra.NoteValue(parameter_number)
+                            position << ra.Measures(parameter_number)
+                if 'd' in parameter:
+                    duration._rational = duration._rational * 3 / 2
+
                 match nth:
                     case 0: # Sets the Duration
-
-                        duration: ra.Duration = self % ra.Duration()
-
-                        if 'm' in parameter:
-                            duration << ra.Measures(parameter_number)
-                        elif 'M' in parameter:
-                            duration << ra.Measure(parameter_number)
-                        elif 'b' in parameter:
-                            duration << ra.Beats(parameter_number)
-                        elif 'B' in parameter:
-                            duration << ra.Beat(parameter_number)
-                        elif 's' in parameter:
-                            duration << ra.Steps(parameter_number)
-                        elif 'S' in parameter:
-                            duration << ra.Step(parameter_number)
-                        else:
-                            match parameter_number:
-                                case int():
-                                    duration << ra.Steps(parameter_number)
-                                case float():
-                                    duration << ra.NoteValue(parameter_number)
-                        if 'd' in parameter:
-                            duration._rational = duration._rational * 3 / 2
-
                         self << duration
 
                     case _: # Sets the Position
-
-                        position: ra.Position = self % ra.Position()
-
-                        if 'm' in parameter:
-                            position << ra.Measures(parameter_number)
-                        elif 'M' in parameter:
-                            position << ra.Measure(parameter_number)
-                        elif 'b' in parameter:
-                            position << ra.Beats(parameter_number)
-                        elif 'B' in parameter:
-                            position << ra.Beat(parameter_number)
-                        elif 's' in parameter:
-                            position << ra.Steps(parameter_number)
-                        elif 'S' in parameter:
-                            position << ra.Step(parameter_number)
-                        else:
-                            match parameter_number:
-                                case int():
-                                    position << ra.Steps(parameter_number)
-                                case float():
-                                    position << ra.NoteValue(parameter_number)
-
                         self << position
-
 
         return self
 
