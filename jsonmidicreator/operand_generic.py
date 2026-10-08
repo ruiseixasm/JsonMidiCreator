@@ -2061,9 +2061,12 @@ class DrumKit(Generic):
                     case _:                         super().__lshift__(operand)
             case dict():            self._drum_kit = o.deep_copy(operand)
             case str():
-                if operand in DrumKit.drum_kits:
-                    self._drum_kit = o.deep_copy(DrumKit.drum_kits[operand])
-            case _:                 super().__lshift__(operand)
+                lc_name: str = operand.strip().lower()
+                for name, drum_kit in DrumKit.drum_kits.items():
+                    if name.lower() == lc_name:
+                        self._drum_kit = o.deep_copy(DrumKit.drum_kits[name])
+            case _:
+                super().__lshift__(operand)
         return self
 
 
