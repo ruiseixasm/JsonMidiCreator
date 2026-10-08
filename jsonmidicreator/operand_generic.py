@@ -2016,7 +2016,8 @@ class DrumKit(Generic):
     """
     def __init__(self, *parameters):
         self._drum_kit: dict[str, Any] = {}
-        super().__init__(35, *parameters)
+        super().__init__(*parameters)
+
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -2037,7 +2038,9 @@ class DrumKit(Generic):
                         return o.deep_copy(pitch)
                 return ol.Null()
 
-            case _:                     return super().__mod__(operand)
+            case _:
+                return super().__mod__(operand)
+
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -2067,16 +2070,24 @@ class DrumKit(Generic):
                     case _:                         super().__lshift__(operand)
             case dict():            self._drum_kit = o.deep_copy(operand)
             case str():
-                lc_name: str = operand.strip().lower()
-                for name, drum_kit in DrumKit.drum_kits.items():
-                    if name.lower() == lc_name:
-                        self._drum_kit = o.deep_copy(DrumKit.drum_kits[name])
-                        break
+                drum_kits: dict[str, dict[str, int | str]] = settings % od.FilePath() % dict()
+                if isinstance(drum_kits, dict):
+                    lc_name: str = operand.strip().lower()
+                    for name, drum_kit in drum_kits.items():
+                        if name.lower() == lc_name:
+                            self._drum_kit = o.deep_copy(drum_kits[name])
+                            break
+                else:
+                    return ol.Null()
             case int():
-                for index, drum_kit in enumerate(DrumKit.drum_kits.values()):
-                    if index == operand - 1:
-                        self._drum_kit = o.deep_copy(drum_kit)
-                        break
+                drum_kits: dict[str, dict[str, int | str]] = settings % od.FilePath() % dict()
+                if isinstance(drum_kits, dict):
+                    for index, drum_kit in enumerate(drum_kits.values()):
+                        if index == operand - 1:
+                            self._drum_kit = o.deep_copy(drum_kit)
+                            break
+                else:
+                    return ol.Null()
             case _:
                 super().__lshift__(operand)
         return self
@@ -2106,106 +2117,6 @@ class DrumKit(Generic):
             case _:
                 super().__isub__(other)
         return self
-
-
-    drum_kits: dict[str, list[str, int | str]] = {
-        "Windows": {
-            "Acoustic Bass Drum":       35,
-            "Bass Drum 1":              36,
-            "Side Stick":               37,
-            "Acoustic Snare":           38,
-            "Hand Clap":                39,
-            "Electric Snare":           40,
-            "Low Floor Tom":            41,
-            "Closed Hi-Hat":            42,
-            "High Floor Tom":           43,
-            "Pedal Hi-Hat":             44,
-            "Low Tom":                  45,
-            "Open Hi-Hat":              46,
-            "Low-Mid Tom":              47,
-            "Hi-Mid Tom":               48,
-            "Crash Cymbal 1":           49,
-            "High Tom":                 50,
-            "Ride Cymbal 1":            51,
-            "Chinese Cymbal":           52,
-            "Ride Bell":                53,
-            "Tambourine":               54,
-            "Splash Cymbal":            55,
-            "Cowbell":                  56,
-            "Crash Symbol 2":           57,
-            "Vibraslap":                58,
-            "Ride Cymbal 2":            59,
-            "Hi Bongo":                 60,
-            "Low Bongo":                61,
-            "Mute Hi Conga":            62,
-            "Open Hi Conga":            63,
-            "Low Conga":                64,
-            "High Timbale":             65,
-            "Low Timbale":              66,
-            "High Agogo":               67,
-            "Low Agogo":                68,
-            "Cabasa":                   69,
-            "Maracas":                  70,
-            "Short Whistle":            71,
-            "Long Whistle":             72,
-            "Short Guiro":              73,
-            "Long Guiro":               74,
-            "Calves":                   75,
-            "Hi Wood Block":            76,
-            "Low Wood Block":           77,
-            "Mute Cuica":               78,
-            "Open Cuica":               79,
-            "Mute Triangle":            80,
-            "Open Triangle":            81,
-            "Shaker":                   82
-        },
-        "Waveform": {
-            "Side Stick":               37,
-            "Kick":                     36,
-            "Closed Hi-Hat":            42,
-            "Clap":                     39,
-            "Snare 1":                  38,
-            "Cowbell":                  56,
-            "Open Hi-Hat":              46,
-            "Conga Low":                64,
-            "High Tom":                 50,
-            "Mid Tom":                  48,
-            "Low Tom":                  45,
-            "Conga Mid":                62,
-            "Crash 1":                  49,
-            "Claves":                   75,
-            "Maracas":                  70,
-            "Conga Hi":                 63
-        },
-        "Digitakt": {
-            "KICK":                     0,
-            "SNARE":                    1,
-            "TOM":                      2,
-            "CLAP":                     3,
-            "COWBELL":                  4,
-            "CLOSE HAT":                5,
-            "OPEN HAT":                 6,
-            "CYMBAL":                   7
-        }
-    }
-
-
-    def nameToNumber(self, name: str = "Snare"):
-        # Convert input words to lowercase
-        name_split = name.lower().split()
-        # Iterate over the instruments list
-        for key, value in DrumKit._drum_kit.items():
-            # Check if all input words are present in the name string
-            if all(word in key.lower() for word in name_split):
-                self._unit = value
-                return
-
-    @staticmethod
-    def numberToName(number: int) -> str:
-        for key, value in DrumKit._drum_kit.items():
-            if value == number:
-                return key
-        return "Unknown Drum Kit!"
 
 
 
