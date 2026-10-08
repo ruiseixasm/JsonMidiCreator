@@ -398,6 +398,20 @@ def test_program_change_mod():
     assert program_change_int == 12
 
 
+def test_trigger_int():
+    triggers = Trigger("Kick") * 2 << DrumKit("808") << Name("808 Drum Kit")
+    assert triggers[0] % int() == 2 # in the 808 Kick is the 2nd one
+    assert triggers[0] % str() == "Kick"
+    triggers -= 1
+    assert triggers[0] % int() == 1
+    assert triggers[0] % str() == "Side Stick"
+    triggers << 2
+    assert triggers[0] % int() == 2
+    assert triggers[0] % str() == "Kick"
+
+# test_trigger_int()
+
+
 def test_note3_element():
 
     triplet_note = Triplet("C")
@@ -734,6 +748,7 @@ def test_token_string():
             assert element == Measures(1)
 
 # test_token_string()
+
 
 def test_element_tuple():
     delayed_note = Note(Beat(1))
