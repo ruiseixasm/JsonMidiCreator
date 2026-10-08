@@ -1761,7 +1761,8 @@ class Trigger(ChannelElement):
 
     def get_absolute_pitch(self) -> int:
         if self._owner_clip is not None and self._sample in self._owner_clip._drum_kit:
-            pitch = self._owner_clip._drum_kit[self._sample]
+            drum_kit = og.DrumKit(self._owner_clip._drum_kit)
+            pitch = drum_kit % self._sample
             if isinstance(pitch, int):
                 return pitch
             return og.Pitch(pitch).get_absolute_pitch()
@@ -1909,27 +1910,29 @@ class Trigger(ChannelElement):
             position_off: Fraction = position_on + self._duration_beats
             self_to_plot: Note = self if derived_note is None else derived_note # Info to be represented
 
-            sample_id: int = 0
+            sample_id: int = -1
+            lc_sample: str = self._sample.strip().lower()
             for index, sample in enumerate(self._owner_clip._drum_kit.keys()):
-                if sample == self._sample:
+                if sample.lower() == lc_sample:
                     sample_id = index
                     break
 
-            self_plotlist.append(
-                {
-                    "trigger": {
-                        "position_on": position_on,
-                        "position_off": position_off,
-                        "enabled": self._owner_clip._enabled,
-                        "sample_id": sample_id,
-                        "velocity": self._velocity,
-                        "channel": self._channel_0,
-                        "masked": self._masked,
-                        "self": self_to_plot,
-                        "owner_clip": self._owner_clip
+            if sample_id >= 0:
+                self_plotlist.append(
+                    {
+                        "trigger": {
+                            "position_on": position_on,
+                            "position_off": position_off,
+                            "enabled": self._owner_clip._enabled,
+                            "sample_id": sample_id,
+                            "velocity": self._velocity,
+                            "channel": self._channel_0,
+                            "masked": self._masked,
+                            "self": self_to_plot,
+                            "owner_clip": self._owner_clip
+                        }
                     }
-                }
-            )
+                )
 
         return self_plotlist
 

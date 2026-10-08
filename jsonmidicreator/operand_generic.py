@@ -2059,7 +2059,7 @@ class DrumKit(Generic):
                 match operand._data:
                     case dict():                    self._drum_kit = operand._data
                     case _:                         super().__lshift__(operand)
-            case dict():            self._drum_kit = o.deep_copy(operand._data)
+            case dict():            self._drum_kit = o.deep_copy(operand)
             case str():
                 if operand in DrumKit.drum_kits:
                     self._drum_kit = o.deep_copy(DrumKit.drum_kits[operand])

@@ -395,7 +395,7 @@ class Plot(Process):
                         self._ax.axhspan(single_note - 0.5, single_note + 0.5, color='lightgray', alpha=0.5)
 
                 # Updates X-Axis data
-                last_position = max(note["position_off"] for note in note_plotlist)
+                last_position = max(note["position_off"] for note in note_plotlist + rest_plotlist)
                 last_position_measures = last_position / beats_per_measure
                 last_position_measure = int(last_position_measures) # Trims extra length
                 if last_position_measure != last_position_measures: # Includes the trimmed length
@@ -473,7 +473,7 @@ class Plot(Process):
                 self._ax.axhline(y=60 - 0.5, color='gray', linestyle='-', linewidth=1.0)
 
                 # Updates X-Axis data
-                last_position = max(note["position_off"] for note in note_plotlist)
+                last_position = max(note["position_off"] for note in note_plotlist + rest_plotlist)
                 last_position_measures = last_position / beats_per_measure
                 last_position_measure = int(last_position_measures) # Trims extra length
                 if last_position_measure != last_position_measures: # Includes the trimmed length
@@ -696,9 +696,12 @@ class Plot(Process):
             # Set MIDI channel ticks with Middle C in bold
             self._ax.set_yticks(range(17))  # Needs to accommodate all labels, so, it's 17
             self._ax.tick_params(axis='y', which='both', length=0)
-            y_labels = ['Rest'] + [
-                key for key in trigger_plotlist[0]["owner_clip"]._drum_kit.keys()
-            ]
+
+            y_labels = ['Rest']
+            if trigger_plotlist:
+                y_labels += [
+                        key for key in trigger_plotlist[0]["owner_clip"]._drum_kit.keys()
+                    ]
             if len(y_labels) < 17:
                 y_labels.extend(
                     sample_i for sample_i in range(len(y_labels), 17)
@@ -723,7 +726,7 @@ class Plot(Process):
                     self._ax.axhspan(single_trigger - 0.5, single_trigger + 0.5, color='lightgray', alpha=0.5)
 
             # Updates X-Axis data
-            last_position = max(note["position_off"] for note in trigger_plotlist)
+            last_position = max(trigger["position_off"] for trigger in trigger_plotlist + rest_plotlist)
             last_position_measures = last_position / beats_per_measure
             last_position_measure = int(last_position_measures) # Trims extra length
             if last_position_measure != last_position_measures: # Includes the trimmed length
