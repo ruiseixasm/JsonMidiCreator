@@ -64,8 +64,9 @@ def test_cutting_note():
     print(f"automation_clip.len(): {automation_clip.len()}")
     # automation_clip >> Plot(title="Automation of a ControlChange")
 
-    triggers_16 = Trigger() * 16 + Rest(1/1) << DrumKit("waveform") << Velocity(50)
+    triggers_16 = Trigger() * 16 + Rest(1/1) << DrumKit("808") << Velocity(50)
     # triggers_16 >> Plot(by_channel=True, title="Waveform Triggers")
+    assert triggers_16.len() == 16 + 1
 
 # test_cutting_note()
 

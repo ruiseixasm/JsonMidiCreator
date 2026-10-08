@@ -924,7 +924,7 @@ class FilePath(String):
             case str():
                 return self._data
             case _:
-                return o.deep_copy(self._data)
+                return super().__mod__(operand)
             
         
 
