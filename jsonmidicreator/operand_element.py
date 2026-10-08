@@ -144,15 +144,24 @@ class Element(o.Operand):
                     case 0: # Sets the Duration
                         dotted = True if 'd' in parameter else False
                         parameter = parameter.replace('d', '')
+
+                        
+
                         measures = True if 'm' in parameter else False
                         parameter = parameter.replace('m', '')
                         measure = True if 'M' in parameter else False
                         parameter = parameter.replace('M', '')
-                        beats = True if 'b' in parameter or 'B' in parameter else False
-                        parameter = parameter.replace('b', '').replace('B', '')
-                        steps = True if 's' in parameter or 'S' in parameter else False
-                        parameter = parameter.replace('s', '').replace('S', '')
+
+                        beats = True if 'b' in parameter else False
+                        parameter = parameter.replace('b', '')
+                        beat = True if 'B' in parameter else False
+                        parameter = parameter.replace('B', '')
                         
+                        steps = True if 's' in parameter else False
+                        parameter = parameter.replace('s', '')
+                        step = True if 'S' in parameter else False
+                        parameter = parameter.replace('S', '')
+                                                                        
                         duration = o.string_to_number(parameter)
                         if measures:
                             self << ra.Measures(duration)
