@@ -1715,9 +1715,9 @@ class Trigger(ChannelElement):
         +-------+-----------+----------------------------------------------------------------------------------+
         | 0     | 0         | Tag: "n" (optional)                                                              |
         |       | 1         | Channel: int(channel)                                                            |
-        | 1     | 0         | Duration: int(beats), float(note_value), "d" Dotted, "m" Measures, "b" Beats     |
-        |       | n         | Position: int(beat), float(measures), "m" Measure, "b" Beat                      |
-        | 2     | n         | Sample: str(sample)                                                              |
+        | 1     | 0         | Duration: int(steps), float(note_value), "d" Dotted, "m" Measures, "b" Beats     |
+        |       | n         | Position: int(step), float(measures), "M" Measure, "B" Beat                      |
+        | 2     | n         | Sample: str(sample), int(nth sample)                                             |
         | 3     | 0         | Velocity: int(velocity)                                                          |
         +-------+-----------+----------------------------------------------------------------------------------+
 
@@ -2123,8 +2123,8 @@ class Note(ChannelElement):
         +-------+-----------+----------------------------------------------------------------------------------+
         | 0     | 0         | Tag: "n" (optional)                                                              |
         |       | 1         | Channel: int(channel)                                                            |
-        | 1     | 0         | Duration: int(beats), float(note_value), "d" Dotted, "m" Measures, "b" Beats     |
-        |       | n         | Position: int(beat), float(measures), "m" Measure, "b" Beat                      |
+        | 1     | 0         | Duration: int(steps), float(note_value), "d" Dotted, "m" Measures, "b" Beats     |
+        |       | n         | Position: int(step), float(measures), "M" Measure, "B" Beat                      |
         | 2     | n         | Pitch: int(octave), float(degree), "A"-"G" Key, "#" Sharp, "b" Flat, "n" Natural |
         | 3     | 0         | Velocity: int(velocity)                                                          |
         +-------+-----------+----------------------------------------------------------------------------------+
