@@ -2031,6 +2031,12 @@ class DrumKit(Generic):
                     if sample.lower() == lc_sample:
                         return o.deep_copy(pitch)
                 return ol.Null()
+            case int():
+                for index, pitch in enumerate(self._drum_kit.values()):
+                    if index == operand - 1:
+                        return o.deep_copy(pitch)
+                return ol.Null()
+
             case _:                     return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
@@ -2065,6 +2071,12 @@ class DrumKit(Generic):
                 for name, drum_kit in DrumKit.drum_kits.items():
                     if name.lower() == lc_name:
                         self._drum_kit = o.deep_copy(DrumKit.drum_kits[name])
+                        break
+            case int():
+                for index, drum_kit in enumerate(DrumKit.drum_kits.values()):
+                    if index == operand - 1:
+                        self._drum_kit = o.deep_copy(drum_kit)
+                        break
             case _:
                 super().__lshift__(operand)
         return self
