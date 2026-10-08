@@ -142,10 +142,12 @@ class Element(o.Operand):
             for nth, parameter in enumerate(locus_parameters):
                 match nth:
                     case 0: # Sets the Duration
-                        dotted = True if 'd' in parameter or 'D' in parameter else False
-                        parameter = parameter.replace('d', '').replace('D', '')
-                        measures = True if 'm' in parameter or 'M' in parameter else False
-                        parameter = parameter.replace('m', '').replace('M', '')
+                        dotted = True if 'd' in parameter else False
+                        parameter = parameter.replace('d', '')
+                        measures = True if 'm' in parameter else False
+                        parameter = parameter.replace('m', '')
+                        measure = True if 'M' in parameter else False
+                        parameter = parameter.replace('M', '')
                         beats = True if 'b' in parameter or 'B' in parameter else False
                         parameter = parameter.replace('b', '').replace('B', '')
                         steps = True if 's' in parameter or 'S' in parameter else False
