@@ -1896,7 +1896,7 @@ class Trigger(ChannelElement):
             case ou.Tied():         return ou.Tied() << od.Pipe( self._tied )
             case od.Sample():       return operand.copy() << self._sample
             case str():             return self._sample
-            case int():             return self.get_sample_id()
+            case int():             return self.get_sample_id() + 1
             case ou.PitchCentroid():
                 return ou.PitchCentroid(self.pitch_centroid())
             case _:                 return super().__mod__(operand)
