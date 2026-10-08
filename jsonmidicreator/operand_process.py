@@ -755,7 +755,7 @@ class Plot(Process):
                 if single_trigger["masked"]:
                     color_alpha = 0.2
                     
-                self._ax.barh(y = single_trigger["channel"] + 1, width = float(single_trigger["position_off"] - single_trigger["position_on"]), left = float(single_trigger["position_on"]), 
+                self._ax.barh(y = single_trigger["sample_id"] + 1, width = float(single_trigger["position_off"] - single_trigger["position_on"]), left = float(single_trigger["position_on"]), 
                         height=0.3, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.0, linestyle=line_style, alpha=color_alpha)
 
                 info: str = ""
@@ -1137,7 +1137,7 @@ class Plot(Process):
             Composition: Returns the presently plotted composition.
         """
         # First composition and its plotting (i = 0) it's always the self copy
-        self._compositions      = [ composition.copy() ]   # Works with a forced copy (Read Only)
+        self._compositions      = [ composition ]
         self._plot_lists        = [ composition.getPlotlist() ]
         self._plot_checksums    = [ o.checksum_to_string(composition.checksum()) ]
         if not isinstance(self.title, str):

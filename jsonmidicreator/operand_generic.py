@@ -2108,7 +2108,7 @@ class DrumKit(Generic):
         return self
 
 
-    drum_kits: dict[str, list[str, int]] = {
+    drum_kits: dict[str, list[str, int | str]] = {
         "Windows": {
             "Acoustic Bass Drum":       35,
             "Bass Drum 1":              36,
