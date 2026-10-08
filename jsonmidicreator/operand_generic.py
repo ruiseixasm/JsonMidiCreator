@@ -2052,6 +2052,9 @@ class DrumKit(Generic):
                     case dict():                    self._drum_kit = operand._data
                     case _:                         super().__lshift__(operand)
             case dict():            self._drum_kit = o.deep_copy(operand._data)
+            case str():
+                if operand in DrumKit.drum_kits:
+                    self._drum_kit = o.deep_copy(DrumKit.drum_kits[operand])
             case _:                 super().__lshift__(operand)
         return self
 
@@ -2082,57 +2085,80 @@ class DrumKit(Generic):
         return self
 
 
+    drum_kits: dict[str, list[str, int]] = {
+        "Windows": {
+            "Acoustic Bass Drum":       35,
+            "Bass Drum 1":              36,
+            "Side Stick":               37,
+            "Acoustic Snare":           38,
+            "Hand Clap":                39,
+            "Electric Snare":           40,
+            "Low Floor Tom":            41,
+            "Closed Hi-Hat":            42,
+            "High Floor Tom":           43,
+            "Pedal Hi-Hat":             44,
+            "Low Tom":                  45,
+            "Open Hi-Hat":              46,
+            "Low-Mid Tom":              47,
+            "Hi-Mid Tom":               48,
+            "Crash Cymbal 1":           49,
+            "High Tom":                 50,
+            "Ride Cymbal 1":            51,
+            "Chinese Cymbal":           52,
+            "Ride Bell":                53,
+            "Tambourine":               54,
+            "Splash Cymbal":            55,
+            "Cowbell":                  56,
+            "Crash Symbol 2":           57,
+            "Vibraslap":                58,
+            "Ride Cymbal 2":            59,
+            "Hi Bongo":                 60,
+            "Low Bongo":                61,
+            "Mute Hi Conga":            62,
+            "Open Hi Conga":            63,
+            "Low Conga":                64,
+            "High Timbale":             65,
+            "Low Timbale":              66,
+            "High Agogo":               67,
+            "Low Agogo":                68,
+            "Cabasa":                   69,
+            "Maracas":                  70,
+            "Short Whistle":            71,
+            "Long Whistle":             72,
+            "Short Guiro":              73,
+            "Long Guiro":               74,
+            "Calves":                   75,
+            "Hi Wood Block":            76,
+            "Low Wood Block":           77,
+            "Mute Cuica":               78,
+            "Open Cuica":               79,
+            "Mute Triangle":            80,
+            "Open Triangle":            81,
+            "Shaker":                   82
+        },
+        "Waveform": {
+            "Side Stick":               37,
+            "Kick":                     36,
+            "Closed Hi-Hat":            42,
+            "Clap":                     39,
+            "Snare 1":                  38,
+            "Cowbell":                  56,
+            "Open Hi-Hat":              46,
+            "Conga Low":                64,
+            "High Tom":                 50,
+            "Mid Tom":                  48,
+            "Low Tom":                  45,
+            "Conga Mid":                62,
+            "Crash 1":                  49,
+            "Claves":                   75,
+            "Maracas":                  70,
+            "Conga Hi":                 63
+        }
 
-    _drum_kit: dict = {
-        "Acoustic Bass Drum":       35,
-        "Bass Drum 1":              36,
-        "Side Stick":               37,
-        "Acoustic Snare":           38,
-        "Hand Clap":                39,
-        "Electric Snare":           40,
-        "Low Floor Tom":            41,
-        "Closed Hi-Hat":            42,
-        "High Floor Tom":           43,
-        "Pedal Hi-Hat":             44,
-        "Low Tom":                  45,
-        "Open Hi-Hat":              46,
-        "Low-Mid Tom":              47,
-        "Hi-Mid Tom":               48,
-        "Crash Cymbal 1":           49,
-        "High Tom":                 50,
-        "Ride Cymbal 1":            51,
-        "Chinese Cymbal":           52,
-        "Ride Bell":                53,
-        "Tambourine":               54,
-        "Splash Cymbal":            55,
-        "Cowbell":                  56,
-        "Crash Symbol 2":           57,
-        "Vibraslap":                58,
-        "Ride Cymbal 2":            59,
-        "Hi Bongo":                 60,
-        "Low Bongo":                61,
-        "Mute Hi Conga":            62,
-        "Open Hi Conga":            63,
-        "Low Conga":                64,
-        "High Timbale":             65,
-        "Low Timbale":              66,
-        "High Agogo":               67,
-        "Low Agogo":                68,
-        "Cabasa":                   69,
-        "Maracas":                  70,
-        "Short Whistle":            71,
-        "Long Whistle":             72,
-        "Short Guiro":              73,
-        "Long Guiro":               74,
-        "Calves":                   75,
-        "Hi Wood Block":            76,
-        "Low Wood Block":           77,
-        "Mute Cuica":               78,
-        "Open Cuica":               79,
-        "Mute Triangle":            80,
-        "Open Triangle":            81,
-        "Shaker":                   82
     }
+
+
+    _drum_kit: dict = 
 
     def nameToNumber(self, name: str = "Snare"):
         # Convert input words to lowercase
