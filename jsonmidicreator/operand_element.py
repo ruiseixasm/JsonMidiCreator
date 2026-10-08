@@ -1853,7 +1853,7 @@ class Trigger(ChannelElement):
         # Set Pitch
         field_2: str = token_operand.get_field(2)
         if field_2 is not None:
-            sample_nth: int = o.string_to_number(field_2)
+            sample_nth: int = o.string_to_number(field_2, as_is=True)
             if isinstance(sample_nth, int):
                 self << sample_nth
             else:

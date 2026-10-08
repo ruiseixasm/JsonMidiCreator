@@ -726,9 +726,10 @@ def string_or_number(string: str) -> int | float | str:
         except ValueError:
             return string
         
-def string_to_number(string: str) -> int | float | None:
+def string_to_number(string: str, as_is: bool = False) -> int | float | None:
     # Keep only digits, periods, and forward slashes
     cleaned_string = re.sub(r"[^\d./]", "", string)
+    if as_is: cleaned_string = string
     try:
         return int(cleaned_string)
     except ValueError:
