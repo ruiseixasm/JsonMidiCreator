@@ -894,6 +894,8 @@ class Plot(Process):
 
         else:  # Empty watermark
 
+            self._ax.set_yticklabels([])
+
             # Updates X-Axis data
             last_position_measures = 4
 
