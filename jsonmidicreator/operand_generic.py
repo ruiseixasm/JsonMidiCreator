@@ -2012,8 +2012,7 @@ class DrumKit(Generic):
     
     Parameters
     ----------
-    int(35) : Accepts a numeral (35 to 82) or a String like "Drum".
-    Channel(10), float : Sets the `Channel` associated with the kit.
+    dict({}) : A `dict` with named samples and their respective pitch.
     """
     def __init__(self, *parameters):
         self._drum_kit: dict[str, Any] = {}
@@ -2026,6 +2025,12 @@ class DrumKit(Generic):
                     case dict():                    return self._drum_kit
                     case _:                         return super().__mod__(operand)
             case dict():                return o.deep_copy(self._drum_kit)
+            case str():
+                lc_sample: str = operand.strip().lower()
+                for sample, pitch in self._drum_kit.items():
+                    if sample.lower() == lc_sample:
+                        return o.deep_copy(pitch)
+                return ol.Null()
             case _:                     return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
@@ -2153,8 +2158,17 @@ class DrumKit(Generic):
             "Claves":                   75,
             "Maracas":                  70,
             "Conga Hi":                 63
+        },
+        "Digitakt": {
+            "KICK":                     0,
+            "SNARE":                    1,
+            "TOM":                      2,
+            "CLAP":                     3,
+            "COWBELL":                  4,
+            "CLOSE HAT":                5,
+            "OPEN HAT":                 6,
+            "CYMBAL":                   7
         }
-
     }
 
 
