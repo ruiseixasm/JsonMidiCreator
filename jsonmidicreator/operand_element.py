@@ -144,20 +144,24 @@ class Element(o.Operand):
                 match nth:
                     case 0: # Sets the Duration
 
+                        duration: ra.Duration = self % ra.Duration()
+
                         if 'm' in parameter:
-                            self << ra.Measures(parameter_number)
+                            duration << ra.Measures(parameter_number)
                         elif 'b' in parameter:
-                            self << ra.Beats(parameter_number)
+                            duration << ra.Beats(parameter_number)
                         elif 's' in parameter:
-                            self << ra.Steps(parameter_number)
+                            duration << ra.Steps(parameter_number)
                         else:
                             match parameter_number:
                                 case int():
-                                    self << ra.Steps(parameter_number)
+                                    duration << ra.Steps(parameter_number)
                                 case float():
-                                    self << ra.NoteValue(parameter_number)
+                                    duration << ra.NoteValue(parameter_number)
                         if 'd' in parameter:
-                            self._duration_beats = self._duration_beats * 3 / 2
+                            duration._rational = duration._rational * 3 / 2
+
+                        self << duration
 
                     case _: # Sets the Position
                         measure = True if 'm' in parameter or 'M' in parameter else False
