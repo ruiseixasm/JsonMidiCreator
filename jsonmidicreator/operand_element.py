@@ -144,32 +144,12 @@ class Element(o.Operand):
                     case 0: # Sets the Duration
 
                         duration = o.string_to_number(parameter)
-                        
-                        dotted = True if 'd' in parameter else False
-                        parameter = parameter.replace('d', '')
-
-                        
-
-                        measures = True if 'm' in parameter else False
-                        parameter = parameter.replace('m', '')
-                        measure = True if 'M' in parameter else False
-                        parameter = parameter.replace('M', '')
-
-                        beats = True if 'b' in parameter else False
-                        parameter = parameter.replace('b', '')
-                        beat = True if 'B' in parameter else False
-                        parameter = parameter.replace('B', '')
-                        
-                        steps = True if 's' in parameter else False
-                        parameter = parameter.replace('s', '')
-                        step = True if 'S' in parameter else False
-                        parameter = parameter.replace('S', '')
-                                                                        
-                        if measures:
+                    
+                        if 'm' in parameter:
                             self << ra.Measures(duration)
-                        elif beats:
+                        elif 'b' in parameter:
                             self << ra.Beats(duration)
-                        elif steps:
+                        elif 's' in parameter:
                             self << ra.Steps(duration)
                         else:
                             match duration:
@@ -177,8 +157,9 @@ class Element(o.Operand):
                                     self << ra.Steps(duration)
                                 case float():
                                     self << ra.NoteValue(duration)
-                        if dotted:
+                        if 'd' in parameter:
                             self._duration_beats = self._duration_beats * 3 / 2
+
                     case _: # Sets the Position
                         measure = True if 'm' in parameter or 'M' in parameter else False
                         beat = True if 'b' in parameter or 'B' in parameter else False
