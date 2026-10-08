@@ -1853,7 +1853,11 @@ class Trigger(ChannelElement):
         # Set Pitch
         field_2: str = token_operand.get_field(2)
         if field_2 is not None:
-            self._sample = field_2
+            sample_nth: int = o.string_to_number(field_2)
+            if isinstance(sample_nth, int):
+                self << sample_nth
+            else:
+                self << field_2
         # Set Velocity
         field_3: str = token_operand.get_field(3)
         if field_3 is not None:
