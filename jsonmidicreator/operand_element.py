@@ -1855,7 +1855,7 @@ class Trigger(ChannelElement):
         # Set Pitch
         field_2: str = token_operand.get_field(2)
         if field_2 is not None:
-            self._sample = od.Field(field_2)
+            self._sample = field_2
         # Set Velocity
         field_3: str = token_operand.get_field(3)
         if field_3 is not None:
@@ -2076,7 +2076,8 @@ class Trigger(ChannelElement):
             case ra.Gate():         self._gate = operand._rational
             case ou.Tied():
                 self._tied = operand % bool()
-            case od.Sample():       self._sample == operand._data
+            case od.Sample():
+                self._sample == operand._data
             case str():
                 if ":" in operand:  # It's a Token
                     super().__lshift__(operand)
@@ -5704,6 +5705,7 @@ class Panic(DeviceElement):
 
 _element_type: dict[str, type] = {
     'r':        Rest,
+    't':        Trigger,
     'n':        Note,
     'c':        Chord,
     'rt':       Tuplet,

@@ -895,16 +895,7 @@ class Plot(Process):
         else:  # Empty watermark
 
             # Updates X-Axis data
-            last_position_measures = last_position / beats_per_measure
-            last_position_measure = int(last_position_measures) # Trims extra length
-            if last_position_measure != last_position_measures: # Includes the trimmed length
-                last_position_measure += 1  # Adds only if the end doesn't coincide
-
-            # PITCHES VERTICAL AXIS
-
-            # Get pitch range
-            min_pitch: int = 60
-            max_pitch: int = 60
+            last_position_measures = 4
 
             # Add watermark text in the center of the plot
             self._ax.text(0.5, 0.5, 'EMPTY', 
