@@ -182,11 +182,10 @@ class Element(o.Operand):
                 match nth:
                     case 0: # Sets the Duration
                         self << duration
-
                     case _: # Sets the Position
                         self << position
-
         return self
+
 
     def start(self) -> ra.Position:
         return ra.Position(self, self._position_beats)
