@@ -2052,6 +2052,9 @@ class DrumKit(Generic):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
+            case DrumKit():
+                super().__lshift__(operand)
+                self._drum_kit = o.deep_copy(operand._drum_kit)
             case od.Pipe():
                 match operand._data:
                     case dict():                    self._drum_kit = operand._data

@@ -2043,7 +2043,7 @@ class Trigger(ChannelElement):
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case Note():
+            case Trigger():
                 super().__lshift__(operand)
                 self._velocity      = operand._velocity
                 self._gate          = operand._gate
