@@ -140,23 +140,22 @@ class Element(o.Operand):
                 field_1 = "0" + field_1 # Durations of zero aren't set (safe)
             locus_parameters: list[str] = field_1.split("_")
             for nth, parameter in enumerate(locus_parameters):
+                parameter_setter: ra.Convertible = o.string_to_number(parameter)
                 match nth:
                     case 0: # Sets the Duration
 
-                        duration = o.string_to_number(parameter)
-                    
                         if 'm' in parameter:
-                            self << ra.Measures(duration)
+                            self << ra.Measures(parameter_setter)
                         elif 'b' in parameter:
-                            self << ra.Beats(duration)
+                            self << ra.Beats(parameter_setter)
                         elif 's' in parameter:
-                            self << ra.Steps(duration)
+                            self << ra.Steps(parameter_setter)
                         else:
-                            match duration:
+                            match parameter_setter:
                                 case int():
-                                    self << ra.Steps(duration)
+                                    self << ra.Steps(parameter_setter)
                                 case float():
-                                    self << ra.NoteValue(duration)
+                                    self << ra.NoteValue(parameter_setter)
                         if 'd' in parameter:
                             self._duration_beats = self._duration_beats * 3 / 2
 
@@ -168,19 +167,18 @@ class Element(o.Operand):
                         parameter = parameter.replace('m', '').replace('M', '')
                         parameter = parameter.replace('b', '').replace('B', '')
                         parameter = parameter.replace('s', '').replace('S', '')
-                        position = o.string_to_number(parameter)
                         if measure:
-                            self << ra.Measure(position)
+                            self << ra.Measure(parameter_setter)
                         elif beat:
-                            self << ra.Beat(position)
+                            self << ra.Beat(parameter_setter)
                         elif step:
-                            self << ra.Step(position)
+                            self << ra.Step(parameter_setter)
                         else:
-                            match position:
+                            match parameter_setter:
                                 case int():
-                                    self << ra.Step(position)
+                                    self << ra.Step(parameter_setter)
                                 case float():
-                                    self << ra.Position(position)
+                                    self << ra.Position(parameter_setter)
         return self
 
     def start(self) -> ra.Position:
