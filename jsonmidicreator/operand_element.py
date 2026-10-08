@@ -142,6 +142,9 @@ class Element(o.Operand):
             for nth, parameter in enumerate(locus_parameters):
                 match nth:
                     case 0: # Sets the Duration
+
+                        duration = o.string_to_number(parameter)
+                        
                         dotted = True if 'd' in parameter else False
                         parameter = parameter.replace('d', '')
 
@@ -162,7 +165,6 @@ class Element(o.Operand):
                         step = True if 'S' in parameter else False
                         parameter = parameter.replace('S', '')
                                                                         
-                        duration = o.string_to_number(parameter)
                         if measures:
                             self << ra.Measures(duration)
                         elif beats:
