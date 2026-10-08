@@ -893,6 +893,7 @@ class Sample(String):
         super().__init__(track_name)
 
 
+
 class FilePath(String):
     """`Data -> String -> FilePath`
 
@@ -905,6 +906,27 @@ class FilePath(String):
     def __init__(self, file_path: str = "/drum_kits/default.json"):
         super().__init__(file_path)
 
+
+    def loadFile(self) -> dict:
+        import json
+        try:
+            with open(self._data, "r") as infile:
+                return json.load(infile)
+        except Exception as e:
+            print(f"Unable to Load the file: {self._data}")
+        return ol.Null()
+
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case dict():
+                return self.loadFile()
+            case str():
+                return self._data
+            case _:
+                return o.deep_copy(self._data)
+            
+        
 
 class Serialization(Data):
     """`Data -> Serialization`

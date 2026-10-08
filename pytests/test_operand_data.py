@@ -160,3 +160,10 @@ def test_copy_data():
 # test_copy_data()
 
 
+def test_load_file():
+    file_path = settings % FilePath()
+    file_content = file_path % dict()
+    assert len(file_content) == 3
+
+test_load_file()
+
