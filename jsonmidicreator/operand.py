@@ -13,6 +13,7 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
+import re
 import logging
 from functools import cache
 from typing import Union, TypeVar, TYPE_CHECKING, Type, Callable, List, Tuple, Optional, Any, Generic
@@ -726,11 +727,13 @@ def string_or_number(string: str) -> int | float | str:
             return string
         
 def string_to_number(string: str) -> int | float | None:
+    # Keep only digits, periods, and forward slashes
+    cleaned_string = re.sub(r"[^\d./]", "", string)
     try:
-        return int(string)
+        return int(cleaned_string)
     except ValueError:
         try:    # float is tokened as a fraction '1/8'
-            rational = Fraction(string)
+            rational = Fraction(cleaned_string)
             return float(rational)
         except ValueError:
             return None
