@@ -140,7 +140,7 @@ class Element(o.Operand):
                 field_1 = "0" + field_1 # Durations of zero aren't set (safe)
             locus_parameters: list[str] = field_1.split("_")
             for nth, parameter in enumerate(locus_parameters):
-                parameter_number: ra.Convertible = o.string_to_number(parameter)
+                parameter_number = o.string_to_number(parameter)
                 match nth:
                     case 0: # Sets the Duration
 
@@ -164,25 +164,25 @@ class Element(o.Operand):
                         self << duration
 
                     case _: # Sets the Position
-                        measure = True if 'm' in parameter or 'M' in parameter else False
-                        beat = True if 'b' in parameter or 'B' in parameter else False
-                        step = True if 's' in parameter or 'S' in parameter else False
-                        # Cleans up
-                        parameter = parameter.replace('m', '').replace('M', '')
-                        parameter = parameter.replace('b', '').replace('B', '')
-                        parameter = parameter.replace('s', '').replace('S', '')
-                        if measure:
-                            self << ra.Measure(parameter_number)
-                        elif beat:
-                            self << ra.Beat(parameter_number)
-                        elif step:
-                            self << ra.Step(parameter_number)
+
+                        position: ra.Position = self % ra.Position()
+
+                        if 'm' in parameter:
+                            position << ra.Measures(parameter_number)
+                        elif 'b' in parameter:
+                            position << ra.Beats(parameter_number)
+                        elif 's' in parameter:
+                            position << ra.Steps(parameter_number)
                         else:
                             match parameter_number:
                                 case int():
-                                    self << ra.Step(parameter_number)
+                                    position << ra.Steps(parameter_number)
                                 case float():
-                                    self << ra.Position(parameter_number)
+                                    position << ra.NoteValue(parameter_number)
+
+                        self << position
+
+
         return self
 
     def start(self) -> ra.Position:
