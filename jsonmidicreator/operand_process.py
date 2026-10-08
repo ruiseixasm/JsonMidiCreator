@@ -758,13 +758,11 @@ class Plot(Process):
                 self._ax.barh(y = single_trigger["sample_id"] + 1, width = float(single_trigger["position_off"] - single_trigger["position_on"]), left = float(single_trigger["position_on"]), 
                         height=0.3, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.0, linestyle=line_style, alpha=color_alpha)
 
-                info: str = ""
                 if single_trigger["self"]._tied:
-                    info += " Tied"
-                self._ax.text(float(single_trigger["position_on"]), single_trigger["sample_id"] + 1, info, ha='left', va='bottom', fontsize=4,
-                    color='black',  # Outline color
-                    path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
-                    alpha=color_alpha)
+                    self._ax.text(float(single_trigger["position_on"]), single_trigger["sample_id"] + 1, " Tied", ha='left', va='bottom', fontsize=4,
+                        color='black',  # Outline color
+                        path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
+                        alpha=color_alpha)
 
             # Plot rests
             for single_rest in rest_plotlist:
