@@ -1768,6 +1768,14 @@ class Trigger(ChannelElement):
             return og.Pitch(pitch).get_absolute_pitch()
         return -1   # Not found
     
+    def get_sample_id(self) -> int:
+        if self._owner_clip is not None:
+            lc_sample: str = self._sample.strip().lower()
+            for index, sample in enumerate(self._owner_clip._drum_kit.keys()):
+                if sample.lower() == lc_sample:
+                    return index
+        return -1   # Not found
+    
 
     def checksum(self) -> int:
         """16-bit checksum for a `Note`."""
@@ -1910,12 +1918,7 @@ class Trigger(ChannelElement):
             position_off: Fraction = position_on + self._duration_beats
             self_to_plot: Note = self if derived_note is None else derived_note # Info to be represented
 
-            sample_id: int = -1
-            lc_sample: str = self._sample.strip().lower()
-            for index, sample in enumerate(self._owner_clip._drum_kit.keys()):
-                if sample.lower() == lc_sample:
-                    sample_id = index
-                    break
+            sample_id: int = self.get_sample_id()
 
             if sample_id >= 0:
                 self_plotlist.append(
@@ -2073,6 +2076,26 @@ class Trigger(ChannelElement):
             case _:
                 super().__lshift__(operand)
         return self
+
+
+    def __iadd__(self, operand: any) -> Union[TypeElement, 'Clip']:
+        from . import operand_container as oc
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case int():
+                sample_id: int = self.get_sample_id()
+                sample_id += operand
+        return super().__iadd__(operand)
+
+
+    def __isub__(self, operand: any) -> Union[TypeElement, 'Clip']:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case int():
+                sample_id: int = self.get_sample_id()
+                sample_id -= operand
+        return super().__isub__(operand)
+
 
 
 class Note(ChannelElement):
