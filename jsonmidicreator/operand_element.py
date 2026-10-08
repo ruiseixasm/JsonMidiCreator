@@ -1776,6 +1776,14 @@ class Trigger(ChannelElement):
                     return index
         return -1   # Not found
     
+    def set_sample_id(self, sample_id: int) -> Self:
+        if self._owner_clip is not None:
+            for index, sample in enumerate(self._owner_clip._drum_kit.keys()):
+                if index == sample_id:
+                    self._sample = sample
+                    break
+        return self
+    
 
     def checksum(self) -> int:
         """16-bit checksum for a `Note`."""
@@ -1888,6 +1896,7 @@ class Trigger(ChannelElement):
             case ou.Tied():         return ou.Tied() << od.Pipe( self._tied )
             case od.Sample():       return operand.copy() << self._sample
             case str():             return self._sample
+            case int():             return self.get_sample_id()
             case ou.PitchCentroid():
                 return ou.PitchCentroid(self.pitch_centroid())
             case _:                 return super().__mod__(operand)
@@ -2073,6 +2082,9 @@ class Trigger(ChannelElement):
                     super().__lshift__(operand)
                 else:
                     self._sample = operand
+            case int():
+                sample_id = operand - 1
+                self.set_sample_id(sample_id)
             case _:
                 super().__lshift__(operand)
         return self
@@ -2085,6 +2097,7 @@ class Trigger(ChannelElement):
             case int():
                 sample_id: int = self.get_sample_id()
                 sample_id += operand
+                return self.set_sample_id(sample_id)
         return super().__iadd__(operand)
 
 
@@ -2094,6 +2107,7 @@ class Trigger(ChannelElement):
             case int():
                 sample_id: int = self.get_sample_id()
                 sample_id -= operand
+                return self.set_sample_id(sample_id)
         return super().__isub__(operand)
 
 
