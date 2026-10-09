@@ -844,6 +844,8 @@ class Cross(Selector):
             return self._chained_operand
         return ol.Null()
 
+
+
 class Overlap(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> Overlap`
 
@@ -866,6 +868,7 @@ class Overlap(Selector):
                 return self._chained_operand.frame(input)
             return self._chained_operand
         return ol.Null()
+
 
 
 class InputType(Selector):
