@@ -51,7 +51,7 @@ class Frame(o.Operand):
         self._chained_operand: any         = ol.Full()
         self._parameters: tuple         = parameters
         self._named_parameters: dict    = {}
-        self._inside_container: oc.Container = None
+        self._container: oc.Container = None
         self._root_frame: bool = True
         
     # It has to include self, contrary to the Operand __next__ that excludes the self!!
@@ -87,7 +87,7 @@ class Frame(o.Operand):
         # ONLY the Frames are reset, the succeeding non Frame operands aren't reset!
         if isinstance(self._chained_operand, Frame):
             self._chained_operand._set_inside_container(container)
-        self._inside_container = container
+        self._container = container
         # Finally, does all remaining resets for each operand
         return self.reset()
 
@@ -738,8 +738,8 @@ class First(Selector):
 
     def frame(self, input: o.T) -> o.T:
         from . import operand_container as oc
-        if isinstance(self._inside_container, oc.Container):
-            item_index: int = self._inside_container._element_index(input)
+        if isinstance(self._container, oc.Container):
+            item_index: int = self._container._element_index(input)
             if item_index is not None and item_index < self._named_parameters['amount']:
                 if isinstance(self._chained_operand, Frame):
                     return self._chained_operand.frame(input)
@@ -760,10 +760,10 @@ class Last(Selector):
 
     def frame(self, input: o.T) -> o.T:
         from . import operand_container as oc
-        if isinstance(self._inside_container, oc.Container):
-            item_index: int = self._inside_container._element_index(input)
+        if isinstance(self._container, oc.Container):
+            item_index: int = self._container._element_index(input)
             if item_index is not None:  # Empty container returns index None
-                container_len: int = self._inside_container.len()
+                container_len: int = self._container.len()
                 amount_index: int = -1 * self._named_parameters['amount'] % container_len
                 if item_index >= amount_index:
                     if isinstance(self._chained_operand, Frame):
@@ -788,7 +788,7 @@ class Cross(Selector):
     def frame(self, input: o.T) -> o.T:
         from . import operand_element as oe
         from . import operand_container as oc
-        if isinstance(self._inside_container, oc.Container) \
+        if isinstance(self._container, oc.Container) \
             and isinstance(input, oe.Element) and input.crossed(self._named_parameters['position']):
             if isinstance(self._chained_operand, Frame):
                 return self._chained_operand.frame(input)
@@ -811,7 +811,7 @@ class Overlap(Selector):
     def frame(self, input: o.T) -> o.T:
         from . import operand_element as oe
         from . import operand_container as oc
-        if isinstance(self._inside_container, oc.Container) \
+        if isinstance(self._container, oc.Container) \
             and isinstance(input, oe.Element) and input.overlap(self._named_parameters['locus']):
             if isinstance(self._chained_operand, Frame):
                 return self._chained_operand.frame(input)
