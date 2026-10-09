@@ -77,7 +77,7 @@ def loadLibrary():
                 # Load the shared library
                 lib = ctypes.CDLL(lib_path)
                 # Define the argument and return types for the C function
-                lib.play_ctypes.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_int]
+                lib.play_ctypes.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int]
                 lib.play_ctypes.restype = ctypes.c_int
                 
             except FileNotFoundError:
@@ -109,7 +109,7 @@ def run_dll(json_str, loops, rec_transport, mtc_fps, verbose):
     if lib:
         try:
             # Call the C++ function with the JSON string
-            lib.play_ctypes(json_str.encode('utf-8'), loops, 1 if rec_transport else 0, mtc_fps, 1 if verbose else 0)
+            lib.play_ctypes(json_str.encode('utf-8'), loops, 0, 1 if rec_transport else 0, mtc_fps, 1 if verbose else 0)
         except Exception as e:
             print(f"An error occurred when calling the function 'play_ctypes': {e}")
 
