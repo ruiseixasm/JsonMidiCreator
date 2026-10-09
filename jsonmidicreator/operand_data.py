@@ -577,86 +577,6 @@ class Token(Data):
                 self._data = ""
         return self # remains as an Inline operand
     
-class Line(Data):
-    """`Data -> Line`
-
-    A `Line` is a string representing a series of Elements set by multiple tokens and fields.
-    The previous `Element` configurations transit to the following ones.
-
-    DSL stands for Domain-Specific Language: `Line[ Token(,)[ Field(:)[ Parameter(_) ] ] ]`
-
-    The first field(:) for each token(,) in a `Line`, like in `"c:3b:F, c_-_4_1:3b"` has a tag that represents the
-    respective `Element`, these are the tags:
-
-        +------+-----------------+
-        | Tag  | Element         |
-        +------+-----------------+
-        | "r"  | Rest            |
-        | "n"  | Note (optional) |
-        | "c"  | Chord           |
-        | "rt" | Retrigger       |
-        | "cl" | Cluster         |
-        | "cc" | ControlChange   |
-        | "pb" | PitchBend       |
-        | "pc" | ProgramChange   |
-        | "at" | Aftertouch      |
-        | "a"  | Automation      |
-        +------+-----------------+
-        
-    Parameters
-    ----------
-    str("") : A DSL string with multiple tokens separated with `,` like `"n:1/8:C5#, n_9:1/8::75"`.
-    """
-    def __init__(self, *parameters):
-        super().__init__(*parameters)
-        if not isinstance(self._data, str): # Makes sure it's a string
-            self._data = ""
-
-    def get_token(self, index: int) -> str | None:
-        line_dsl: str = self._data
-        normalized_dsl: str = _normalize_dsl(line_dsl)
-        element_tokens: list[str] = normalized_dsl.split(",")
-        if index < len(element_tokens):
-            return element_tokens[index]
-        return None
-
-    def get_tokens(self) -> list[str]:
-        line_dsl: str = self._data
-        normalized_dsl: str = _normalize_dsl(line_dsl)
-        return normalized_dsl.split(",")
-
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case str():
-                if not isinstance(self._data, str):
-                    self._data = ""
-                return self._data
-        return super().__mod__(operand)
-    
-    # CHAINABLE OPERATIONS
-
-    def __iadd__(self, operand: any) -> Self:
-        match operand:
-            case Line():
-                if self._data == "":
-                    self._data = operand._data
-                elif operand._data != "":
-                    self._data += ", " + operand._data
-            case str():
-                self.__iadd__(Line(operand))
-        return self # remains as an Inline operand
-    
-    def __imul__(self, operand: any) -> Self:
-        if isinstance(operand, int) and self._data != "":
-            if operand > 1:
-                new_line = self._data
-                for _ in range(operand - 1):
-                    new_line += ", " + self._data
-                self._data = new_line
-            elif operand == 0:
-                self._data = ""
-        return self # remains as an Inline operand
-    
 
 class Inline(Data):
     """`Data -> Inline`
@@ -852,6 +772,83 @@ class String(Data):
         else:
             super().__init__()
 
+
+class Line(String):
+    """`Data -> String -> Line`
+
+    A `Line` is a string representing a series of Elements set by multiple tokens and fields.
+    The previous `Element` configurations transit to the following ones.
+
+    DSL stands for Domain-Specific Language: `Line[ Token(,)[ Field(:)[ Parameter(_) ] ] ]`
+
+    The first field(:) for each token(,) in a `Line`, like in `"c:3b:F, c_-_4_1:3b"` has a tag that represents the
+    respective `Element`, these are the tags:
+
+        +------+-----------------+
+        | Tag  | Element         |
+        +------+-----------------+
+        | "r"  | Rest            |
+        | "n"  | Note (optional) |
+        | "c"  | Chord           |
+        | "rt" | Retrigger       |
+        | "cl" | Cluster         |
+        | "cc" | ControlChange   |
+        | "pb" | PitchBend       |
+        | "pc" | ProgramChange   |
+        | "at" | Aftertouch      |
+        | "a"  | Automation      |
+        +------+-----------------+
+        
+    Parameters
+    ----------
+    str("") : A DSL string with multiple tokens separated with `,` like `"n:1/8:C5#, n_9:1/8::75"`.
+    """
+
+    def get_token(self, index: int) -> str | None:
+        line_dsl: str = self._data
+        normalized_dsl: str = _normalize_dsl(line_dsl)
+        element_tokens: list[str] = normalized_dsl.split(",")
+        if index < len(element_tokens):
+            return element_tokens[index]
+        return None
+
+    def get_tokens(self) -> list[str]:
+        line_dsl: str = self._data
+        normalized_dsl: str = _normalize_dsl(line_dsl)
+        return normalized_dsl.split(",")
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case str():
+                if not isinstance(self._data, str):
+                    self._data = ""
+                return self._data
+        return super().__mod__(operand)
+    
+    # CHAINABLE OPERATIONS
+
+    def __iadd__(self, operand: any) -> Self:
+        match operand:
+            case Line():
+                if self._data == "":
+                    self._data = operand._data
+                elif operand._data != "":
+                    self._data += ", " + operand._data
+            case str():
+                self.__iadd__(Line(operand))
+        return self # remains as an Inline operand
+    
+    def __imul__(self, operand: any) -> Self:
+        if isinstance(operand, int) and self._data != "":
+            if operand > 1:
+                new_line = self._data
+                for _ in range(operand - 1):
+                    new_line += ", " + self._data
+                self._data = new_line
+            elif operand == 0:
+                self._data = ""
+        return self # remains as an Inline operand
+    
 
 class To(String):
     """`Data -> String -> To`
