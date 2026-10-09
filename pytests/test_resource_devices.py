@@ -15,6 +15,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 
 from jsonmidicreator import *
+from jsonmidicreator.resource_devices import *
 
 def test_device_pc():
 
