@@ -1170,6 +1170,8 @@ class All(Alternator):
     def frame(self, input: o.T) -> o.T:
         return super().frame(input)
 
+
+
 class Odd(Alternator):
     """`Frame -> Left -> InputFilter -> Alternator -> Odd`
 
@@ -1189,6 +1191,8 @@ class Odd(Alternator):
         else:
             return ol.Null()
 
+
+
 class Even(Alternator):
     """`Frame -> Left -> InputFilter -> Alternator -> Even`
 
@@ -1207,6 +1211,8 @@ class Even(Alternator):
             return self._chained_operand
         else:
             return ol.Null()
+
+
 
 class Every(Alternator):
     """`Frame -> Left -> InputFilter -> Alternator -> Every`
@@ -1245,6 +1251,7 @@ class Every(Alternator):
         return ol.Null()
 
 
+
 class Each(Every):
     """`Frame -> Left -> InputFilter -> Alternator -> Every -> Each`
 
@@ -1257,6 +1264,7 @@ class Each(Every):
     def __init__(self, index: int = 0):
         nth: int = index + 1
         super().__init__(nth)
+
 
 
 class Nth(Alternator):
@@ -1283,6 +1291,8 @@ class Nth(Alternator):
         else:
             return ol.Null()
 
+
+
 class At(Alternator):
     """`Frame -> Left -> InputFilter -> Alternator -> At`
 
@@ -1306,6 +1316,7 @@ class At(Alternator):
             return self._chained_operand
         else:
             return ol.Null()
+
 
 
 class Get(LeftToRight):
