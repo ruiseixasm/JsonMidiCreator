@@ -2244,7 +2244,7 @@ class Arpeggio(NoteEffect):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case ou.Order():            return operand._data << od.Pipe( self._order )
+                    case ou.Direction():            return operand._data << od.Pipe( self._order )
                     case ra.Duration():         return operand._data << od.Pipe( self._duration_beats )
                     case ra.Swing():            return operand._data << od.Pipe( self._swing )
                     case ch.Chaos():            return self._chaos
@@ -2252,8 +2252,8 @@ class Arpeggio(NoteEffect):
                     case float():               return float( self._duration_beats )
                     case Fraction():            return self._duration_beats
                     case _:                     return super().__mod__(operand)
-            case ou.Order():            return ou.Order(self._order)
-            case str():                 return ou.Order(self._order) % str()
+            case ou.Direction():            return ou.Direction(self._order)
+            case str():                 return ou.Direction(self._order) % str()
             case ra.Duration():         return ra.Duration( self._duration_beats )
             case ra.Swing():            return ra.Swing(self._swing)
             case ch.Chaos():            return self._chaos.copy()
@@ -2281,7 +2281,7 @@ class Arpeggio(NoteEffect):
 
     def _generate_sequence(self, notes: list['Note']) -> list['Note']:
         """Generates the sequence of the arpeggio order."""
-        match ou.Order.numberToName( self._order ):
+        match ou.Direction.numberToName( self._order ):
             case "Up":
                 return notes
             case "Down":
@@ -2395,7 +2395,7 @@ class Arpeggio(NoteEffect):
                 self._chaos                 = operand._chaos.copy()
             case od.Pipe():
                 match operand._data:
-                    case ou.Order():                self._order = operand._data._unit
+                    case ou.Direction():                self._order = operand._data._unit
                     case ra.Duration():             self._duration_beats = operand._data._rational
                     case ra.Swing():                self._swing = operand._data._rational
                     case ch.Chaos():                self._chaos = operand._data
@@ -2404,8 +2404,8 @@ class Arpeggio(NoteEffect):
                     case Fraction():                self._duration_beats = operand._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ou.Order():                self._order = operand._unit
-            case str():                     self._order = ou.Order(operand)._unit
+            case ou.Direction():                self._order = operand._unit
+            case str():                     self._order = ou.Direction(operand)._unit
             case ra.Duration():             self._duration_beats = operand._rational
             case ra.Swing():
                 if operand < 0:

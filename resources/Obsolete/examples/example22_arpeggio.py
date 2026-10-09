@@ -44,15 +44,15 @@ major_chord >> Play()
 major_chord << Arpeggio("Up") << Swing(0.65)
 major_chord >> Play()
 
-major_chord << Order("Down")
+major_chord << Direction("Down")
 major_chord >> Play()
 
-major_chord << Order("UpDown")
+major_chord << Direction("UpDown")
 major_chord >> Play()
 
-major_chord << Order("DownUp")
+major_chord << Direction("DownUp")
 major_chord >> Play()
 
-major_chord << Order("Chaotic")
+major_chord << Direction("Chaotic")
 major_chord >> Play()
 

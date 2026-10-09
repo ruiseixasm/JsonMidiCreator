@@ -2325,7 +2325,7 @@ class Note(ChannelElement):
             case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale() | ou.Mode():
                                     return self._pitch % operand
             case og.NoteEffect():   return o.deep_copy(self._note_effect)
-            case ou.Order() | ra.Swing() | ch.Chaos():
+            case ou.Direction() | ra.Swing() | ch.Chaos():
                 if isinstance(self._note_effect, og.NoteEffect):
                     return self._note_effect % operand
                 else:
@@ -2533,7 +2533,7 @@ class Note(ChannelElement):
                 self._pitch << operand
             case og.NoteEffect():
                 self._note_effect = o.deep_copy(operand)
-            case ou.Order() | ra.Swing() | ch.Chaos():
+            case ou.Direction() | ra.Swing() | ch.Chaos():
                 if isinstance(self._note_effect, og.NoteEffect):
                     self._note_effect << operand
             case od.Remove():

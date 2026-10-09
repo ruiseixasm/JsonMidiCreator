@@ -1242,20 +1242,22 @@ class Flat(Accidental):   # Flat (b)
                 super().__lshift__(operand)
         return self
 
-class Order(Unit):
-    """`Unit -> Order`
+
+
+class Direction(Unit):
+    """`Unit -> Direction`
 
     Sets which order to be used in the Arpeggiator accordingly to the following values:
 
-        +-------+---------+
-        | Value | Order   |
-        +-------+---------+
-        | 0     | None    |
-        | 1     | Up      |
-        | 2     | Down    |
-        | 3     | UpDown  |
-        | 4     | Chaotic |
-        +----------+------+
+        +-------+-----------+
+        | Value | Direction |
+        +-------+-----------+
+        | 0     | None      |
+        | 1     | Up        |
+        | 2     | Down      |
+        | 3     | UpDown    |
+        | 4     | Chaotic   |
+        +-------+-----------+
 
     Parameters
     ----------
@@ -1265,9 +1267,9 @@ class Order(Unit):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case str():                     return Order.numberToName(self._unit)
+                    case str():                     return Direction.numberToName(self._unit)
                     case _:                         return super().__mod__(operand)
-            case str():                 return Order.numberToName(self._unit)
+            case str():                 return Direction.numberToName(self._unit)
             case _:                     return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS
@@ -1305,7 +1307,7 @@ class Order(Unit):
         # Convert input words to lowercase
         order_split = order.lower().split()
         # Iterate over the instruments list
-        for key, value in Order._name_order.items():
+        for key, value in Direction._name_order.items():
             # Check if all input words are present in the order string
             if all(word in key.lower() for word in order_split):
                 self._unit = value
@@ -1313,8 +1315,8 @@ class Order(Unit):
 
     @staticmethod
     def numberToName(number: int) -> str:
-        if 0 <= number < len(Order._order_name):
-            return Order._order_name[number]
+        if 0 <= number < len(Direction._order_name):
+            return Direction._order_name[number]
         return "Unknown Order!"
 
 
