@@ -260,3 +260,9 @@ def test_chained_operands():
 
 # test_chained_operands()
 
+
+def test_first_selector():
+    four_notes = Note() * 4
+    two_notes = four_notes % First(2)
+    assert two_notes % int() == 2
+

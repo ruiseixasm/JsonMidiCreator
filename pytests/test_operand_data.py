@@ -165,5 +165,5 @@ def test_load_file():
     file_content = file_path % dict()
     assert len(file_content) == 3
 
-test_load_file()
+# test_load_file()
 
