@@ -688,6 +688,8 @@ class InputFilter(LeftToRight):
     """
     pass
 
+
+
 class Selector(InputFilter):
     """`Frame -> Left -> InputFilter -> Selector`
 
@@ -699,6 +701,8 @@ class Selector(InputFilter):
     """
     pass
 
+
+
 class Either(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> Either`
 
@@ -709,13 +713,22 @@ class Either(Selector):
     Any(None) : One or more conditions where **at-least one** needs to be met.
     """
     def frame(self, input: o.T) -> o.T:
+        either_items: list[Any] = []
+        for single_item in self._container_items:
+            for condition in self._parameters:
+                if single_item == condition:
+                    either_items.append(single_item)
+                    break
+        self._set_container_items(either_items)
         for condition in self._parameters:
             if input == condition: # Where the comparison is made
                 if isinstance(self._chained_operand, Frame):
                     return self._chained_operand.frame(input)
                 return self._chained_operand
         return ol.Null()
-    
+
+
+
 class Neither(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> Neither`
 
@@ -726,6 +739,18 @@ class Neither(Selector):
     Any(None) : One or more conditions where **none** can be met.
     """
     def frame(self, input: o.T) -> o.T:
+        either_items: list[Any] = []
+        for single_item in self._container_items:
+            for condition in self._parameters:
+                if single_item == condition:
+                    either_items.append(single_item)
+                    break
+        neither_items: list[Any] = [
+            single_item
+            for single_item in self._container_items
+            if not any(single_item is item for item in either_items)
+        ]
+        self._set_container_items(neither_items)
         for condition in self._parameters:
             if input == condition: # Where the comparison is made
                 return ol.Null()
