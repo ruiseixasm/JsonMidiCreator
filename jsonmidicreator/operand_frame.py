@@ -52,6 +52,7 @@ class Frame(o.Operand):
         self._parameters: tuple         = parameters
         self._named_parameters: dict    = {}
         self._container: oc.Container = None
+        self._container_items: list[Any] = []
         self._root_frame: bool = True
         
     # It has to include self, contrary to the Operand __next__ that excludes the self!!
@@ -88,6 +89,7 @@ class Frame(o.Operand):
         if isinstance(self._chained_operand, Frame):
             self._chained_operand._set_inside_container(container)
         self._container = container
+        self._container_items = container._items.copy() # Decouples list NOT its contents
         # Finally, does all remaining resets for each operand
         return self.reset()
 
@@ -724,6 +726,7 @@ class Neither(Selector):
         return self._chained_operand
     
 
+
 class First(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> First`
 
@@ -734,17 +737,27 @@ class First(Selector):
     """
     def __init__(self, amount: int = 1):
         super().__init__()
-        self._named_parameters['amount'] = amount
+        if amount > 0:
+            self._named_parameters['amount'] = amount
+        else:
+            self._named_parameters['amount'] = 0
+
 
     def frame(self, input: o.T) -> o.T:
         from . import operand_container as oc
-        if isinstance(self._container, oc.Container):
-            item_index: int = self._container._element_index(input)
-            if item_index is not None and item_index < self._named_parameters['amount']:
+        amount_items: int = self._named_parameters['amount']
+        if len(self._container_items) > amount_items:
+            self._container_items = self._container_items[:amount_items]
+        else:
+            amount_items = len(self._container_items)
+        for single_item in self._container_items:
+            if input is single_item:
                 if isinstance(self._chained_operand, Frame):
                     return self._chained_operand.frame(input)
                 return self._chained_operand
         return ol.Null()
+
+
 
 class Last(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> Last`
