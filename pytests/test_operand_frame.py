@@ -262,13 +262,18 @@ def test_chained_operands():
 
 
 def test_first_selector():
-    four_notes = Note() * 4
+    four_notes = Note() * 4 + Iterate()**Degree()
     two_notes = four_notes % First(2)
     assert two_notes % int() == 2
+    assert two_notes[0] == four_notes[0]
+
+    last_of_two = four_notes % First(2)**Last()
+    assert last_of_two[0] == four_notes[1]
 
 
 def test_last_selector():
     four_notes = Note() * 4
     two_notes = four_notes % Last(2)
     assert two_notes % int() == 2
+    assert two_notes[0] == four_notes[2]
 

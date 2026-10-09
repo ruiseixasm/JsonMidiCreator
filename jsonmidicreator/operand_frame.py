@@ -81,17 +81,25 @@ class Frame(o.Operand):
     def clear(self, *parameters) -> Self:
         # Frame class IS a Read-only class
         return self
-    
+
+
     def _set_inside_container(self, container: 'Container') -> Self:
         container._set = False   # In order to contained items know it was set by them (Element items)
         # Needs to propagate the settings to the next Frames
         # ONLY the Frames are reset, the succeeding non Frame operands aren't reset!
         if isinstance(self._chained_operand, Frame):
-            self._chained_operand._set_inside_container(container)
+            self._chained_operand._set_inside_container(container)  # Recursive call
         self._container = container
         self._container_items = container._items.copy() # Decouples list NOT its contents
         # Finally, does all remaining resets for each operand
         return self.reset()
+
+    def _set_container_items(self, container_items: list[Any]) -> Self:
+        if isinstance(self._chained_operand, Frame):
+            self._chained_operand._set_container_items(container_items)  # Recursive call
+        self._container_items = container_items
+        return self
+
 
     def get_operand(self) -> Any:
         if isinstance(self._chained_operand, Frame):
@@ -747,7 +755,7 @@ class First(Selector):
         from . import operand_container as oc
         amount_items: int = self._named_parameters['amount']
         if len(self._container_items) > amount_items:
-            self._container_items = self._container_items[:amount_items]
+            self._set_container_items(self._container_items[:amount_items])
         for single_item in self._container_items:
             if input is single_item:
                 if isinstance(self._chained_operand, Frame):
@@ -778,7 +786,7 @@ class Last(Selector):
         amount_items: int = self._named_parameters['amount']
         if len(self._container_items) > amount_items:
             first_item: int = len(self._container_items) - amount_items
-            self._container_items = self._container_items[first_item:]
+            self._set_container_items(self._container_items[first_item:])
         for single_item in self._container_items:
             if input is single_item:
                 if isinstance(self._chained_operand, Frame):
