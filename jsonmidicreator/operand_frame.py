@@ -884,6 +884,7 @@ class InputType(Selector):
         return ol.Null()
 
 
+
 class OnBeat(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> OnBeat`
 
@@ -900,6 +901,8 @@ class OnBeat(Selector):
             if position_step % steps_per_beat == 0:
                 return super().frame(input)
         return ol.Null()
+
+
 
 class OffBeat(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> OffBeat`
@@ -918,6 +921,8 @@ class OffBeat(Selector):
                 return super().frame(input)
         return ol.Null()
 
+
+
 class DownBeat(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> DownBeat`
 
@@ -933,6 +938,8 @@ class DownBeat(Selector):
             if position_step == 0:
                 return super().frame(input)
         return ol.Null()
+
+
 
 class UpBeat(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> UpBeat`
@@ -952,6 +959,7 @@ class UpBeat(Selector):
             if (position_step + half_beat_steps) % steps_per_measure == 0:
                 return super().frame(input)
         return ol.Null()
+
 
 
 class PreviousComparison(Selector):
@@ -993,6 +1001,8 @@ class PreviousComparison(Selector):
         super().reset()
         self._named_parameters['previous'] = None
         return self << parameters
+
+
 
 class AllMatch(PreviousComparison):
     """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison -> AllMatch`
@@ -1040,6 +1050,8 @@ class BasicComparison(Selector):
                 condition._set_inside_container(container)
         return super()._set_inside_container(container)
 
+
+
 class Match(BasicComparison):
     """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> Match`
 
@@ -1052,6 +1064,8 @@ class Match(BasicComparison):
     @staticmethod
     def _compare(input: Any, condition: Any) -> bool:
         return input == condition
+
+
 
 class IsNot(BasicComparison):
     """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> IsNot`
@@ -1066,6 +1080,8 @@ class IsNot(BasicComparison):
     def _compare(input: Any, condition: Any) -> bool:
         return not input == condition
 
+
+
 class Above(BasicComparison):
     """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> Above`
 
@@ -1078,6 +1094,8 @@ class Above(BasicComparison):
     @staticmethod
     def _compare(input: Any, condition: Any) -> bool:
         return input > condition
+
+
 
 class Bellow(BasicComparison):
     """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> Bellow`
@@ -1092,6 +1110,8 @@ class Bellow(BasicComparison):
     def _compare(input: Any, condition: Any) -> bool:
         return input < condition
 
+
+
 class DownTo(BasicComparison):
     """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> DownTo`
 
@@ -1104,6 +1124,8 @@ class DownTo(BasicComparison):
     @staticmethod
     def _compare(input: Any, condition: Any) -> bool:
         return input >= condition
+
+
 
 class UpTo(BasicComparison):
     """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> UpTo`
@@ -1118,6 +1140,8 @@ class UpTo(BasicComparison):
     def _compare(input: Any, condition: Any) -> bool:
         return input <= condition
 
+
+
 class Alternator(InputFilter):
     """`Frame -> Left -> InputFilter -> Alternator`
 
@@ -1128,6 +1152,8 @@ class Alternator(InputFilter):
     None : `Alternator` doesn't have parameters to be set.
     """
     pass
+
+
 
 class All(Alternator):
     """`Frame -> Left -> InputFilter -> Alternator -> All`
