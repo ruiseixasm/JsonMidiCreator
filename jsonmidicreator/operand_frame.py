@@ -90,7 +90,7 @@ class Frame(o.Operand):
         if isinstance(self._chained_operand, Frame):
             self._chained_operand._set_inside_container(container)  # Recursive call
         self._container = container
-        self._container_items = container._items.copy() # Decouples list NOT its contents
+        self._container_items = container._items
         # Finally, does all remaining resets for each operand
         return self.reset()
 
