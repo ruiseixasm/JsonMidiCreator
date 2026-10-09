@@ -266,3 +266,9 @@ def test_first_selector():
     two_notes = four_notes % First(2)
     assert two_notes % int() == 2
 
+
+def test_last_selector():
+    four_notes = Note() * 4
+    two_notes = four_notes % Last(2)
+    assert two_notes % int() == 2
+
