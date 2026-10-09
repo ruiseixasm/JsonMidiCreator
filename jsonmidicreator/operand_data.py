@@ -788,6 +788,7 @@ class Line(String):
         | Tag  | Element         |
         +------+-----------------+
         | "r"  | Rest            |
+        | "t"  | Trigger         |
         | "n"  | Note (optional) |
         | "c"  | Chord           |
         | "rt" | Retrigger       |
