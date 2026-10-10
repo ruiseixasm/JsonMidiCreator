@@ -1121,19 +1121,16 @@ class OnBeat(Selector):
     ----------
     None : `OnBeat` doesn't have parameters to be set.
     """
-    def frame(self, input: o.T) -> o.T:
-        if isinstance(input, oe.Element):
-            on_beat_items: list[Any] = []
-            steps_per_beat: int = int(1 / og.settings._quantization)
-            for single_item in self._unmasked_items:
+    def _update_unmasked_items(self, unmasked_items: list[Any]) -> Self:
+        on_beat_items: list[Any] = []
+        steps_per_beat: int = int(1 / og.settings._quantization)
+        for single_item in unmasked_items:
+            if isinstance(single_item, oe.Element):
                 position_step: int = single_item % ra.Step() % int()
                 if position_step % steps_per_beat == 0:
                     on_beat_items.append(single_item)
-            self._pass_framed_items(on_beat_items)
-            self._selected_items = on_beat_items
-            return super().frame(input)
-        self._pass_framed_items([])
-        return ol.Null()
+        self._selected_items = on_beat_items
+        return super()._update_unmasked_items(on_beat_items)
 
 
 
@@ -1146,19 +1143,16 @@ class OffBeat(Selector):
     ----------
     None : `OffBeat` doesn't have parameters to be set.
     """
-    def frame(self, input: o.T) -> o.T:
-        if isinstance(input, oe.Element):
-            off_beat_items: list[Any] = []
-            steps_per_beat: int = int(1 / og.settings._quantization)
-            for single_item in self._unmasked_items:
+    def _update_unmasked_items(self, unmasked_items: list[Any]) -> Self:
+        off_beat_items: list[Any] = []
+        steps_per_beat: int = int(1 / og.settings._quantization)
+        for single_item in unmasked_items:
+            if isinstance(single_item, oe.Element):
                 position_step: int = single_item % ra.Step() % int()
                 if position_step % steps_per_beat == round(steps_per_beat / 2):
                     off_beat_items.append(single_item)
-            self._pass_framed_items(off_beat_items)
-            self._selected_items = off_beat_items
-            return super().frame(input)
-        self._pass_framed_items([])
-        return ol.Null()
+        self._selected_items = off_beat_items
+        return super()._update_unmasked_items(off_beat_items)
 
 
 
