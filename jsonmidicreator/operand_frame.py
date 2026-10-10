@@ -677,6 +677,7 @@ class Once(Foreach):
         return ol.Null()
 
 
+
 class InputFilter(LeftToRight):
     """`Frame -> Left -> InputFilter`
 
@@ -689,6 +690,19 @@ class InputFilter(LeftToRight):
     def __init__(self, *parameters):
         super().__init__(*parameters)
         self._selected_items: list[Any] = self._container_items
+
+
+
+class All(InputFilter):
+    """`Frame -> Left -> InputFilter -> Selector -> All`
+
+    An `All` lets any, or all, input to pass to the next `Frame`.
+
+    Parameters
+    ----------
+    None : `All` doesn't have parameters to be set.
+    """
+    pass
 
 
 
@@ -711,21 +725,8 @@ class Selector(InputFilter):
 
 
 
-class All(InputFilter):
-    """`Frame -> Left -> InputFilter -> Selector -> All`
-
-    An `All` lets any, or all, input to pass to the next `Frame`.
-
-    Parameters
-    ----------
-    None : `All` doesn't have parameters to be set.
-    """
-    pass
-
-
-
 class First(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> Indexing -> First`
+    """`Frame -> Left -> InputFilter -> Selector -> First`
 
     A `First` only lets the first `amount` of elements in a `Clip` to pass to the next `Frame`.
 
@@ -752,7 +753,7 @@ class First(Selector):
 
 
 class Last(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> Indexing -> Last`
+    """`Frame -> Left -> InputFilter -> Selector -> Last`
 
     A `Last` only lets the last `amount` of elements in a `Clip` to pass to the next `Frame`.
 
@@ -781,7 +782,7 @@ class Last(Selector):
 
 
 class Odd(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> Indexing -> Odd`
+    """`Frame -> Left -> InputFilter -> Selector -> Odd`
 
     An `Odd` only lets odd nth inputs to be passed to the next `Frame`.
 
@@ -800,8 +801,8 @@ class Odd(Selector):
 
 
 
-class Even(InputFilter):
-    """`Frame -> Left -> InputFilter -> Selector -> Indexing -> Even`
+class Even(Selector):
+    """`Frame -> Left -> InputFilter -> Selector -> Even`
 
     An `Even` only lets even nth inputs to be passed to the next `Frame`.
 
@@ -810,19 +811,18 @@ class Even(InputFilter):
     None : `Even` doesn't have parameters to be set.
     """
     def frame(self, input: o.T) -> o.T:
-        self._index += 1
-        # INDEX -1 IN USAGE
-        if self._index % 2 == 1:    # It's Nth based
-            if isinstance(self._chained_operand, Frame):
-                return self._chained_operand.frame(input)
-            return self._chained_operand
-        else:
-            return ol.Null()
+        even_items: list[Any] = [
+            single_item for index, single_item in enumerate(self._container_items)
+            if index % 2 == 1   # Even is nth based
+        ]
+        self._pass_framed_items(even_items)
+        self._selected_items = even_items
+        return super().frame(input)
 
 
 
 class Every(InputFilter):
-    """`Frame -> Left -> InputFilter -> Selector -> Indexing -> Every`
+    """`Frame -> Left -> InputFilter -> Selector -> Every`
 
     An `Every` only lets every other nth inputs to be passed to the next `Frame`
     for each given `Measure`.
@@ -860,7 +860,7 @@ class Every(InputFilter):
 
 
 class Each(Every):
-    """`Frame -> Left -> InputFilter -> Selector -> Indexing -> Every -> Each`
+    """`Frame -> Left -> InputFilter -> Selector -> Every -> Each`
 
     An `Each` only lets every index value inputs to be passed to the next `Frame`
     for each given `Measure`. This is 0-based while `Every` is 1-based.
@@ -875,7 +875,7 @@ class Each(Every):
 
 
 class Nth(InputFilter):
-    """`Frame -> Left -> InputFilter -> Selector -> Indexing -> Nth`
+    """`Frame -> Left -> InputFilter -> Selector -> Nth`
 
     A `Nth` only lets the nth inputs to be passed to the next `Frame`.
     In `Nth(1, 6)**Duration(1/1)` sets the 1st and 6th `Clip` elements to 1 as note value.
@@ -901,7 +901,7 @@ class Nth(InputFilter):
 
 
 class At(InputFilter):
-    """`Frame -> Left -> InputFilter -> Selector -> Indexing -> At`
+    """`Frame -> Left -> InputFilter -> Selector -> At`
 
     A `At` only lets the indexed inputs to be passed to the next `Frame`.
     In `At(1, 6)**Duration(1/1)` sets the 2nd and 7th `Clip` elements to 1 as note value.
