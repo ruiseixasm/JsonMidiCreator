@@ -712,8 +712,6 @@ class ContainerFilter(LeftToRight):
     None : `ContainerFilter` doesn't have parameters to be set.
     """
     def frame(self, input: o.T) -> o.T:
-        if self._selected_items != self._unmasked_items:
-            print("DIFFERENT")
         if any(input is single_item for single_item in self._unmasked_items):
             if isinstance(self._chained_operand, Frame):
                 return self._chained_operand.frame(input)
@@ -738,7 +736,6 @@ class ItemType(ContainerFilter):
                 if isinstance(single_item, operand_class):
                     type_items.append(single_item)
                     break
-        self._selected_items = type_items
         return super()._update_unmasked_items(type_items)
 
 
@@ -763,7 +760,6 @@ class First(ContainerFilter):
         first_items: list[Any] = unmasked_items
         if len(unmasked_items) > amount_items:
             first_items = unmasked_items[:amount_items]
-        self._selected_items = first_items
         return super()._update_unmasked_items(first_items)
 
 
@@ -789,7 +785,6 @@ class Last(ContainerFilter):
         if len(unmasked_items) > amount_items:
             first_item: int = len(unmasked_items) - amount_items
             last_items = unmasked_items[first_item:]
-        self._selected_items = last_items
         return super()._update_unmasked_items(last_items)
 
 
@@ -814,7 +809,6 @@ class Nth(ContainerFilter):
         for index, single_item in enumerate(unmasked_items):
             if index + 1 in self._named_parameters['parameters']:
                 nth_items.append(single_item)
-        self._selected_items = nth_items
         return super()._update_unmasked_items(nth_items)
 
 
@@ -839,7 +833,6 @@ class At(ContainerFilter):
         for index, single_item in enumerate(unmasked_items):
             if index in self._named_parameters['parameters']:
                 at_items.append(single_item)
-        self._selected_items = at_items
         return super()._update_unmasked_items(at_items)
 
 
@@ -858,7 +851,6 @@ class Odd(ContainerFilter):
             single_item for index, single_item in enumerate(unmasked_items)
             if index % 2 == 0   # Odd is nth based
         ]
-        self._selected_items = odd_items
         return super()._update_unmasked_items(odd_items)
 
 
@@ -877,7 +869,6 @@ class Even(ContainerFilter):
             single_item for index, single_item in enumerate(unmasked_items)
             if index % 2 == 1   # Even is nth based
         ]
-        self._selected_items = even_items
         return super()._update_unmasked_items(even_items)
 
 
@@ -912,7 +903,6 @@ class Every(ContainerFilter):
                         if nth % self._named_parameters['nths'] == 0:
                             nth_items.append(single_item)
                         previous_measure = present_measure
-        self._selected_items = nth_items
         return super()._update_unmasked_items(nth_items)
     
 
@@ -948,7 +938,6 @@ class Either(ContainerFilter):
                 if single_item == condition:
                     either_items.append(single_item)
                     break
-        self._selected_items = either_items
         return super()._update_unmasked_items(either_items)
 
 
@@ -974,7 +963,6 @@ class Neither(ContainerFilter):
             for single_item in unmasked_items
             if not any(single_item is item for item in either_items)
         ]
-        self._selected_items = neither_items
         return super()._update_unmasked_items(neither_items)
 
 
@@ -998,7 +986,6 @@ class BasicComparison(ContainerFilter):
                     break
             if matches:
                 match_items.append(single_item)
-        self._selected_items = match_items
         return super()._update_unmasked_items(match_items)
     
 
@@ -1121,7 +1108,6 @@ class OnBeat(ContainerFilter):
                 position_step: int = single_item % ra.Step() % int()
                 if position_step % steps_per_beat == 0:
                     on_beat_items.append(single_item)
-        self._selected_items = on_beat_items
         return super()._update_unmasked_items(on_beat_items)
 
 
@@ -1143,7 +1129,6 @@ class OffBeat(ContainerFilter):
                 position_step: int = single_item % ra.Step() % int()
                 if position_step % steps_per_beat == round(steps_per_beat / 2):
                     off_beat_items.append(single_item)
-        self._selected_items = off_beat_items
         return super()._update_unmasked_items(off_beat_items)
 
 
@@ -1164,7 +1149,6 @@ class DownBeat(ContainerFilter):
                 position_step: int = single_item % ra.Step() % int()
                 if position_step == 0:
                     down_beat_items.append(single_item)
-        self._selected_items = down_beat_items
         return super()._update_unmasked_items(down_beat_items)
 
 
@@ -1188,7 +1172,6 @@ class UpBeat(ContainerFilter):
                 half_beat_steps: int = round(steps_per_beat / 2)
                 if (position_step + half_beat_steps) % steps_per_measure == 0:
                     up_beat_items.append(single_item)
-        self._selected_items = up_beat_items
         return super()._update_unmasked_items(up_beat_items)
 
 
@@ -1217,7 +1200,6 @@ class PreviousComparison(ContainerFilter):
             if matches:
                 passed_items.append(single_item)
             previous_parameter = single_item
-        self._selected_items = passed_items
         return super()._update_unmasked_items(passed_items)
     
 
@@ -1322,7 +1304,6 @@ class Cross(ContainerFilter):
             if isinstance(single_item, oe.Element):
                 if isinstance(single_item, oe.Element) and single_item.cross(self._named_parameters['position']):
                     crossing_items.append(single_item)
-        self._selected_items = crossing_items
         return super()._update_unmasked_items(crossing_items)
 
 
@@ -1347,7 +1328,6 @@ class Overlap(ContainerFilter):
             if isinstance(single_item, oe.Element):
                 if isinstance(single_item, oe.Element) and single_item.overlap(self._named_parameters['locus']):
                     overlapping_items.append(single_item)
-        self._selected_items = overlapping_items
         return super()._update_unmasked_items(overlapping_items)
 
 
