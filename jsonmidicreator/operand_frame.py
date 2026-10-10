@@ -1304,9 +1304,9 @@ class AllDecreasing(PreviousComparison):
 
 
 class AllNotIncreasing(PreviousComparison):
-    """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison -> AllIncreasing`
+    """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison -> AllNotIncreasing`
 
-    An `AllIncreasing` checks if the successive items have NOT an increasing parameter.
+    An `AllNotIncreasing` checks if the successive items have NOT an increasing parameter.
 
     Parameters
     ----------
@@ -1319,9 +1319,9 @@ class AllNotIncreasing(PreviousComparison):
 
 
 class AllNotDecreasing(PreviousComparison):
-    """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison -> AllDecreasing`
+    """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison -> AllNotDecreasing`
 
-    An `AllDecreasing` checks if the successive items have NOT a decreasing parameter.
+    An `AllNotDecreasing` checks if the successive items have NOT a decreasing parameter.
 
     Parameters
     ----------
