@@ -813,7 +813,7 @@ class Odd(Indexing):
 
 
 
-class Even(Selector):
+class Even(InputFilter):
     """`Frame -> Left -> InputFilter -> Selector -> Indexing -> Even`
 
     An `Even` only lets even nth inputs to be passed to the next `Frame`.
@@ -834,7 +834,7 @@ class Even(Selector):
 
 
 
-class Every(Selector):
+class Every(InputFilter):
     """`Frame -> Left -> InputFilter -> Selector -> Indexing -> Every`
 
     An `Every` only lets every other nth inputs to be passed to the next `Frame`
@@ -887,7 +887,7 @@ class Each(Every):
 
 
 
-class Nth(Selector):
+class Nth(InputFilter):
     """`Frame -> Left -> InputFilter -> Selector -> Indexing -> Nth`
 
     A `Nth` only lets the nth inputs to be passed to the next `Frame`.
@@ -913,7 +913,7 @@ class Nth(Selector):
 
 
 
-class At(Selector):
+class At(InputFilter):
     """`Frame -> Left -> InputFilter -> Selector -> Indexing -> At`
 
     A `At` only lets the indexed inputs to be passed to the next `Frame`.
@@ -939,7 +939,7 @@ class At(Selector):
 
 
 
-class Either(Selector):
+class Either(InputFilter):
     """`Frame -> Left -> InputFilter -> Selector -> Either`
 
     An `Either` only requires one verified condition to pass to the next `Frame`.
@@ -965,7 +965,7 @@ class Either(Selector):
 
 
 
-class Neither(Selector):
+class Neither(InputFilter):
     """`Frame -> Left -> InputFilter -> Selector -> Neither`
 
     A `Neither` requires that no given condition is verified to pass to the next `Frame`.
@@ -996,7 +996,7 @@ class Neither(Selector):
 
 
 
-class Cross(Selector):
+class Cross(InputFilter):
     """`Frame -> Left -> InputFilter -> Selector -> Cross`
 
     A `Cross` selects all elements that passthrough a given `Position`.
@@ -1021,7 +1021,7 @@ class Cross(Selector):
 
 
 
-class Overlap(Selector):
+class Overlap(InputFilter):
     """`Frame -> Left -> InputFilter -> Selector -> Overlap`
 
     A `Overlap` selects all elements that overlap a given `Locus`.
@@ -1046,7 +1046,7 @@ class Overlap(Selector):
 
 
 
-class InputType(Selector):
+class InputType(InputFilter):
     """`Frame -> Left -> InputFilter -> Selector -> InputType`
 
     An `InputType` only lets specified types of inputs to be passed to the next `Frame`.
@@ -1063,7 +1063,7 @@ class InputType(Selector):
 
 
 
-class OnBeat(Selector):
+class OnBeat(InputFilter):
     """`Frame -> Left -> InputFilter -> Selector -> OnBeat`
 
     An `OnBeat` selects only elements with their `Position` on the `Beat`.
@@ -1082,7 +1082,7 @@ class OnBeat(Selector):
 
 
 
-class OffBeat(Selector):
+class OffBeat(InputFilter):
     """`Frame -> Left -> InputFilter -> Selector -> OffBeat`
 
     An `OffBeat` selects only elements with their `Position` off the `Beat`.
@@ -1101,7 +1101,7 @@ class OffBeat(Selector):
 
 
 
-class DownBeat(Selector):
+class DownBeat(InputFilter):
     """`Frame -> Left -> InputFilter -> Selector -> DownBeat`
 
     An `DownBeat` selects only elements with their `Position` on the `Step` 0.
@@ -1119,7 +1119,7 @@ class DownBeat(Selector):
 
 
 
-class UpBeat(Selector):
+class UpBeat(InputFilter):
     """`Frame -> Left -> InputFilter -> Selector -> UpBeat`
 
     An `UpBeat` selects only elements with their `Position` at the last off beat `Step`.
@@ -1140,7 +1140,7 @@ class UpBeat(Selector):
 
 
 
-class PreviousComparison(Selector):
+class PreviousComparison(InputFilter):
     """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison`
 
     A `PreviousComparison` checks if the input meets a basic comparison condition with the previous Item.
@@ -1197,7 +1197,7 @@ class AllMatch(PreviousComparison):
 
 
 
-class BasicComparison(Selector):
+class BasicComparison(InputFilter):
     """`Frame -> Left -> InputFilter -> Selector -> BasicComparison`
 
     A `BasicComparison` checks if the input meets a basic comparison condition before being passed to the next `Frame`.
