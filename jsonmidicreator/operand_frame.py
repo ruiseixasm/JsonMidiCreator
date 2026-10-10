@@ -821,7 +821,7 @@ class Even(Selector):
 
 
 
-class Every(InputFilter):
+class Every(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> Every`
 
     An `Every` only lets every other nth inputs to be passed to the next `Frame`
@@ -831,30 +831,29 @@ class Every(InputFilter):
         nth (int): The nth input, as in every other 2nd or 4th in each `Measure`.
     """
     def __init__(self, nth: int = 4):
-        from . import operand_container as oc
         super().__init__()
-        self._measure_at: int = 0
         self._named_parameters['nths'] = nth
-        self._previous_measure: oe.Element | oc.Composition | None = None
 
-    def reset(self, *parameters) -> Self:
-        super().reset()
-        self._measure_at = 0
-        self._previous_measure = None
-        return self << parameters
     
     def frame(self, input: o.T) -> o.T:
         from . import operand_container as oc
         if self._named_parameters['nths'] > 0 and isinstance(input, (oe.Element, oc.Composition)):
-            present_measure: ra.Measure = input % ra.Measure()
-            if isinstance(self._previous_measure, ra.Measure) and self._previous_measure < present_measure:
-                self._measure_at = 0   # Resets the measure counter
-            self._measure_at += 1
-            self._previous_measure = present_measure    # Keeps track of the previous Measure
-            if self._measure_at % self._named_parameters['nths'] == 0:
-                if isinstance(self._chained_operand, Frame):
-                    return self._chained_operand.frame(input)
-                return self._chained_operand
+            nth_items: list[Any] = []
+            nth: int = 0
+            previous_measure: int | None = None
+            for single_item in self._container_items:
+                if isinstance(single_item, (oe.Element, oc.Composition)):
+                    present_measure: ra.Measure = single_item % ra.Measure()
+                    if isinstance(present_measure, ra.Measure):
+                        if previous_measure is None or previous_measure < present_measure:
+                            nth = 0   # Resets the nth counter
+                        nth += 1
+                        if nth % self._named_parameters['nths'] == 0:
+                            nth_items.append(single_item)
+                        previous_measure = present_measure
+            self._pass_framed_items(nth_items)
+            self._selected_items = nth_items
+            return super().frame(input)
         return ol.Null()
 
 
