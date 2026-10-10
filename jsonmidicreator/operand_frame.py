@@ -946,7 +946,7 @@ class Each(Every):
 
 
 
-class Either(InputFilter):
+class Either(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> Either`
 
     An `Either` only requires one verified condition to pass to the next `Frame`.
@@ -963,16 +963,12 @@ class Either(InputFilter):
                     either_items.append(single_item)
                     break
         self._pass_framed_items(either_items)
-        for condition in self._parameters:
-            if input == condition: # Where the comparison is made
-                if isinstance(self._chained_operand, Frame):
-                    return self._chained_operand.frame(input)
-                return self._chained_operand
-        return ol.Null()
+        self._selected_items = either_items
+        return super().frame(input)
 
 
 
-class Neither(InputFilter):
+class Neither(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> Neither`
 
     A `Neither` requires that no given condition is verified to pass to the next `Frame`.
@@ -994,12 +990,8 @@ class Neither(InputFilter):
             if not any(single_item is item for item in either_items)
         ]
         self._pass_framed_items(neither_items)
-        for condition in self._parameters:
-            if input == condition: # Where the comparison is made
-                return ol.Null()
-        if isinstance(self._chained_operand, Frame):
-            return self._chained_operand.frame(input)
-        return self._chained_operand
+        self._selected_items = neither_items
+        return super().frame(input)
 
 
 
