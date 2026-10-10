@@ -820,14 +820,14 @@ class Nth(Selector):
         self._named_parameters['parameters'] = parameters
 
 
-    def frame(self, input: o.T) -> o.T:
+    def _update_unmasked_items(self, unmasked_items: list[Any]) -> Self:
         nth_items: list[Any] = []
-        for index, single_item in enumerate(self._unmasked_items):
+        for index, single_item in enumerate(unmasked_items):
             if index + 1 in self._named_parameters['parameters']:
                 nth_items.append(single_item)
         self._pass_framed_items(nth_items)
         self._selected_items = nth_items
-        return super().frame(input)
+        return super()._update_unmasked_items(nth_items)
 
 
 
