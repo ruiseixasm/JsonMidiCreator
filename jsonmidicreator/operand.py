@@ -183,6 +183,13 @@ class Operand:
             case _:
                 return ol.Null()    # Has no equivalent parameter
 
+
+    def __imod__(self, operand: any) -> Self:
+        from . import operand_data as od
+        pipped_operand = od.Pipe(operand)
+        return self % pipped_operand
+
+
     # Makes sure no Non Operand has `% Operand` applied
     def __rmod__(self, operand: any) -> Self:
         from . import operand_label as ol
