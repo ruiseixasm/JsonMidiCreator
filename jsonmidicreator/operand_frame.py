@@ -995,55 +995,6 @@ class Neither(Selector):
 
 
 
-class Cross(InputFilter):
-    """`Frame -> Left -> InputFilter -> Selector -> Cross`
-
-    A `Cross` selects all elements that passthrough a given `Position`.
-
-    Parameters
-    ----------
-    Position() : `Cross` has a default position of 0.
-    """
-    def __init__(self, position: 'ra.Convertible' = None):
-        super().__init__()
-        self._named_parameters['position'] = ra.Position(position)
-
-    def frame(self, input: o.T) -> o.T:
-        from . import operand_element as oe
-        from . import operand_container as oc
-        if isinstance(self._container, oc.Container) \
-            and isinstance(input, oe.Element) and input.crossed(self._named_parameters['position']):
-            if isinstance(self._chained_operand, Frame):
-                return self._chained_operand.frame(input)
-            return self._chained_operand
-        return ol.Null()
-
-
-
-class Overlap(InputFilter):
-    """`Frame -> Left -> InputFilter -> Selector -> Overlap`
-
-    A `Overlap` selects all elements that overlap a given `Locus`.
-
-    Parameters
-    ----------
-    Locus() : `Overlap` has a default position of 0 and length of 1 beat.
-    """
-    def __init__(self, locus: 'og.Locus' = None):
-        super().__init__()
-        self._named_parameters['locus'] = og.Locus(locus)
-
-    def frame(self, input: o.T) -> o.T:
-        from . import operand_element as oe
-        from . import operand_container as oc
-        if isinstance(self._container, oc.Container) \
-            and isinstance(input, oe.Element) and input.overlap(self._named_parameters['locus']):
-            if isinstance(self._chained_operand, Frame):
-                return self._chained_operand.frame(input)
-            return self._chained_operand
-        return ol.Null()
-
-
 class OnBeat(InputFilter):
     """`Frame -> Left -> InputFilter -> Selector -> OnBeat`
 
@@ -1118,63 +1069,6 @@ class UpBeat(InputFilter):
             if (position_step + half_beat_steps) % steps_per_measure == 0:
                 return super().frame(input)
         return ol.Null()
-
-
-
-class PreviousComparison(InputFilter):
-    """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison`
-
-    A `PreviousComparison` checks if the input meets a basic comparison condition with the previous Item.
-
-    Parameters
-    ----------
-    Any(None) : One or more conditions where **all** need to be met.
-    """
-    def __init__(self, *parameters):
-        super().__init__(*parameters)
-        self._named_parameters['previous'] = None
-
-    def reset(self, *parameters) -> 'Frame':
-        self._named_parameters['previous'] = None
-        super().reset()
-        return self << parameters
-    
-    def frame(self, input: o.T) -> o.T:
-        if self._named_parameters['previous'] is not None:
-            for condition in self._parameters:
-                if isinstance(self._named_parameters['previous'], o.Operand):
-                    parameter = self._named_parameters['previous'] % condition
-                    if not self._compare(input, parameter): # Where the comparison is made
-                        return ol.Null()
-        self_operand = self._chained_operand
-        if isinstance(self_operand, Frame):
-            self_operand = self_operand.frame(input)
-        self._named_parameters['previous'] = input
-        return self_operand
-
-    @staticmethod
-    def _compare(input: Any, parameter: Any) -> bool:
-        return True
-
-    def reset(self, *parameters) -> Self:
-        super().reset()
-        self._named_parameters['previous'] = None
-        return self << parameters
-
-
-
-class AllMatch(PreviousComparison):
-    """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison -> AllMatch`
-
-    An `AllMatch` checks if the input has an equal parameter as the previous `Operand`.
-
-    Parameters
-    ----------
-    Any(None) : One or more parameter where **all** need to be met as equal (`==`).
-    """
-    @staticmethod
-    def _compare(input: Any, parameter: Any) -> bool:
-        return input == parameter
 
 
 
@@ -1298,6 +1192,113 @@ class UpTo(BasicComparison):
     @staticmethod
     def _compare(input: Any, condition: Any) -> bool:
         return input <= condition
+
+
+
+class PreviousComparison(InputFilter):
+    """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison`
+
+    A `PreviousComparison` checks if the input meets a basic comparison condition with the previous Item.
+
+    Parameters
+    ----------
+    Any(None) : One or more conditions where **all** need to be met.
+    """
+    def __init__(self, *parameters):
+        super().__init__(*parameters)
+        self._named_parameters['previous'] = None
+
+    def reset(self, *parameters) -> 'Frame':
+        self._named_parameters['previous'] = None
+        super().reset()
+        return self << parameters
+    
+    def frame(self, input: o.T) -> o.T:
+        if self._named_parameters['previous'] is not None:
+            for condition in self._parameters:
+                if isinstance(self._named_parameters['previous'], o.Operand):
+                    parameter = self._named_parameters['previous'] % condition
+                    if not self._compare(input, parameter): # Where the comparison is made
+                        return ol.Null()
+        self_operand = self._chained_operand
+        if isinstance(self_operand, Frame):
+            self_operand = self_operand.frame(input)
+        self._named_parameters['previous'] = input
+        return self_operand
+
+    @staticmethod
+    def _compare(input: Any, parameter: Any) -> bool:
+        return True
+
+    def reset(self, *parameters) -> Self:
+        super().reset()
+        self._named_parameters['previous'] = None
+        return self << parameters
+
+
+
+class AllMatch(PreviousComparison):
+    """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison -> AllMatch`
+
+    An `AllMatch` checks if the input has an equal parameter as the previous `Operand`.
+
+    Parameters
+    ----------
+    Any(None) : One or more parameter where **all** need to be met as equal (`==`).
+    """
+    @staticmethod
+    def _compare(input: Any, parameter: Any) -> bool:
+        return input == parameter
+
+
+
+class Cross(InputFilter):
+    """`Frame -> Left -> InputFilter -> Selector -> Cross`
+
+    A `Cross` selects all elements that passthrough a given `Position`.
+
+    Parameters
+    ----------
+    Position() : `Cross` has a default position of 0.
+    """
+    def __init__(self, position: 'ra.Convertible' = None):
+        super().__init__()
+        self._named_parameters['position'] = ra.Position(position)
+
+    def frame(self, input: o.T) -> o.T:
+        from . import operand_element as oe
+        from . import operand_container as oc
+        if isinstance(self._container, oc.Container) \
+            and isinstance(input, oe.Element) and input.crossed(self._named_parameters['position']):
+            if isinstance(self._chained_operand, Frame):
+                return self._chained_operand.frame(input)
+            return self._chained_operand
+        return ol.Null()
+
+
+
+class Overlap(InputFilter):
+    """`Frame -> Left -> InputFilter -> Selector -> Overlap`
+
+    A `Overlap` selects all elements that overlap a given `Locus`.
+
+    Parameters
+    ----------
+    Locus() : `Overlap` has a default position of 0 and length of 1 beat.
+    """
+    def __init__(self, locus: 'og.Locus' = None):
+        super().__init__()
+        self._named_parameters['locus'] = og.Locus(locus)
+
+    def frame(self, input: o.T) -> o.T:
+        from . import operand_element as oe
+        from . import operand_container as oc
+        if isinstance(self._container, oc.Container) \
+            and isinstance(input, oe.Element) and input.overlap(self._named_parameters['locus']):
+            if isinstance(self._chained_operand, Frame):
+                return self._chained_operand.frame(input)
+            return self._chained_operand
+        return ol.Null()
 
 
 
