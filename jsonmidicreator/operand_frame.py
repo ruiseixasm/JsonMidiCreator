@@ -780,6 +780,31 @@ class Last(Selector):
 
 
 
+class Nth(Selector):
+    """`Frame -> Left -> InputFilter -> Selector -> Nth`
+
+    A `Nth` only lets the nth inputs to be passed to the next `Frame`.
+    In `Nth(1, 6)**Duration(1/1)` sets the 1st and 6th `Clip` elements to 1 as note value.
+
+    Parameters
+    ----------
+    int(None) : The set of nths to pass to the next `Frame`.
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._named_parameters['parameters'] = parameters
+
+
+    def frame(self, input: o.T) -> o.T:
+        nth_items: list[Any] = []
+        for index, single_item in enumerate(self._container_items):
+            if index + 1 in self._named_parameters['parameters']:
+                nth_items.append(single_item)
+        self._pass_framed_items(nth_items)
+        self._selected_items = nth_items
+        return super().frame(input)
+
+
 
 class Odd(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> Odd`
@@ -870,32 +895,6 @@ class Each(Every):
     def __init__(self, index: int = 0):
         nth: int = index + 1
         super().__init__(nth)
-
-
-
-class Nth(InputFilter):
-    """`Frame -> Left -> InputFilter -> Selector -> Nth`
-
-    A `Nth` only lets the nth inputs to be passed to the next `Frame`.
-    In `Nth(1, 6)**Duration(1/1)` sets the 1st and 6th `Clip` elements to 1 as note value.
-
-    Parameters
-    ----------
-    int(None) : The set of nths to pass to the next `Frame`.
-    """
-    def __init__(self, *parameters):
-        super().__init__()
-        self._named_parameters['parameters'] = parameters
-
-    def frame(self, input: o.T) -> o.T:
-        self._index += 1
-        # INDEX -1 IN USAGE
-        if self._index + 1 in self._named_parameters['parameters']:
-            if isinstance(self._chained_operand, Frame):
-                return self._chained_operand.frame(input)
-            return self._chained_operand
-        else:
-            return ol.Null()
 
 
 
