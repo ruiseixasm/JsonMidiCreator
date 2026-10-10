@@ -861,14 +861,13 @@ class Odd(Selector):
     ----------
     None : `Odd` doesn't have parameters to be set.
     """
-    def frame(self, input: o.T) -> o.T:
+    def _update_unmasked_items(self, unmasked_items: list[Any]) -> Self:
         odd_items: list[Any] = [
-            single_item for index, single_item in enumerate(self._unmasked_items)
+            single_item for index, single_item in enumerate(unmasked_items)
             if index % 2 == 0   # Odd is nth based
         ]
-        self._pass_framed_items(odd_items)
         self._selected_items = odd_items
-        return super().frame(input)
+        return super()._update_unmasked_items(odd_items)
 
 
 
