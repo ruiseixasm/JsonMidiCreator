@@ -93,7 +93,9 @@ class Frame(o.Operand):
         container._set = False   # In order to contained items know it was set by them (Element items)
         if isinstance(container, oc.Container):
             self._unmasked_items = container.items_unmasked()
-            self._pass_framed_items(self._unmasked_items)
+        else:
+            self._unmasked_items = []
+        self._pass_framed_items(self._unmasked_items)
         # Finally, does all remaining resets for each operand
         return self.reset()
 
