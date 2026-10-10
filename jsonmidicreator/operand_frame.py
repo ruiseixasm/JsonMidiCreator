@@ -37,8 +37,8 @@ if TYPE_CHECKING:
 class Frame(o.Operand):
     """`Frame`
 
-    Frame is used in conjugation with a `Composition` container to apply, frame, specific parameters.
-    Frames are chained with other Frames with the `**` operator. A `Frame` is a read-only class!
+    A `Frame` is exclusive to the `Container` class in order to apply framed parameters.
+    Frames can be chained with other Frames with the `**` operator. A `Frame` is a read-only class!
 
     Parameters
     ----------
@@ -927,8 +927,7 @@ class Every(Selector):
             self._pass_framed_items(nth_items)
             self._selected_items = nth_items
             return super().frame(input)
-        else:
-            self._pass_framed_items([])
+        self._pass_framed_items([])
         return ol.Null()
 
 
@@ -1123,7 +1122,7 @@ class BellowOrEqual(BasicComparison):
 
 
 
-class OnBeat(InputFilter):
+class OnBeat(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> OnBeat`
 
     An `OnBeat` selects only elements with their `Position` on the `Beat`.
@@ -1134,13 +1133,16 @@ class OnBeat(InputFilter):
     """
     def frame(self, input: o.T) -> o.T:
         if isinstance(input, oe.Element):
-
-
-
+            on_beat_items: list[Any] = []
             steps_per_beat: int = int(1 / og.settings._quantization)
-            position_step: int = input % ra.Step() % int()
-            if position_step % steps_per_beat == 0:
-                return super().frame(input)
+            for single_item in self._unmasked_items:
+                position_step: int = single_item % ra.Step() % int()
+                if position_step % steps_per_beat == 0:
+                    on_beat_items.append(single_item)
+            self._pass_framed_items(on_beat_items)
+            self._selected_items = on_beat_items
+            return super().frame(input)
+        self._pass_framed_items([])
         return ol.Null()
 
 

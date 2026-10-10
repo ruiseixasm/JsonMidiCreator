@@ -233,11 +233,12 @@ def test_input_clip():
 
 
 def test_on_beat():
-    single_element = Note(Beat(2))
-    assert OnBeat().frame(single_element)
-    assert not OffBeat().frame(single_element)
+    single_element = Note(Beat(2)) * 1  # Frames ARE exclusive to Containers (Clip is a Container)
+    assert single_element[OnBeat()]
+    assert not single_element[OffBeat()]
 
 # test_on_beat()
+
 
 def test_off_beat():
     single_element = Note(Beat(2)) + Step(2)
