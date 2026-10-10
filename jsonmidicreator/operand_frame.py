@@ -746,7 +746,6 @@ class ItemType(Selector):
                 if isinstance(single_item, operand_class):
                     type_items.append(single_item)
                     break
-        self._pass_framed_items(type_items)
         self._selected_items = type_items
         return super()._update_unmasked_items(type_items)
 
@@ -772,7 +771,6 @@ class First(Selector):
         first_items: list[Any] = unmasked_items
         if len(unmasked_items) > amount_items:
             first_items = unmasked_items[:amount_items]
-            self._pass_framed_items(first_items)
         self._selected_items = first_items
         return super()._update_unmasked_items(first_items)
 
@@ -824,7 +822,6 @@ class Nth(Selector):
         for index, single_item in enumerate(unmasked_items):
             if index + 1 in self._named_parameters['parameters']:
                 nth_items.append(single_item)
-        self._pass_framed_items(nth_items)
         self._selected_items = nth_items
         return super()._update_unmasked_items(nth_items)
 
@@ -845,14 +842,13 @@ class At(Selector):
         self._named_parameters['parameters'] = parameters
 
 
-    def frame(self, input: o.T) -> o.T:
+    def _update_unmasked_items(self, unmasked_items: list[Any]) -> Self:
         at_items: list[Any] = []
-        for index, single_item in enumerate(self._unmasked_items):
+        for index, single_item in enumerate(unmasked_items):
             if index in self._named_parameters['parameters']:
                 at_items.append(single_item)
-        self._pass_framed_items(at_items)
         self._selected_items = at_items
-        return super().frame(input)
+        return super()._update_unmasked_items(at_items)
 
 
 
