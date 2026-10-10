@@ -268,7 +268,7 @@ def test_first_selector():
     last_of_two = four_notes % First(2)**Last()
     assert last_of_two[0] == four_notes[1]
 
-# test_first_selector()
+test_first_selector()
 
 
 def test_last_selector():

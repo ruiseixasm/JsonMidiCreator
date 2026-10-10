@@ -733,8 +733,8 @@ class ItemType(Selector):
     ----------
     type(None) : A single or multiple types can be set as accepted ones.
     """
-    def __init__(self, *parameters):
-        super().__init__(*parameters)
+    def _set_inside_container(self, container: 'Container') -> Self:
+        super()._set_inside_container(container)
         type_items: list[Any] = []
         for single_item in self._unmasked_items:
             for operand_class in self._parameters:
@@ -742,8 +742,8 @@ class ItemType(Selector):
                     type_items.append(single_item)
                     break
         self._pass_framed_items(type_items)
-        self._unmasked_items = type_items
         self._selected_items = type_items
+        self._unmasked_items = type_items
 
 
 
@@ -757,20 +757,19 @@ class First(Selector):
     """
     def __init__(self, amount: int = 1):
         super().__init__()
+        self._named_parameters['amount'] = 0
         if amount > 0:
             self._named_parameters['amount'] = amount
-        else:
-            self._named_parameters['amount'] = 0
 
 
-    def frame(self, input: o.T) -> o.T:
+    def _set_inside_container(self, container: 'Container') -> Self:
+        super()._set_inside_container(container)
         amount_items: int = self._named_parameters['amount']
         first_items: list[Any] = self._unmasked_items
         if len(self._unmasked_items) > amount_items:
             first_items = self._unmasked_items[:amount_items]
             self._pass_framed_items(first_items)
         self._selected_items = first_items
-        return super().frame(input)
 
 
 
