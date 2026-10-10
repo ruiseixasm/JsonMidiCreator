@@ -262,7 +262,7 @@ class LeftToRight(Frame):  # LEFT TO RIGHT
 
 
 class Input(LeftToRight):
-    """`Frame -> Left -> Input`
+    """`Frame -> LeftToRight -> Input`
 
     By default a `Frame` uses the data being passed trough it as input, \
         with this `Frame` it's possible to inject a different `Operand` as input.
@@ -292,7 +292,7 @@ class Input(LeftToRight):
 
 
 class Previous(LeftToRight):
-    """`Frame -> Left -> Previous`
+    """`Frame -> LeftToRight -> Previous`
 
     Represents the previous processed `Element` given parameter, passes `Null()` for the first one if `first_null=True`.
 
@@ -323,7 +323,7 @@ class Previous(LeftToRight):
 
 
 class PassThrough(LeftToRight):
-    """`Frame -> Left -> PassThrough`
+    """`Frame -> LeftToRight -> PassThrough`
 
     Allows to pass the input trough an `Operand` with `>>` before sending it to the next `Frame`.
 
@@ -341,7 +341,7 @@ class PassThrough(LeftToRight):
         return super().frame(input)
 
 class SendTo(LeftToRight):
-    """`Frame -> Left -> SendTo`
+    """`Frame -> LeftToRight -> SendTo`
 
     Allows to send the input to an `Operand` with `>>` before sending it to the next `Frame`.
     The difference with `PassThrough` is that the original input is still the one sent to the next `Frame`.
@@ -360,7 +360,7 @@ class SendTo(LeftToRight):
         return super().frame(input)
 
 class Choice(LeftToRight):
-    """`Frame -> Left -> Choice`
+    """`Frame -> LeftToRight -> Choice`
 
     A `Choice` is a group of items that can be chosen from based on the input as the chooser.
 
@@ -383,7 +383,7 @@ class Choice(LeftToRight):
         return super().frame(ol.Null())
 
 class Pick(LeftToRight):
-    """`Frame -> Left -> Pick`
+    """`Frame -> LeftToRight -> Pick`
 
     A `Pick` is a group of items that can be picketed from based on the input as the picker.
     The difference with `Choice` is that each picked item becomes unavailable until all items are picked.
@@ -413,7 +413,7 @@ class Pick(LeftToRight):
         return super().frame(ol.Null())
 
 class CountDown(LeftToRight):
-    """`Frame -> Left -> CountDown`
+    """`Frame -> LeftToRight -> CountDown`
 
     A `CountDown` is a group of count down numbers that work as selectors when they reach 0.
     In `CountDown(5, 1, 5)**Choice(Octave(3), Octave(4), Octave(5))` the value `O4` will be chosen in the next call.
@@ -459,7 +459,7 @@ class CountDown(LeftToRight):
         return super().frame(pick_choices)
 
 class Frequency(CountDown):
-    """`Frame -> Left -> CountDown -> Frequency`
+    """`Frame -> LeftToRight -> CountDown -> Frequency`
 
     A `Frequency` sets a count down based on the intended frequency for each placed item.
     In `Frequency(1, 4, 2, 1)**Choice(eight, quarter, dotted_eight, dotted_quarter)` the `quarter` notes will be chosen \
@@ -495,7 +495,7 @@ class Frequency(CountDown):
         super().__init__(*until_list)   # Saves a CountDown as self._multi_data['operand']
 
 class Formula(LeftToRight):
-    """`Frame -> Left -> Formula`
+    """`Frame -> LeftToRight -> Formula`
 
     A `Formula` processes the input data with the given function and passes its result to the next `Frame`.
 
@@ -511,7 +511,7 @@ class Formula(LeftToRight):
         return super().frame(self._named_parameters['operand'](input))
     
 class Iterate(LeftToRight):
-    """`Frame -> Left -> Iterate`
+    """`Frame -> LeftToRight -> Iterate`
 
     An `Iterate` returns a series of values much alike the Python `range` method, where this
     input defines the type of values too. Intended to be used with Clips.
@@ -563,7 +563,7 @@ class Iterate(LeftToRight):
         return self_operand
 
 class Drag(LeftToRight):
-    """`Frame -> Left -> Drag`
+    """`Frame -> LeftToRight -> Drag`
 
     A `Drag` works similarly the a drag in Excel\xa9, where the first inputted `Operand`'s extracted item is the one bring dragged.
     In `Nth(6, 7, 8)**Drag(Degree())` the `Degree()` of the first `Operand` is propagated to the next ones.
@@ -587,7 +587,7 @@ class Drag(LeftToRight):
 
 
 class Mux(LeftToRight):
-    """`Frame -> Left -> Mux`
+    """`Frame -> LeftToRight -> Mux`
 
     A `Mux` does a multiplexing of multiple elements into single ones, allowing this way a more versatile way of flow.
 
@@ -633,7 +633,7 @@ class Mux(LeftToRight):
 
 
 class Foreach(LeftToRight):
-    """`Frame -> Left -> Foreach`
+    """`Frame -> LeftToRight -> Foreach`
 
     A `Foreach` cycles through a set of items and returns to the first one whenever reaches the end of it.
 
@@ -661,7 +661,7 @@ class Foreach(LeftToRight):
         return ol.Null()
 
 class Once(Foreach):
-    """`Frame -> Left -> Foreach -> Once`
+    """`Frame -> LeftToRight -> Foreach -> Once`
 
     A `Once` is a Foreach that loops through a set of items only once, not returning to the first one \
         when it reaches the last one.
@@ -685,7 +685,7 @@ class Once(Foreach):
 
 
 class InputFilter(LeftToRight):
-    """`Frame -> Left -> InputFilter`
+    """`Frame -> LeftToRight -> InputFilter`
 
     An `InputFilter` only passes the input to the next `Frame` if its criteria is met.
 
@@ -700,7 +700,7 @@ class InputFilter(LeftToRight):
 
 
 class All(InputFilter):
-    """`Frame -> Left -> InputFilter -> All`
+    """`Frame -> LeftToRight -> InputFilter -> All`
 
     An `All` lets any, or all, input to pass to the next `Frame`.
 
@@ -712,8 +712,8 @@ class All(InputFilter):
 
 
 
-class Selector(InputFilter):
-    """`Frame -> Left -> InputFilter -> Selector`
+class Selector(LeftToRight):
+    """`Frame -> LeftToRight -> Selector`
 
     A `Selector` takes into consideration the input data in order to pass it to the next `Frame`.
 
@@ -731,7 +731,7 @@ class Selector(InputFilter):
 
 
 class ItemType(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> ItemType`
+    """`Frame -> LeftToRight -> Selector -> ItemType`
 
     An `ItemType` only lets specified types of inputs to be passed to the next `Frame`.
 
@@ -752,7 +752,7 @@ class ItemType(Selector):
 
 
 class First(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> First`
+    """`Frame -> LeftToRight -> Selector -> First`
 
     A `First` only lets the first `amount` of elements in a `Clip` to pass to the next `Frame`.
 
@@ -777,7 +777,7 @@ class First(Selector):
 
 
 class Last(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> Last`
+    """`Frame -> LeftToRight -> Selector -> Last`
 
     A `Last` only lets the last `amount` of elements in a `Clip` to pass to the next `Frame`.
 
@@ -803,7 +803,7 @@ class Last(Selector):
 
 
 class Nth(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> Nth`
+    """`Frame -> LeftToRight -> Selector -> Nth`
 
     A `Nth` only lets the nth inputs to be passed to the next `Frame`.
     In `Nth(1, 6)**Duration(1/1)` sets the 1st and 6th `Clip` elements to 1 as note value.
@@ -828,7 +828,7 @@ class Nth(Selector):
 
 
 class At(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> At`
+    """`Frame -> LeftToRight -> Selector -> At`
 
     A `At` only lets the indexed inputs to be passed to the next `Frame`.
     In `At(1, 6)**Duration(1/1)` sets the 2nd and 7th `Clip` elements to 1 as note value.
@@ -853,7 +853,7 @@ class At(Selector):
 
 
 class Odd(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> Odd`
+    """`Frame -> LeftToRight -> Selector -> Odd`
 
     An `Odd` only lets odd nth inputs to be passed to the next `Frame`.
 
@@ -872,7 +872,7 @@ class Odd(Selector):
 
 
 class Even(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> Even`
+    """`Frame -> LeftToRight -> Selector -> Even`
 
     An `Even` only lets even nth inputs to be passed to the next `Frame`.
 
@@ -891,7 +891,7 @@ class Even(Selector):
 
 
 class Every(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> Every`
+    """`Frame -> LeftToRight -> Selector -> Every`
 
     An `Every` only lets every other nth inputs to be passed to the next `Frame`
     for each given `Measure`.
@@ -926,7 +926,7 @@ class Every(Selector):
 
 
 class Each(Every):
-    """`Frame -> Left -> InputFilter -> Selector -> Every -> Each`
+    """`Frame -> LeftToRight -> Selector -> Every -> Each`
 
     An `Each` only lets every index value inputs to be passed to the next `Frame`
     for each given `Measure`. This is 0-based while `Every` is 1-based.
@@ -941,7 +941,7 @@ class Each(Every):
 
 
 class Either(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> Either`
+    """`Frame -> LeftToRight -> Selector -> Either`
 
     An `Either` only requires one verified condition to pass to the next `Frame`.
 
@@ -962,7 +962,7 @@ class Either(Selector):
 
 
 class Neither(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> Neither`
+    """`Frame -> LeftToRight -> Selector -> Neither`
 
     A `Neither` requires that no given condition is verified to pass to the next `Frame`.
 
@@ -988,7 +988,7 @@ class Neither(Selector):
 
 
 class BasicComparison(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> BasicComparison`
+    """`Frame -> LeftToRight -> Selector -> BasicComparison`
 
     A `BasicComparison` checks if the input verifies the comparison wit `other` before being passed to the next `Frame`.
 
@@ -1023,7 +1023,7 @@ class BasicComparison(Selector):
 
 
 class Equal(BasicComparison):
-    """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> Equal`
+    """`Frame -> LeftToRight -> Selector -> BasicComparison -> Equal`
 
     An `Equal` checks if the input is equal to **all** the `other` before being passed to the next `Frame`.
 
@@ -1038,7 +1038,7 @@ class Equal(BasicComparison):
 
 
 class NotEqual(BasicComparison):
-    """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> NotEqual`
+    """`Frame -> LeftToRight -> Selector -> BasicComparison -> NotEqual`
 
     A `NotEqual` checks if the input is NOT equal to **all** the `other` before being passed to the next `Frame`.
 
@@ -1053,7 +1053,7 @@ class NotEqual(BasicComparison):
 
 
 class Above(BasicComparison):
-    """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> Above`
+    """`Frame -> LeftToRight -> Selector -> BasicComparison -> Above`
 
     The `Above` checks if the input is greater to **all** the `other` before being passed to the next `Frame`.
 
@@ -1068,7 +1068,7 @@ class Above(BasicComparison):
 
 
 class Bellow(BasicComparison):
-    """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> Bellow`
+    """`Frame -> LeftToRight -> Selector -> BasicComparison -> Bellow`
 
     A `Bellow` checks if the input is less to **all** the `other` before being passed to the next `Frame`.
 
@@ -1083,7 +1083,7 @@ class Bellow(BasicComparison):
 
 
 class AboveOrEqual(BasicComparison):
-    """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> AboveOrEqual`
+    """`Frame -> LeftToRight -> Selector -> BasicComparison -> AboveOrEqual`
 
     An `AboveOrEqual` checks if the input is greater or equal to **all** the `other` before being passed to the next `Frame`.
 
@@ -1098,7 +1098,7 @@ class AboveOrEqual(BasicComparison):
 
 
 class BellowOrEqual(BasicComparison):
-    """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> BellowOrEqual`
+    """`Frame -> LeftToRight -> Selector -> BasicComparison -> BellowOrEqual`
 
     A `BellowOrEqual` checks if the input is less or equal to **all** the `other` before being passed to the next `Frame`.
 
@@ -1113,7 +1113,7 @@ class BellowOrEqual(BasicComparison):
 
 
 class OnBeat(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> OnBeat`
+    """`Frame -> LeftToRight -> Selector -> OnBeat`
 
     An `OnBeat` selects only elements with their `Position` on the `Beat`.
 
@@ -1135,7 +1135,7 @@ class OnBeat(Selector):
 
 
 class OffBeat(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> OffBeat`
+    """`Frame -> LeftToRight -> Selector -> OffBeat`
 
     An `OffBeat` selects only elements with their `Position` off the `Beat`.
 
@@ -1157,7 +1157,7 @@ class OffBeat(Selector):
 
 
 class DownBeat(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> DownBeat`
+    """`Frame -> LeftToRight -> Selector -> DownBeat`
 
     An `DownBeat` selects only elements with their `Position` on the `Step` 0.
 
@@ -1181,7 +1181,7 @@ class DownBeat(Selector):
 
 
 class UpBeat(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> UpBeat`
+    """`Frame -> LeftToRight -> Selector -> UpBeat`
 
     An `UpBeat` selects only elements with their `Position` at the last off beat `Step`.
 
@@ -1208,7 +1208,7 @@ class UpBeat(Selector):
 
 
 class PreviousComparison(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison`
+    """`Frame -> LeftToRight -> Selector -> PreviousComparison`
 
     A `PreviousComparison` checks if the input meets a basic comparison condition with the previous Item.
 
@@ -1243,7 +1243,7 @@ class PreviousComparison(Selector):
 
 
 class AllMatch(PreviousComparison):
-    """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison -> AllMatch`
+    """`Frame -> LeftToRight -> Selector -> PreviousComparison -> AllMatch`
 
     An `AllMatch` checks if the successive items share a matching parameter.
 
@@ -1258,7 +1258,7 @@ class AllMatch(PreviousComparison):
 
 
 class AllIncreasing(PreviousComparison):
-    """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison -> AllIncreasing`
+    """`Frame -> LeftToRight -> Selector -> PreviousComparison -> AllIncreasing`
 
     An `AllIncreasing` checks if the successive items have an increasing parameter.
 
@@ -1273,7 +1273,7 @@ class AllIncreasing(PreviousComparison):
 
 
 class AllDecreasing(PreviousComparison):
-    """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison -> AllDecreasing`
+    """`Frame -> LeftToRight -> Selector -> PreviousComparison -> AllDecreasing`
 
     An `AllDecreasing` checks if the successive items have a decreasing parameter.
 
@@ -1288,7 +1288,7 @@ class AllDecreasing(PreviousComparison):
 
 
 class AllNotIncreasing(PreviousComparison):
-    """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison -> AllNotIncreasing`
+    """`Frame -> LeftToRight -> Selector -> PreviousComparison -> AllNotIncreasing`
 
     An `AllNotIncreasing` checks if the successive items have NOT an increasing parameter.
 
@@ -1303,7 +1303,7 @@ class AllNotIncreasing(PreviousComparison):
 
 
 class AllNotDecreasing(PreviousComparison):
-    """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison -> AllNotDecreasing`
+    """`Frame -> LeftToRight -> Selector -> PreviousComparison -> AllNotDecreasing`
 
     An `AllNotDecreasing` checks if the successive items have NOT a decreasing parameter.
 
@@ -1318,7 +1318,7 @@ class AllNotDecreasing(PreviousComparison):
 
 
 class Cross(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> Cross`
+    """`Frame -> LeftToRight -> Selector -> Cross`
 
     A `Cross` selects all elements that passthrough a given `Position`.
 
@@ -1346,7 +1346,7 @@ class Cross(Selector):
 
 
 class Overlap(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> Overlap`
+    """`Frame -> LeftToRight -> Selector -> Overlap`
 
     A `Overlap` selects all elements that overlap a given `Locus`.
 
@@ -1374,7 +1374,7 @@ class Overlap(Selector):
 
 
 class Get(LeftToRight):
-    """`Frame -> Left -> Get`
+    """`Frame -> LeftToRight -> Get`
 
     A `Get` does an `input % item` and passes it to the next `Frame`.
 
@@ -1391,7 +1391,7 @@ class Get(LeftToRight):
         return super().frame(input)
 
 class DeepCopy(LeftToRight):
-    """`Frame -> Left -> DeepCopy`
+    """`Frame -> LeftToRight -> DeepCopy`
 
     A `DeepCopy` makes a deep copy of the input and passes it to the next `Frame`.
 
@@ -1404,7 +1404,7 @@ class DeepCopy(LeftToRight):
         return super().frame(input_duplication)
 
 class Inject(LeftToRight):
-    """`Frame -> Left -> Inject`
+    """`Frame -> LeftToRight -> Inject`
 
     An `Inject` sets the input with extra parameters before passing it to the next `Frame`.
 
@@ -1415,7 +1415,7 @@ class Inject(LeftToRight):
     pass
 
 class Set(Inject):
-    """`Frame -> Left -> Inject -> Set`
+    """`Frame -> LeftToRight -> Inject -> Set`
 
     A `Set` does a `<<` on the input before passing it to the next `Frame`.
 
@@ -1430,7 +1430,7 @@ class Set(Inject):
         return super().frame(input)
         
 class Push(Inject):
-    """`Frame -> Left -> Inject -> Push`
+    """`Frame -> LeftToRight -> Inject -> Push`
 
     A `Push` does a `>>` on the input before passing it to the next `Frame`.
 
@@ -1446,7 +1446,7 @@ class Push(Inject):
 
 
 class BasicOperation(LeftToRight):
-    """`Frame -> Left -> BasicOperation`
+    """`Frame -> LeftToRight -> BasicOperation`
 
     A `BasicOperation` does a basic operation like `+` or `/` on the input before passing it to the next `Frame`.
 
@@ -1470,7 +1470,7 @@ class BasicOperation(LeftToRight):
         return self._named_parameters['parameter']
 
 class Add(BasicOperation):
-    """`Frame -> Left -> BasicOperation -> Add`
+    """`Frame -> LeftToRight -> BasicOperation -> Add`
 
     An `Add` does a basic `+` on the input before passing it to the next `Frame`.
 
@@ -1482,7 +1482,7 @@ class Add(BasicOperation):
         return super().frame(input + self._next_parameter())
 
 class Subtract(BasicOperation):
-    """`Frame -> Left -> BasicOperation -> Subtract`
+    """`Frame -> LeftToRight -> BasicOperation -> Subtract`
 
     A `Subtract` does a basic `-` on the input before passing it to the next `Frame`.
 
@@ -1494,7 +1494,7 @@ class Subtract(BasicOperation):
         return super().frame(input - self._next_parameter())
 
 class Multiply(BasicOperation):
-    """`Frame -> Left -> BasicOperation -> Multiply`
+    """`Frame -> LeftToRight -> BasicOperation -> Multiply`
 
     A `Multiply` does a basic `*` on the input before passing it to the next `Frame`.
 
@@ -1506,7 +1506,7 @@ class Multiply(BasicOperation):
         return super().frame(input * self._next_parameter())
 
 class Divide(BasicOperation):
-    """`Frame -> Left -> BasicOperation -> Divide`
+    """`Frame -> LeftToRight -> BasicOperation -> Divide`
 
     A `Divide` does a basic `/` on the input before passing it to the next `Frame`.
 
