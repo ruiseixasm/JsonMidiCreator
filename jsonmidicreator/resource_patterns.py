@@ -47,4 +47,4 @@ def pattern_funky_syncopation(drum_kit: 'og.DrumKit', channel: int = 1) -> 'oc.C
     clip += od.Line(ghost_line)
     clip += od.Line(c_hat_line)
 
-    return clip << channel
+    return clip << ou.Channel(channel)
