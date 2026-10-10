@@ -1022,7 +1022,7 @@ class BasicComparison(InputFilter):
 
     def _set_inside_container(self, container: 'Container') -> Self:
         for condition in self._parameters:
-            if isinstance(condition, Frame):
+            if isinstance(condition, Frame):    # ALSO sets the container in the Frame as condition
                 condition._set_inside_container(container)
         return super()._set_inside_container(container)
 
