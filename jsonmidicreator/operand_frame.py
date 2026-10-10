@@ -1004,9 +1004,7 @@ class BasicComparison(InputFilter):
     ----------
     Any(None) : One or more conditions where **all** need to be met.
     """
-    def __init__(self, *parameters):
-        super().__init__(*parameters)
-
+    
     def frame(self, input: o.T) -> o.T:
         for condition in self._parameters:
             if not self._compare(input, condition): # Where the comparison is made
