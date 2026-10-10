@@ -740,18 +740,16 @@ class ItemType(Selector):
     ----------
     type(None) : A single or multiple types can be set as accepted ones.
     """
-    def _set_inside_container(self, container: 'Container') -> Self:
-        super()._set_inside_container(container)
+    def _update_unmasked_items(self, unmasked_items: list[Any]) -> Self:
         type_items: list[Any] = []
-        for single_item in self._unmasked_items:
+        for single_item in unmasked_items:
             for operand_class in self._parameters:
                 if isinstance(single_item, operand_class):
                     type_items.append(single_item)
                     break
         self._pass_framed_items(type_items)
         self._selected_items = type_items
-        self._unmasked_items = type_items
-        return self
+        return super()._update_unmasked_items(type_items)
 
 
 
