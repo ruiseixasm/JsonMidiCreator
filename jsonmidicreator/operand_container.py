@@ -475,12 +475,6 @@ class Container(o.Operand):
                 for index, item in operand.items():
                     if isinstance(index, int) and index >= 0 and index < len(self.items_unmasked()):
                         self.items_unmasked()[index] = o.deep_copy(item)
-            case od.Select():
-                self.select(operand._data)
-            case od.Mask():
-                self.mask(operand._data)
-            case od.Unmask():
-                self.unmask()
             case of.Frame():
                 operand._set_inside_container(self)
                 for single_item in self.items_unmasked():
@@ -2030,6 +2024,12 @@ class Clip(Composition):  # Just a container of Elements
                 for single_element in self.elements_unmasked():
                     self._replace(single_element, operand.copy()._set_owner_clip(self) << single_element)
 
+            case od.Select():
+                self.select(operand._data)
+            case od.Mask():
+                self.mask(operand._data)
+            case od.Unmask():
+                self.unmask()
             case list():
                 if all(isinstance(item, oe.Element) for item in operand):
                     # Remove previous Elements from the Container stack

@@ -205,7 +205,6 @@ def test_even_odd():
     assert four_notes.len_unmasked() == 4
     four_notes << Select(Even())
     assert four_notes.len_unmasked() == 2
-    # Can't stack multiple masks, a new mask is applicable to the root clip
     four_notes << Select(Odd())
     assert four_notes.len_unmasked() == 2
 
@@ -269,6 +268,8 @@ def test_first_selector():
 
     last_of_two = four_notes % First(2)**Last()
     assert last_of_two[0] == four_notes[1]
+
+# test_first_selector()
 
 
 def test_last_selector():

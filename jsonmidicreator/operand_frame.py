@@ -94,10 +94,10 @@ class Frame(o.Operand):
         # Finally, does all remaining resets for each operand
         return self.reset()
 
-    def _set_container_items(self, container_items: list[Any]) -> Self:
+    def _pass_framed_items(self, container_items: list[Any]) -> Self:
         if isinstance(self._chained_operand, Frame):
-            self._chained_operand._set_container_items(container_items)  # Recursive call
-        self._container_items = container_items
+            self._chained_operand._container_items = container_items
+            self._chained_operand._pass_framed_items(container_items)  # Recursive call
         return self
 
 
@@ -712,13 +712,7 @@ class Indexing(Selector):
     ----------
     None : `Selector` doesn't have parameters to be set.
     """
-    def frame(self, input: o.T) -> o.T:
-        for single_item in self._container_items:
-            if input is single_item:
-                if isinstance(self._chained_operand, Frame):
-                    return self._chained_operand.frame(input)
-                return self._chained_operand
-        return ol.Null()
+    pass
 
 
 
@@ -740,9 +734,16 @@ class First(Indexing):
 
     def frame(self, input: o.T) -> o.T:
         amount_items: int = self._named_parameters['amount']
+        first_items: list[Any] = self._container_items
         if len(self._container_items) > amount_items:
-            self._set_container_items(self._container_items[:amount_items])
-        return super().frame(input)
+            first_items = self._container_items[:amount_items]
+            self._pass_framed_items(first_items)
+        for single_item in first_items:
+            if input is single_item:
+                if isinstance(self._chained_operand, Frame):
+                    return self._chained_operand.frame(input)
+                return self._chained_operand
+        return ol.Null()
 
 
 
@@ -764,10 +765,182 @@ class Last(Indexing):
 
     def frame(self, input: o.T) -> o.T:
         amount_items: int = self._named_parameters['amount']
+        last_items: list[Any] = self._container_items
         if len(self._container_items) > amount_items:
             first_item: int = len(self._container_items) - amount_items
-            self._set_container_items(self._container_items[first_item:])
-        return super().frame(input)
+            last_items = self._container_items[first_item:]
+            self._pass_framed_items(last_items)
+        for single_item in last_items:
+            if input is single_item:
+                if isinstance(self._chained_operand, Frame):
+                    return self._chained_operand.frame(input)
+                return self._chained_operand
+        return ol.Null()
+
+
+
+class All(Indexing):
+    """`Frame -> Left -> InputFilter -> Selector -> Indexing -> All`
+
+    An `All` lets any, or all, input to pass to the next `Frame`.
+
+    Parameters
+    ----------
+    None : `All` doesn't have parameters to be set.
+    """
+    pass
+
+
+
+class Odd(Indexing):
+    """`Frame -> Left -> InputFilter -> Selector -> Indexing -> Odd`
+
+    An `Odd` only lets odd nth inputs to be passed to the next `Frame`.
+
+    Parameters
+    ----------
+    None : `Odd` doesn't have parameters to be set.
+    """
+
+
+    def frame(self, input: o.T) -> o.T:
+        odd_items: list[Any] = [
+            single_item for index, single_item in enumerate(self._container_items)
+            if index % 2 == 0   # Odd is nth based
+        ]
+        self._pass_framed_items(odd_items)
+        for index, single_item in enumerate(self._container_items):
+            if index % 2 == 0 and input is single_item:   # Odd is nth based
+                if isinstance(self._chained_operand, Frame):
+                    return self._chained_operand.frame(input)
+                return self._chained_operand
+        return ol.Null()
+
+
+
+class Even(Indexing):
+    """`Frame -> Left -> InputFilter -> Selector -> Indexing -> Even`
+
+    An `Even` only lets even nth inputs to be passed to the next `Frame`.
+
+    Parameters
+    ----------
+    None : `Even` doesn't have parameters to be set.
+    """
+    def frame(self, input: o.T) -> o.T:
+        self._index += 1
+        # INDEX -1 IN USAGE
+        if self._index % 2 == 1:    # It's Nth based
+            if isinstance(self._chained_operand, Frame):
+                return self._chained_operand.frame(input)
+            return self._chained_operand
+        else:
+            return ol.Null()
+
+
+
+class Every(Indexing):
+    """`Frame -> Left -> InputFilter -> Selector -> Indexing -> Every`
+
+    An `Every` only lets every other nth inputs to be passed to the next `Frame`
+    for each given `Measure`.
+
+    Args:
+        nth (int): The nth input, as in every other 2nd or 4th in each `Measure`.
+    """
+    def __init__(self, nth: int = 4):
+        from . import operand_container as oc
+        super().__init__()
+        self._measure_at: int = 0
+        self._named_parameters['nths'] = nth
+        self._previous_measure: oe.Element | oc.Composition | None = None
+
+    def reset(self, *parameters) -> Self:
+        super().reset()
+        self._measure_at = 0
+        self._previous_measure = None
+        return self << parameters
+    
+    def frame(self, input: o.T) -> o.T:
+        from . import operand_container as oc
+        if self._named_parameters['nths'] > 0 and isinstance(input, (oe.Element, oc.Composition)):
+            present_measure: ra.Measure = input % ra.Measure()
+            if isinstance(self._previous_measure, ra.Measure) and self._previous_measure < present_measure:
+                self._measure_at = 0   # Resets the measure counter
+            self._measure_at += 1
+            self._previous_measure = present_measure    # Keeps track of the previous Measure
+            if self._measure_at % self._named_parameters['nths'] == 0:
+                if isinstance(self._chained_operand, Frame):
+                    return self._chained_operand.frame(input)
+                return self._chained_operand
+        return ol.Null()
+
+
+
+class Each(Every):
+    """`Frame -> Left -> InputFilter -> Selector -> Indexing -> Every -> Each`
+
+    An `Each` only lets every index value inputs to be passed to the next `Frame`
+    for each given `Measure`. This is 0-based while `Every` is 1-based.
+
+    Args:
+        index (int): The index input, as in each 0 or 2 index in each `Measure`.
+    """
+    def __init__(self, index: int = 0):
+        nth: int = index + 1
+        super().__init__(nth)
+
+
+
+class Nth(Indexing):
+    """`Frame -> Left -> InputFilter -> Selector -> Indexing -> Nth`
+
+    A `Nth` only lets the nth inputs to be passed to the next `Frame`.
+    In `Nth(1, 6)**Duration(1/1)` sets the 1st and 6th `Clip` elements to 1 as note value.
+
+    Parameters
+    ----------
+    int(None) : The set of nths to pass to the next `Frame`.
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._named_parameters['parameters'] = parameters
+
+    def frame(self, input: o.T) -> o.T:
+        self._index += 1
+        # INDEX -1 IN USAGE
+        if self._index + 1 in self._named_parameters['parameters']:
+            if isinstance(self._chained_operand, Frame):
+                return self._chained_operand.frame(input)
+            return self._chained_operand
+        else:
+            return ol.Null()
+
+
+
+class At(Indexing):
+    """`Frame -> Left -> InputFilter -> Selector -> Indexing -> At`
+
+    A `At` only lets the indexed inputs to be passed to the next `Frame`.
+    In `At(1, 6)**Duration(1/1)` sets the 2nd and 7th `Clip` elements to 1 as note value.
+
+    Parameters
+    ----------
+    int(None) : The set of indexes to pass to the next `Frame`.
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._named_parameters['parameters'] = parameters
+
+    def frame(self, input: o.T) -> o.T:
+        self._index += 1
+        # INDEX -1 IN USAGE
+        if self._index in self._named_parameters['parameters']:
+            if isinstance(self._chained_operand, Frame):
+                return self._chained_operand.frame(input)
+            return self._chained_operand
+        else:
+            return ol.Null()
 
 
 
@@ -787,7 +960,7 @@ class Either(Selector):
                 if single_item == condition:
                     either_items.append(single_item)
                     break
-        self._set_container_items(either_items)
+        self._pass_framed_items(either_items)
         for condition in self._parameters:
             if input == condition: # Where the comparison is made
                 if isinstance(self._chained_operand, Frame):
@@ -818,7 +991,7 @@ class Neither(Selector):
             for single_item in self._container_items
             if not any(single_item is item for item in either_items)
         ]
-        self._set_container_items(neither_items)
+        self._pass_framed_items(neither_items)
         for condition in self._parameters:
             if input == condition: # Where the comparison is made
                 return ol.Null()
@@ -1149,180 +1322,6 @@ class UpTo(BasicComparison):
     @staticmethod
     def _compare(input: Any, condition: Any) -> bool:
         return input <= condition
-
-
-
-class Alternator(InputFilter):
-    """`Frame -> Left -> InputFilter -> Alternator`
-
-    An `Alternator` takes only into consideration its `Frame` state regardless of the input data.
-
-    Parameters
-    ----------
-    None : `Alternator` doesn't have parameters to be set.
-    """
-    pass
-
-
-
-class All(Alternator):
-    """`Frame -> Left -> InputFilter -> Alternator -> All`
-
-    An `All` lets any, or all, input to pass to the next `Frame`.
-
-    Parameters
-    ----------
-    None : `All` doesn't have parameters to be set.
-    """
-    def frame(self, input: o.T) -> o.T:
-        return super().frame(input)
-
-
-
-class Odd(Alternator):
-    """`Frame -> Left -> InputFilter -> Alternator -> Odd`
-
-    An `Odd` only lets odd nth inputs to be passed to the next `Frame`.
-
-    Parameters
-    ----------
-    None : `Odd` doesn't have parameters to be set.
-    """
-    def frame(self, input: o.T) -> o.T:
-        self._index += 1
-        # INDEX -1 IN USAGE
-        if self._index % 2 == 0:    # Odd is nth based
-            if isinstance(self._chained_operand, Frame):
-                return self._chained_operand.frame(input)
-            return self._chained_operand
-        else:
-            return ol.Null()
-
-
-
-class Even(Alternator):
-    """`Frame -> Left -> InputFilter -> Alternator -> Even`
-
-    An `Even` only lets even nth inputs to be passed to the next `Frame`.
-
-    Parameters
-    ----------
-    None : `Even` doesn't have parameters to be set.
-    """
-    def frame(self, input: o.T) -> o.T:
-        self._index += 1
-        # INDEX -1 IN USAGE
-        if self._index % 2 == 1:    # It's Nth based
-            if isinstance(self._chained_operand, Frame):
-                return self._chained_operand.frame(input)
-            return self._chained_operand
-        else:
-            return ol.Null()
-
-
-
-class Every(Alternator):
-    """`Frame -> Left -> InputFilter -> Alternator -> Every`
-
-    An `Every` only lets every other nth inputs to be passed to the next `Frame`
-    for each given `Measure`.
-
-    Args:
-        nth (int): The nth input, as in every other 2nd or 4th in each `Measure`.
-    """
-    def __init__(self, nth: int = 4):
-        from . import operand_container as oc
-        super().__init__()
-        self._measure_at: int = 0
-        self._named_parameters['nths'] = nth
-        self._previous_measure: oe.Element | oc.Composition | None = None
-
-    def reset(self, *parameters) -> Self:
-        super().reset()
-        self._measure_at = 0
-        self._previous_measure = None
-        return self << parameters
-    
-    def frame(self, input: o.T) -> o.T:
-        from . import operand_container as oc
-        if self._named_parameters['nths'] > 0 and isinstance(input, (oe.Element, oc.Composition)):
-            present_measure: ra.Measure = input % ra.Measure()
-            if isinstance(self._previous_measure, ra.Measure) and self._previous_measure < present_measure:
-                self._measure_at = 0   # Resets the measure counter
-            self._measure_at += 1
-            self._previous_measure = present_measure    # Keeps track of the previous Measure
-            if self._measure_at % self._named_parameters['nths'] == 0:
-                if isinstance(self._chained_operand, Frame):
-                    return self._chained_operand.frame(input)
-                return self._chained_operand
-        return ol.Null()
-
-
-
-class Each(Every):
-    """`Frame -> Left -> InputFilter -> Alternator -> Every -> Each`
-
-    An `Each` only lets every index value inputs to be passed to the next `Frame`
-    for each given `Measure`. This is 0-based while `Every` is 1-based.
-
-    Args:
-        index (int): The index input, as in each 0 or 2 index in each `Measure`.
-    """
-    def __init__(self, index: int = 0):
-        nth: int = index + 1
-        super().__init__(nth)
-
-
-
-class Nth(Alternator):
-    """`Frame -> Left -> InputFilter -> Alternator -> Nth`
-
-    A `Nth` only lets the nth inputs to be passed to the next `Frame`.
-    In `Nth(1, 6)**Duration(1/1)` sets the 1st and 6th `Clip` elements to 1 as note value.
-
-    Parameters
-    ----------
-    int(None) : The set of nths to pass to the next `Frame`.
-    """
-    def __init__(self, *parameters):
-        super().__init__()
-        self._named_parameters['parameters'] = parameters
-
-    def frame(self, input: o.T) -> o.T:
-        self._index += 1
-        # INDEX -1 IN USAGE
-        if self._index + 1 in self._named_parameters['parameters']:
-            if isinstance(self._chained_operand, Frame):
-                return self._chained_operand.frame(input)
-            return self._chained_operand
-        else:
-            return ol.Null()
-
-
-
-class At(Alternator):
-    """`Frame -> Left -> InputFilter -> Alternator -> At`
-
-    A `At` only lets the indexed inputs to be passed to the next `Frame`.
-    In `At(1, 6)**Duration(1/1)` sets the 2nd and 7th `Clip` elements to 1 as note value.
-
-    Parameters
-    ----------
-    int(None) : The set of indexes to pass to the next `Frame`.
-    """
-    def __init__(self, *parameters):
-        super().__init__()
-        self._named_parameters['parameters'] = parameters
-
-    def frame(self, input: o.T) -> o.T:
-        self._index += 1
-        # INDEX -1 IN USAGE
-        if self._index in self._named_parameters['parameters']:
-            if isinstance(self._chained_operand, Frame):
-                return self._chained_operand.frame(input)
-            return self._chained_operand
-        else:
-            return ol.Null()
 
 
 

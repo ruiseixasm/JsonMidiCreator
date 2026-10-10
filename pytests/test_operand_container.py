@@ -828,7 +828,7 @@ def test_clip_fitting():
     # two_elements_copy >> Plot()
     assert two_elements_copy[0] % Duration() == 1/4
 
-test_clip_fitting()
+# test_clip_fitting()
 
 
 def test_clip_map():
