@@ -880,14 +880,13 @@ class Even(Selector):
     ----------
     None : `Even` doesn't have parameters to be set.
     """
-    def frame(self, input: o.T) -> o.T:
+    def _update_unmasked_items(self, unmasked_items: list[Any]) -> Self:
         even_items: list[Any] = [
-            single_item for index, single_item in enumerate(self._unmasked_items)
+            single_item for index, single_item in enumerate(unmasked_items)
             if index % 2 == 1   # Even is nth based
         ]
-        self._pass_framed_items(even_items)
         self._selected_items = even_items
-        return super().frame(input)
+        return super()._update_unmasked_items(even_items)
 
 
 
@@ -904,14 +903,14 @@ class Every(Selector):
         super().__init__()
         self._named_parameters['nths'] = nth
 
-    
-    def frame(self, input: o.T) -> o.T:
+
+    def _update_unmasked_items(self, unmasked_items: list[Any]) -> Self:
         from . import operand_container as oc
-        if self._named_parameters['nths'] > 0 and isinstance(input, (oe.Element, oc.Composition)):
-            nth_items: list[Any] = []
+        nth_items: list[Any] = []
+        if self._named_parameters['nths'] > 0:
             nth: int = 0
             previous_measure: int | None = None
-            for single_item in self._unmasked_items:
+            for single_item in unmasked_items:
                 if isinstance(single_item, (oe.Element, oc.Composition)):
                     present_measure: ra.Measure = single_item % ra.Measure()
                     if isinstance(present_measure, ra.Measure):
@@ -921,12 +920,9 @@ class Every(Selector):
                         if nth % self._named_parameters['nths'] == 0:
                             nth_items.append(single_item)
                         previous_measure = present_measure
-            self._pass_framed_items(nth_items)
             self._selected_items = nth_items
-            return super().frame(input)
-        self._pass_framed_items([])
-        return ol.Null()
-
+        return super()._update_unmasked_items(nth_items)
+    
 
 
 class Each(Every):
