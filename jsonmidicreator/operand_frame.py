@@ -1208,10 +1208,10 @@ class PreviousComparison(ContainerFilter):
     ----------
     Any(None) : One or more conditions where **all** need to be met.
     """
-    def frame(self, input: o.T) -> o.T:
+    def _update_unmasked_items(self, unmasked_items: list[Any]) -> Self:
         passed_items: list[Any] = []
         previous_parameter: Any = None
-        for single_item in self._unmasked_items:
+        for single_item in unmasked_items:
             matches: bool = True
             if previous_parameter is not None:
                 parameter: Any = previous_parameter
@@ -1223,9 +1223,8 @@ class PreviousComparison(ContainerFilter):
             if matches:
                 passed_items.append(single_item)
             previous_parameter = single_item
-        self._pass_framed_items(passed_items)
         self._selected_items = passed_items
-        return super().frame(input)
+        return super()._update_unmasked_items(passed_items)
     
 
     @staticmethod
