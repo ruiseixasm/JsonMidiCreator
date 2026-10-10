@@ -705,6 +705,19 @@ class Selector(InputFilter):
 
 
 
+class All(Selector):
+    """`Frame -> Left -> InputFilter -> Selector -> All`
+
+    An `All` lets any, or all, input to pass to the next `Frame`.
+
+    Parameters
+    ----------
+    None : `All` doesn't have parameters to be set.
+    """
+    pass
+
+
+
 class Indexing(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> Indexing`
 
@@ -751,7 +764,7 @@ class First(Indexing):
 
 
 
-class Last(Selector):
+class Last(Indexing):
     """`Frame -> Left -> InputFilter -> Selector -> Indexing -> Last`
 
     A `Last` only lets the last `amount` of elements in a `Clip` to pass to the next `Frame`.
@@ -774,29 +787,13 @@ class Last(Selector):
             first_item: int = len(self._container_items) - amount_items
             last_items = self._container_items[first_item:]
             self._pass_framed_items(last_items)
-        for single_item in last_items:
-            if input is single_item:
-                if isinstance(self._chained_operand, Frame):
-                    return self._chained_operand.frame(input)
-                return self._chained_operand
-        return ol.Null()
+        self._selected_items = last_items
+        return super().frame(input)
 
 
 
-class All(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> Indexing -> All`
 
-    An `All` lets any, or all, input to pass to the next `Frame`.
-
-    Parameters
-    ----------
-    None : `All` doesn't have parameters to be set.
-    """
-    pass
-
-
-
-class Odd(Selector):
+class Odd(Indexing):
     """`Frame -> Left -> InputFilter -> Selector -> Indexing -> Odd`
 
     An `Odd` only lets odd nth inputs to be passed to the next `Frame`.
@@ -805,20 +802,14 @@ class Odd(Selector):
     ----------
     None : `Odd` doesn't have parameters to be set.
     """
-
-
     def frame(self, input: o.T) -> o.T:
         odd_items: list[Any] = [
             single_item for index, single_item in enumerate(self._container_items)
             if index % 2 == 0   # Odd is nth based
         ]
         self._pass_framed_items(odd_items)
-        for index, single_item in enumerate(self._container_items):
-            if index % 2 == 0 and input is single_item:   # Odd is nth based
-                if isinstance(self._chained_operand, Frame):
-                    return self._chained_operand.frame(input)
-                return self._chained_operand
-        return ol.Null()
+        self._selected_items = odd_items
+        return super().frame(input)
 
 
 
