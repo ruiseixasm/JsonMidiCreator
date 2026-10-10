@@ -1322,17 +1322,14 @@ class Cross(ContainerFilter):
         self._named_parameters['position'] = ra.Position(position)
 
 
-    def frame(self, input: o.T) -> o.T:
-        if isinstance(input, oe.Element):
-            crossing_items: list[Any] = []
-            for single_item in self._unmasked_items:
+    def _update_unmasked_items(self, unmasked_items: list[Any]) -> Self:
+        crossing_items: list[Any] = []
+        for single_item in unmasked_items:
+            if isinstance(single_item, oe.Element):
                 if isinstance(single_item, oe.Element) and single_item.cross(self._named_parameters['position']):
                     crossing_items.append(single_item)
-            self._pass_framed_items(crossing_items)
-            self._selected_items = crossing_items
-            return super().frame(input)
-        self._pass_framed_items([])
-        return ol.Null()
+        self._selected_items = crossing_items
+        return super()._update_unmasked_items(crossing_items)
 
 
 
@@ -1350,17 +1347,14 @@ class Overlap(ContainerFilter):
         self._named_parameters['locus'] = og.Locus(locus)
 
 
-    def frame(self, input: o.T) -> o.T:
-        if isinstance(input, oe.Element):
-            overlapping_items: list[Any] = []
-            for single_item in self._unmasked_items:
+    def _update_unmasked_items(self, unmasked_items: list[Any]) -> Self:
+        overlapping_items: list[Any] = []
+        for single_item in unmasked_items:
+            if isinstance(single_item, oe.Element):
                 if isinstance(single_item, oe.Element) and single_item.overlap(self._named_parameters['locus']):
                     overlapping_items.append(single_item)
-            self._pass_framed_items(overlapping_items)
-            self._selected_items = overlapping_items
-            return super().frame(input)
-        self._pass_framed_items([])
-        return ol.Null()
+        self._selected_items = overlapping_items
+        return super()._update_unmasked_items(overlapping_items)
 
 
 
