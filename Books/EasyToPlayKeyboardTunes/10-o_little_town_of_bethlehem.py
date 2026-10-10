@@ -40,7 +40,7 @@ variant_phrase_ = \
 central_period = \
     Note(Dotted(1/4), "D") / Note(1/8, "E")**5 / Note(1/8, )**["G", "A", "B", "C"] / Note("D")**2 / \
     Note()**["G", "B", "A", "G"] / Note(1/2, "D")**2 \
-        << Match(0, "E")**Previous(Pipe(Degree()))**Subtract(1)**Pipe()
+        << Equal(0, "E")**Previous(Pipe(Degree()))**Subtract(1)**Pipe()
 
 melody = \
     pickup_bar * \

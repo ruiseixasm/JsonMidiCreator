@@ -31,7 +31,7 @@ snare = Note(1/4, Channel(2)) / 4 * 4 << Steps(1) << Velocity(80)
 part_A = Section([kick, snare])
 
 kick += Beat(1)
-snare += IsNot(Step(0))**Step(1)
+snare += NotEqual(Step(0))**Step(1)
 snare << Velocity(60) << DownBeat()**Channel(3)
 part_B = Section([kick, snare])
 

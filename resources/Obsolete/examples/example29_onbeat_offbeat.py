@@ -34,6 +34,6 @@ snare << Select(DownBeat()) >> Plot(block=False, title="Down Beat")
 snare << Select(UpBeat()) >> Plot(block=False, title="Up Beat")
 
 snare << Select(IsNull()**OnBeat()) >> Plot(block=False, title="Is Null")
-snare << Select(IsNot(OnBeat())) >> Plot(block=False, title="Is Not On Beat")
-snare << Select(IsNot(First())) >> Plot(block=True, title="Is Not the First")
+snare << Select(NotEqual(OnBeat())) >> Plot(block=False, title="Is Not On Beat")
+snare << Select(NotEqual(First())) >> Plot(block=True, title="Is Not the First")
 

@@ -158,19 +158,19 @@ def test_conditional_clip_note():
     clip_note: Clip = Note() * 1
 
     assert clip_note[0] % Octave() == 4
-    clip_note -= Match(Step(0))**Octave(1)
+    clip_note -= Equal(Step(0))**Octave(1)
     assert clip_note[0] % Octave() == 3
-    clip_note += Match(Step(0))**Octave(1)
+    clip_note += Equal(Step(0))**Octave(1)
     assert clip_note[0] % Octave() == 4
 
     four_notes: Clip = Note() * 4
     
     assert four_notes[0] % Octave() == 4
     assert four_notes[1] % Octave() == 4
-    four_notes -= IsNot(Step(0))**Octave(1)
+    four_notes -= NotEqual(Step(0))**Octave(1)
     assert four_notes[0] % Octave() == 4
     assert four_notes[1] % Octave() == 3
-    four_notes += IsNot(Step(0))**Octave(1)
+    four_notes += NotEqual(Step(0))**Octave(1)
     assert four_notes[0] % Octave() == 4
     assert four_notes[1] % Octave() == 4
 
@@ -180,10 +180,10 @@ def test_conditional_clip_note():
 
     assert four_notes[0] % Octave() == 4
     assert four_notes[1] % Octave() == 4
-    four_notes -= IsNot(Measure(0))**Octave(1)
+    four_notes -= NotEqual(Measure(0))**Octave(1)
     assert four_notes[0] % Octave() == 4
     assert four_notes[1] % Octave() == 3
-    four_notes += IsNot(Measure(0))**Octave(1)
+    four_notes += NotEqual(Measure(0))**Octave(1)
     assert four_notes[0] % Octave() == 4
     assert four_notes[1] % Octave() == 4
 

@@ -24,8 +24,8 @@ indochine_motif[0] >> Print()
 
 # Sets all notes on the Octave 7
 next_notes = indochine_motif[First(4)] * 4 << Octave(7) \
-    << Match(Step(2))**Semitone(4) \
-    << Match(Beat(2))**Semitone(1) \
+    << Equal(Step(2))**Semitone(4) \
+    << Equal(Beat(2))**Semitone(1) \
     << Every(4)**Iterate(-2)**Semitone()
 
 

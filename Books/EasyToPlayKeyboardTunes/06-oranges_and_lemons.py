@@ -32,7 +32,7 @@ settings << Tempo(140) << TimeSignature(3, 4) << KeySignature('') << Quantizatio
 
 melody = Note() / 3 * 8 << Title("Melody")
 melody //= First(2)**Step(1)
-melody //= Either(Bar(1), Bar(5))**Match(Beat(2))**Beats(1/2)
+melody //= Either(Bar(1), Bar(5))**Equal(Beat(2))**Beats(1/2)
 melody >>= Last(2)**Merge()
 melody << Foreach(5, 5, 3, 5, 3, 1, 2, 3, 4, 2, 5, 3, 1, 5, 5, 3, 5, 3, 1, 2, 3, 4, 2, 5, 3, 1)**Degree()
 

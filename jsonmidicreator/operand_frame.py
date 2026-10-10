@@ -1105,10 +1105,10 @@ class BasicComparison(InputFilter):
 
 
 
-class Match(BasicComparison):
-    """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> Match`
+class Equal(BasicComparison):
+    """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> Equal`
 
-    An `Match` checks if the input is equal to **all** the conditions before being passed to the next `Frame`.
+    An `Equal` checks if the input is equal to **all** the conditions before being passed to the next `Frame`.
 
     Parameters
     ----------
@@ -1120,10 +1120,10 @@ class Match(BasicComparison):
 
 
 
-class IsNot(BasicComparison):
-    """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> IsNot`
+class NotEqual(BasicComparison):
+    """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> NotEqual`
 
-    An `IsNot` checks if the input is NOT equal to **all** the conditions before being passed to the next `Frame`.
+    A `NotEqual` checks if the input is NOT equal to **all** the conditions before being passed to the next `Frame`.
 
     Parameters
     ----------

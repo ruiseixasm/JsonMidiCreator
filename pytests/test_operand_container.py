@@ -227,7 +227,7 @@ def test_or_clip():
     four_notes: Clip = Note(1/8) * 4 << Pipe(TimeSignature(2, 4))
 
     assert four_notes.len_unmasked() == 4
-    four_notes << Select(Match(Or(Step(2), Step(4))))
+    four_notes << Select(Equal(Or(Step(2), Step(4))))
     print(four_notes.len_unmasked())
     assert four_notes.len_unmasked() == 2
 

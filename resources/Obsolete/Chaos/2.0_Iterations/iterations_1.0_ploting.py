@@ -27,7 +27,7 @@ four_notes = Note() * 4
 four_notes << Key("A")
 # four_notes >> Plot()
 
-tied_chord = Chord(Key("C"), Size("7th")) * Chord(Key("E"), Size("7th")) * 2 << IsNot(First())**Tied()
+tied_chord = Chord(Key("C"), Size("7th")) * Chord(Key("E"), Size("7th")) * 2 << NotEqual(First())**Tied()
 
 tied_chord * 2 >> Plot(iterations=10, n_button=process_clip)
 
