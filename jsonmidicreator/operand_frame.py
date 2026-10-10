@@ -1256,11 +1256,6 @@ class PreviousComparison(Selector):
     def _compare(input: Any, parameter: Any) -> bool:
         return True
 
-    def reset(self, *parameters) -> Self:
-        super().reset()
-        self._named_parameters['previous'] = None
-        return self << parameters
-
 
 
 class AllMatch(PreviousComparison):
