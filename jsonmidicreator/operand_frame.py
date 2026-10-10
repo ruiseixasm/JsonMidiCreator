@@ -744,6 +744,7 @@ class ItemType(Selector):
         self._pass_framed_items(type_items)
         self._selected_items = type_items
         self._unmasked_items = type_items
+        return self
 
 
 
@@ -770,6 +771,8 @@ class First(Selector):
             first_items = self._unmasked_items[:amount_items]
             self._pass_framed_items(first_items)
         self._selected_items = first_items
+        self._unmasked_items = first_items
+        return self
 
 
 
