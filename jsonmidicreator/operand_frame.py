@@ -990,18 +990,18 @@ class Neither(Selector):
 class BasicComparison(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> BasicComparison`
 
-    A `BasicComparison` checks if the input meets a basic comparison condition before being passed to the next `Frame`.
+    A `BasicComparison` checks if the input verifies the comparison wit `other` before being passed to the next `Frame`.
 
     Parameters
     ----------
-    Any(None) : One or more conditions where **all** need to be met.
+    Any(None) : The `other` operand the input item will be compared with.
     """
     def _update_unmasked_items(self, unmasked_items: list[Any]) -> Self:
         match_items: list[Any] = []
         for single_item in unmasked_items:
             matches: bool = True
-            for condition in self._parameters:
-                if not self._compare(single_item, condition): # Where the comparison is made
+            for other in self._parameters:
+                if not self._compare(single_item, other): # Where the comparison is made
                     matches = False
                     break
             if matches:
@@ -1011,13 +1011,13 @@ class BasicComparison(Selector):
     
 
     @staticmethod
-    def _compare(input: Any, condition: Any) -> bool:
+    def _compare(input: Any, other: Any) -> bool:
         return True
 
     def _set_inside_container(self, container: 'Container') -> Self:
-        for condition in self._parameters:
-            if isinstance(condition, Frame):    # ALSO sets the container in the Frame as condition
-                condition._set_inside_container(container)
+        for other in self._parameters:
+            if isinstance(other, Frame):    # ALSO sets the container in the Frame as other
+                other._set_inside_container(container)
         return super()._set_inside_container(container)
 
 
@@ -1025,90 +1025,90 @@ class BasicComparison(Selector):
 class Equal(BasicComparison):
     """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> Equal`
 
-    An `Equal` checks if the input is equal to **all** the conditions before being passed to the next `Frame`.
+    An `Equal` checks if the input is equal to **all** the `other` before being passed to the next `Frame`.
 
     Parameters
     ----------
-    Any(None) : One or more conditions where **all** need to be met as equal (`==`).
+    Any(None) : One or more `other` items where **all** need to be met as equal (`==`).
     """
     @staticmethod
-    def _compare(input: Any, condition: Any) -> bool:
-        return input == condition
+    def _compare(input: Any, other: Any) -> bool:
+        return input == other
 
 
 
 class NotEqual(BasicComparison):
     """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> NotEqual`
 
-    A `NotEqual` checks if the input is NOT equal to **all** the conditions before being passed to the next `Frame`.
+    A `NotEqual` checks if the input is NOT equal to **all** the `other` before being passed to the next `Frame`.
 
     Parameters
     ----------
-    Any(None) : One or more conditions where **all** need to be met as NOT equal (`not ==`).
+    Any(None) : One or more `other` items where **all** need to be met as NOT equal (`not ==`).
     """
     @staticmethod
-    def _compare(input: Any, condition: Any) -> bool:
-        return not input == condition
+    def _compare(input: Any, other: Any) -> bool:
+        return not input == other
 
 
 
 class Above(BasicComparison):
     """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> Above`
 
-    The `Above` checks if the input is greater to **all** the conditions before being passed to the next `Frame`.
+    The `Above` checks if the input is greater to **all** the `other` before being passed to the next `Frame`.
 
     Parameters
     ----------
-    Any(None) : One or more conditions where **all** need to be met as greater (`>`).
+    Any(None) : One or more `other` items where **all** need to be met as greater (`>`).
     """
     @staticmethod
-    def _compare(input: Any, condition: Any) -> bool:
-        return input > condition
+    def _compare(input: Any, other: Any) -> bool:
+        return input > other
 
 
 
 class Bellow(BasicComparison):
     """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> Bellow`
 
-    A `Bellow` checks if the input is less to **all** the conditions before being passed to the next `Frame`.
+    A `Bellow` checks if the input is less to **all** the `other` before being passed to the next `Frame`.
 
     Parameters
     ----------
-    Any(None) : One or more conditions where **all** need to be met as less (`<`).
+    Any(None) : One or more `other` items where **all** need to be met as less (`<`).
     """
     @staticmethod
-    def _compare(input: Any, condition: Any) -> bool:
-        return input < condition
+    def _compare(input: Any, other: Any) -> bool:
+        return input < other
 
 
 
 class AboveOrEqual(BasicComparison):
     """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> AboveOrEqual`
 
-    An `AboveOrEqual` checks if the input is greater or equal to **all** the conditions before being passed to the next `Frame`.
+    An `AboveOrEqual` checks if the input is greater or equal to **all** the `other` before being passed to the next `Frame`.
 
     Parameters
     ----------
-    Any(None) : One or more conditions where **all** need to be met as greater or equal (`>=`).
+    Any(None) : One or more `other` items where **all** need to be met as greater or equal (`>=`).
     """
     @staticmethod
-    def _compare(input: Any, condition: Any) -> bool:
-        return input >= condition
+    def _compare(input: Any, other: Any) -> bool:
+        return input >= other
 
 
 
 class BellowOrEqual(BasicComparison):
     """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> BellowOrEqual`
 
-    A `BellowOrEqual` checks if the input is less or equal to **all** the conditions before being passed to the next `Frame`.
+    A `BellowOrEqual` checks if the input is less or equal to **all** the `other` before being passed to the next `Frame`.
 
     Parameters
     ----------
-    Any(None) : One or more conditions where **all** need to be met as less or equal (`<=`).
+    Any(None) : One or more `other` items where **all** need to be met as less or equal (`<=`).
     """
     @staticmethod
-    def _compare(input: Any, condition: Any) -> bool:
-        return input <= condition
+    def _compare(input: Any, other: Any) -> bool:
+        return input <= other
 
 
 
