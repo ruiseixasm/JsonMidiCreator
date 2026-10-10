@@ -1769,8 +1769,8 @@ class Trigger(ChannelElement):
     def get_sample_id(self) -> int:
         if self._owner_clip is not None:
             lc_sample: str = self._sample.strip().lower()
-            for index, sample in enumerate(self._owner_clip._drum_kit.keys()):
-                if sample.lower() == lc_sample:
+            for index, sample_name in enumerate(self._owner_clip._drum_kit.keys()):
+                if sample_name.lower().find(lc_sample) != -1:
                     return index
         return -1   # Not found
     
