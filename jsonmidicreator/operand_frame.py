@@ -81,13 +81,6 @@ class Frame(o.Operand):
         return self
 
 
-    def _pass_framed_items(self, unmasked_items: list[Any]) -> Self:
-        if isinstance(self._chained_operand, Frame):
-            self._chained_operand._unmasked_items = unmasked_items
-            self._chained_operand._pass_framed_items(unmasked_items)  # Recursive call
-        return self
-
-    
     def _set_inside_container(self, container: 'Container') -> Self:
         from . import operand_container as oc
         container._set = False   # In order to contained items know it was set by them (Element items)
@@ -95,7 +88,6 @@ class Frame(o.Operand):
             self._update_unmasked_items( container.items_unmasked() )
         else:
             self._update_unmasked_items( [] )
-        self._pass_framed_items(self._unmasked_items)
         # Finally, does all remaining resets for each operand
         return self.reset()
 
@@ -720,7 +712,9 @@ class ContainerFilter(LeftToRight):
     None : `ContainerFilter` doesn't have parameters to be set.
     """
     def frame(self, input: o.T) -> o.T:
-        if any(input is single_item for single_item in self._selected_items):
+        if self._selected_items != self._unmasked_items:
+            print("DIFFERENT")
+        if any(input is single_item for single_item in self._unmasked_items):
             if isinstance(self._chained_operand, Frame):
                 return self._chained_operand.frame(input)
             return self._chained_operand
