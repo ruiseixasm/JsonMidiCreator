@@ -1333,7 +1333,7 @@ class AllNotDecreasing(PreviousComparison):
 
 
 
-class Cross(InputFilter):
+class Cross(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> Cross`
 
     A `Cross` selects all elements that passthrough a given `Position`.
@@ -1346,19 +1346,22 @@ class Cross(InputFilter):
         super().__init__()
         self._named_parameters['position'] = ra.Position(position)
 
+
     def frame(self, input: o.T) -> o.T:
-        from . import operand_element as oe
-        from . import operand_container as oc
-        if isinstance(self._container, oc.Container) \
-            and isinstance(input, oe.Element) and input.cross(self._named_parameters['position']):
-            if isinstance(self._chained_operand, Frame):
-                return self._chained_operand.frame(input)
-            return self._chained_operand
+        if isinstance(input, oe.Element):
+            crossing_items: list[Any] = []
+            for single_item in self._unmasked_items:
+                if isinstance(single_item, oe.Element) and single_item.cross(self._named_parameters['position']):
+                    crossing_items.append(single_item)
+            self._pass_framed_items(crossing_items)
+            self._selected_items = crossing_items
+            return super().frame(input)
+        self._pass_framed_items([])
         return ol.Null()
 
 
 
-class Overlap(InputFilter):
+class Overlap(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> Overlap`
 
     A `Overlap` selects all elements that overlap a given `Locus`.
@@ -1371,14 +1374,17 @@ class Overlap(InputFilter):
         super().__init__()
         self._named_parameters['locus'] = og.Locus(locus)
 
+
     def frame(self, input: o.T) -> o.T:
-        from . import operand_element as oe
-        from . import operand_container as oc
-        if isinstance(self._container, oc.Container) \
-            and isinstance(input, oe.Element) and input.overlap(self._named_parameters['locus']):
-            if isinstance(self._chained_operand, Frame):
-                return self._chained_operand.frame(input)
-            return self._chained_operand
+        if isinstance(input, oe.Element):
+            overlapping_items: list[Any] = []
+            for single_item in self._unmasked_items:
+                if isinstance(single_item, oe.Element) and single_item.overlap(self._named_parameters['locus']):
+                    overlapping_items.append(single_item)
+            self._pass_framed_items(overlapping_items)
+            self._selected_items = overlapping_items
+            return super().frame(input)
+        self._pass_framed_items([])
         return ol.Null()
 
 

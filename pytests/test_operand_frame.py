@@ -293,3 +293,10 @@ def test_all_match():
 
 # test_all_match()
 
+
+def test_cross_element():
+    four_notes = Note() * 4 + Iterate()**Degree()
+    assert four_notes[Cross(Steps(2))]
+    assert not four_notes[Cross(Steps(4))]
+
+
