@@ -273,8 +273,16 @@ def test_first_selector():
 
 
 def test_last_selector():
-    four_notes = Note() * 4
+    four_notes = Note() * 4 + Iterate()**Degree()
     two_notes = four_notes % Last(2)
     assert two_notes % int() == 2
     assert two_notes[0] == four_notes[2]
+
+
+def test_at_selector():
+    four_notes = Note() * 4 + Iterate()**Degree()
+    two_notes = four_notes % At(2)
+    assert two_notes % int() == 1
+    assert two_notes[0] == four_notes[2]
+    assert four_notes[At(2)] == four_notes[2]
 

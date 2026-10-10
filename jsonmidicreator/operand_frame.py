@@ -52,7 +52,7 @@ class Frame(o.Operand):
         self._parameters: tuple         = parameters
         self._named_parameters: dict    = {}
         self._container: oc.Container = None
-        self._container_items: list[Any] = []
+        self._unmasked_items: list[Any] = []
         self._root_frame: bool = True
         
     # It has to include self, contrary to the Operand __next__ that excludes the self!!
@@ -90,13 +90,13 @@ class Frame(o.Operand):
         if isinstance(self._chained_operand, Frame):
             self._chained_operand._set_inside_container(container)  # Recursive call
         self._container = container
-        self._container_items = container._items
+        self._unmasked_items = container.items_unmasked()
         # Finally, does all remaining resets for each operand
         return self.reset()
 
     def _pass_framed_items(self, container_items: list[Any]) -> Self:
         if isinstance(self._chained_operand, Frame):
-            self._chained_operand._container_items = container_items
+            self._chained_operand._unmasked_items = container_items
             self._chained_operand._pass_framed_items(container_items)  # Recursive call
         return self
 
@@ -689,7 +689,7 @@ class InputFilter(LeftToRight):
     """
     def __init__(self, *parameters):
         super().__init__(*parameters)
-        self._selected_items: list[Any] = self._container_items
+        self._selected_items: list[Any] = self._unmasked_items
 
 
 
@@ -743,9 +743,9 @@ class First(Selector):
 
     def frame(self, input: o.T) -> o.T:
         amount_items: int = self._named_parameters['amount']
-        first_items: list[Any] = self._container_items
-        if len(self._container_items) > amount_items:
-            first_items = self._container_items[:amount_items]
+        first_items: list[Any] = self._unmasked_items
+        if len(self._unmasked_items) > amount_items:
+            first_items = self._unmasked_items[:amount_items]
             self._pass_framed_items(first_items)
         self._selected_items = first_items
         return super().frame(input)
@@ -770,10 +770,10 @@ class Last(Selector):
 
     def frame(self, input: o.T) -> o.T:
         amount_items: int = self._named_parameters['amount']
-        last_items: list[Any] = self._container_items
-        if len(self._container_items) > amount_items:
-            first_item: int = len(self._container_items) - amount_items
-            last_items = self._container_items[first_item:]
+        last_items: list[Any] = self._unmasked_items
+        if len(self._unmasked_items) > amount_items:
+            first_item: int = len(self._unmasked_items) - amount_items
+            last_items = self._unmasked_items[first_item:]
             self._pass_framed_items(last_items)
         self._selected_items = last_items
         return super().frame(input)
@@ -797,12 +797,50 @@ class Nth(Selector):
 
     def frame(self, input: o.T) -> o.T:
         nth_items: list[Any] = []
-        for index, single_item in enumerate(self._container_items):
+        for index, single_item in enumerate(self._unmasked_items):
             if index + 1 in self._named_parameters['parameters']:
                 nth_items.append(single_item)
         self._pass_framed_items(nth_items)
         self._selected_items = nth_items
         return super().frame(input)
+
+
+
+class At(Selector):
+    """`Frame -> Left -> InputFilter -> Selector -> At`
+
+    A `At` only lets the indexed inputs to be passed to the next `Frame`.
+    In `At(1, 6)**Duration(1/1)` sets the 2nd and 7th `Clip` elements to 1 as note value.
+
+    Parameters
+    ----------
+    int(None) : The set of indexes to pass to the next `Frame`.
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._named_parameters['parameters'] = parameters
+
+
+    def frame(self, input: o.T) -> o.T:
+        at_items: list[Any] = []
+        for index, single_item in enumerate(self._unmasked_items):
+            if index in self._named_parameters['parameters']:
+                at_items.append(single_item)
+        self._pass_framed_items(at_items)
+        self._selected_items = at_items
+        return super().frame(input)
+
+
+    # def frame(self, input: o.T) -> o.T:
+    #     self._index += 1
+    #     # INDEX -1 IN USAGE
+    #     if self._index in self._named_parameters['parameters']:
+    #         if isinstance(self._chained_operand, Frame):
+    #             return self._chained_operand.frame(input)
+    #         return self._chained_operand
+    #     else:
+    #         return ol.Null()
+
 
 
 
@@ -817,7 +855,7 @@ class Odd(Selector):
     """
     def frame(self, input: o.T) -> o.T:
         odd_items: list[Any] = [
-            single_item for index, single_item in enumerate(self._container_items)
+            single_item for index, single_item in enumerate(self._unmasked_items)
             if index % 2 == 0   # Odd is nth based
         ]
         self._pass_framed_items(odd_items)
@@ -837,7 +875,7 @@ class Even(Selector):
     """
     def frame(self, input: o.T) -> o.T:
         even_items: list[Any] = [
-            single_item for index, single_item in enumerate(self._container_items)
+            single_item for index, single_item in enumerate(self._unmasked_items)
             if index % 2 == 1   # Even is nth based
         ]
         self._pass_framed_items(even_items)
@@ -866,7 +904,7 @@ class Every(Selector):
             nth_items: list[Any] = []
             nth: int = 0
             previous_measure: int | None = None
-            for single_item in self._container_items:
+            for single_item in self._unmasked_items:
                 if isinstance(single_item, (oe.Element, oc.Composition)):
                     present_measure: ra.Measure = single_item % ra.Measure()
                     if isinstance(present_measure, ra.Measure):
@@ -898,32 +936,6 @@ class Each(Every):
 
 
 
-class At(InputFilter):
-    """`Frame -> Left -> InputFilter -> Selector -> At`
-
-    A `At` only lets the indexed inputs to be passed to the next `Frame`.
-    In `At(1, 6)**Duration(1/1)` sets the 2nd and 7th `Clip` elements to 1 as note value.
-
-    Parameters
-    ----------
-    int(None) : The set of indexes to pass to the next `Frame`.
-    """
-    def __init__(self, *parameters):
-        super().__init__()
-        self._named_parameters['parameters'] = parameters
-
-    def frame(self, input: o.T) -> o.T:
-        self._index += 1
-        # INDEX -1 IN USAGE
-        if self._index in self._named_parameters['parameters']:
-            if isinstance(self._chained_operand, Frame):
-                return self._chained_operand.frame(input)
-            return self._chained_operand
-        else:
-            return ol.Null()
-
-
-
 class Either(InputFilter):
     """`Frame -> Left -> InputFilter -> Selector -> Either`
 
@@ -935,7 +947,7 @@ class Either(InputFilter):
     """
     def frame(self, input: o.T) -> o.T:
         either_items: list[Any] = []
-        for single_item in self._container_items:
+        for single_item in self._unmasked_items:
             for condition in self._parameters:
                 if single_item == condition:
                     either_items.append(single_item)
@@ -961,14 +973,14 @@ class Neither(InputFilter):
     """
     def frame(self, input: o.T) -> o.T:
         either_items: list[Any] = []
-        for single_item in self._container_items:
+        for single_item in self._unmasked_items:
             for condition in self._parameters:
                 if single_item == condition:
                     either_items.append(single_item)
                     break
         neither_items: list[Any] = [
             single_item
-            for single_item in self._container_items
+            for single_item in self._unmasked_items
             if not any(single_item is item for item in either_items)
         ]
         self._pass_framed_items(neither_items)
