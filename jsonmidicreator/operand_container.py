@@ -1387,6 +1387,7 @@ class Clip(Composition):  # Just a container of Elements
 
     Parameters
     ----------
+    DrumKit({}), dict : Allows the setting of a Drum Kit to be associated to Trigger elements
     list([]) : A list of `Element` type items.
     int : Returns the len of the list.
     TimeSignature(settings) : A Time Signature on which `TimeValue` units are based and `Element` items placed.
