@@ -725,6 +725,28 @@ class Selector(InputFilter):
 
 
 
+class InputType(Selector):
+    """`Frame -> Left -> InputFilter -> Selector -> InputType`
+
+    An `InputType` only lets specified types of inputs to be passed to the next `Frame`.
+
+    Parameters
+    ----------
+    type(None) : A single or multiple types can be set as accepted ones.
+    """
+    def frame(self, input: o.T) -> o.T:
+        type_items: list[Any] = []
+        for single_item in self._unmasked_items:
+            for operand_class in self._parameters:
+                if isinstance(single_item, operand_class):
+                    type_items.append(single_item)
+                    break
+        self._pass_framed_items(type_items)
+        self._selected_items = type_items
+        return super().frame(input)
+
+
+
 class First(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> First`
 
@@ -1028,24 +1050,6 @@ class Overlap(InputFilter):
                 return self._chained_operand.frame(input)
             return self._chained_operand
         return ol.Null()
-
-
-
-class InputType(InputFilter):
-    """`Frame -> Left -> InputFilter -> Selector -> InputType`
-
-    An `InputType` only lets specified types of inputs to be passed to the next `Frame`.
-
-    Parameters
-    ----------
-    type(None) : A single or multiple types can be set as accepted ones.
-    """
-    def frame(self, input: o.T) -> o.T:
-        for operand_class in self._parameters:
-            if isinstance(input, operand_class):
-                return super().frame(input)
-        return ol.Null()
-
 
 
 class OnBeat(InputFilter):
