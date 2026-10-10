@@ -693,9 +693,7 @@ class InputFilter(LeftToRight):
     ----------
     None : `InputFilter` doesn't have parameters to be set.
     """
-    def __init__(self, *parameters):
-        super().__init__(*parameters)
-        self._selected_items: list[Any] = self._unmasked_items
+    pass
 
 
 
@@ -712,14 +710,14 @@ class All(InputFilter):
 
 
 
-class Selector(LeftToRight):
-    """`Frame -> LeftToRight -> Selector`
+class ContainerFilter(LeftToRight):
+    """`Frame -> LeftToRight -> ContainerFilter`
 
-    A `Selector` takes into consideration the input data in order to pass it to the next `Frame`.
+    A `ContainerFilter` takes into consideration the input data in order to pass it to the next `Frame`.
 
     Parameters
     ----------
-    None : `Selector` doesn't have parameters to be set.
+    None : `ContainerFilter` doesn't have parameters to be set.
     """
     def frame(self, input: o.T) -> o.T:
         if any(input is single_item for single_item in self._selected_items):
@@ -730,8 +728,8 @@ class Selector(LeftToRight):
 
 
 
-class ItemType(Selector):
-    """`Frame -> LeftToRight -> Selector -> ItemType`
+class ItemType(ContainerFilter):
+    """`Frame -> LeftToRight -> ContainerFilter -> ItemType`
 
     An `ItemType` only lets specified types of inputs to be passed to the next `Frame`.
 
@@ -751,8 +749,8 @@ class ItemType(Selector):
 
 
 
-class First(Selector):
-    """`Frame -> LeftToRight -> Selector -> First`
+class First(ContainerFilter):
+    """`Frame -> LeftToRight -> ContainerFilter -> First`
 
     A `First` only lets the first `amount` of elements in a `Clip` to pass to the next `Frame`.
 
@@ -776,8 +774,8 @@ class First(Selector):
 
 
 
-class Last(Selector):
-    """`Frame -> LeftToRight -> Selector -> Last`
+class Last(ContainerFilter):
+    """`Frame -> LeftToRight -> ContainerFilter -> Last`
 
     A `Last` only lets the last `amount` of elements in a `Clip` to pass to the next `Frame`.
 
@@ -802,8 +800,8 @@ class Last(Selector):
 
 
 
-class Nth(Selector):
-    """`Frame -> LeftToRight -> Selector -> Nth`
+class Nth(ContainerFilter):
+    """`Frame -> LeftToRight -> ContainerFilter -> Nth`
 
     A `Nth` only lets the nth inputs to be passed to the next `Frame`.
     In `Nth(1, 6)**Duration(1/1)` sets the 1st and 6th `Clip` elements to 1 as note value.
@@ -827,8 +825,8 @@ class Nth(Selector):
 
 
 
-class At(Selector):
-    """`Frame -> LeftToRight -> Selector -> At`
+class At(ContainerFilter):
+    """`Frame -> LeftToRight -> ContainerFilter -> At`
 
     A `At` only lets the indexed inputs to be passed to the next `Frame`.
     In `At(1, 6)**Duration(1/1)` sets the 2nd and 7th `Clip` elements to 1 as note value.
@@ -852,8 +850,8 @@ class At(Selector):
 
 
 
-class Odd(Selector):
-    """`Frame -> LeftToRight -> Selector -> Odd`
+class Odd(ContainerFilter):
+    """`Frame -> LeftToRight -> ContainerFilter -> Odd`
 
     An `Odd` only lets odd nth inputs to be passed to the next `Frame`.
 
@@ -871,8 +869,8 @@ class Odd(Selector):
 
 
 
-class Even(Selector):
-    """`Frame -> LeftToRight -> Selector -> Even`
+class Even(ContainerFilter):
+    """`Frame -> LeftToRight -> ContainerFilter -> Even`
 
     An `Even` only lets even nth inputs to be passed to the next `Frame`.
 
@@ -890,8 +888,8 @@ class Even(Selector):
 
 
 
-class Every(Selector):
-    """`Frame -> LeftToRight -> Selector -> Every`
+class Every(ContainerFilter):
+    """`Frame -> LeftToRight -> ContainerFilter -> Every`
 
     An `Every` only lets every other nth inputs to be passed to the next `Frame`
     for each given `Measure`.
@@ -926,7 +924,7 @@ class Every(Selector):
 
 
 class Each(Every):
-    """`Frame -> LeftToRight -> Selector -> Every -> Each`
+    """`Frame -> LeftToRight -> ContainerFilter -> Every -> Each`
 
     An `Each` only lets every index value inputs to be passed to the next `Frame`
     for each given `Measure`. This is 0-based while `Every` is 1-based.
@@ -940,8 +938,8 @@ class Each(Every):
 
 
 
-class Either(Selector):
-    """`Frame -> LeftToRight -> Selector -> Either`
+class Either(ContainerFilter):
+    """`Frame -> LeftToRight -> ContainerFilter -> Either`
 
     An `Either` only requires one verified condition to pass to the next `Frame`.
 
@@ -961,8 +959,8 @@ class Either(Selector):
 
 
 
-class Neither(Selector):
-    """`Frame -> LeftToRight -> Selector -> Neither`
+class Neither(ContainerFilter):
+    """`Frame -> LeftToRight -> ContainerFilter -> Neither`
 
     A `Neither` requires that no given condition is verified to pass to the next `Frame`.
 
@@ -987,8 +985,8 @@ class Neither(Selector):
 
 
 
-class BasicComparison(Selector):
-    """`Frame -> LeftToRight -> Selector -> BasicComparison`
+class BasicComparison(ContainerFilter):
+    """`Frame -> LeftToRight -> ContainerFilter -> BasicComparison`
 
     A `BasicComparison` checks if the input verifies the comparison wit `other` before being passed to the next `Frame`.
 
@@ -1023,7 +1021,7 @@ class BasicComparison(Selector):
 
 
 class Equal(BasicComparison):
-    """`Frame -> LeftToRight -> Selector -> BasicComparison -> Equal`
+    """`Frame -> LeftToRight -> ContainerFilter -> BasicComparison -> Equal`
 
     An `Equal` checks if the input is equal to **all** the `other` before being passed to the next `Frame`.
 
@@ -1038,7 +1036,7 @@ class Equal(BasicComparison):
 
 
 class NotEqual(BasicComparison):
-    """`Frame -> LeftToRight -> Selector -> BasicComparison -> NotEqual`
+    """`Frame -> LeftToRight -> ContainerFilter -> BasicComparison -> NotEqual`
 
     A `NotEqual` checks if the input is NOT equal to **all** the `other` before being passed to the next `Frame`.
 
@@ -1053,7 +1051,7 @@ class NotEqual(BasicComparison):
 
 
 class Above(BasicComparison):
-    """`Frame -> LeftToRight -> Selector -> BasicComparison -> Above`
+    """`Frame -> LeftToRight -> ContainerFilter -> BasicComparison -> Above`
 
     The `Above` checks if the input is greater to **all** the `other` before being passed to the next `Frame`.
 
@@ -1068,7 +1066,7 @@ class Above(BasicComparison):
 
 
 class Bellow(BasicComparison):
-    """`Frame -> LeftToRight -> Selector -> BasicComparison -> Bellow`
+    """`Frame -> LeftToRight -> ContainerFilter -> BasicComparison -> Bellow`
 
     A `Bellow` checks if the input is less to **all** the `other` before being passed to the next `Frame`.
 
@@ -1083,7 +1081,7 @@ class Bellow(BasicComparison):
 
 
 class AboveOrEqual(BasicComparison):
-    """`Frame -> LeftToRight -> Selector -> BasicComparison -> AboveOrEqual`
+    """`Frame -> LeftToRight -> ContainerFilter -> BasicComparison -> AboveOrEqual`
 
     An `AboveOrEqual` checks if the input is greater or equal to **all** the `other` before being passed to the next `Frame`.
 
@@ -1098,7 +1096,7 @@ class AboveOrEqual(BasicComparison):
 
 
 class BellowOrEqual(BasicComparison):
-    """`Frame -> LeftToRight -> Selector -> BasicComparison -> BellowOrEqual`
+    """`Frame -> LeftToRight -> ContainerFilter -> BasicComparison -> BellowOrEqual`
 
     A `BellowOrEqual` checks if the input is less or equal to **all** the `other` before being passed to the next `Frame`.
 
@@ -1112,8 +1110,8 @@ class BellowOrEqual(BasicComparison):
 
 
 
-class OnBeat(Selector):
-    """`Frame -> LeftToRight -> Selector -> OnBeat`
+class OnBeat(ContainerFilter):
+    """`Frame -> LeftToRight -> ContainerFilter -> OnBeat`
 
     An `OnBeat` selects only elements with their `Position` on the `Beat`.
 
@@ -1134,8 +1132,8 @@ class OnBeat(Selector):
 
 
 
-class OffBeat(Selector):
-    """`Frame -> LeftToRight -> Selector -> OffBeat`
+class OffBeat(ContainerFilter):
+    """`Frame -> LeftToRight -> ContainerFilter -> OffBeat`
 
     An `OffBeat` selects only elements with their `Position` off the `Beat`.
 
@@ -1156,8 +1154,8 @@ class OffBeat(Selector):
 
 
 
-class DownBeat(Selector):
-    """`Frame -> LeftToRight -> Selector -> DownBeat`
+class DownBeat(ContainerFilter):
+    """`Frame -> LeftToRight -> ContainerFilter -> DownBeat`
 
     An `DownBeat` selects only elements with their `Position` on the `Step` 0.
 
@@ -1180,8 +1178,8 @@ class DownBeat(Selector):
 
 
 
-class UpBeat(Selector):
-    """`Frame -> LeftToRight -> Selector -> UpBeat`
+class UpBeat(ContainerFilter):
+    """`Frame -> LeftToRight -> ContainerFilter -> UpBeat`
 
     An `UpBeat` selects only elements with their `Position` at the last off beat `Step`.
 
@@ -1207,8 +1205,8 @@ class UpBeat(Selector):
 
 
 
-class PreviousComparison(Selector):
-    """`Frame -> LeftToRight -> Selector -> PreviousComparison`
+class PreviousComparison(ContainerFilter):
+    """`Frame -> LeftToRight -> ContainerFilter -> PreviousComparison`
 
     A `PreviousComparison` checks if the input meets a basic comparison condition with the previous Item.
 
@@ -1243,7 +1241,7 @@ class PreviousComparison(Selector):
 
 
 class AllMatch(PreviousComparison):
-    """`Frame -> LeftToRight -> Selector -> PreviousComparison -> AllMatch`
+    """`Frame -> LeftToRight -> ContainerFilter -> PreviousComparison -> AllMatch`
 
     An `AllMatch` checks if the successive items share a matching parameter.
 
@@ -1258,7 +1256,7 @@ class AllMatch(PreviousComparison):
 
 
 class AllIncreasing(PreviousComparison):
-    """`Frame -> LeftToRight -> Selector -> PreviousComparison -> AllIncreasing`
+    """`Frame -> LeftToRight -> ContainerFilter -> PreviousComparison -> AllIncreasing`
 
     An `AllIncreasing` checks if the successive items have an increasing parameter.
 
@@ -1273,7 +1271,7 @@ class AllIncreasing(PreviousComparison):
 
 
 class AllDecreasing(PreviousComparison):
-    """`Frame -> LeftToRight -> Selector -> PreviousComparison -> AllDecreasing`
+    """`Frame -> LeftToRight -> ContainerFilter -> PreviousComparison -> AllDecreasing`
 
     An `AllDecreasing` checks if the successive items have a decreasing parameter.
 
@@ -1288,7 +1286,7 @@ class AllDecreasing(PreviousComparison):
 
 
 class AllNotIncreasing(PreviousComparison):
-    """`Frame -> LeftToRight -> Selector -> PreviousComparison -> AllNotIncreasing`
+    """`Frame -> LeftToRight -> ContainerFilter -> PreviousComparison -> AllNotIncreasing`
 
     An `AllNotIncreasing` checks if the successive items have NOT an increasing parameter.
 
@@ -1303,7 +1301,7 @@ class AllNotIncreasing(PreviousComparison):
 
 
 class AllNotDecreasing(PreviousComparison):
-    """`Frame -> LeftToRight -> Selector -> PreviousComparison -> AllNotDecreasing`
+    """`Frame -> LeftToRight -> ContainerFilter -> PreviousComparison -> AllNotDecreasing`
 
     An `AllNotDecreasing` checks if the successive items have NOT a decreasing parameter.
 
@@ -1317,8 +1315,8 @@ class AllNotDecreasing(PreviousComparison):
 
 
 
-class Cross(Selector):
-    """`Frame -> LeftToRight -> Selector -> Cross`
+class Cross(ContainerFilter):
+    """`Frame -> LeftToRight -> ContainerFilter -> Cross`
 
     A `Cross` selects all elements that passthrough a given `Position`.
 
@@ -1345,8 +1343,8 @@ class Cross(Selector):
 
 
 
-class Overlap(Selector):
-    """`Frame -> LeftToRight -> Selector -> Overlap`
+class Overlap(ContainerFilter):
+    """`Frame -> LeftToRight -> ContainerFilter -> Overlap`
 
     A `Overlap` selects all elements that overlap a given `Locus`.
 
