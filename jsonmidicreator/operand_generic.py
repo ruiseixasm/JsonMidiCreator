@@ -2028,8 +2028,8 @@ class DrumKit(Generic):
             case dict():                return o.deep_copy(self._drum_kit)
             case str():
                 lc_sample: str = operand.strip().lower()
-                for sample, pitch in self._drum_kit.items():
-                    if sample.lower() == lc_sample:
+                for sample_name, pitch in self._drum_kit.items():
+                    if sample_name.lower().find(lc_sample) != -1:
                         return o.deep_copy(pitch)
                 return ol.Null()
             case int():
@@ -2073,9 +2073,9 @@ class DrumKit(Generic):
                 drum_kits: dict[str, dict[str, int | str]] = settings % od.FilePath() % dict()
                 if isinstance(drum_kits, dict):
                     lc_name: str = operand.strip().lower()
-                    for name, drum_kit in drum_kits.items():
-                        if name.lower() == lc_name:
-                            self._drum_kit = o.deep_copy(drum_kits[name])
+                    for drum_kit_name, drum_kit in drum_kits.items():
+                        if drum_kit_name.lower().find(lc_name) != -1:
+                            self._drum_kit = o.deep_copy(drum_kits[drum_kit_name])
                             break
                 else:
                     return ol.Null()

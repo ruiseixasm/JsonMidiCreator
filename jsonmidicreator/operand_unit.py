@@ -2095,9 +2095,10 @@ class Number(Midi):
 
     @staticmethod
     def nameToNumber(name: str = "Modulation") -> int:
+        lc_name: str = name.strip().lower()
         for controller in Number._controllers:
             for controller_name in controller["names"]:
-                if controller_name.lower().find(name.strip().lower()) != -1:
+                if controller_name.lower().find(lc_name) != -1:
                     return controller["midi_number"]
         return 1    # Default is Modulation
 
