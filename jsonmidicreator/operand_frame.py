@@ -831,18 +831,6 @@ class At(Selector):
         return super().frame(input)
 
 
-    # def frame(self, input: o.T) -> o.T:
-    #     self._index += 1
-    #     # INDEX -1 IN USAGE
-    #     if self._index in self._named_parameters['parameters']:
-    #         if isinstance(self._chained_operand, Frame):
-    #             return self._chained_operand.frame(input)
-    #         return self._chained_operand
-    #     else:
-    #         return ol.Null()
-
-
-
 
 class Odd(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> Odd`
