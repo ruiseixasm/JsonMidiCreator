@@ -1238,11 +1238,12 @@ class PreviousComparison(Selector):
         for single_item in self._unmasked_items:
             matches: bool = True
             if previous_parameter is not None:
+                parameter: Any = previous_parameter
                 for condition in self._parameters:
-                    if isinstance(previous_parameter, o.Operand):
-                        parameter = previous_parameter % condition
-                        if not self._compare(single_item, parameter): # Where the comparison is made
-                            matches = False
+                    if isinstance(parameter, o.Operand):
+                        parameter = parameter % condition
+                if not self._compare(single_item, parameter): # Where the comparison is made
+                    matches = False
             if matches:
                 passed_items.append(single_item)
             previous_parameter = single_item
@@ -1265,7 +1266,7 @@ class PreviousComparison(Selector):
 class AllMatch(PreviousComparison):
     """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison -> AllMatch`
 
-    An `AllMatch` checks if the input has an equal parameter as the previous `Operand`.
+    An `AllMatch` checks if the successive items share a matching parameter.
 
     Parameters
     ----------
@@ -1274,6 +1275,21 @@ class AllMatch(PreviousComparison):
     @staticmethod
     def _compare(input: Any, parameter: Any) -> bool:
         return input == parameter
+
+
+
+class AllIncreasing(PreviousComparison):
+    """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison -> AllIncreasing`
+
+    An `AllIncreasing` checks if the successive items have an increasing parameter.
+
+    Parameters
+    ----------
+    Any(None) : One or more parameter where **all** need to be met as equal (`==`).
+    """
+    @staticmethod
+    def _compare(input: Any, parameter: Any) -> bool:
+        return input > parameter
 
 
 
