@@ -376,8 +376,9 @@ class Container(o.Operand):
                         operand._data._set_inside_container(self)
                         for single_item in self.items_unmasked():
                             if single_item == operand._data:
-                                framed_items.append(single_item)    
-                        return self.empty_copy( od.Pipe(framed_items) ) # NO COPY DONE HERE
+                                framed_items.append(single_item)
+                        self._items = framed_items
+                        return self._sort_items() # Framed Pipe keeps itself
                     case _:
                         return super().__mod__(operand)
             case list():
@@ -393,7 +394,7 @@ class Container(o.Operand):
                 for single_item in self.items_unmasked():
                     if single_item == operand:
                         framed_items.append(single_item)
-                return self.empty_copy(framed_items)    # Implicit copy of the `framed_items`
+                return self.empty_copy(framed_items)._sort_items()  # Implicit copy of the `framed_items`
             case _:
                 return super().__mod__(operand)
 

@@ -185,11 +185,11 @@ class Sequencer(Yielder):
                         element_copy._position_beats += beats_per_step
                 case of.Frame():
                     finish_position_beats: Fraction = element._position_beats + self._length_beats
-                    self._trigger_steps._set_inside_container(new_clip)
                     while element_copy._position_beats < finish_position_beats:
-                        if element_copy == self._trigger_steps:
-                            new_clip += element_copy
+                        new_clip += element_copy
                         element_copy._position_beats += beats_per_step
+                    self._trigger_steps._set_inside_container(new_clip)
+                    new_clip % od.Pipe( self._trigger_steps )
                 case ch.Chaos():
                     finish_position_beats: Fraction = element._position_beats + self._length_beats
                     while element_copy._position_beats < finish_position_beats:
