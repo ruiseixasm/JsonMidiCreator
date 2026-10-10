@@ -33,8 +33,8 @@ settings << Tempo(140) << TimeSignature(4, 4) << KeySignature('b') << Quantizati
 
 melody = Note() / 4 * 8 << Title("Melody") << Velocity(85)
 melody //= Nth(2, 6)**(1/8)
-melody << Equal(Bar(1))**DownTo(Beat(2))**(Note(1/2) / 1)
-melody >>= Either(Bar(3), 5, 7)**DownTo(Beat(2))**Merge()
+melody << Equal(Bar(1))**AboveOrEqual(Beat(2))**(Note(1/2) / 1)
+melody >>= Either(Bar(3), 5, 7)**AboveOrEqual(Beat(2))**Merge()
 melody //= Either(2, 6)**Bellow(Beat(2))**(1/8)
 melody //= Either(2, 6)**Above(Beat(2))**(1/8)
 

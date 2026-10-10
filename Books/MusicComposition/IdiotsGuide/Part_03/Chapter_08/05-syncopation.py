@@ -30,7 +30,7 @@ smooth >> Rest() >> Play()
 syncopated: Clip = smooth.copy() \
     - Equal(Measures(0))**Even()**Position(Duration(1/8)) \
     + Equal(Measures(1))**Position(Duration(1/8)) \
-    + Equal(Measures(2))**DownTo(Beats(2))**Position(Duration(1/8))
+    + Equal(Measures(2))**AboveOrEqual(Beats(2))**Position(Duration(1/8))
 (syncopated | Measures(0)) >> Link()
 (syncopated | Measures(1)) >> Link()
 (syncopated | Measures(2) | Above(Beats(2))) >> Link()

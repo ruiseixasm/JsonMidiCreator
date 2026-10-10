@@ -2314,7 +2314,7 @@ class Clip(Composition):  # Just a container of Elements
                 split_position: ra.Position = operand.start()
                 position_offset: ra.Position = operand.finish() - split_position
                 self //= split_position
-                self += of.DownTo(split_position)**position_offset
+                self += of.AboveOrEqual(split_position)**position_offset
                 self += operand # Finally adds the Element
                 
             case int():

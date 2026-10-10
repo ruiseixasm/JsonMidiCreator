@@ -1091,10 +1091,10 @@ class Bellow(BasicComparison):
 
 
 
-class DownTo(BasicComparison):
-    """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> DownTo`
+class AboveOrEqual(BasicComparison):
+    """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> AboveOrEqual`
 
-    A `DownTo` checks if the input is greater or equal to **all** the conditions before being passed to the next `Frame`.
+    An `AboveOrEqual` checks if the input is greater or equal to **all** the conditions before being passed to the next `Frame`.
 
     Parameters
     ----------
@@ -1106,10 +1106,10 @@ class DownTo(BasicComparison):
 
 
 
-class UpTo(BasicComparison):
-    """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> UpTo`
+class BellowOrEqual(BasicComparison):
+    """`Frame -> Left -> InputFilter -> Selector -> BasicComparison -> BellowOrEqual`
 
-    An `UpTo` checks if the input is less or equal to **all** the conditions before being passed to the next `Frame`.
+    A `BellowOrEqual` checks if the input is less or equal to **all** the conditions before being passed to the next `Frame`.
 
     Parameters
     ----------
