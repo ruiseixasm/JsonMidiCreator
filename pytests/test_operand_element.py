@@ -747,6 +747,17 @@ def test_token_string():
             print(f"element_class: {element_class.__name__}")
             assert element == Measures(1)
 
+    single_note = operand_element._get_element_from_token("n:")
+    assert single_note == OperandType(Note())
+    assert single_note % Duration() == 1/4
+    single_note = operand_element._get_element_from_token(":")
+    assert single_note == OperandType(Note())
+    assert single_note % Duration() == 1/4
+    
+    single_trigger = operand_element._get_element_from_token("t:")
+    assert single_trigger == OperandType(Trigger())
+    assert single_trigger % Duration() == 1/16
+
 # test_token_string()
 
 
