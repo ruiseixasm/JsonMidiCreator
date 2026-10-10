@@ -694,7 +694,7 @@ class InputFilter(LeftToRight):
 
 
 class All(InputFilter):
-    """`Frame -> Left -> InputFilter -> Selector -> All`
+    """`Frame -> Left -> InputFilter -> All`
 
     An `All` lets any, or all, input to pass to the next `Frame`.
 
