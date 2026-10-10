@@ -927,6 +927,8 @@ class Every(Selector):
             self._pass_framed_items(nth_items)
             self._selected_items = nth_items
             return super().frame(input)
+        else:
+            self._pass_framed_items([])
         return ol.Null()
 
 
@@ -1132,6 +1134,9 @@ class OnBeat(InputFilter):
     """
     def frame(self, input: o.T) -> o.T:
         if isinstance(input, oe.Element):
+
+
+
             steps_per_beat: int = int(1 / og.settings._quantization)
             position_step: int = input % ra.Step() % int()
             if position_step % steps_per_beat == 0:
