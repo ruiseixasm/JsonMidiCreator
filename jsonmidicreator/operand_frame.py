@@ -703,8 +703,27 @@ class Selector(InputFilter):
 
 
 
-class First(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> First`
+class Indexing(Selector):
+    """`Frame -> Left -> InputFilter -> Selector -> Indexing`
+
+    `Indexing` is a selector that picks items that are at a given index position.
+
+    Parameters
+    ----------
+    None : `Selector` doesn't have parameters to be set.
+    """
+    def frame(self, input: o.T) -> o.T:
+        for single_item in self._container_items:
+            if input is single_item:
+                if isinstance(self._chained_operand, Frame):
+                    return self._chained_operand.frame(input)
+                return self._chained_operand
+        return ol.Null()
+
+
+
+class First(Indexing):
+    """`Frame -> Left -> InputFilter -> Selector -> Indexing -> First`
 
     A `First` only lets the first `amount` of elements in a `Clip` to pass to the next `Frame`.
 
@@ -720,21 +739,15 @@ class First(Selector):
 
 
     def frame(self, input: o.T) -> o.T:
-        from . import operand_container as oc
         amount_items: int = self._named_parameters['amount']
         if len(self._container_items) > amount_items:
             self._set_container_items(self._container_items[:amount_items])
-        for single_item in self._container_items:
-            if input is single_item:
-                if isinstance(self._chained_operand, Frame):
-                    return self._chained_operand.frame(input)
-                return self._chained_operand
-        return ol.Null()
+        return super().frame(input)
 
 
 
-class Last(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> Last`
+class Last(Indexing):
+    """`Frame -> Left -> InputFilter -> Selector -> Indexing -> Last`
 
     A `Last` only lets the last `amount` of elements in a `Clip` to pass to the next `Frame`.
 
@@ -750,17 +763,11 @@ class Last(Selector):
 
 
     def frame(self, input: o.T) -> o.T:
-        from . import operand_container as oc
         amount_items: int = self._named_parameters['amount']
         if len(self._container_items) > amount_items:
             first_item: int = len(self._container_items) - amount_items
             self._set_container_items(self._container_items[first_item:])
-        for single_item in self._container_items:
-            if input is single_item:
-                if isinstance(self._chained_operand, Frame):
-                    return self._chained_operand.frame(input)
-                return self._chained_operand
-        return ol.Null()
+        return super().frame(input)
 
 
 
