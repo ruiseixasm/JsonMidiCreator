@@ -699,7 +699,9 @@ class Selector(InputFilter):
     ----------
     None : `Selector` doesn't have parameters to be set.
     """
-    pass
+    def __init__(self, *parameters):
+        super().__init__(*parameters)
+        self._selected_items: list[Any] = []
 
 
 
@@ -712,7 +714,13 @@ class Indexing(Selector):
     ----------
     None : `Selector` doesn't have parameters to be set.
     """
-    pass
+    def frame(self, input: o.T) -> o.T:
+        for single_item in self._selected_items:
+            if input is single_item:
+                if isinstance(self._chained_operand, Frame):
+                    return self._chained_operand.frame(input)
+                return self._chained_operand
+        return ol.Null()
 
 
 
@@ -738,16 +746,12 @@ class First(Indexing):
         if len(self._container_items) > amount_items:
             first_items = self._container_items[:amount_items]
             self._pass_framed_items(first_items)
-        for single_item in first_items:
-            if input is single_item:
-                if isinstance(self._chained_operand, Frame):
-                    return self._chained_operand.frame(input)
-                return self._chained_operand
-        return ol.Null()
+        self._selected_items = first_items
+        return super().frame(input)
 
 
 
-class Last(Indexing):
+class Last(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> Indexing -> Last`
 
     A `Last` only lets the last `amount` of elements in a `Clip` to pass to the next `Frame`.
@@ -779,7 +783,7 @@ class Last(Indexing):
 
 
 
-class All(Indexing):
+class All(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> Indexing -> All`
 
     An `All` lets any, or all, input to pass to the next `Frame`.
@@ -792,7 +796,7 @@ class All(Indexing):
 
 
 
-class Odd(Indexing):
+class Odd(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> Indexing -> Odd`
 
     An `Odd` only lets odd nth inputs to be passed to the next `Frame`.
@@ -818,7 +822,7 @@ class Odd(Indexing):
 
 
 
-class Even(Indexing):
+class Even(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> Indexing -> Even`
 
     An `Even` only lets even nth inputs to be passed to the next `Frame`.
@@ -839,7 +843,7 @@ class Even(Indexing):
 
 
 
-class Every(Indexing):
+class Every(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> Indexing -> Every`
 
     An `Every` only lets every other nth inputs to be passed to the next `Frame`
@@ -892,7 +896,7 @@ class Each(Every):
 
 
 
-class Nth(Indexing):
+class Nth(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> Indexing -> Nth`
 
     A `Nth` only lets the nth inputs to be passed to the next `Frame`.
@@ -918,7 +922,7 @@ class Nth(Indexing):
 
 
 
-class At(Indexing):
+class At(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> Indexing -> At`
 
     A `At` only lets the indexed inputs to be passed to the next `Frame`.
