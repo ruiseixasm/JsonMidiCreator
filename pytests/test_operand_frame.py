@@ -241,11 +241,9 @@ def test_on_beat():
 
 
 def test_off_beat():
-    single_element = Note(Beat(2)) + Step(2)
-    on_beat = OnBeat()
-    assert not on_beat.frame(single_element)
-    off_beat = OffBeat()
-    assert off_beat.frame(single_element)
+    single_element = Note(Beat(2)) * 1 + Step(2)
+    assert not single_element[OnBeat()]
+    assert single_element[OffBeat()]
 
 # test_off_beat()
 

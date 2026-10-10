@@ -1147,7 +1147,7 @@ class OnBeat(Selector):
 
 
 
-class OffBeat(InputFilter):
+class OffBeat(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> OffBeat`
 
     An `OffBeat` selects only elements with their `Position` off the `Beat`.
@@ -1158,10 +1158,16 @@ class OffBeat(InputFilter):
     """
     def frame(self, input: o.T) -> o.T:
         if isinstance(input, oe.Element):
+            off_beat_items: list[Any] = []
             steps_per_beat: int = int(1 / og.settings._quantization)
-            position_step: int = input % ra.Step() % int()
-            if position_step % steps_per_beat == round(steps_per_beat / 2):
-                return super().frame(input)
+            for single_item in self._unmasked_items:
+                position_step: int = single_item % ra.Step() % int()
+                if position_step % steps_per_beat == round(steps_per_beat / 2):
+                    off_beat_items.append(single_item)
+            self._pass_framed_items(off_beat_items)
+            self._selected_items = off_beat_items
+            return super().frame(input)
+        self._pass_framed_items([])
         return ol.Null()
 
 
