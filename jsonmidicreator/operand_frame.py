@@ -920,7 +920,7 @@ class Every(Selector):
                         if nth % self._named_parameters['nths'] == 0:
                             nth_items.append(single_item)
                         previous_measure = present_measure
-            self._selected_items = nth_items
+        self._selected_items = nth_items
         return super()._update_unmasked_items(nth_items)
     
 
@@ -949,16 +949,15 @@ class Either(Selector):
     ----------
     Any(None) : One or more conditions where **at-least one** needs to be met.
     """
-    def frame(self, input: o.T) -> o.T:
+    def _update_unmasked_items(self, unmasked_items: list[Any]) -> Self:
         either_items: list[Any] = []
-        for single_item in self._unmasked_items:
+        for single_item in unmasked_items:
             for condition in self._parameters:
                 if single_item == condition:
                     either_items.append(single_item)
                     break
-        self._pass_framed_items(either_items)
         self._selected_items = either_items
-        return super().frame(input)
+        return super()._update_unmasked_items(either_items)
 
 
 
@@ -971,21 +970,20 @@ class Neither(Selector):
     ----------
     Any(None) : One or more conditions where **none** can be met.
     """
-    def frame(self, input: o.T) -> o.T:
+    def _update_unmasked_items(self, unmasked_items: list[Any]) -> Self:
         either_items: list[Any] = []
-        for single_item in self._unmasked_items:
+        for single_item in unmasked_items:
             for condition in self._parameters:
                 if single_item == condition:
                     either_items.append(single_item)
                     break
         neither_items: list[Any] = [
             single_item
-            for single_item in self._unmasked_items
+            for single_item in unmasked_items
             if not any(single_item is item for item in either_items)
         ]
-        self._pass_framed_items(neither_items)
         self._selected_items = neither_items
-        return super().frame(input)
+        return super()._update_unmasked_items(neither_items)
 
 
 
@@ -998,19 +996,18 @@ class BasicComparison(Selector):
     ----------
     Any(None) : One or more conditions where **all** need to be met.
     """
-    def frame(self, input: o.T) -> o.T:
+    def _update_unmasked_items(self, unmasked_items: list[Any]) -> Self:
         match_items: list[Any] = []
-        for single_item in self._unmasked_items:
+        for single_item in unmasked_items:
             matches: bool = True
             for condition in self._parameters:
-                if not self._compare(input, condition): # Where the comparison is made
+                if not self._compare(single_item, condition): # Where the comparison is made
                     matches = False
                     break
             if matches:
                 match_items.append(single_item)
-        self._pass_framed_items(match_items)
         self._selected_items = match_items
-        return super().frame(input)
+        return super()._update_unmasked_items(match_items)
     
 
     @staticmethod

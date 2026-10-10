@@ -187,7 +187,8 @@ def test_conditional_clip_note():
     assert four_notes[0] % Octave() == 4
     assert four_notes[1] % Octave() == 4
 
-# test_conditional_note()
+# test_conditional_clip_note()
+
 
 def test_even_odd():
 
