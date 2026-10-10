@@ -338,7 +338,7 @@ class Interpolate(Transform):
 
 
     def _single_transform(self, clip: 'Clip') -> 'Clip':
-        automation_clip: Clip = clip.select(of.InputType(oe.Automatable))
+        automation_clip: Clip = clip.select(of.ItemType(oe.Automatable))
         plotlist: list[dict] = automation_clip.getPlotlist()
         automation_channels: list[int] = plotlist[0]["channels"]["automation"]
         for channel_0 in automation_channels:

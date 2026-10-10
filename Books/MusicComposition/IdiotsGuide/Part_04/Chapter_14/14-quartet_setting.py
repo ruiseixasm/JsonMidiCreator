@@ -30,7 +30,7 @@ ProgramChange(Channel(11), Program("Violin")) \
 
 violin_1 = Note(Channel(11)) / [1/4, 1/8, 0, 1/4, 0, 1/8, 0, 1/4, 1/2, 1/4, 1/8, 0, 1/4, 0, 1/2, 0] << Name("Violin 1")
 violin_1 >>= Match(1/4, Beat(0))**Rest()
-violin_1 += InputType(Note)**Foreach(2, 3, 2, 1, 0, -1, 0, 1, 0, 1, 2, 4, 2, 1)**Degree()
+violin_1 += ItemType(Note)**Foreach(2, 3, 2, 1, 0, -1, 0, 1, 0, 1, 2, 4, 2, 1)**Degree()
 # violin_1 >> Plot(block=False)
 
 violin_2 = Note(Channel(12), Velocity(80)) / [1/1, 1/2, 0, 1/1, 1/2, 0] << Name("Violin 2")

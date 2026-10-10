@@ -26,7 +26,7 @@ settings << KeySignature('bbb')
 theme_1 = Note(Key('Bb')) / [1/8, 0, 0, 0, 1/4, 0, 1/2, 0, 1/4, 0, 0, 0, 1/1] << Name("Call")
 theme_1[0] >>= Rest()
 theme_1[8] >>= Rest()
-theme_1 += InputType(Note)**Foreach(0, 1, 0, 1, 2, 3, 1, 3, 5, 4, 3)**Degree()
+theme_1 += ItemType(Note)**Foreach(0, 1, 0, 1, 2, 3, 1, 3, 5, 4, 3)**Degree()
 theme_1 >> Plot(block=False)
 
 theme_2 = theme_1 * [1, 0, 1, 3] >> Note() << Name("Response") << Key('Eb') << Octave(3) << Channel(2)

@@ -25,7 +25,7 @@ settings << Tempo(180)
 
 syncopation = Note(Octave(5)) / list_wrap([2, 4, 2, 0, 4, 6, 2, 0, 0, 0, 4], Steps())
 syncopation >>= Nth(1, 7, 9, 11)**Rest()
-syncopation -= InputType(Note)**Foreach(0, 3, 3, 2, 3, 1, 0)**Degree()
+syncopation -= ItemType(Note)**Foreach(0, 3, 3, 2, 3, 1, 0)**Degree()
 
 syncopation * 4 << Name("Syncopation") >> Plot()
 

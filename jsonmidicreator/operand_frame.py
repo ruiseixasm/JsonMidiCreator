@@ -725,10 +725,10 @@ class Selector(InputFilter):
 
 
 
-class InputType(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> InputType`
+class ItemType(Selector):
+    """`Frame -> Left -> InputFilter -> Selector -> ItemType`
 
-    An `InputType` only lets specified types of inputs to be passed to the next `Frame`.
+    An `ItemType` only lets specified types of inputs to be passed to the next `Frame`.
 
     Parameters
     ----------
