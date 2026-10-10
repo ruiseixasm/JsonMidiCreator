@@ -995,7 +995,7 @@ class Neither(Selector):
 
 
 
-class BasicComparison(InputFilter):
+class BasicComparison(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> BasicComparison`
 
     A `BasicComparison` checks if the input meets a basic comparison condition before being passed to the next `Frame`.
@@ -1004,15 +1004,20 @@ class BasicComparison(InputFilter):
     ----------
     Any(None) : One or more conditions where **all** need to be met.
     """
-    
     def frame(self, input: o.T) -> o.T:
-        for condition in self._parameters:
-            if not self._compare(input, condition): # Where the comparison is made
-                return ol.Null()
-        self_operand = self._chained_operand
-        if isinstance(self_operand, Frame):
-            self_operand = self_operand.frame(input)
-        return self_operand
+        match_items: list[Any] = []
+        for single_item in self._unmasked_items:
+            matches: bool = True
+            for condition in self._parameters:
+                if not self._compare(input, condition): # Where the comparison is made
+                    matches = False
+                    break
+            if matches:
+                match_items.append(single_item)
+        self._pass_framed_items(match_items)
+        self._selected_items = match_items
+        return super().frame(input)
+    
 
     @staticmethod
     def _compare(input: Any, condition: Any) -> bool:
