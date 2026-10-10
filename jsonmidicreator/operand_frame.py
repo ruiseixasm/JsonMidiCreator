@@ -686,7 +686,9 @@ class InputFilter(LeftToRight):
     ----------
     None : `InputFilter` doesn't have parameters to be set.
     """
-    pass
+    def __init__(self, *parameters):
+        super().__init__(*parameters)
+        self._selected_items: list[Any] = self._container_items
 
 
 
@@ -694,34 +696,6 @@ class Selector(InputFilter):
     """`Frame -> Left -> InputFilter -> Selector`
 
     A `Selector` takes into consideration the input data in order to pass it to the next `Frame`.
-
-    Parameters
-    ----------
-    None : `Selector` doesn't have parameters to be set.
-    """
-    def __init__(self, *parameters):
-        super().__init__(*parameters)
-        self._selected_items: list[Any] = []
-
-
-
-class All(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> All`
-
-    An `All` lets any, or all, input to pass to the next `Frame`.
-
-    Parameters
-    ----------
-    None : `All` doesn't have parameters to be set.
-    """
-    pass
-
-
-
-class Indexing(Selector):
-    """`Frame -> Left -> InputFilter -> Selector -> Indexing`
-
-    `Indexing` is a selector that picks items that are at a given index position.
 
     Parameters
     ----------
@@ -737,7 +711,20 @@ class Indexing(Selector):
 
 
 
-class First(Indexing):
+class All(InputFilter):
+    """`Frame -> Left -> InputFilter -> Selector -> All`
+
+    An `All` lets any, or all, input to pass to the next `Frame`.
+
+    Parameters
+    ----------
+    None : `All` doesn't have parameters to be set.
+    """
+    pass
+
+
+
+class First(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> Indexing -> First`
 
     A `First` only lets the first `amount` of elements in a `Clip` to pass to the next `Frame`.
@@ -764,7 +751,7 @@ class First(Indexing):
 
 
 
-class Last(Indexing):
+class Last(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> Indexing -> Last`
 
     A `Last` only lets the last `amount` of elements in a `Clip` to pass to the next `Frame`.
@@ -793,7 +780,7 @@ class Last(Indexing):
 
 
 
-class Odd(Indexing):
+class Odd(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> Indexing -> Odd`
 
     An `Odd` only lets odd nth inputs to be passed to the next `Frame`.
