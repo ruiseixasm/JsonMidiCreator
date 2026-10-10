@@ -1350,7 +1350,7 @@ class Cross(InputFilter):
         from . import operand_element as oe
         from . import operand_container as oc
         if isinstance(self._container, oc.Container) \
-            and isinstance(input, oe.Element) and input.crossed(self._named_parameters['position']):
+            and isinstance(input, oe.Element) and input.cross(self._named_parameters['position']):
             if isinstance(self._chained_operand, Frame):
                 return self._chained_operand.frame(input)
             return self._chained_operand
