@@ -995,83 +995,6 @@ class Neither(Selector):
 
 
 
-class OnBeat(InputFilter):
-    """`Frame -> Left -> InputFilter -> Selector -> OnBeat`
-
-    An `OnBeat` selects only elements with their `Position` on the `Beat`.
-
-    Parameters
-    ----------
-    None : `OnBeat` doesn't have parameters to be set.
-    """
-    def frame(self, input: o.T) -> o.T:
-        if isinstance(input, oe.Element):
-            steps_per_beat: int = int(1 / og.settings._quantization)
-            position_step: int = input % ra.Step() % int()
-            if position_step % steps_per_beat == 0:
-                return super().frame(input)
-        return ol.Null()
-
-
-
-class OffBeat(InputFilter):
-    """`Frame -> Left -> InputFilter -> Selector -> OffBeat`
-
-    An `OffBeat` selects only elements with their `Position` off the `Beat`.
-
-    Parameters
-    ----------
-    None : `OffBeat` doesn't have parameters to be set.
-    """
-    def frame(self, input: o.T) -> o.T:
-        if isinstance(input, oe.Element):
-            steps_per_beat: int = int(1 / og.settings._quantization)
-            position_step: int = input % ra.Step() % int()
-            if position_step % steps_per_beat == round(steps_per_beat / 2):
-                return super().frame(input)
-        return ol.Null()
-
-
-
-class DownBeat(InputFilter):
-    """`Frame -> Left -> InputFilter -> Selector -> DownBeat`
-
-    An `DownBeat` selects only elements with their `Position` on the `Step` 0.
-
-    Parameters
-    ----------
-    None : `DownBeat` doesn't have parameters to be set.
-    """
-    def frame(self, input: o.T) -> o.T:
-        if isinstance(input, oe.Element):
-            position_step: int = input % ra.Step() % int()
-            if position_step == 0:
-                return super().frame(input)
-        return ol.Null()
-
-
-
-class UpBeat(InputFilter):
-    """`Frame -> Left -> InputFilter -> Selector -> UpBeat`
-
-    An `UpBeat` selects only elements with their `Position` at the last off beat `Step`.
-
-    Parameters
-    ----------
-    None : `UpBeat` doesn't have parameters to be set.
-    """
-    def frame(self, input: o.T) -> o.T:
-        if isinstance(input, oe.Element):
-            steps_per_beat: int = int(1 / og.settings._quantization)
-            steps_per_measure: int = input._get_time_signature()._top * steps_per_beat
-            position_step: int = input % ra.Step() % int()
-            half_beat_steps: int = round(steps_per_beat / 2)
-            if (position_step + half_beat_steps) % steps_per_measure == 0:
-                return super().frame(input)
-        return ol.Null()
-
-
-
 class BasicComparison(InputFilter):
     """`Frame -> Left -> InputFilter -> Selector -> BasicComparison`
 
@@ -1192,6 +1115,83 @@ class UpTo(BasicComparison):
     @staticmethod
     def _compare(input: Any, condition: Any) -> bool:
         return input <= condition
+
+
+
+class OnBeat(InputFilter):
+    """`Frame -> Left -> InputFilter -> Selector -> OnBeat`
+
+    An `OnBeat` selects only elements with their `Position` on the `Beat`.
+
+    Parameters
+    ----------
+    None : `OnBeat` doesn't have parameters to be set.
+    """
+    def frame(self, input: o.T) -> o.T:
+        if isinstance(input, oe.Element):
+            steps_per_beat: int = int(1 / og.settings._quantization)
+            position_step: int = input % ra.Step() % int()
+            if position_step % steps_per_beat == 0:
+                return super().frame(input)
+        return ol.Null()
+
+
+
+class OffBeat(InputFilter):
+    """`Frame -> Left -> InputFilter -> Selector -> OffBeat`
+
+    An `OffBeat` selects only elements with their `Position` off the `Beat`.
+
+    Parameters
+    ----------
+    None : `OffBeat` doesn't have parameters to be set.
+    """
+    def frame(self, input: o.T) -> o.T:
+        if isinstance(input, oe.Element):
+            steps_per_beat: int = int(1 / og.settings._quantization)
+            position_step: int = input % ra.Step() % int()
+            if position_step % steps_per_beat == round(steps_per_beat / 2):
+                return super().frame(input)
+        return ol.Null()
+
+
+
+class DownBeat(InputFilter):
+    """`Frame -> Left -> InputFilter -> Selector -> DownBeat`
+
+    An `DownBeat` selects only elements with their `Position` on the `Step` 0.
+
+    Parameters
+    ----------
+    None : `DownBeat` doesn't have parameters to be set.
+    """
+    def frame(self, input: o.T) -> o.T:
+        if isinstance(input, oe.Element):
+            position_step: int = input % ra.Step() % int()
+            if position_step == 0:
+                return super().frame(input)
+        return ol.Null()
+
+
+
+class UpBeat(InputFilter):
+    """`Frame -> Left -> InputFilter -> Selector -> UpBeat`
+
+    An `UpBeat` selects only elements with their `Position` at the last off beat `Step`.
+
+    Parameters
+    ----------
+    None : `UpBeat` doesn't have parameters to be set.
+    """
+    def frame(self, input: o.T) -> o.T:
+        if isinstance(input, oe.Element):
+            steps_per_beat: int = int(1 / og.settings._quantization)
+            steps_per_measure: int = input._get_time_signature()._top * steps_per_beat
+            position_step: int = input % ra.Step() % int()
+            half_beat_steps: int = round(steps_per_beat / 2)
+            if (position_step + half_beat_steps) % steps_per_measure == 0:
+                return super().frame(input)
+        return ol.Null()
 
 
 
