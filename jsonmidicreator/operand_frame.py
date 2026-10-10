@@ -81,10 +81,10 @@ class Frame(o.Operand):
         return self
 
 
-    def _pass_framed_items(self, container_items: list[Any]) -> Self:
+    def _pass_framed_items(self, unmasked_items: list[Any]) -> Self:
         if isinstance(self._chained_operand, Frame):
-            self._chained_operand._unmasked_items = container_items
-            self._chained_operand._pass_framed_items(container_items)  # Recursive call
+            self._chained_operand._unmasked_items = unmasked_items
+            self._chained_operand._pass_framed_items(unmasked_items)  # Recursive call
         return self
 
     
@@ -92,12 +92,19 @@ class Frame(o.Operand):
         from . import operand_container as oc
         container._set = False   # In order to contained items know it was set by them (Element items)
         if isinstance(container, oc.Container):
-            self._unmasked_items = container.items_unmasked()
+            self._update_unmasked_items( container.items_unmasked() )
         else:
-            self._unmasked_items = []
+            self._update_unmasked_items( [] )
         self._pass_framed_items(self._unmasked_items)
         # Finally, does all remaining resets for each operand
         return self.reset()
+
+
+    def _update_unmasked_items(self, unmasked_items: list[Any]) -> Self:
+        self._unmasked_items = unmasked_items
+        if isinstance(self._chained_operand, Frame):    # Recursive call
+            self._chained_operand._update_unmasked_items(unmasked_items)
+        return self
 
 
     def get_operand(self) -> Any:
@@ -763,16 +770,14 @@ class First(Selector):
             self._named_parameters['amount'] = amount
 
 
-    def _set_inside_container(self, container: 'Container') -> Self:
-        super()._set_inside_container(container)
+    def _update_unmasked_items(self, unmasked_items: list[Any]) -> Self:
         amount_items: int = self._named_parameters['amount']
-        first_items: list[Any] = self._unmasked_items
-        if len(self._unmasked_items) > amount_items:
-            first_items = self._unmasked_items[:amount_items]
+        first_items: list[Any] = unmasked_items
+        if len(unmasked_items) > amount_items:
+            first_items = unmasked_items[:amount_items]
             self._pass_framed_items(first_items)
         self._selected_items = first_items
-        self._unmasked_items = first_items
-        return self
+        return super()._update_unmasked_items(first_items)
 
 
 
@@ -786,21 +791,19 @@ class Last(Selector):
     """
     def __init__(self, amount: int = 1):
         super().__init__()
+        self._named_parameters['amount'] = 0
         if amount > 0:
             self._named_parameters['amount'] = amount
-        else:
-            self._named_parameters['amount'] = 0
 
 
-    def frame(self, input: o.T) -> o.T:
+    def _update_unmasked_items(self, unmasked_items: list[Any]) -> Self:
         amount_items: int = self._named_parameters['amount']
-        last_items: list[Any] = self._unmasked_items
-        if len(self._unmasked_items) > amount_items:
-            first_item: int = len(self._unmasked_items) - amount_items
-            last_items = self._unmasked_items[first_item:]
-            self._pass_framed_items(last_items)
+        last_items: list[Any] = unmasked_items
+        if len(unmasked_items) > amount_items:
+            first_item: int = len(unmasked_items) - amount_items
+            last_items = unmasked_items[first_item:]
         self._selected_items = last_items
-        return super().frame(input)
+        return super()._update_unmasked_items(last_items)
 
 
 
