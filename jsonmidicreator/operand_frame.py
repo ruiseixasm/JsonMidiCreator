@@ -1280,11 +1280,56 @@ class AllIncreasing(PreviousComparison):
 
     Parameters
     ----------
-    Any(None) : One or more parameter where **all** need to be met as equal (`==`).
+    Any(None) : One or more parameter where **all** need to be met as greater (`>`).
     """
     @staticmethod
     def _compare(input: Any, parameter: Any) -> bool:
         return input > parameter
+
+
+
+class AllDecreasing(PreviousComparison):
+    """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison -> AllDecreasing`
+
+    An `AllDecreasing` checks if the successive items have a decreasing parameter.
+
+    Parameters
+    ----------
+    Any(None) : One or more parameter where **all** need to be met as less (`<`).
+    """
+    @staticmethod
+    def _compare(input: Any, parameter: Any) -> bool:
+        return input < parameter
+
+
+
+class AllNotIncreasing(PreviousComparison):
+    """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison -> AllIncreasing`
+
+    An `AllIncreasing` checks if the successive items have NOT an increasing parameter.
+
+    Parameters
+    ----------
+    Any(None) : One or more parameter where **all** need to be met as less or equal (`<=`).
+    """
+    @staticmethod
+    def _compare(input: Any, parameter: Any) -> bool:
+        return input <= parameter
+
+
+
+class AllNotDecreasing(PreviousComparison):
+    """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison -> AllDecreasing`
+
+    An `AllDecreasing` checks if the successive items have NOT a decreasing parameter.
+
+    Parameters
+    ----------
+    Any(None) : One or more parameter where **all** need to be met as greater or equal (`>=`).
+    """
+    @staticmethod
+    def _compare(input: Any, parameter: Any) -> bool:
+        return input >= parameter
 
 
 
