@@ -285,3 +285,11 @@ def test_at_selector():
     assert two_notes[0] == four_notes[2]
     assert four_notes[At(2)] == four_notes[2]
 
+
+def test_all_match():
+    four_notes = Note() * 4 + Iterate()**Degree()
+    assert four_notes == AllMatch(Duration())
+    assert not four_notes == AllMatch(Degree())
+
+# test_all_match()
+

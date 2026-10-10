@@ -1223,7 +1223,7 @@ class UpBeat(Selector):
 
 
 
-class PreviousComparison(InputFilter):
+class PreviousComparison(Selector):
     """`Frame -> Left -> InputFilter -> Selector -> PreviousComparison`
 
     A `PreviousComparison` checks if the input meets a basic comparison condition with the previous Item.
@@ -1232,27 +1232,24 @@ class PreviousComparison(InputFilter):
     ----------
     Any(None) : One or more conditions where **all** need to be met.
     """
-    def __init__(self, *parameters):
-        super().__init__(*parameters)
-        self._named_parameters['previous'] = None
-
-    def reset(self, *parameters) -> 'Frame':
-        self._named_parameters['previous'] = None
-        super().reset()
-        return self << parameters
-    
     def frame(self, input: o.T) -> o.T:
-        if self._named_parameters['previous'] is not None:
-            for condition in self._parameters:
-                if isinstance(self._named_parameters['previous'], o.Operand):
-                    parameter = self._named_parameters['previous'] % condition
-                    if not self._compare(input, parameter): # Where the comparison is made
-                        return ol.Null()
-        self_operand = self._chained_operand
-        if isinstance(self_operand, Frame):
-            self_operand = self_operand.frame(input)
-        self._named_parameters['previous'] = input
-        return self_operand
+        passed_items: list[Any] = []
+        previous_parameter: Any = None
+        for single_item in self._unmasked_items:
+            matches: bool = True
+            if previous_parameter is not None:
+                for condition in self._parameters:
+                    if isinstance(previous_parameter, o.Operand):
+                        parameter = previous_parameter % condition
+                        if not self._compare(single_item, parameter): # Where the comparison is made
+                            matches = False
+            if matches:
+                passed_items.append(single_item)
+            previous_parameter = single_item
+        self._pass_framed_items(passed_items)
+        self._selected_items = passed_items
+        return super().frame(input)
+    
 
     @staticmethod
     def _compare(input: Any, parameter: Any) -> bool:
