@@ -722,11 +722,10 @@ class Selector(InputFilter):
     None : `Selector` doesn't have parameters to be set.
     """
     def frame(self, input: o.T) -> o.T:
-        for single_item in self._selected_items:
-            if input is single_item:
-                if isinstance(self._chained_operand, Frame):
-                    return self._chained_operand.frame(input)
-                return self._chained_operand
+        if any(input is single_item for single_item in self._selected_items):
+            if isinstance(self._chained_operand, Frame):
+                return self._chained_operand.frame(input)
+            return self._chained_operand
         return ol.Null()
 
 
