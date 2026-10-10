@@ -21,5 +21,8 @@ from jsonmidicreator.resource_patterns import *
 def test_pattern_funky_syncopation():
     drum_kit = DrumKit("808")
     clip = pattern_funky_syncopation(drum_kit)
-    clip >> Plot()
+    assert clip % int() > 5
+    # clip >> Plot()
+
+# test_pattern_funky_syncopation()
 

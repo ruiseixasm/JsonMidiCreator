@@ -2001,7 +2001,7 @@ class Clip(Composition):  # Just a container of Elements
             case od.Line(): # Place to set Line processing            
                 line_elements: list[oe.Element] = oe.get_elements_from_line(operand)
                 self._items = line_elements
-                self._set_owner_clip()._sort_items()
+                self._set_owner_clip()
 
             case tr.Transform():
                 # `transform` always returns self
@@ -2084,6 +2084,11 @@ class Clip(Composition):  # Just a container of Elements
                         self[index].copy() for index in operand
                     ]
                 self._extend(new_elements)
+
+            # Place to add Line processing
+            case od.Line():
+                line_elements: list[oe.Element] = oe.get_elements_from_line(operand)
+                self += Clip()._extend(line_elements)._set_owner_clip()
 
             case og.Locus():    # Inserts a Locus where crossing elements split
                 crossing_elements: list[oe.Element] = [
@@ -2220,7 +2225,7 @@ class Clip(Composition):  # Just a container of Elements
             # Place to add Line processing
             case od.Line():
                 line_elements: list[oe.Element] = oe.get_elements_from_line(operand)
-                self *= Clip()._extend(line_elements)._set_owner_clip()._sort_items()
+                self *= Clip()._extend(line_elements)._set_owner_clip()
 
             case og.Locus():    # Extract out the Locus are and trims everything else (Shrinks the duration)
                 overlapping_elements: list[oe.Element] = [
