@@ -45,13 +45,11 @@ class Frame(o.Operand):
     None : Frame doesn't have any self parameters.
     """
     def __init__(self, *parameters):
-        from . import operand_container as oc
         super().__init__()
         # These parameters replace the homologous Operand's ones
-        self._chained_operand: any         = ol.Full()
+        self._chained_operand: any      = ol.Full()
         self._parameters: tuple         = parameters
         self._named_parameters: dict    = {}
-        self._container: oc.Container = None
         self._unmasked_items: list[Any] = []
         self._root_frame: bool = True
         
@@ -83,22 +81,21 @@ class Frame(o.Operand):
         return self
 
 
-    def _set_inside_container(self, container: 'Container') -> Self:
-        container._set = False   # In order to contained items know it was set by them (Element items)
-        # Needs to propagate the settings to the next Frames
-        # ONLY the Frames are reset, the succeeding non Frame operands aren't reset!
-        if isinstance(self._chained_operand, Frame):
-            self._chained_operand._set_inside_container(container)  # Recursive call
-        self._container = container
-        self._unmasked_items = container.items_unmasked()
-        # Finally, does all remaining resets for each operand
-        return self.reset()
-
     def _pass_framed_items(self, container_items: list[Any]) -> Self:
         if isinstance(self._chained_operand, Frame):
             self._chained_operand._unmasked_items = container_items
             self._chained_operand._pass_framed_items(container_items)  # Recursive call
         return self
+
+    
+    def _set_inside_container(self, container: 'Container') -> Self:
+        from . import operand_container as oc
+        container._set = False   # In order to contained items know it was set by them (Element items)
+        if isinstance(container, oc.Container):
+            self._unmasked_items = container.items_unmasked()
+            self._pass_framed_items(self._unmasked_items)
+        # Finally, does all remaining resets for each operand
+        return self.reset()
 
 
     def get_operand(self) -> Any:
