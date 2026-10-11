@@ -35,16 +35,11 @@ from . import operand_container as oc
 from . import operand_chaos as ch
 
 
-def pattern_funky_syncopation(drum_kit: 'og.DrumKit', channel: int = 1) -> 'oc.Clip':
-    kick_line: str      = "t::Kick, :_3S, :_7S, :_10S"
-    snare_line: str     = "t:_4S:Snare"
-    ghost_line: str     = "t:_2S:Snare:50, :_6S, :_9S, :_11S"
-    c_hat_line: str     = "t::Close:80," + ":," * 15
 
-    clip = oc.Clip(drum_kit)
-    clip += od.Line(kick_line)
-    clip += od.Line(snare_line)
-    clip += od.Line(ghost_line)
-    clip += od.Line(c_hat_line)
+pattern_funky_syncopation: od.Line = od.Line(
+    "t:1/16:Kick, :_3S, :_7S, :_10S" + \
+    "t:1/16_4S:Snare" + \
+    "t:1/16_2S:Snare:50, :_6S, :_9S, :_11S" + \
+    "t:1/16:Close:80," + ":," * 15
+)
 
-    return clip << ou.Channel(channel)
