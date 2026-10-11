@@ -737,6 +737,8 @@ class Plot(Process):
             if last_position_measure != last_position_measures: # Includes the trimmed length
                 last_position_measure += 1  # Adds only if the end doesn't coincide
 
+            printed_channel_number: dict[int, bool] = {}
+
             # Plot triggers
             for single_trigger in trigger_plotlist:
                 note_channel = single_trigger["channel"]
@@ -769,6 +771,15 @@ class Plot(Process):
                         path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
                         alpha=color_alpha)
 
+                if note_channel not in printed_channel_number:
+                    y_pos: int = single_trigger["sample_id"] + 1 + 0.2
+                    x_pos = (float(single_trigger["position_on"]) + float(single_trigger["position_off"])) / 2
+                    self._ax.text(x_pos, y_pos, note_channel + 1, ha='center', va='bottom', fontsize=8,
+                        color='black',  # Outline color
+                        path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
+                        alpha=color_alpha)
+                    printed_channel_number[note_channel] = True
+                      
             # Plot rests
             for single_rest in rest_plotlist:
                 # Available hatch patterns: '/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'
