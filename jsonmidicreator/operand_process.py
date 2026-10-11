@@ -251,17 +251,17 @@ class Plot(Process):
     _channel_colors = (
         "#4CAF50",  # Green (starting point)    01
         "#2196F3",  # Blue                      02
-        "#FF5722",  # Orange                    03
+        "#2B184D",  # Deep Purple               03
         "#9C27B0",  # Purple                    04
         "#FFEB3B",  # Bright Yellow             05
         "#FF9800",  # Amber                     06
         "#E91E63",  # Pink                      07
         "#00BCD4",  # Cyan                      08
         "#C7E99B",  # Light Green               09
-        "#FFC107",  # Gold                      10
-        "#4A5ED3",  # Indigo                    11
-        "#FF5252",  # Light Red                 12
-        "#2B184D",  # Deep Purple               13
+        "#4A5ED3",  # Indigo                    10
+        "#FF5722",  # Orange                    11
+        "#FFC107",  # Gold                      12
+        "#FF5252",  # Light Red                 13
         "#CDDC39",  # Lime                      14
         "#03A9F4",  # Light Blue                15
         "#FF4081",  # Hot Pink                  16
@@ -416,7 +416,7 @@ class Plot(Process):
                     if not single_note["enabled"]:
                         edge_color = 'white'
 
-                    color_alpha: float = round(0.3 + 0.7 * (single_note["velocity"] / 127), 2)
+                    color_alpha: float = round(0.3 + 0.7 * (single_note["velocity"] / 127) ** 2, 2)
 
                     if single_note["velocity"] > 127:
                         edge_color = 'red'
@@ -557,7 +557,7 @@ class Plot(Process):
                     if not single_note["enabled"]:
                         edge_color = 'white'
 
-                    color_alpha: float = round(0.3 + 0.7 * (single_note["velocity"] / 127), 2)
+                    color_alpha: float = round(0.3 + 0.7 * (single_note["velocity"] / 127) ** 2, 2)
                     if single_note["velocity"] > 127:
                         edge_color = 'red'
                         color_alpha = 1.0
@@ -748,7 +748,7 @@ class Plot(Process):
                 if not single_trigger["enabled"]:
                     edge_color = 'white'
 
-                color_alpha: float = round(0.3 + 0.7 * (single_trigger["velocity"] / 127), 2)
+                color_alpha: float = round(0.3 + 0.7 * (single_trigger["velocity"] / 127) ** 2, 2)
 
                 if single_trigger["velocity"] > 127:
                     edge_color = 'red'
