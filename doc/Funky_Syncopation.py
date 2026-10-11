@@ -1,13 +1,17 @@
 from jsonmidicreator import *
 
+settings << Tempo(96)
+
 funky_syncopation: str = (
     "t:1/16_2S:Snare:50, :_6S, :_9S, :_11S,"
     "t:1/16_4S:Snare:100,"
-    "t:1/16_0m:Close:80," + ":," * 15 +
+    "t:1/16_0m:Closed:60," + ":," * 15 +
     "t:1/16_0m:Kick:90, :_3S, :_7S, :_10S,"
 )
 
 drum_kit = DrumKit("808")
-clip = Clip(drum_kit) << Title("Funky Syncopation") << Line(funky_syncopation)
+clip = Clip(drum_kit) << Title("Funky Syncopation") \
+    << Line(funky_syncopation) << Channel(10) \
+    << Equal("Closed")**OnBeat()**Velocity(110)
 
-clip >> Plot()
+clip * 4 >> Plot()
