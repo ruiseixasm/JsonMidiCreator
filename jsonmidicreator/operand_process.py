@@ -741,8 +741,8 @@ class Plot(Process):
 
             # Plot triggers
             for single_trigger in trigger_plotlist:
-                note_channel_0: int = single_trigger["channel"]
-                channel_color = Plot._channel_colors[note_channel_0]
+                trigger_channel_0: int = single_trigger["channel"]
+                channel_color = Plot._channel_colors[trigger_channel_0]
 
                 bar_hatch: str = ''
                 line_style: str = 'solid'
@@ -771,14 +771,14 @@ class Plot(Process):
                         path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
                         alpha=color_alpha)
 
-                if note_channel_0 not in printed_channel_number:
+                if trigger_channel_0 not in printed_channel_number:
                     y_pos: int = single_trigger["sample_id"] + 1 + 0.2
                     x_pos = (float(single_trigger["position_on"]) + float(single_trigger["position_off"])) / 2
-                    self._ax.text(x_pos, y_pos, note_channel_0 + 1, ha='center', va='bottom', fontsize=8,
+                    self._ax.text(x_pos, y_pos, trigger_channel_0 + 1, ha='center', va='bottom', fontsize=8,
                         color='black',  # Outline color
                         path_effects=[patheffects.withStroke(linewidth=1.0, foreground=channel_color)],
                         alpha=color_alpha)
-                    printed_channel_number[note_channel_0] = True
+                    printed_channel_number[trigger_channel_0] = True
                       
             # Plot rests
             for single_rest in rest_plotlist:
