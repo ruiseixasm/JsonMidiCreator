@@ -754,9 +754,10 @@ def test_token_string():
     assert single_note == OperandType(Note())
     assert single_note % Duration() == 1/4
     
-    single_trigger = operand_element._get_element_from_token("t:")
+    single_trigger = operand_element._get_element_from_token("t::wewefs sfsdfwef")
     assert single_trigger == OperandType(Trigger())
     assert single_trigger % Duration() == 1/16
+    assert single_trigger % str() == "wewefs sfsdfwef"
 
 # test_token_string()
 
