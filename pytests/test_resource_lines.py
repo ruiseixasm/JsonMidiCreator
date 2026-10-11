@@ -15,7 +15,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 
 from jsonmidicreator import *
-from jsonmidicreator.resource_patterns import *
+from jsonmidicreator.resource_lines import *
 
 
 def test_pattern_funky_syncopation():
