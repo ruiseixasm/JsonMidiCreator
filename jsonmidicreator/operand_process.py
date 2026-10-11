@@ -692,9 +692,14 @@ class Plot(Process):
         elif trigger_plotlist or rest_plotlist:
 
             self._ax.set_ylabel("Samples")
+            drum_kit: dict = {}
+            drum_kit_len: int = 0
+            if trigger_plotlist:
+                drum_kit = trigger_plotlist[0]["owner_clip"]._drum_kit
+                drum_kit_len: int = len(drum_kit)
 
             # Set MIDI channel ticks with Middle C in bold
-            self._ax.set_yticks(range(17))  # Needs to accommodate all labels, so, it's 17
+            self._ax.set_yticks(range(max(17, drum_kit_len + 1)))  # Needs to accommodate all labels, so, it's 17
             self._ax.tick_params(axis='y', which='both', length=0)
 
             y_labels = ['Rest']
@@ -707,7 +712,7 @@ class Plot(Process):
                     sample_i for sample_i in range(len(y_labels), 17)
                 )
             self._ax.set_yticklabels(y_labels, fontsize=7, fontweight='bold')
-            self._ax.set_ylim(0 - 0.5, 16 + 0.5)  # Ensure all channels fit
+            self._ax.set_ylim(0 - 0.5, max(16, drum_kit_len) + 0.5)  # Ensure all channels fit
 
             # Where the corner Coordinates are defined
             self._ax.format_coord = lambda x, y: (
@@ -720,8 +725,8 @@ class Plot(Process):
                 f"Channel = {round(y)}"
             )
 
-            # Shade Odd Channels (1 based) VERTICAL AXIS
-            for single_trigger in range(16):
+            # Shade Odd Samples (1 based) VERTICAL AXIS
+            for single_trigger in range(max(16, drum_kit_len)):
                 if single_trigger % 2 == 1:
                     self._ax.axhspan(single_trigger - 0.5, single_trigger + 0.5, color='lightgray', alpha=0.5)
 
