@@ -22,6 +22,7 @@ def test_pattern_funky_syncopation():
     drum_kit = DrumKit("808")
     clip = pattern_funky_syncopation(drum_kit)
     assert clip % int() > 5
+    assert clip[0] % Duration() == 1/16
     # clip >> Plot()
 
 # test_pattern_funky_syncopation()

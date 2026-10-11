@@ -48,10 +48,6 @@ def _normalize_dsl(dsl: str) -> str:
     # 2c. Remove spaces around underscores
     dsl = re.sub(r"\s*_\s*", "_", dsl)
 
-    # 3. Convert remaining whitespace between elements into commas
-    # (only if not already adjacent to separators)
-    dsl = re.sub(r"\s+", ",", dsl)
-
     # 4. Collapse multiple commas
     dsl = re.sub(r",+", ",", dsl)
 

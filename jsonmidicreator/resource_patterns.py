@@ -39,7 +39,7 @@ def pattern_funky_syncopation(drum_kit: 'og.DrumKit', channel: int = 1) -> 'oc.C
     kick_line: str      = "t::Kick, :_3S, :_7S, :_10S"
     snare_line: str     = "t:_4S:Snare"
     ghost_line: str     = "t:_2S:Snare:50, :_6S, :_9S, :_11S"
-    c_hat_line: str     = "t::Close Hat:80," + ":," * 15
+    c_hat_line: str     = "t::Close:80," + ":," * 15
 
     clip = oc.Clip(drum_kit)
     clip += od.Line(kick_line)

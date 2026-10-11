@@ -1370,6 +1370,9 @@ def test_clip_line():
     assert components[2]._pitch.get_absolute_pitch() == 67    # G
     assert single_cluster.len() == 1
 
+    sixteen_steps = Clip() << Line("t::Close Hat:80," + ":," * 15)
+    assert sixteen_steps % int() == 16
+
 # test_clip_line()
 
 
