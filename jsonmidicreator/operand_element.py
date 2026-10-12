@@ -2572,6 +2572,7 @@ class Note(ChannelElement):
                 super().__lshift__(operand)
         return self
 
+
     def __iadd__(self, operand: any) -> 'Note':
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
@@ -2580,6 +2581,7 @@ class Note(ChannelElement):
                 return self
             case _:
                 return super().__iadd__(operand)
+
 
     def __isub__(self, operand: any) -> 'Note':
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -2774,6 +2776,30 @@ class Cluster(Note):
             case _:
                 super().__lshift__(operand)
         return self._updated_pitches()
+
+
+    def __iadd__(self, operand: any) -> 'Note':
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case og.Pitch() | ou.PitchParameter():
+                for single_pitch in self._pitches:
+                    single_pitch += operand
+                self._pitch += operand
+                return self
+            case _:
+                return super().__iadd__(operand)
+
+
+    def __isub__(self, operand: any) -> 'Note':
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case og.Pitch() | ou.PitchParameter():
+                for single_pitch in self._pitches:
+                    single_pitch -= operand
+                self._pitch -= operand
+                return self
+            case _:
+                return super().__isub__(operand)
 
 
 
