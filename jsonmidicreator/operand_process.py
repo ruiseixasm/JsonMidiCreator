@@ -1097,7 +1097,7 @@ class Plot(Process):
         if event.button == 3 and event.xdata is not None and event.ydata is not None:   # 1=left, 2=middle, 3=right
             composition = self._compositions[self._iteration_index]
             at_position_elements: list[oe.Element] = composition.at_position_elements(ra.Position(ra.Beats(event.xdata)))
-            at_position_audible: list[oe.Note] = [
+            at_position_audible: list[oe.Note | oe.Trigger] = [
                 single_audible.copy() for single_audible in at_position_elements
                 if isinstance(single_audible, (oe.Note, oe.Trigger))
             ]
