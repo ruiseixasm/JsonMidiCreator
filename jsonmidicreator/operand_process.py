@@ -1362,11 +1362,11 @@ class Play(Process):
         match operand:
             case oc.Composition():
                 if operand._items:
-                    clocking: dict[str, list] = og.settings.getClocking()
-                    if self.set_length:
-                        composition_length: ra.Length = operand % ra.Length()
-                        composition_length_beats: Fraction = composition_length._rational   # Implicit rounding
-                        clocking = og.settings.getClocking(composition_length_beats)
+                    composition_length: ra.Length = operand % ra.Length()
+                    composition_length_beats: Fraction = composition_length._rational   # Implicit rounding
+                    clocking: dict[str, list] = og.settings.getClocking(composition_length_beats)
+                    if not self.set_length:
+                        clocking = og.settings.getClocking()
                     playlist: list[dict] = operand.getPlaylist()  # Where the heavy lifting method is called
                     if self.plot and self.block:
                         # Start the function in a new process
