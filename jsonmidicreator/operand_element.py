@@ -379,8 +379,8 @@ class Element(o.Operand):
                         self_start: ra.Position = self.start()
                         self_finish: ra.Position = self.finish()
                         # BUG: THIS CHANGES THE CONTENT OF THE OWNER CLIP
-                        same_locus_clip: oc.Clip = self._owner_clip % od.Pipe( of.Equal(self_start)**of.Equal(self_duration) )
                         at_finish_clip: oc.Clip = self._owner_clip % od.Pipe( of.Equal(self_finish) )
+                        same_locus_clip: oc.Clip = self._owner_clip % od.Pipe( of.Equal(self_start)**of.Equal(self_duration) )
                         if operand >= Fraction(0):
                             extra_duration: ra.Duration = operand - self_duration
                             if extra_duration > Fraction(0):

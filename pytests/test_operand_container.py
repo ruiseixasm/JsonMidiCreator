@@ -98,6 +98,9 @@ def test_container_mod():
     one_note = two_notes % Pipe(First())
     assert one_note % int() == 1
     assert two_notes % int() == 2
+    filtered_notes = two_notes % Pipe(First()**Last())
+    assert filtered_notes % int() == 1
+    assert two_notes % int() == 2
 
 # test_container_mod()
 
@@ -121,7 +124,6 @@ def test_clip_mod():
     clip_2 << Stack()
 
     assert clip_1 == clip_2
-    
 
     chords_clip: Clip = Clip([Chord(), Chord(), Chord(), Chord(), Chord(), Chord(), Chord()])
     assert chords_clip.len() == 7
