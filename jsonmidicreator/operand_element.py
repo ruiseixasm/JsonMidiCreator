@@ -2172,7 +2172,7 @@ class Note(ChannelElement):
         |       | 1         | Channel: int(channel)                                                            |
         | 1     | 0         | Duration: int(steps), float(note_value), "d" Dotted, "m" Measures, "b" Beats     |
         |       | n         | Position: int(step), float(measures), "M" Measure, "B" Beat                      |
-        | 2     | n         | Pitch: int(octave), float(degree), "A"-"G" Key, "#" Sharp, "b" Flat, "n" Natural |
+        | 2     | 1         | Pitch: int(octave), float(degree), "A"-"G" Key, "#" Sharp, "b" Flat, "n" Natural |
         | 3     | 0         | Velocity: int(velocity)                                                          |
         +-------+-----------+----------------------------------------------------------------------------------+
 
@@ -3076,7 +3076,7 @@ class Cluster(KeyScale):
         |       | 2         | Inversion: int(Inversion)                                                         |
         | 1     | 0         | Duration: int(Beats), float(NoteValue), "d" - Dotted, "m" - Measures, "b" - Beats |
         |       | n         | Position: int(Beat), float(Position), "m" - Measure, "b" - Beat                   |
-        | 2     | n         | Pitch: int(Octave), float(Degree), "A" to "G" - Key, "#" - Sharp, "b" - Flat      |
+        | 2     | 1         | Pitch: int(Octave), float(Degree), "A" to "G" - Key, "#" - Sharp, "b" - Flat      |
         | 3     | 0         | Velocity: int(Velocity)                                                           |
         | n     | n         | Pitch: Each pitch for each n Note based on the base Note set in Field 2           |
         +-------+-----------+-----------------------------------------------------------------------------------+
@@ -3221,7 +3221,7 @@ class Chord(KeyScale):
         |       | 3         | Inversion: int(Inversion)                                                         |
         | 1     | 0         | Duration: int(Beats), float(NoteValue), "d" - Dotted, "m" - Measures, "b" - Beats |
         |       | n         | Position: int(Beat), float(Position), "m" - Measure, "b" - Beat                   |
-        | 2     | n         | Pitch: int(Octave), float(Degree), "A" to "G" - Key, "#" - Sharp, "b" - Flat      |
+        | 2     | 1         | Pitch: int(Octave), float(Degree), "A" to "G" - Key, "#" - Sharp, "b" - Flat      |
         | 3     | 0         | Velocity: int(Velocity)                                                           |
         +-------+-----------+-----------------------------------------------------------------------------------+
 
