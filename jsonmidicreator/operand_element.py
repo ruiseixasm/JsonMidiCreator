@@ -1746,6 +1746,7 @@ class ChannelElement(DeviceElement):
         return self
 
 
+
 class Trigger(ChannelElement):
     """`Element -> DeviceElement -> ChannelElement -> Trigger`
 
@@ -2590,6 +2591,198 @@ class Note(ChannelElement):
                 return super().__isub__(operand)
 
 
+
+class Cluster(Note):
+    """`Element -> DeviceElement -> ChannelElement -> Note -> Cluster`
+
+    A `Cluster` element allows the triggering of notes concerning specific pitch parameter (Ex. `Degree`) of a given `Scale`.
+    Being a `Chord`, it's also able to have its own `Scale` to work on, besides being able to do inversions.
+
+    The applicable fields(:) for each token(,) in a `Line`, like in `"cl:3b:E_-_G_A, c:3b"`:
+
+        +-------+-----------+-----------------------------------------------------------------------------------+
+        | Field | Parameter | Parameter Values                                                                  |
+        +-------+-----------+-----------------------------------------------------------------------------------+
+        | 0     | 0         | Tag: "cl"                                                                         |
+        |       | 1         | Channel: int(Channel)                                                             |
+        |       | 2         | Inversion: int(Inversion)                                                         |
+        | 1     | 0         | Duration: int(Beats), float(NoteValue), "d" - Dotted, "m" - Measures, "b" - Beats |
+        |       | n         | Position: int(Beat), float(Position), "m" - Measure, "b" - Beat                   |
+        | 2     | n         | Pitch: int(Octave), float(Degree), "A" to "G" - Key, "#" - Sharp, "b" - Flat      |
+        | 3     | 0         | Velocity: int(Velocity)                                                           |
+        | n     | n         | Pitch: Each pitch for each n Note based on the base Note set in Field 2           |
+        +-------+-----------+-----------------------------------------------------------------------------------+
+
+    Parameters
+    ----------
+    list(['1n', '3n', '5n']) : Sets the specific pitch parameters (list) to result as `Note` for each single pitch parameter.
+    Inversion(0) : The number of inversion of the `Chord`.
+    Scale([]), KeySignature, str, None : Sets the `Scale` to be used, `None` uses the `defaults` scale.
+    Arpeggio("None") : Sets the `Arpeggio` intended to do with the simultaneously pressed notes.
+    Velocity(100), int : Sets the velocity of the note being pressed.
+    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
+    Tied(False) : Sets a `Note` as tied if set as `True`.
+    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
+        `Scale`, `Degree` and `KeySignature`.
+    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
+    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Channel(1) : The Midi channel where the midi message will be sent to.
+    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
+    """
+    def __init__(self, *parameters):
+        self._pitches: list = [
+            og.Pitch("1n"),
+            og.Pitch("3n"),
+            og.Pitch("5n")
+        ]
+        super().__init__( *parameters )
+
+
+    def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
+        super()._set_element_from_token(token, previous_element)
+        token = od._normalize_dsl(token)
+        token_operand = od.Token(token)
+        field_0: str = token_operand.get_field(0)
+        if field_0 is not None and field_0 != "":
+            field_parameters: list[str] = field_0.split("_")
+            if len(field_parameters) > 2:
+                parameter = field_parameters[2]
+                inversion = o.string_to_number(parameter)
+                if isinstance(inversion, int):
+                    self << ou.Inversion(inversion)
+        # Set Pitches
+        field_2: str = token_operand.get_field(2)
+        if field_2 is not None:
+            self._pitches = []
+            field = od.Field(field_2)
+            field_parameters = field.get_parameters()
+            for parameter in field_parameters:
+                if parameter is not None:
+                    new_pitch = og.Pitch()
+                    # Extract Major and minor
+                    major = 'M' if 'M' in parameter else ''
+                    minor = 'm' if 'm' in parameter else ''
+                    # Get the remaining string without letter and accidental
+                    parameter = parameter.replace(major, '')
+                    parameter = parameter.replace(minor, '')
+                    if major:
+                        new_pitch << ou.Major()
+                    elif minor:
+                        new_pitch << ou.Minor()
+                    new_pitch << parameter
+                    self._pitches.append(new_pitch)
+        # Set Velocity
+        field_3: str = token_operand.get_field(3)
+        if field_3 is not None:
+            number = o.string_to_number(field_3)
+            if isinstance(number, int):
+                self << ou.Velocity(number)
+        return self
+
+
+    def get_component_elements(self) -> list[Note]:
+        """Returns the elements directly, NO decoupling guaranteed (no copy)"""
+        cluster_notes: list[Note] = []
+        for pitch_parameter in self._pitches:
+            single_note: Note = Note(self)  # Owned by same clip
+            if isinstance(pitch_parameter, od.Token):
+                single_note << pitch_parameter
+            else:
+                single_note._pitch << pitch_parameter
+            cluster_notes.append( single_note )
+        cluster_notes = self._apply_inversion(cluster_notes)
+        if isinstance(self._note_effect, og.NoteEffect):
+            cluster_notes = self._note_effect.apply(cluster_notes)
+        return cluster_notes
+
+
+    def _apply_inversion(self, notes: list[Note]) -> list[Note]:
+        # Where the inversions are done
+        inversion: int = self._inversion % len(notes)
+        if inversion > 0:
+            first_note = notes[inversion]
+            not_first_note = True
+            while not_first_note:   # Try to implement while inversion > 0 here
+                not_first_note = False
+                for single_note in notes:
+                    if single_note._pitch < first_note._pitch:   # Critical operation
+                        single_note << single_note % ou.Octave() + 1
+                        if single_note % od.Pipe( int() ) < 128:
+                            not_first_note = True # to result in another while loop
+        # Final Octave adjustment
+        octave_offset: ou.Octave = ou.Octave( self._inversion // len(notes) )
+        if octave_offset != 0:
+            for single_note in notes:
+                single_note += octave_offset
+        return notes
+
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case list():            return self._pitches
+                    case _:                 return super().__mod__(operand)
+            case list():            return o.deep_copy(self._pitches)
+            case _:                 return super().__mod__(operand)
+
+    def __eq__(self, other: o.Operand) -> bool:
+        match other:
+            case Cluster():
+                return super().__eq__(other) and self._pitches == other._pitches
+            case Element():
+                # Makes a playlist comparison
+                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
+            case _:
+                return super().__eq__(other)
+    
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["pitches"] = o.serialize( self._pitches )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "pitches" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._pitches = o.deserialize( serialization["parameters"]["pitches"] )
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Cluster():
+                super().__lshift__(operand)
+                self._pitches = o.deep_copy( operand._pitches )
+            case od.Pipe():
+                match operand._data:
+                    case list():
+                        if all(not isinstance(item, Element) for item in operand._data):
+                            self._pitches = operand._data
+                        else:
+                            super().__lshift__(operand)
+                    case _:
+                        super().__lshift__(operand)
+            case list():
+                if all(not isinstance(item, Element) for item in operand):
+                    self._pitches = o.deep_copy( operand )
+                else:
+                    super().__lshift__(operand)
+            case dict():
+                if all(isinstance(key, int) for key in operand.keys()):
+                    for index, offset in operand.items():
+                        if index >= 0 and index < len(self._pitches):
+                            self._pitches[index] = o.deep_copy(offset)
+                else:   # Not for me
+                    self._pitch << operand
+            case _:
+                super().__lshift__(operand)
+        return self
+
+
 class Rhythm(Note):
     """`Element -> DeviceElement -> ChannelElement -> Note -> Rhythm`
 
@@ -2942,7 +3135,8 @@ class KeyScale(Note):
                 return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
             case _:
                 return super().__eq__(other)
-            
+
+
     def _apply_inversion(self, notes: list[Note]) -> list[Note]:
         # Where the inversions are done
         inversion: int = self._inversion % len(notes)
@@ -2962,7 +3156,8 @@ class KeyScale(Note):
             for single_note in notes:
                 single_note += octave_offset
         return notes
-            
+
+
     def get_component_elements(self) -> list[Note]:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         scale_notes: list[Note] = []
@@ -3045,150 +3240,6 @@ class KeyScale(Note):
         return self
 
 
-class Cluster(KeyScale):
-    """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Cluster`
-
-    A `Cluster` element allows the triggering of notes concerning specific pitch parameter (Ex. `Degree`) of a given `Scale`.
-    Being a `Chord`, it's also able to have its own `Scale` to work on, besides being able to do inversions.
-
-    The applicable fields(:) for each token(,) in a `Line`, like in `"cl:3b:E_-_G_A, c:3b"`:
-
-        +-------+-----------+-----------------------------------------------------------------------------------+
-        | Field | Parameter | Parameter Values                                                                  |
-        +-------+-----------+-----------------------------------------------------------------------------------+
-        | 0     | 0         | Tag: "cl"                                                                         |
-        |       | 1         | Channel: int(Channel)                                                             |
-        |       | 2         | Inversion: int(Inversion)                                                         |
-        | 1     | 0         | Duration: int(Beats), float(NoteValue), "d" - Dotted, "m" - Measures, "b" - Beats |
-        |       | n         | Position: int(Beat), float(Position), "m" - Measure, "b" - Beat                   |
-        | 2     | 1         | Pitch: int(Octave), float(Degree), "A" to "G" - Key, "#" - Sharp, "b" - Flat      |
-        | 3     | 0         | Velocity: int(Velocity)                                                           |
-        | n     | n         | Pitch: Each pitch for each n Note based on the base Note set in Field 2           |
-        +-------+-----------+-----------------------------------------------------------------------------------+
-
-    Parameters
-    ----------
-    list(['1', '3', '5']) : Sets the specific pitches (list) to result as `Note` for each single pitch parameter.
-    Inversion(0) : The number of inversion of the `Chord`.
-    Scale([]), KeySignature, str, None : Sets the `Scale` to be used, `None` uses the `defaults` scale.
-    Arpeggio("None") : Sets the `Arpeggio` intended to do with the simultaneously pressed notes.
-    Velocity(100), int : Sets the velocity of the note being pressed.
-    Gate(1.0) : Sets the `Gate` as a ratio of Duration as the respective midi message from Note On to Note Off lag.
-    Tied(False) : Sets a `Note` as tied if set as `True`.
-    Pitch(settings) : As the name implies, sets the absolute Pitch of the `Note`, the `Pitch` operand itself add many functionalities, like, \
-        `Scale`, `Degree` and `KeySignature`.
-    Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
-    Channel(1) : The Midi channel where the midi message will be sent to.
-    Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
-    """
-    def __init__(self, *parameters):
-        self._pitches: list = ['1', '3', '5']
-        super().__init__( *parameters )
-
-
-    def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
-        super()._set_element_from_token(token, previous_element)
-        token = od._normalize_dsl(token)
-        token_operand = od.Token(token)
-        field_0: str = token_operand.get_field(0)
-        if field_0 is not None and field_0 != "":
-            field_parameters: list[str] = field_0.split("_")
-            if len(field_parameters) > 2:
-                parameter = field_parameters[2]
-                inversion = o.string_to_number(parameter)
-                if isinstance(inversion, int):
-                    self << ou.Inversion(inversion)
-        # Get individual Tokens for each cluster Note as future Pitch setters
-        fields = token_operand.get_fields()
-        self._pitches = []  # Makes sure it resets existing pitches
-        for index, single_field in enumerate(fields):
-            if index > 3:   # Above 3, the one concerning velocity
-                pitch_token = od.Token("::" + single_field) # Pitch field set ONLY
-                self._pitches.append(pitch_token)
-        return self
-
-
-    def get_component_elements(self) -> list[Note]:
-        """Returns the elements directly, NO decoupling guaranteed (no copy)"""
-        cluster_notes: list[Note] = []
-        for pitch_parameter in self._pitches:
-            single_note: Note = Note(self)  # Owned by same clip
-            if isinstance(pitch_parameter, od.Token):
-                single_note << pitch_parameter
-            else:
-                single_note._pitch << pitch_parameter
-            cluster_notes.append( single_note )
-        cluster_notes = self._apply_inversion(cluster_notes)
-        if isinstance(self._note_effect, og.NoteEffect):
-            cluster_notes = self._note_effect.apply(cluster_notes)
-        return cluster_notes
-
-
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case list():            return self._pitches
-                    case _:                 return super().__mod__(operand)
-            case list():            return o.deep_copy(self._pitches)
-            case _:                 return super().__mod__(operand)
-
-    def __eq__(self, other: o.Operand) -> bool:
-        match other:
-            case Cluster():
-                return super().__eq__(other) and self._pitches == other._pitches
-            case Element():
-                # Makes a playlist comparison
-                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
-            case _:
-                return super().__eq__(other)
-    
-    def getSerialization(self) -> dict:
-        serialization = super().getSerialization()
-        serialization["parameters"]["pitches"] = o.serialize( self._pitches )
-        return serialization
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict) -> Self:
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "pitches" in serialization["parameters"]):
-
-            super().loadSerialization(serialization)
-            self._pitches = o.deserialize( serialization["parameters"]["pitches"] )
-        return self
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case Cluster():
-                super().__lshift__(operand)
-                self._pitches = o.deep_copy( operand._pitches )
-            case od.Pipe():
-                match operand._data:
-                    case list():
-                        if all(not isinstance(item, Element) for item in operand._data):
-                            self._pitches = operand._data
-                        else:
-                            super().__lshift__(operand)
-                    case _:
-                        super().__lshift__(operand)
-            case list():
-                if all(not isinstance(item, Element) for item in operand):
-                    self._pitches = o.deep_copy( operand )
-                else:
-                    super().__lshift__(operand)
-            case dict():
-                if all(isinstance(key, int) for key in operand.keys()):
-                    for index, offset in operand.items():
-                        if index >= 0 and index < len(self._pitches):
-                            self._pitches[index] = o.deep_copy(offset)
-                else:   # Not for me
-                    self._pitch << operand
-            case _:
-                super().__lshift__(operand)
-        return self
 
 class Chord(KeyScale):
     """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale -> Chord`
