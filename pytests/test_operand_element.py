@@ -821,6 +821,15 @@ def test_cluster_setting():
     assert cluster.get_absolute_pitch() == 60 + 9
     assert pitches[0].get_absolute_pitch() == 60 + 9
     assert pitches[1].get_absolute_pitch() == 60 + 9 + 4
+    cluster << "C"
+    assert cluster.get_absolute_pitch() == 60
+    assert pitches[0].get_absolute_pitch() == 60
+    assert pitches[1].get_absolute_pitch() == 60 + 4
+    cluster += Degree(5)
+    # cluster >> Plot()
+    assert cluster.get_absolute_pitch() == 60 + 9
+    assert pitches[0].get_absolute_pitch() == 60 + 9
+    assert pitches[1].get_absolute_pitch() == 60 + 9 + 3
 
 
 def test_element_multi():
