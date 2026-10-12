@@ -116,13 +116,10 @@ class Export(Process):
             case oe.Element():
                 if not isinstance(file_path, str):
                     file_path = "json/_Export_jsonMidiPlayer.json"
-                element_length: ra.Length = operand % ra.Length()
-                element_length_beats: Fraction = element_length.roundBeats() % Fraction()
-                clocking: dict[str, list] = og.settings.getClocking(element_length_beats)
+                clocking: dict[str, list] = og.settings.getClocking()
                 playlist: list[dict] = operand.getPlaylist()
                 c.exportJsonMidiPlay(clocking, playlist, file_path)
                 return operand
-
             case _:
                 return super().__rrshift__(operand)
 
@@ -1149,7 +1146,10 @@ class Plot(Process):
                         for single_trigger in at_position_audible:
                             single_trigger._position_beats -= minimum_position
                     
-                threading.Thread(target=Play.play, args=(oc.Clip( od.Pipe(at_position_audible) ),)).start()
+                threading.Thread(target=Play.play, args=(
+                    oc.Clip( od.Pipe(at_position_audible) ),
+                    1, False, False, False, 500, False
+                )).start()
         return self
 
 
@@ -1344,7 +1344,8 @@ class Play(Process):
         plot (bool): Plots a chart before playing it.
         block (bool): Blocks the Plot until is closed and then plays the plotted content.
     """
-    def __init__(self, loops: int = 1, verbose: bool = False, plot: bool = False, block: bool = False, talkie_delay_ms: int = 500):
+    def __init__(self, loops: int = 1, verbose: bool = False, plot: bool = False, block: bool = False,
+                 talkie_delay_ms: int = 500, set_length: bool = True):
         super().__init__()
         self._rec_transport: bool = False
         self._mtc_fps: int = og.settings._mtc_fps
@@ -1353,6 +1354,7 @@ class Play(Process):
         self.plot = plot
         self.block = block
         self.talkie_delay_ms = talkie_delay_ms
+        self.set_length = set_length
         
 
     def process(self, operand: o.T) -> o.T:
@@ -1360,9 +1362,11 @@ class Play(Process):
         match operand:
             case oc.Composition():
                 if operand._items:
-                    composition_length: ra.Length = operand % ra.Length()
-                    composition_length_beats: Fraction = composition_length._rational   # Implicit rounding
-                    clocking: dict[str, list] = og.settings.getClocking(composition_length_beats)
+                    clocking: dict[str, list] = og.settings.getClocking()
+                    if self.set_length:
+                        composition_length: ra.Length = operand % ra.Length()
+                        composition_length_beats: Fraction = composition_length._rational   # Implicit rounding
+                        clocking = og.settings.getClocking(composition_length_beats)
                     playlist: list[dict] = operand.getPlaylist()  # Where the heavy lifting method is called
                     if self.plot and self.block:
                         # Start the function in a new process
@@ -1388,9 +1392,7 @@ class Play(Process):
                     print(f"Warning: Trying to play an **empty** list!")
                 return operand
             case oe.Element():
-                element_length: ra.Length = operand % ra.Length()
-                element_length_beats: Fraction = element_length.roundBeats() % Fraction()
-                clocking: dict[str, list] = og.settings.getClocking(element_length_beats)
+                clocking: dict[str, list] = og.settings.getClocking()
                 playlist: list[dict] = operand.getPlaylist()  # Where the heavy lifting method is called
                 if self.plot and self.block:
                     # Start the function in a new process
