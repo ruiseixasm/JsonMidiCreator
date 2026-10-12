@@ -372,7 +372,7 @@ class Element(o.Operand):
                 self._duration_beats = operand._duration_beats
             case list():
                 self << og.Locus(self, operand)
-            case ra.LinkedDuration():
+            case ra.LinkedDuration() | ra.LinkedLength():
                 if self._owner_clip is not None:
                     self_duration: ra.Duration = self % ra.Duration()
                     if self_duration != operand:    # NOT already set
