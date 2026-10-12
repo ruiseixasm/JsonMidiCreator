@@ -444,10 +444,7 @@ class Container(o.Operand):
             case od.Pipe():
                 match operand._data:
                     case list():
-                        # Remove previous Elements from the Container stack
-                        self._delete() # deletes all
-                        # Finally adds the decomposed elements to the Container stack
-                        self._extend(operand._data)
+                        self._items = operand._data
                     case of.Frame():
                         operand._data._set_inside_container(self)
                         for single_item in self.items_unmasked():
@@ -1951,11 +1948,8 @@ class Clip(Composition):  # Just a container of Elements
 
                     case list():
                         if all(isinstance(item, oe.Element) for item in operand._data):
-                            # Remove previous Elements from the Container stack
-                            self._delete(self.elements_unmasked(), True) # deletes by id, safer
-                            # Finally adds the decomposed elements to the Container stack
-                            self._extend(operand._data)
-                            self._set_owner_clip()
+                            # Doesn't set the owner_clip
+                            super().__lshift__(operand)
                         elif all(isinstance(item, og.Locus) for item in operand._data):
                             for single_element, locus in zip(self, operand._data):
                                 single_element << locus
@@ -2896,7 +2890,7 @@ class Section(Composition):
                         self._name = operand._data
                     case list():
                         if all(isinstance(item, Clip) for item in operand._data):
-                            self._items = [item for item in operand._data]
+                            super().__lshift__(operand)
                         else:   # Not for me
                             for item in self._items:
                                 item << operand._data
@@ -3467,8 +3461,7 @@ class Part(Composition):
                 match operand._data:
                     case list():
                         if all(isinstance(item, Section) for item in operand._data):
-                            self._items = [item for item in operand._data]
-                            self._set_owner_part()
+                            super().__lshift__(operand)
                         else:   # Not for me
                             for item in self._items:
                                 item << operand._data
