@@ -1825,7 +1825,15 @@ class Trigger(ChannelElement):
                     self._sample = sample
                     break
         return self
+
     
+    def get_pitch_by_sample_id(self, sample_id: int) -> int:
+        if self._owner_clip is not None:
+            for index, sample_name in enumerate(self._owner_clip._drum_kit.keys()):
+                if index == sample_id:
+                    return self._owner_clip._drum_kit[sample_name]
+        return -1   # Not found
+        
 
     def checksum(self) -> int:
         """16-bit checksum for a `Note`."""

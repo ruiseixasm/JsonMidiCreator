@@ -1102,7 +1102,24 @@ class Plot(Process):
                 if isinstance(single_audible, (oe.Note, oe.Trigger))
             ]
             if at_position_audible:
-                if self.by_channel:
+                if isinstance(at_position_audible[0], oe.Note):
+                    # Sort by Pitch instead
+                    at_position_audible.sort(key=lambda note:note._pitch.get_absolute_pitch())
+                    minimum_position: Fraction = None
+                    plotting_pitch: int = int(event.ydata + 0.5)
+                    for single_note in at_position_audible:
+                        if minimum_position is None:
+                            minimum_position = single_note._position_beats
+                            root_pitch: int = single_note._pitch.get_absolute_pitch()
+                            single_note._pitch << plotting_pitch
+                            plotting_pitch -= root_pitch
+                        else:
+                            if single_note._position_beats < minimum_position:
+                                minimum_position = single_note._position_beats
+                            single_note._pitch += plotting_pitch
+                    for single_note in at_position_audible:
+                        single_note._position_beats -= minimum_position
+                elif self.by_channel:
                     if 0 <= round(event.ydata - 1) < 16:
                         # Sort by Position in reverse instead
                         at_position_audible.sort(key=lambda audible:audible._position_beats * -1)
@@ -1113,7 +1130,7 @@ class Plot(Process):
                         return self
                 else:
                     # Sort by Pitch instead
-                    at_position_audible.sort(key=lambda note:note._pitch.get_absolute_pitch())
+                    at_position_audible.sort(key=lambda trigger:trigger._pitch.get_absolute_pitch())
                     minimum_position: Fraction = None
                     plotting_pitch: int = int(event.ydata + 0.5)
                     for single_note in at_position_audible:
