@@ -377,7 +377,7 @@ class Container(o.Operand):
                         for single_item in self.items_unmasked():
                             if single_item == operand._data:
                                 framed_items.append(single_item)
-                        return self.empty_copy() << od.Pipe( framed_items )
+                        return self.empty_copy(od.Pipe( framed_items ))
                     case _:
                         return super().__mod__(operand)
             case list():
@@ -1214,7 +1214,8 @@ class Composition(Container):
                 match operand._data:
                     case og.TimeSignature():
                         return self._get_time_signature()
-                    case _:                 return super().__mod__(operand)
+                    case _:
+                        return super().__mod__(operand)
             # By definition Clips are always at Position 0
             case ra.Position():
                 return operand.copy( ra.Position(self, 0) )

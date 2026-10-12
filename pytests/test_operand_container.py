@@ -942,7 +942,13 @@ def test_clip_duration():
     print(f"single_beat_note Length: {single_beat_note % Length() % float()}")
     assert single_beat_note % Length() == 1.0 * 4   # Beats
 
-# test_clip_duration()
+    two_notes = Note() * 2
+    assert two_notes[1] % Duration() == 1/4
+    two_notes << First()**LinkedDuration(Dotted(1/4))
+    print(f"two_notes[1] % Duration(): {two_notes[1] % Duration() % float()}")
+    assert two_notes[1] % Duration() == 1/8
+
+test_clip_duration()
 
 
 def test_clip_operations():
