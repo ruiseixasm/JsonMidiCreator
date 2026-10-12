@@ -105,6 +105,8 @@ def test_degree_multi():
     assert Degree("A#") == Degree()
     assert Degree("#") == Degree(1.0)
     assert Degree("bb") == Degree(-2.0)
+    assert Degree("3") == Degree(3)
+    assert Degree("3n") == Degree(3)
     assert Degree("3bb") == Degree(3, -2.0)
 
     assert Degree("6") == 6
