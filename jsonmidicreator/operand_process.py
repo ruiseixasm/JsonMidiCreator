@@ -1097,26 +1097,26 @@ class Plot(Process):
         if event.button == 3 and event.xdata is not None and event.ydata is not None:   # 1=left, 2=middle, 3=right
             composition = self._compositions[self._iteration_index]
             at_position_elements: list[oe.Element] = composition.at_position_elements(ra.Position(ra.Beats(event.xdata)))
-            at_position_notes: list[oe.Note] = [
-                single_note.copy() for single_note in at_position_elements
-                if isinstance(single_note, oe.Note)
+            at_position_audible: list[oe.Note] = [
+                single_audible.copy() for single_audible in at_position_elements
+                if isinstance(single_audible, (oe.Note, oe.Trigger))
             ]
-            if at_position_notes:
+            if at_position_audible:
                 if self.by_channel:
                     if 0 <= round(event.ydata - 1) < 16:
                         # Sort by Position in reverse instead
-                        at_position_notes.sort(key=lambda note:note._position_beats * -1)
-                        at_position_notes = [ at_position_notes[0] ]    # Just a single note is played
-                        at_position_notes[0]._channel_0 = round(event.ydata - 1)
-                        at_position_notes[0]._position_beats = Fraction(0)
+                        at_position_audible.sort(key=lambda audible:audible._position_beats * -1)
+                        at_position_audible = [ at_position_audible[0] ]    # Just a single note is played
+                        at_position_audible[0]._channel_0 = round(event.ydata - 1)
+                        at_position_audible[0]._position_beats = Fraction(0)
                     else:
                         return self
                 else:
                     # Sort by Pitch instead
-                    at_position_notes.sort(key=lambda note:note._pitch.get_absolute_pitch())
+                    at_position_audible.sort(key=lambda note:note._pitch.get_absolute_pitch())
                     minimum_position: Fraction = None
                     plotting_pitch: int = int(event.ydata + 0.5)
-                    for single_note in at_position_notes:
+                    for single_note in at_position_audible:
                         if minimum_position is None:
                             minimum_position = single_note._position_beats
                             root_pitch: int = single_note._pitch.get_absolute_pitch()
@@ -1126,10 +1126,10 @@ class Plot(Process):
                             if single_note._position_beats < minimum_position:
                                 minimum_position = single_note._position_beats
                             single_note._pitch += plotting_pitch
-                    for single_note in at_position_notes:
+                    for single_note in at_position_audible:
                         single_note._position_beats -= minimum_position
                     
-                threading.Thread(target=Play.play, args=(oc.Clip( od.Pipe(at_position_notes) ),)).start()
+                threading.Thread(target=Play.play, args=(oc.Clip( od.Pipe(at_position_audible) ),)).start()
         return self
 
 
