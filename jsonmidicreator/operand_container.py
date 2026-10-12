@@ -1735,6 +1735,11 @@ class Clip(Composition):  # Just a container of Elements
                 return super().__mod__(operand)
 
 
+    def __imod__(self, operand: any) -> Self:
+        new_container = super().__imod__(operand)
+        return new_container._set_owner_clip()
+
+
     @staticmethod
     def _get_left_note_index(notes: list['oe.Note'], extended_durations: list[Fraction], tied_note: 'oe.Note') -> int:
         right_start: Fraction = tied_note._position_beats

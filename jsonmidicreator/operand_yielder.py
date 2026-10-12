@@ -190,7 +190,6 @@ class Sequencer(Yielder):
                         element_copy._position_beats += beats_per_step
                     self._trigger_steps._set_inside_container(new_clip)
                     new_clip %= self._trigger_steps
-                    new_clip._set_owner_clip()  # Update the owner clip of its Elements
                 case ch.Chaos():
                     finish_position_beats: Fraction = element._position_beats + self._length_beats
                     while element_copy._position_beats < finish_position_beats:
