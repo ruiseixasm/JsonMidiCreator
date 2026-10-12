@@ -2630,7 +2630,7 @@ class Cluster(Note):
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
     def __init__(self, *parameters):
-        self._pitches: list = [
+        self._pitches: list[og.Pitch] = [
             og.Pitch("1n"),
             og.Pitch("3n"),
             og.Pitch("5n")
@@ -2685,6 +2685,14 @@ class Cluster(Note):
             count = len(self._pitches)
             return math.floor(total / count)
         return -1   # Out of scope pitch
+
+
+    def _updated_pitches(self) -> Self:
+        for single_pitch in self._pitches:
+            delta_absolute_pitch: int = self._pitch.get_absolute_pitch() - single_pitch.get_absolute_pitch()
+            single_pitch << self._pitch
+            single_pitch += ou.Semitone(delta_absolute_pitch)
+        return self
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -2750,7 +2758,8 @@ class Cluster(Note):
                     self._pitch << operand
             case _:
                 super().__lshift__(operand)
-        return self
+        return self._updated_pitches()
+
 
 
 class Rhythm(Note):
