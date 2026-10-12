@@ -375,23 +375,22 @@ class Element(o.Operand):
             case ra.LinkedDuration() | ra.LinkedLength():
                 if self._owner_clip is not None:
                     self_duration: ra.Duration = self % ra.Duration()
-                    if self_duration != operand:    # NOT already set
+                    if operand >= Fraction(0) and self_duration != operand: # NOT already set
                         self_start: ra.Position = self.start()
                         self_finish: ra.Position = self.finish()
                         at_finish_clip: oc.Clip = self._owner_clip % od.Pipe( of.Equal(self_finish) )
                         # BUG: THIS CHANGES THE CONTENT OF THE OWNER CLIP
                         same_locus_clip: oc.Clip = self._owner_clip % od.Pipe( of.Equal(self_start)**of.Equal(self_duration) )
-                        if operand >= Fraction(0):
-                            extra_duration: ra.Duration = operand - self_duration
-                            if extra_duration > Fraction(0):
-                                for linked_element in at_finish_clip._items:
-                                    if linked_element._duration_beats < extra_duration._rational:
-                                        return self # No available space for all linked elements
+                        extra_duration: ra.Duration | ra.Length = operand - self_duration
+                        if extra_duration > Fraction(0):
                             for linked_element in at_finish_clip._items:
-                                linked_element._position_beats += extra_duration._rational
-                                linked_element._duration_beats -= extra_duration._rational
-                            for same_locus_element in same_locus_clip._items:
-                                same_locus_element._duration_beats += extra_duration._rational
+                                if linked_element._duration_beats < extra_duration._rational:
+                                    return self # No available space for all linked elements
+                        for linked_element in at_finish_clip._items:
+                            linked_element._position_beats += extra_duration._rational
+                            linked_element._duration_beats -= extra_duration._rational
+                        for same_locus_element in same_locus_clip._items:
+                            same_locus_element._duration_beats += extra_duration._rational
 
             case ra.Duration() | ra.Length():
                 if operand > Fraction(0):   # Allows innocuous non positive setting (neutral)
