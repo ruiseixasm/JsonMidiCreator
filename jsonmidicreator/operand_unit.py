@@ -927,15 +927,6 @@ class Degree(PitchParameter):
         self._accidental: int = 0
         super().__init__(1, *parameters) # By default the degree it's 1 (I, Tonic)
 
-    _string_to_degree: dict[str, int] = {
-        "i": 1,     "1": 1,     "tonic": 1,
-        "ii": 2,    "2": 2,     "supertonic": 2,
-        "iii": 3,   "3": 3,     "mediant": 3,
-        "iv": 4,    "4": 4,     "subdominant": 4,
-        "v": 5,     "5": 5,     "dominant": 5,
-        "vi": 6,    "6": 6,     "submediant": 6,
-        "vii": 7,   "7": 7,     "leading tone": 7,      "viiº": 7
-    }
 
     def __eq__(self, other: any) -> bool:
         if isinstance(other, Degree):
@@ -948,7 +939,8 @@ class Degree(PitchParameter):
         if isinstance(other, str):
             return (self % other).lower() == other.strip().lower()
         return self % other == other
-    
+
+
     def __lt__(self, other: any) -> bool:
         if isinstance(other, Degree):
             if super().__eq__(other):
@@ -957,7 +949,8 @@ class Degree(PitchParameter):
         if isinstance(other, od.Conditional):
             return other < self
         return super().__lt__(other)
-    
+
+
     def __gt__(self, other: any) -> bool:
         if isinstance(other, Degree):
             if super().__eq__(other):
@@ -1151,6 +1144,17 @@ class Degree(PitchParameter):
             if isinstance(number, (int, float)):
                 self << number
         return self
+
+
+    _string_to_degree: dict[str, int] = {
+        "i": 1,     "1": 1,     "tonic": 1,
+        "ii": 2,    "2": 2,     "supertonic": 2,
+        "iii": 3,   "3": 3,     "mediant": 3,
+        "iv": 4,    "4": 4,     "subdominant": 4,
+        "v": 5,     "5": 5,     "dominant": 5,
+        "vi": 6,    "6": 6,     "submediant": 6,
+        "vii": 7,   "7": 7,     "leading tone": 7,      "viiº": 7
+    }
 
 
 class Transposition(PitchParameter):
