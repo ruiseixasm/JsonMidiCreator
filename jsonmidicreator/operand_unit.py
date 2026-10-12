@@ -1134,12 +1134,16 @@ class Degree(PitchParameter):
         
         accidental = 0  # Natural by default
         string = string.strip()
+        degree: str = string
+        degree.lower()  # Only for degrees
         if "n" in string:
-            ...
-        if "#" in string:
+            degree = string.split("n")[0]
+        elif "#" in string:
             accidental += string.count("#")
-        if "b" in string:
+            degree = string.split("#")[0]
+        elif "b" in string:
             accidental -= string.count("b")
+            degree = string.split("b")[0]
         string = string.replace("n", "").replace("#", "").replace("b", "")
         string = string.lower() # Only for degrees
         if string in Degree._string_to_degree: # See table above
