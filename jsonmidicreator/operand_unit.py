@@ -902,7 +902,10 @@ class Octave(PitchParameter):
             case str():
                 if len(operand) > 1:
                     try:
-                        self << int(operand[-1])    # The tail number
+                        octave = int(operand[-1])   # The tail number
+                        if operand[-2] == '-':
+                            octave *= -1
+                        self << octave
                     except ValueError as e:
                         super().__lshift__(operand)
                 else:
