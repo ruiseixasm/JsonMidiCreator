@@ -1134,6 +1134,34 @@ class LinkedLength(Length):
     pass
 
 
+
+class LeftLinkedLength(Length):
+    """`Rational -> Convertible -> Measurement -> Length -> LeftLinkedLength`
+
+    `LeftLinkedLength` keeps the integrity with the previous position elements' length, meaning,
+    the sum of the both added length remains the same by changing the position of the previous elements
+    and remaining their start position.
+    
+    The previous elements considered are only those with a finish `Position` equal to the start
+    `Position` of the targeted `Element` (linked).
+
+    Parameters
+    ----------
+    float(0), int : Represents the duration along the `TimeSignature` in `Beats`.
+    
+    Examples
+    --------
+    Gets the Note default Length from 1/4 NoteValue:
+    >>> note = Note()
+    >>> note % Length() % float() >> Print()
+    1.0
+    >>> note % Length() % Beats() % float() >> Print()
+    1.0
+    """
+    pass
+
+
+
 class Duration(Length):
     """`Rational -> Convertible -> Measurement -> Length -> Duration`
 
@@ -1297,6 +1325,49 @@ class LinkedDuration(Duration):
     and remaining their finish position.
     
     The following elements considered are only those with a start `Position` equal to the finish
+    `Position` of the targeted `Element` (linked).
+
+    It is possible to use 'triplet' note value adding a T to the string version of it, like so:
+
+        +---------+------------+
+        | str()   | Note Value |
+        +---------+------------+
+        | "1"     | 1/1        |
+        | "1/2"   | 1/2        |
+        | "1/2T"  | 1/3        |
+        | "1/4"   | 1/4        |
+        | "1/4T"  | 1/6        |
+        | "1/8"   | 1/8        |
+        | "1/8T"  | 1/12       |
+        | "1/16"  | 1/16       |
+        | "1/16T" | 1/24       |
+        | "1/32"  | 1/32       |
+        | "1/32T" | 1/48       |
+        | "1/64"  | 1/64       |
+        | "1/64T" | 1/96       |
+        +---------+------------+
+
+    Parameters
+    ----------
+    float(0), int : Duration as 1, 1/2, 1/4, 1/8, 1/16, 1/32.
+
+    Notes
+    ----------
+    Internally, `Duration` values are normalized to `Beats`. However, multiplication and division expect a scalar (float),
+    such as 0.5 or 2.0. The scalar modifies the duration proportionally as `NoteValue` instead of the internal `Beats`.
+    """
+    pass
+
+
+
+class LeftLinkedDuration(Duration):
+    """`Rational -> Convertible -> Measurement -> Duration -> LeftLinkedDuration`
+
+    `LeftLinkedDuration` keeps the integrity with the previous position elements' durations, meaning,
+    the sum of the both added durations remains the same by changing the position of the previous elements
+    and remaining their start position.
+    
+    The following elements considered are only those with a finish `Position` equal to the start
     `Position` of the targeted `Element` (linked).
 
     It is possible to use 'triplet' note value adding a T to the string version of it, like so:
