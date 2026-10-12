@@ -1134,8 +1134,7 @@ class Degree(PitchParameter):
         
         accidental = 0  # Natural by default
         string = string.strip()
-        degree: str = string
-        degree.lower()  # Only for degrees
+        degree: str = string.lower()  # Only for degrees
         if "n" in string:
             degree = string.split("n")[0]
         elif "#" in string:
