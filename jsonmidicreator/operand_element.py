@@ -2760,8 +2760,16 @@ class Cluster(Note):
                     case list():
                         if all(isinstance(item, og.Pitch) for item in operand._data):
                             self._pitches = operand._data
+                        if self._pitches:
+                            self._pitch << self._pitches[0]
                         else:
                             super().__lshift__(operand)
+                    case og.Pitch():
+                        self._pitch = operand._data
+                        self._updated_pitches()
+                    case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
+                        self._pitch << operand
+                        self._updated_pitches()
                     case _:
                         super().__lshift__(operand)
             case list():
@@ -2774,13 +2782,15 @@ class Cluster(Note):
                         self._pitches.append(new_pitch)
                     if self._pitches:
                         self._pitch << self._pitches[0]
-            case dict():
-                if all(isinstance(key, int) for key in operand.keys()):
-                    for index, offset in operand.items():
-                        if index >= 0 and index < len(self._pitches):
-                            self._pitches[index] = o.deep_copy(offset)
-                else:   # Not for me
+            case str():
+                if ":" in operand:  # It's a Token
+                    super().__lshift__(operand)
+                else:
                     self._pitch << operand
+                    self._updated_pitches()
+            case og.Pitch() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale() | ou.Mode():
+                self._pitch << operand
+                self._updated_pitches()
             case _:
                 super().__lshift__(operand)
         return self._updated_pitches()
