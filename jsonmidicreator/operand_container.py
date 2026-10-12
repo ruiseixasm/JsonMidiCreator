@@ -1330,19 +1330,6 @@ class Composition(Container):
         return new_composition << parameters
 
 
-    def shallow_copy(self, *parameters) -> Self:
-        """
-        Returns a Composition with all the same parameters copied, but the list that
-        is just a reference of the same list of the original Composition.
-
-        Args:
-            *parameters: Any given parameter will be operated with `<<` in the sequence given.
-
-        Returns:
-            Composition: Returns the copy of self but with a list of the same items of the original one.
-        """
-        return super().shallow_copy(*parameters)    # Already includes the contents from `empty_copy`
-
     def __lshift__(self, operand: any) -> Self:
         match operand:
             case Composition():
@@ -1936,20 +1923,6 @@ class Clip(Composition):  # Just a container of Elements
         new_clip._enabled       = self._enabled
         new_clip._drum_kit      = o.deep_copy(self._drum_kit)
         return new_clip << parameters
-
-
-    def shallow_copy(self, *parameters) -> Self:
-        """
-        Returns a Clip with all the same parameters copied, but the list that
-        is just a reference of the same list of the original Clip.
-
-        Args:
-            *parameters: Any given parameter will be operated with `<<` in the sequence given.
-
-        Returns:
-            Clip: Returns the copy of self but with a list of the same items of the original one.
-        """
-        return super().shallow_copy(*parameters)    # Already includes the contents from `empty_copy`
 
 
     def __lshift__(self, operand: any) -> Self:
