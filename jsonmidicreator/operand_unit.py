@@ -1128,11 +1128,16 @@ class Degree(PitchParameter):
                 string = string[:-1]
             except ValueError as e:
                 pass    # No octave set
+        
+        accidental = 0  # Natural by default
         string = string.strip()
-        accidental = 0    # Natural by default
-        accidental += string.count("#")
-        accidental -= string.count("b")
-        string = string.replace("#", "").replace("b", "")
+        if "n" in string:
+            ...
+        if "#" in string:
+            accidental += string.count("#")
+        if "b" in string:
+            accidental -= string.count("b")
+        string = string.replace("n", "").replace("#", "").replace("b", "")
         string = string.lower() # Only for degrees
         if string in Degree._string_to_degree: # See table above
             self._unit = Degree._string_to_degree[string]
