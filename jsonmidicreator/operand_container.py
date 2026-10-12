@@ -668,9 +668,9 @@ class Container(o.Operand):
         Returns:
             Container: Returns the copy of self but with a list of the same items of the original one.
         """
-        shallow_copy: Container = self.empty_copy()
+        shallow_copy: Container = self.empty_copy(*parameters)
         shallow_copy._items = self._items.copy()
-        return shallow_copy << parameters
+        return shallow_copy
     
 
     def proxy(self) -> Self:
@@ -1337,10 +1337,7 @@ class Composition(Container):
         Returns:
             Composition: Returns the copy of self but with a list of the same items of the original one.
         """
-        new_composition: Composition    = super().shallow_copy()
-        # It's a shallow copy, so it shares the same TimeSignature and midi track
-        new_composition._name           = self._name
-        return new_composition << parameters
+        return super().shallow_copy(*parameters)    # Already includes the contents from `empty_copy`
 
     def __lshift__(self, operand: any) -> Self:
         match operand:
@@ -1943,12 +1940,7 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             Clip: Returns the copy of self but with a list of the same items of the original one.
         """
-        new_clip: Clip              = super().shallow_copy()
-        new_clip._time_signature << self._time_signature
-        # It's a shallow copy, so it shares the same TimeSignature and midi track
-        new_clip._track_number  = self._track_number
-        new_clip._enabled       = self._enabled
-        return new_clip << parameters
+        return super().shallow_copy(*parameters)    # Already includes the contents from `empty_copy`
 
 
     def __lshift__(self, operand: any) -> Self:
