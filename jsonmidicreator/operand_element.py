@@ -342,6 +342,7 @@ class Element(o.Operand):
         return self
 
     def __lshift__(self, operand: any) -> Self:
+        from . import operand_frame as of
         from . import operand_container as oc
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
@@ -371,6 +372,28 @@ class Element(o.Operand):
                 self._duration_beats = operand._duration_beats
             case list():
                 self << og.Locus(self, operand)
+            case ra.LinkedDuration():
+                if self._owner_clip is not None:
+                    self_duration: ra.Duration = self % ra.Duration()
+                    if self_duration != operand:    # NOT already set
+                        self_start: ra.Position = self.start()
+                        self_finish: ra.Position = self.finish()
+                        same_locus_clip: oc.Clip = self._owner_clip % od.Pipe( of.Equal(self_start)**of.Equal(self_duration) )
+                        at_finish_clip: oc.Clip = self._owner_clip % od.Pipe( of.Equal(self_finish) )
+                        if operand > self_duration:
+                            right_extra_duration: ra.Duration = operand - self_duration
+                            for linked_element in at_finish_clip._items:
+                                if linked_element._duration_beats < right_extra_duration._rational:
+                                    return self # No available space for all linked elements
+                            for linked_element in at_finish_clip._items:
+                                linked_element._position_beats += right_extra_duration._rational
+                                linked_element._duration_beats -= right_extra_duration._rational
+                            for same_locus_element in same_locus_clip._items:
+                                same_locus_element._duration_beats += right_extra_duration._rational
+                        elif operand >= Fraction(0):
+                            ...
+
+
             case ra.Duration() | ra.Length():
                 if operand > Fraction(0):   # Allows innocuous non positive setting (neutral)
                     if isinstance(operand, (ra.RightLength, ra.RightDuration)):
