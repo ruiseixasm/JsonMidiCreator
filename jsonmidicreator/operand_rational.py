@@ -1271,7 +1271,7 @@ class LinkedDuration(Duration):
     and remaining their finish position.
     
     The following elements considered are only those with a start `Position` equal to the finish
-    `Position` of the targeted `Element`.
+    `Position` of the targeted `Element` (linked).
 
     It is possible to use 'triplet' note value adding a T to the string version of it, like so:
 
