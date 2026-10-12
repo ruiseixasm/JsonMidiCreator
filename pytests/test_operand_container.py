@@ -958,6 +958,12 @@ def test_clip_duration():
     print(f"two_notes[1] % Duration(): {two_notes[1] % Duration() % float()}")
     assert two_notes[1] % Duration() == 1/8
 
+    two_notes = Note() * 2
+    assert two_notes[1] % Duration() == 1/4
+    two_notes << Last()**LeftLinkedDuration(Dotted(1/4))
+    print(f"two_notes[1] % Duration(): {two_notes[0] % Duration() % float()}")
+    assert two_notes[0] % Duration() == 1/8
+
 # test_clip_duration()
 
 
