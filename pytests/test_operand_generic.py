@@ -144,7 +144,7 @@ def test_pitch_str():
     assert pitch % Degree() == 1
     assert pitch % Octave() == 4
 
-    pitch << "3"    # Set Degree NOT Octave
+    pitch << "3n"    # Set Degree NOT Octave
     assert pitch % Degree() == 3
     assert pitch % Octave() == 4
 
@@ -1527,7 +1527,7 @@ def test_edge_degrees():
     assert pitch_Cb % int() == 5
     assert (~pitch_Bb << 5.0) % int() == 4
     assert (~pitch_Bb << 7.0) % int() == 5  # Same as B#
-    assert (~pitch_Bb << "7") % int() == 4  # Same as B
+    assert (~pitch_Bb << "7n") % int() == 4  # Same as B
 
 # test_edge_degrees()
 

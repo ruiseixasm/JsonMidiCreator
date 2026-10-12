@@ -689,7 +689,7 @@ def test_element_token():
     assert oe._get_element_from_token("n:1/8") == Note(1/8)
     assert oe._get_element_from_token(":1/8::75") == Note(1/8, Velocity(75))
     assert oe._get_element_from_token("n_9:1/8::75") == Note(Channel(9), 1/8, Velocity(75))
-    assert oe._get_element_from_token("._9::3.0") == Note(Channel(9), Degree(3))
+    assert oe._get_element_from_token("._9::3n") == Note(Channel(9), Degree(3))
     assert oe._get_element_from_token("_9::5") == Note(Channel(9), Octave(5))
     assert oe._get_element_from_token(":1/8:D5") == Length(1/2) # 1/8 == 1/2 Beats
 
@@ -811,7 +811,7 @@ def test_absolute_pitch():
 def test_element_multi():
     third_degree_1 = Note(Degree(3))
     third_degree_2 = Note(Pitch(3.0))
-    third_degree_3 = Note(Token("::3.0"))
+    third_degree_3 = Note(Token("::3n"))
     assert third_degree_1 == third_degree_2
     assert third_degree_1 == third_degree_3
 

@@ -2248,32 +2248,17 @@ class Note(ChannelElement):
         # Set Pitch
         field_2: str = token_operand.get_field(2)
         if field_2 is not None:
-            field = od.Field(field_2)
-            field_parameters = field.get_parameters()
-            for parameter in field_parameters:
-                # Extract letter (A-G)
-                letter = next((c for c in parameter if c in 'ABCDEFG'), '')
-                # Extract accidental
-                accidental = '#' if '#' in parameter else 'b' if 'b' in parameter else ''
-                # Extract Major and minor
-                major = 'M' if 'M' in parameter else ''
-                minor = 'm' if 'm' in parameter else ''
-                # Get the remaining string without letter and accidental
-                parameter = parameter.replace(letter, '')
-                parameter = parameter.replace(accidental, '')
-                parameter = parameter.replace(major, '')
-                parameter = parameter.replace(minor, '')
-                number = o.string_to_number(parameter)
-                if isinstance(number, (int, float)):
-                    self._pitch << number
-                if letter:
-                    self._pitch << letter
-                if accidental:
-                    self._pitch << accidental
-                if major:
-                    self._pitch << ou.Major()
-                elif minor:
-                    self._pitch << ou.Minor()
+            # Extract Major and minor
+            major = 'M' if 'M' in field_2 else ''
+            minor = 'm' if 'm' in field_2 else ''
+            # Get the remaining string without letter and accidental
+            field_2 = field_2.replace(major, '')
+            field_2 = field_2.replace(minor, '')
+            if major:
+                self._pitch << ou.Major()
+            elif minor:
+                self._pitch << ou.Minor()
+            self._pitch << field_2
         # Set Velocity
         field_3: str = token_operand.get_field(3)
         if field_3 is not None:

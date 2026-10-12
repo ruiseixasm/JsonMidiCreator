@@ -1224,7 +1224,10 @@ class Pitch(Generic):
 
             case str():
                 string: str = operand.strip()
-                if string == "#":
+                octave: Any = o.string_to_number(string, as_is=True)
+                if isinstance(octave, int):
+                    self << ou.Octave(octave)
+                elif string == "#":
                     self << ou.Sharp()
                 elif string == "b":
                     self << ou.Flat()
