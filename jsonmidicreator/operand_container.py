@@ -377,8 +377,7 @@ class Container(o.Operand):
                         for single_item in self.items_unmasked():
                             if single_item == operand._data:
                                 framed_items.append(single_item)
-                        self._items = framed_items
-                        return self._sort_items() # Framed Pipe keeps itself
+                        return self.empty_copy() << od.Pipe( framed_items )
                     case _:
                         return super().__mod__(operand)
             case list():
