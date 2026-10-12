@@ -378,9 +378,9 @@ class Element(o.Operand):
                     if operand >= Fraction(0) and self_duration != operand: # NOT already set
                         self_start: ra.Position = self.start()
                         self_finish: ra.Position = self.finish()
-                        at_finish_clip: oc.Clip = self._owner_clip % od.Pipe( of.Equal(self_finish) )
-                        # BUG: THIS CHANGES THE CONTENT OF THE OWNER CLIP
+                        # NOTE: Has to keep track of the original Owner Clip
                         same_locus_clip: oc.Clip = self._owner_clip % od.Pipe( of.Equal(self_start)**of.Equal(self_duration) )
+                        at_finish_clip: oc.Clip = self._owner_clip % od.Pipe( of.Equal(self_finish) )
                         extra_duration: ra.Duration | ra.Length = operand - self_duration
                         if extra_duration > Fraction(0):
                             for linked_element in at_finish_clip._items:
