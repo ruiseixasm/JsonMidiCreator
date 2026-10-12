@@ -1928,6 +1928,7 @@ class Clip(Composition):  # Just a container of Elements
         new_clip._track_number  = self._track_number
         new_clip._devices       = self._devices.copy()
         new_clip._enabled       = self._enabled
+        new_clip._drum_kit      = o.deep_copy(self._drum_kit)
         return new_clip << parameters
 
 
