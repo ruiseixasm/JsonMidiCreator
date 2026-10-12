@@ -2642,14 +2642,6 @@ class Cluster(Note):
         super()._set_element_from_token(token, previous_element)
         token = od._normalize_dsl(token)
         token_operand = od.Token(token)
-        field_0: str = token_operand.get_field(0)
-        if field_0 is not None and field_0 != "":
-            field_parameters: list[str] = field_0.split("_")
-            if len(field_parameters) > 2:
-                parameter = field_parameters[2]
-                inversion = o.string_to_number(parameter)
-                if isinstance(inversion, int):
-                    self << ou.Inversion(inversion)
         # Set Pitches
         field_2: str = token_operand.get_field(2)
         if field_2 is not None:
@@ -2671,12 +2663,6 @@ class Cluster(Note):
                         new_pitch << ou.Minor()
                     new_pitch << parameter
                     self._pitches.append(new_pitch)
-        # Set Velocity
-        field_3: str = token_operand.get_field(3)
-        if field_3 is not None:
-            number = o.string_to_number(field_3)
-            if isinstance(number, int):
-                self << ou.Velocity(number)
         return self
 
 
@@ -2684,37 +2670,11 @@ class Cluster(Note):
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         cluster_notes: list[Note] = []
         for pitch_parameter in self._pitches:
-            single_note: Note = Note(self)  # Owned by same clip
-            if isinstance(pitch_parameter, od.Token):
-                single_note << pitch_parameter
-            else:
-                single_note._pitch << pitch_parameter
+            single_note: Note = Note(self, pitch_parameter)  # Owned by same clip
             cluster_notes.append( single_note )
-        cluster_notes = self._apply_inversion(cluster_notes)
         if isinstance(self._note_effect, og.NoteEffect):
             cluster_notes = self._note_effect.apply(cluster_notes)
         return cluster_notes
-
-
-    def _apply_inversion(self, notes: list[Note]) -> list[Note]:
-        # Where the inversions are done
-        inversion: int = self._inversion % len(notes)
-        if inversion > 0:
-            first_note = notes[inversion]
-            not_first_note = True
-            while not_first_note:   # Try to implement while inversion > 0 here
-                not_first_note = False
-                for single_note in notes:
-                    if single_note._pitch < first_note._pitch:   # Critical operation
-                        single_note << single_note % ou.Octave() + 1
-                        if single_note % od.Pipe( int() ) < 128:
-                            not_first_note = True # to result in another while loop
-        # Final Octave adjustment
-        octave_offset: ou.Octave = ou.Octave( self._inversion // len(notes) )
-        if octave_offset != 0:
-            for single_note in notes:
-                single_note += octave_offset
-        return notes
 
 
     def __mod__(self, operand: o.T) -> o.T:
