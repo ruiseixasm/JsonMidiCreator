@@ -1723,8 +1723,8 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def __imod__(self, operand: any) -> Self:
-        new_container = super().__imod__(operand)
-        return new_container._set_owner_clip()
+        new_clip = super().__imod__(operand)
+        return new_clip._set_owner_clip()
 
 
     @staticmethod
@@ -3367,6 +3367,10 @@ class Part(Composition):
                 return pitch_transitions
             case _:
                 return super().__mod__(operand)
+
+    def __imod__(self, operand: any) -> Self:
+        new_part = super().__imod__(operand)
+        return new_part._set_owner_part()
 
 
     def getPlotlist(self) -> list[dict]:
