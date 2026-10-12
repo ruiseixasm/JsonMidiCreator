@@ -2738,17 +2738,22 @@ class Cluster(Note):
             case od.Pipe():
                 match operand._data:
                     case list():
-                        if all(not isinstance(item, Element) for item in operand._data):
+                        if all(isinstance(item, og.Pitch) for item in operand._data):
                             self._pitches = operand._data
                         else:
                             super().__lshift__(operand)
                     case _:
                         super().__lshift__(operand)
             case list():
-                if all(not isinstance(item, Element) for item in operand):
-                    self._pitches = o.deep_copy( operand )
-                else:
+                if all(isinstance(item, Element) for item in operand):
                     super().__lshift__(operand)
+                else:
+                    self._pitches = []
+                    for pitch_parameter in operand:
+                        new_pitch = self._pitch.copy(pitch_parameter)
+                        self._pitches.append(new_pitch)
+                    if self._pitches:
+                        self._pitch << self._pitches[0]
             case dict():
                 if all(isinstance(key, int) for key in operand.keys()):
                     for index, offset in operand.items():
