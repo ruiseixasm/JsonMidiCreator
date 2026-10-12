@@ -2679,6 +2679,14 @@ class Cluster(Note):
         return cluster_notes
 
 
+    def pitch_centroid(self) -> int:
+        if self._pitches:
+            total = sum(self._pitches)
+            count = len(self._pitches)
+            return math.floor(total / count)
+        return -1   # Out of scope pitch
+
+
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.Pipe():
