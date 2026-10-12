@@ -1377,7 +1377,7 @@ def test_clip_line():
 
     assert single_cluster.len() == 1
     single_cluster << Line(
-        "cl_3:1m:3n_5n"
+        "cl_3:1m:_3n_5n"
     )
     # single_cluster >> Plot()
     print(f"Main pitch: {single_cluster[0]._pitch.get_absolute_pitch()}")
