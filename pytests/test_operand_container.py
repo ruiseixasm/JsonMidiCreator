@@ -95,11 +95,14 @@ def test_container_mod():
         assert keys_container[degree] % Key() == keys[degree]
 
     two_notes = Note() * 2
-    one_note = two_notes % Pipe(First())
+    one_note = two_notes % Pipe( First() )
     assert one_note % int() == 1
     assert two_notes % int() == 2
-    filtered_notes = two_notes % Pipe(First()**Last())
+    filtered_notes = two_notes % Pipe( First()**Last() )
     assert filtered_notes % int() == 1
+    assert two_notes % int() == 2
+    locus_notes = two_notes % Pipe( Equal(Position(0))**Equal(Duration(1/4)) )
+    assert locus_notes % int() == 1
     assert two_notes % int() == 2
 
 # test_container_mod()
