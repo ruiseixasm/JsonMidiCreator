@@ -2695,8 +2695,8 @@ class Cluster(Note):
                 if index > 0:
                     pitch_offset: int = single_pitch.get_absolute_pitch() - root_absolute_pitch
                     pitches_offset.append(pitch_offset)
-                single_pitch << self._pitch
             for single_pitch, semitone_offset in zip(self._pitches, pitches_offset):
+                single_pitch << self._pitch
                 single_pitch += ou.Semitone(semitone_offset)
         return self
 
