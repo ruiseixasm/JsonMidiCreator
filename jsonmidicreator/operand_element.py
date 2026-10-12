@@ -2793,7 +2793,7 @@ class Cluster(Note):
                 self._updated_pitches()
             case _:
                 super().__lshift__(operand)
-        return self._updated_pitches()
+        return self
 
 
     def __iadd__(self, operand: any) -> 'Note':
