@@ -2689,12 +2689,11 @@ class Cluster(Note):
 
     def _updated_pitches(self) -> Self:
         if self._pitches:
-            pitches_offset: list[int] = [0]
+            pitches_offset: list[int] = []
             root_absolute_pitch: int = self._pitches[0].get_absolute_pitch()
-            for index, single_pitch in enumerate(self._pitches):
-                if index > 0:
-                    pitch_offset: int = single_pitch.get_absolute_pitch() - root_absolute_pitch
-                    pitches_offset.append(pitch_offset)
+            for single_pitch in self._pitches:
+                pitch_offset: int = single_pitch.get_absolute_pitch() - root_absolute_pitch
+                pitches_offset.append(pitch_offset)
             for single_pitch, semitone_offset in zip(self._pitches, pitches_offset):
                 single_pitch << self._pitch
                 single_pitch += ou.Semitone(semitone_offset)
