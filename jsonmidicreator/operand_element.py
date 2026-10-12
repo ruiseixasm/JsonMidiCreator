@@ -2679,6 +2679,14 @@ class Cluster(Note):
         return cluster_notes
 
 
+    def checksum(self) -> int:
+        """16-bit checksum for a `Chord`."""
+        master: int = 0
+        for single_element in self.get_component_elements():
+            master += single_element.checksum()
+        return master & 0xFFFF  # 16-bit
+
+
     def pitch_centroid(self) -> int:
         if self._pitches:
             total = sum(self._pitches)
