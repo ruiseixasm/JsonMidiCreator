@@ -380,19 +380,17 @@ class Element(o.Operand):
                         self_finish: ra.Position = self.finish()
                         same_locus_clip: oc.Clip = self._owner_clip % od.Pipe( of.Equal(self_start)**of.Equal(self_duration) )
                         at_finish_clip: oc.Clip = self._owner_clip % od.Pipe( of.Equal(self_finish) )
-                        if operand > self_duration:
-                            right_extra_duration: ra.Duration = operand - self_duration
+                        if operand >= Fraction(0):
+                            extra_duration: ra.Duration = operand - self_duration
+                            if extra_duration > Fraction(0):
+                                for linked_element in at_finish_clip._items:
+                                    if linked_element._duration_beats < extra_duration._rational:
+                                        return self # No available space for all linked elements
                             for linked_element in at_finish_clip._items:
-                                if linked_element._duration_beats < right_extra_duration._rational:
-                                    return self # No available space for all linked elements
-                            for linked_element in at_finish_clip._items:
-                                linked_element._position_beats += right_extra_duration._rational
-                                linked_element._duration_beats -= right_extra_duration._rational
+                                linked_element._position_beats += extra_duration._rational
+                                linked_element._duration_beats -= extra_duration._rational
                             for same_locus_element in same_locus_clip._items:
-                                same_locus_element._duration_beats += right_extra_duration._rational
-                        elif operand >= Fraction(0):
-                            ...
-
+                                same_locus_element._duration_beats += extra_duration._rational
 
             case ra.Duration() | ra.Length():
                 if operand > Fraction(0):   # Allows innocuous non positive setting (neutral)
