@@ -810,12 +810,14 @@ def test_absolute_pitch():
 
 def test_cluster_setting():
     cluster = Cluster()
+    cluster >> Plot()
     pitches = cluster % Pipe(list())
     assert len(pitches) == 3
     assert cluster.get_absolute_pitch() == 60
     assert pitches[0].get_absolute_pitch() == 60
     assert pitches[1].get_absolute_pitch() == 60 + 4
     cluster << "A"
+    cluster >> Plot()
     assert cluster.get_absolute_pitch() == 60 + 9
     assert pitches[0].get_absolute_pitch() == 60 + 9
     assert pitches[1].get_absolute_pitch() == 60 + 9 + 4
