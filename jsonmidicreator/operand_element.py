@@ -2240,6 +2240,48 @@ class Note(ChannelElement):
     def get_absolute_pitch(self) -> int:
         return self._pitch.get_absolute_pitch()
     
+    
+    def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
+        super()._set_element_from_token(token, previous_element)
+        token = od._normalize_dsl(token)
+        token_operand = od.Token(token)
+        # Set Pitch
+        field_2: str = token_operand.get_field(2)
+        if field_2 is not None:
+            field = od.Field(field_2)
+            field_parameters = field.get_parameters()
+            for parameter in field_parameters:
+                # Extract letter (A-G)
+                letter = next((c for c in parameter if c in 'ABCDEFG'), '')
+                # Extract accidental
+                accidental = '#' if '#' in parameter else 'b' if 'b' in parameter else ''
+                # Extract Major and minor
+                major = 'M' if 'M' in parameter else ''
+                minor = 'm' if 'm' in parameter else ''
+                # Get the remaining string without letter and accidental
+                parameter = parameter.replace(letter, '')
+                parameter = parameter.replace(accidental, '')
+                parameter = parameter.replace(major, '')
+                parameter = parameter.replace(minor, '')
+                number = o.string_to_number(parameter)
+                if isinstance(number, (int, float)):
+                    self._pitch << number
+                if letter:
+                    self._pitch << letter
+                if accidental:
+                    self._pitch << accidental
+                if major:
+                    self._pitch << ou.Major()
+                elif minor:
+                    self._pitch << ou.Minor()
+        # Set Velocity
+        field_3: str = token_operand.get_field(3)
+        if field_3 is not None:
+            number = o.string_to_number(field_3)
+            if isinstance(number, int):
+                self << ou.Velocity(number)
+        return self
+    
 
     def __eq__(self, other: o.Operand) -> bool:
         match other:
@@ -2288,48 +2330,6 @@ class Note(ChannelElement):
             case _:
                 return super().__gt__(other)
     
-
-    def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
-        super()._set_element_from_token(token, previous_element)
-        token = od._normalize_dsl(token)
-        token_operand = od.Token(token)
-        # Set Pitch
-        field_2: str = token_operand.get_field(2)
-        if field_2 is not None:
-            field = od.Field(field_2)
-            field_parameters = field.get_parameters()
-            for parameter in field_parameters:
-                # Extract letter (A-G)
-                letter = next((c for c in parameter if c in 'ABCDEFG'), '')
-                # Extract accidental
-                accidental = '#' if '#' in parameter else 'b' if 'b' in parameter else ''
-                # Extract Major and minor
-                major = 'M' if 'M' in parameter else ''
-                minor = 'm' if 'm' in parameter else ''
-                # Get the remaining string without letter and accidental
-                parameter = parameter.replace(letter, '')
-                parameter = parameter.replace(accidental, '')
-                parameter = parameter.replace(major, '')
-                parameter = parameter.replace(minor, '')
-                number = o.string_to_number(parameter)
-                if isinstance(number, (int, float)):
-                    self._pitch << number
-                if letter:
-                    self._pitch << letter
-                if accidental:
-                    self._pitch << accidental
-                if major:
-                    self._pitch << ou.Major()
-                elif minor:
-                    self._pitch << ou.Minor()
-        # Set Velocity
-        field_3: str = token_operand.get_field(3)
-        if field_3 is not None:
-            number = o.string_to_number(field_3)
-            if isinstance(number, int):
-                self << ou.Velocity(number)
-        return self
-
     def get_component_elements(self) -> list['Note']:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         if isinstance(self._note_effect, og.NoteEffect):
