@@ -2663,6 +2663,8 @@ class Cluster(Note):
                         new_pitch << ou.Minor()
                     new_pitch << parameter
                     self._pitches.append(new_pitch)
+            if self._pitches:
+                self._pitch << self._pitches[0] # Sets root pitch
         return self
 
 
