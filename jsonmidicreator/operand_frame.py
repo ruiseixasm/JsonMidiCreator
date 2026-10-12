@@ -959,8 +959,7 @@ class Neither(ContainerFilter):
                     either_items.append(single_item)
                     break
         neither_items: list[Any] = [
-            single_item
-            for single_item in unmasked_items
+            single_item for single_item in unmasked_items
             if not any(single_item is item for item in either_items)
         ]
         return super()._update_unmasked_items(neither_items)
