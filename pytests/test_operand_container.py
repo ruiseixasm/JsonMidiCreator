@@ -94,6 +94,11 @@ def test_container_mod():
         keys_container[degree] % str() >> Print()
         assert keys_container[degree] % Key() == keys[degree]
 
+    two_notes = Note() * 2
+    one_note = two_notes % Pipe(First())
+    assert one_note % int() == 1
+    assert two_notes % int() == 2
+
 # test_container_mod()
 
 
@@ -948,7 +953,7 @@ def test_clip_duration():
     print(f"two_notes[1] % Duration(): {two_notes[1] % Duration() % float()}")
     assert two_notes[1] % Duration() == 1/8
 
-test_clip_duration()
+# test_clip_duration()
 
 
 def test_clip_operations():
