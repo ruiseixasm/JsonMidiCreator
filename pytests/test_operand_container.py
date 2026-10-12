@@ -1367,7 +1367,7 @@ def test_clip_line():
     # Resets the defaults
     settings << None
 
-    cluster_line = Line("cl:3b:1nm_3nm_4nm")
+    cluster_line = Line("cl:3b:1n3m_3n3m_4n3m")
     single_cluster = Clip(cluster_line)
     print(f"Main pitch: {single_cluster[0]._pitch.get_absolute_pitch()}")
     assert single_cluster[0]._pitch.get_absolute_pitch() == 57    # A3
