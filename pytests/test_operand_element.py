@@ -808,6 +808,19 @@ def test_absolute_pitch():
     assert default_pitch % AbsolutePitch() == 60
 
 
+def test_cluster_setting():
+    cluster = Cluster()
+    pitches = cluster % Pipe(list())
+    assert len(pitches) == 3
+    assert cluster.get_absolute_pitch() == 60
+    assert pitches[0].get_absolute_pitch() == 60
+    assert pitches[1].get_absolute_pitch() == 60 + 4
+    cluster << "A"
+    assert cluster.get_absolute_pitch() == 60 + 9
+    assert pitches[0].get_absolute_pitch() == 60 + 9
+    assert pitches[1].get_absolute_pitch() == 60 + 9 + 4
+
+
 def test_element_multi():
     third_degree_1 = Note(Degree(3))
     third_degree_2 = Note(Pitch(3.0))
