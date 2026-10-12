@@ -1546,9 +1546,9 @@ def test_pitch_degrees_2():
     assert third_degree == Semitone(4)
     third_degree = Pitch("iii")
     assert third_degree == Semitone(4)
-    third_degree = Pitch("biii")
+    third_degree = Pitch("iiib")
     assert third_degree == Semitone(3)
-    assert third_degree == Degree("biii")
+    assert third_degree == Degree("iiib")
 
 # test_pitch_degrees_2()
 

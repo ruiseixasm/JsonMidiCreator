@@ -1131,10 +1131,9 @@ class Degree(PitchParameter):
                 string = string[:-1]
             except ValueError as e:
                 pass    # No octave set
-        
         accidental = 0  # Natural by default
         string = string.strip()
-        degree: str = string.lower()  # Only for degrees
+        degree: str = string
         if "n" in string:
             degree = string.split("n")[0]
         elif "#" in string:
@@ -1143,15 +1142,14 @@ class Degree(PitchParameter):
         elif "b" in string:
             accidental -= string.count("b")
             degree = string.split("b")[0]
-        string = string.replace("n", "").replace("#", "").replace("b", "")
-        string = string.lower() # Only for degrees
-        if string in Degree._string_to_degree: # See table above
-            self._unit = Degree._string_to_degree[string]
+        degree = degree.lower()  # Only for degrees
+        if degree in Degree._string_to_degree: # See table above
+            self._unit = Degree._string_to_degree[degree]
             self._accidental = accidental   # Avoids setting accidental if not by degree
-        elif string == "":  # Meaning just sharps or flats
+        elif degree == "":  # Meaning just sharps or flats
             self._accidental = accidental   # Avoids setting accidental if not by degree
         else:   # Tries to extract a number
-            number = o.string_to_number(string)
+            number = o.string_to_number(degree)
             if isinstance(number, (int, float)):
                 self << number
         return self
