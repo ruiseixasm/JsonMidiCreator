@@ -10,9 +10,6 @@ basic_rock: str = (
         ":_0m:Kick:90, :_3S::70, :_7S, :_10S, :_13S,"
 )
 
-drum_kit = DrumKit("808")
-clip = Clip(drum_kit) << Title("Basic Rock") \
-    << Line(basic_rock) << Channel(10) \
-    << Equal("Closed")**OnBeat()**Velocity(100)
+clip = Clip(DrumKit("808"), Title("Basic Rock"), Line(basic_rock))
 
 clip * 4 >> Plot()
