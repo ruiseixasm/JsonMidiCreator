@@ -947,7 +947,7 @@ class Plot(Process):
         ]
         
         self._ax.set_xlabel(
-            f"Measures played at {round(composition_tempo, 1)}bpm for "
+            f"Measures played at {round(composition_tempo, 1)} bpm for "
             f"{int(length_beats / composition_tempo * 60 // 60)}'"
             f"{int(length_beats / composition_tempo * 60 % 60)}''"
             f"{int(length_beats / composition_tempo * 60_000 % 1000)}ms "

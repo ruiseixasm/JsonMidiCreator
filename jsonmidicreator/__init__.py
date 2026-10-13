@@ -52,10 +52,6 @@ CC = ControlChange
 PC = ProgramChange
 # Generic aliases
 TS = TimeSignature
-# Frame aliases
-Equal = Equal
-Greater = Above
-Less = Bellow
 
 # Label aliases
 null = Null()

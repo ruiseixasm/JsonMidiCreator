@@ -214,7 +214,7 @@ class Element(o.Operand):
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         return [ self ]
 
-    def __eq__(self, other: o.Operand) -> bool:
+    def __eq__(self, other: Any) -> bool:
         from . import operand_frame as of
         match other:
             case Element() | og.Locus():
@@ -227,7 +227,7 @@ class Element(o.Operand):
             case _:
                 return super().__eq__(other)
 
-    def __lt__(self, other: 'o.Operand') -> bool:
+    def __lt__(self, other: Any) -> bool:
         match other:
             case Element():
                 if self._position_beats == other._position_beats:
@@ -236,7 +236,7 @@ class Element(o.Operand):
             case _:
                 return super().__lt__(other)
     
-    def __gt__(self, other: 'o.Operand') -> bool:
+    def __gt__(self, other: Any) -> bool:
         match other:
             case Element():
                 if self._position_beats == other._position_beats:
@@ -868,7 +868,7 @@ class Subclip(Element):
             case _:
                 return super().__mod__(operand)
 
-    def __eq__(self, other: o.Operand) -> bool:
+    def __eq__(self, other: Any) -> bool:
         from . import operand_container as oc
         match other:
             case self.__class__():
@@ -1052,7 +1052,7 @@ class Unison(Element):
             case _:
                 return super().__mod__(operand)
 
-    def __eq__(self, other: o.Operand) -> bool:
+    def __eq__(self, other: Any) -> bool:
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -1167,7 +1167,7 @@ class Rest(Element):
     Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     """
 
-    def __eq__(self, other: o.Operand) -> bool:
+    def __eq__(self, other: Any) -> bool:
         match other:
             case self.__class__():
                 return super().__eq__(other)
@@ -1639,7 +1639,7 @@ class ChannelElement(DeviceElement):
                     self << ou.Channel(channel)
         return self
     
-    def __eq__(self, other: o.Operand) -> bool:
+    def __eq__(self, other: Any) -> bool:
         match other:
             case ChannelElement():
                 return self._position_beats == other._position_beats \
@@ -1651,7 +1651,7 @@ class ChannelElement(DeviceElement):
             case _:
                 return super().__eq__(other)
 
-    def __lt__(self, other: 'o.Operand') -> bool:
+    def __lt__(self, other: Any) -> bool:
         match other:
             case ChannelElement():
                 if self._position_beats == other._position_beats:
@@ -1662,7 +1662,7 @@ class ChannelElement(DeviceElement):
             case _:
                 return super().__lt__(other)
     
-    def __gt__(self, other: 'o.Operand') -> bool:
+    def __gt__(self, other: Any) -> bool:
         match other:
             case ChannelElement():
                 if self._position_beats == other._position_beats:
@@ -1852,7 +1852,7 @@ class Trigger(ChannelElement):
         return self.get_absolute_pitch()
 
 
-    def __eq__(self, other: o.Operand) -> bool:
+    def __eq__(self, other: Any) -> bool:
         match other:
             case self.__class__():
                 if not isinstance(self, other.__class__):   # Note subclasses need to be exhaustively compared to mismatch classes
@@ -1866,11 +1866,11 @@ class Trigger(ChannelElement):
                 # Makes a playlist comparison
                 return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
             case str():
-                return self._sample == other
+                return self._sample.lower() == other.lower()
             case _:
                 return super().__eq__(other)
 
-    def __lt__(self, other: 'o.Operand') -> bool:
+    def __lt__(self, other: Any) -> bool:
         match other:
             case Note():
                 # Adds predictability in sorting and consistency in clipping
@@ -1884,7 +1884,7 @@ class Trigger(ChannelElement):
             case _:
                 return super().__lt__(other)
     
-    def __gt__(self, other: 'o.Operand') -> bool:
+    def __gt__(self, other: Any) -> bool:
         match other:
             case Note():
                 # Adds predictability in sorting and consistency in clipping
@@ -1906,13 +1906,12 @@ class Trigger(ChannelElement):
         # Set Pitch
         field_2: str = token_operand.get_field(2)
         if field_2 is not None:
+            field_2 = field_2.strip()
             sample_nth: int = o.string_to_number(field_2, as_is=True)
             if isinstance(sample_nth, int):
                 self << sample_nth
-            else:
-                lc_sample: str = field_2.strip().lower()
-                if lc_sample != "":
-                    self << lc_sample
+            elif field_2 != "":
+                self << field_2
         # Set Velocity
         field_3: str = token_operand.get_field(3)
         if field_3 is not None:
@@ -2283,7 +2282,7 @@ class Note(ChannelElement):
         return self
     
 
-    def __eq__(self, other: o.Operand) -> bool:
+    def __eq__(self, other: Any) -> bool:
         match other:
             case self.__class__():
                 if not isinstance(self, other.__class__):   # Note subclasses need to be exhaustively compared to mismatch classes
@@ -2302,7 +2301,7 @@ class Note(ChannelElement):
             case _:
                 return super().__eq__(other)
 
-    def __lt__(self, other: 'o.Operand') -> bool:
+    def __lt__(self, other: Any) -> bool:
         match other:
             case Note():
                 # Adds predictability in sorting and consistency in clipping
@@ -2316,7 +2315,7 @@ class Note(ChannelElement):
             case _:
                 return super().__lt__(other)
     
-    def __gt__(self, other: 'o.Operand') -> bool:
+    def __gt__(self, other: Any) -> bool:
         match other:
             case Note():
                 # Adds predictability in sorting and consistency in clipping
@@ -2730,7 +2729,7 @@ class Cluster(Note):
             case list():            return o.deep_copy(self._pitches)
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other: o.Operand) -> bool:
+    def __eq__(self, other: Any) -> bool:
         match other:
             case Cluster():
                 return super().__eq__(other) and self._pitches == other._pitches
@@ -3168,7 +3167,7 @@ class KeyScale(Note):
             case ou.Inversion():    return ou.Inversion() << od.Pipe(self._inversion)
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other: o.Operand) -> bool:
+    def __eq__(self, other: Any) -> bool:
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -3388,7 +3387,7 @@ class Chord(KeyScale):
                     self << ou.Inversion(inversion)
         return self
     
-    def __eq__(self, other: o.Operand) -> bool:
+    def __eq__(self, other: Any) -> bool:
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -3860,7 +3859,7 @@ class ControlChange(Automatable):
             case _:
                 return super().__eq__(other)
 
-    def __lt__(self, other: 'o.Operand') -> bool:
+    def __lt__(self, other: Any) -> bool:
         match other:
             case ControlChange():
                 # Adds predictability in sorting and consistency in clipping
@@ -3874,7 +3873,7 @@ class ControlChange(Automatable):
             case _:
                 return self % other < other
     
-    def __gt__(self, other: 'o.Operand') -> bool:
+    def __gt__(self, other: Any) -> bool:
         match other:
             case ControlChange():
                 # Adds predictability in sorting and consistency in clipping
@@ -4146,7 +4145,7 @@ class ControlChangePair(ControlChange):
             case _:
                 return super().__eq__(other)
 
-    def __lt__(self, other: 'o.Operand') -> bool:
+    def __lt__(self, other: Any) -> bool:
         match other:
             case self.__class__():
                 # Adds predictability in sorting and consistency in clipping
@@ -4160,7 +4159,7 @@ class ControlChangePair(ControlChange):
             case _:
                 return self % other < other
     
-    def __gt__(self, other: 'o.Operand') -> bool:
+    def __gt__(self, other: Any) -> bool:
         match other:
             case self.__class__():
                 # Adds predictability in sorting and consistency in clipping
@@ -4710,7 +4709,7 @@ class Aftertouch(Automatable):
         return self
 
 
-    def __eq__(self, other: o.Operand) -> bool:
+    def __eq__(self, other: Any) -> bool:
         match other:
             case self.__class__():
                 return super().__eq__(other) and self._pressure == other._pressure
@@ -4932,7 +4931,7 @@ class PolyAftertouch(Aftertouch):
             case _:
                 return super().__mod__(operand)
 
-    def __eq__(self, other: o.Operand) -> bool:
+    def __eq__(self, other: Any) -> bool:
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -5065,7 +5064,7 @@ class PitchBend(Automatable):
             self._lsb < 0 or self._lsb > 128
 
 
-    def __eq__(self, other: o.Operand) -> bool:
+    def __eq__(self, other: Any) -> bool:
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -5403,7 +5402,7 @@ class Automation(Element):
         return len(component_elements)
 
 
-    def __eq__(self, other: o.Operand) -> bool:
+    def __eq__(self, other: Any) -> bool:
         match other:
             case self.__class__():
                 return super().__eq__(other) \
@@ -5654,7 +5653,7 @@ class ProgramChange(ChannelElement):
             case ou.Program():          return ou.Program(self._program_0 + 1)
             case _:                     return super().__mod__(operand)
 
-    def __eq__(self, other: o.Operand) -> bool:
+    def __eq__(self, other: Any) -> bool:
         match other:
             case self.__class__():
                 return super().__eq__(other) and self._program_0 == other._program_0
