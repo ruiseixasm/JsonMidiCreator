@@ -1801,6 +1801,33 @@ class Trigger(ChannelElement):
         return self
 
 
+    def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
+        super()._set_element_from_token(token, previous_element)
+        token = od._normalize_dsl(token)
+        token_operand = od.Token(token)
+        # Set Pitch
+        field_2: str = token_operand.get_field(2)
+        if field_2 is not None:
+            field_2 = field_2.strip()
+            sample_nth: int = o.string_to_number(field_2, as_is=True)
+            if isinstance(sample_nth, int):
+                self << sample_nth
+            elif field_2 != "":
+                self << field_2
+        # Set Velocity
+        field_3: str = token_operand.get_field(3)
+        if field_3 is not None:
+            number = o.string_to_number(field_3)
+            if isinstance(number, int):
+                self << ou.Velocity(number)
+        return self
+
+
+    def get_component_elements(self) -> list['Note']:
+        """Returns the elements directly, NO decoupling guaranteed (no copy)"""
+        return [self]
+    
+
     def get_absolute_pitch(self) -> int:
         if self._owner_clip is not None:
             drum_kit = og.DrumKit(self._owner_clip._drum_kit)
@@ -1897,32 +1924,6 @@ class Trigger(ChannelElement):
                 return super().__gt__(other)
             case _:
                 return super().__gt__(other)
-    
-
-    def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
-        super()._set_element_from_token(token, previous_element)
-        token = od._normalize_dsl(token)
-        token_operand = od.Token(token)
-        # Set Pitch
-        field_2: str = token_operand.get_field(2)
-        if field_2 is not None:
-            field_2 = field_2.strip()
-            sample_nth: int = o.string_to_number(field_2, as_is=True)
-            if isinstance(sample_nth, int):
-                self << sample_nth
-            elif field_2 != "":
-                self << field_2
-        # Set Velocity
-        field_3: str = token_operand.get_field(3)
-        if field_3 is not None:
-            number = o.string_to_number(field_3)
-            if isinstance(number, int):
-                self << ou.Velocity(number)
-        return self
-
-    def get_component_elements(self) -> list['Note']:
-        """Returns the elements directly, NO decoupling guaranteed (no copy)"""
-        return [self]
     
 
     def __mod__(self, operand: o.T) -> o.T:
