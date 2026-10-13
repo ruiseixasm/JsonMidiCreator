@@ -49,7 +49,25 @@
             "Open Triangle":            81,
             "Shaker":                   82
         },
-        "808": {
+        "GS 808": {
+            "Side Stick":               37,
+            "Kick":                     36,
+            "Closed Hi-Hat":            42,
+            "Clap":                     39,
+            "Snare":                    38,
+            "Cowbell":                  56,
+            "Open Hi-Hat":              46,
+            "Conga Low":                64,
+            "High Tom":                 50,
+            "Mid Tom":                  48,
+            "Low Tom":                  45,
+            "Conga Mid":                62,
+            "Crash":                    49,
+            "Claves":                   75,
+            "Maracas":                  70,
+            "Conga Hi":                 63
+        },
+        "Waveform 808": {
             "Side Stick":               37,
             "Kick":                     36,
             "Closed Hi-Hat":            42,
