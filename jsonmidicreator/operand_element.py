@@ -1910,7 +1910,9 @@ class Trigger(ChannelElement):
             if isinstance(sample_nth, int):
                 self << sample_nth
             else:
-                self << field_2
+                lc_sample: str = field_2.strip().lower()
+                if lc_sample != "":
+                    self << lc_sample
         # Set Velocity
         field_3: str = token_operand.get_field(3)
         if field_3 is not None:
@@ -2139,8 +2141,11 @@ class Trigger(ChannelElement):
                 else:
                     self._sample = operand
             case int():
-                sample_id = operand - 1
-                self.set_sample_id(sample_id)
+                if operand > 0:
+                    sample_id = operand - 1
+                    self.set_sample_id(sample_id)
+                else:
+                    self._sample = ""
             case _:
                 super().__lshift__(operand)
         return self
