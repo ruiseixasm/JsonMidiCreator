@@ -1,4 +1,7 @@
 # Common Patterns
+For the Chrome browser you can add the following extension
+[Midi Player](https://chromewebstore.google.com/detail/khppfbnjbaampmeeiocjhcodkklkcfjf?utm_source=item-share-cb)
+in order to play the midi files below directly in the browser.
 ## Basic Rock
 
 
