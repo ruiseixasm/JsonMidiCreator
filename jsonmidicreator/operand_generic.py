@@ -2029,13 +2029,13 @@ class DrumKit(Generic):
                     case dict():                    return self._drum_kit
                     case _:                         return super().__mod__(operand)
             case dict():                return o.deep_copy(self._drum_kit)
-            case str():
+            case str(): # Returns the pitch by name
                 lc_sample: str = operand.strip().lower()
                 if lc_sample != "":
                     for sample_name, pitch in self._drum_kit.items():
                         if sample_name.lower().find(lc_sample) != -1:
                             return o.deep_copy(pitch)
-                return ol.Null()
+                return -1   # No valid pitch
             case int():
                 for index, pitch in enumerate(self._drum_kit.values()):
                     if index == operand - 1:
