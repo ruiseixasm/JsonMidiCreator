@@ -28,7 +28,7 @@ clip * 4 >> Plot()
 ```
 
 ### Plot
-![Funky Syncopation](Funky_Syncopation.png)
+![Funky Syncopation](plot/Funky_Syncopation.png)
 
-[♫ Download MIDI File](Funky_Syncopation.mid)
+[♫ Download MIDI File](midi/Funky_Syncopation.mid)
 
