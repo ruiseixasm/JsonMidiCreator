@@ -5633,6 +5633,34 @@ class ProgramChange(ChannelElement):
         self._program_0 = ou.Program(program)
         return self
 
+
+    def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
+        super()._set_element_from_token(token, previous_element)
+        token = od._normalize_dsl(token)
+        token_operand = od.Token(token)
+        # Set Program number (nth based (1))
+        field_2: str = token_operand.get_field(2)
+        if field_2 is not None:
+            field_2 = field_2.strip()
+            program_nth: int = o.string_to_number(field_2, as_is=True)
+            if isinstance(program_nth, int):
+                self << ou.Program(program_nth)
+            elif field_2 != "":
+                self << field_2
+        return self
+
+
+    def __eq__(self, other: Any) -> bool:
+        match other:
+            case self.__class__():
+                return super().__eq__(other) and self._program_0 == other._program_0
+            case Element():
+                # Makes a playlist comparison
+                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
+            case _:
+                return super().__eq__(other)
+    
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a ProgramChange,
@@ -5654,16 +5682,6 @@ class ProgramChange(ChannelElement):
             case ou.Program():          return ou.Program(self._program_0 + 1)
             case _:                     return super().__mod__(operand)
 
-    def __eq__(self, other: Any) -> bool:
-        match other:
-            case self.__class__():
-                return super().__eq__(other) and self._program_0 == other._program_0
-            case Element():
-                # Makes a playlist comparison
-                return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
-            case _:
-                return super().__eq__(other)
-    
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         
         absolute_position_beats: Fraction = Fraction(0)
