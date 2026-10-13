@@ -4,8 +4,8 @@ settings << Tempo(96)
 
 funky_syncopation: str = (
     "t:1/16_0m_2S:Snare:40, :_6S, :_9S, :_11S, :_15S,"
-    "t:1/16_0m_4S:Snare:100, :_12S,"
-    "t:1/16_0m:Closed:40," + ":," * 15 +
+    "t:1/16_0m_4S:Snare:110, :_12S,"
+    "t:1/16_0m:Closed:60," + ":," * 15 +
     "t:1/16_0m:Kick:90, :_3S::70, :_7S, :_10S, :_13S,"
 )
 
