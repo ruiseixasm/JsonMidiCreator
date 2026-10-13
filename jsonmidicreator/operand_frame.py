@@ -1175,6 +1175,48 @@ class UpBeat(ContainerFilter):
 
 
 
+class OddStep(ContainerFilter):
+    """`Frame -> LeftToRight -> ContainerFilter -> OddStep`
+
+    An `OddStep` selects only elements with their `Position` on the Odd `Step` in a nth numbering.
+
+    Parameters
+    ----------
+    None : `OddStep` doesn't have parameters to be set.
+    """
+    def _update_unmasked_items(self, unmasked_items: list[Any]) -> Self:
+        odd_step_items: list[Any] = []
+        for single_item in unmasked_items:
+            if isinstance(single_item, oe.Element):
+                position_step: int = single_item % ra.Step() % int()
+                if position_step % 2 == 0:
+                    odd_step_items.append(single_item)
+        return super()._update_unmasked_items(odd_step_items)
+
+
+
+class EvenStep(ContainerFilter):
+    """`Frame -> LeftToRight -> ContainerFilter -> EvenStep`
+
+    An `EvenStep` selects only elements with their `Position` on the Even `Step` in a nth numbering.
+
+    This Filter is ideal to apply a position offset to emulate a pattern swing.
+
+    Parameters
+    ----------
+    None : `EvenStep` doesn't have parameters to be set.
+    """
+    def _update_unmasked_items(self, unmasked_items: list[Any]) -> Self:
+        even_step_items: list[Any] = []
+        for single_item in unmasked_items:
+            if isinstance(single_item, oe.Element):
+                position_step: int = single_item % ra.Step() % int()
+                if position_step % 2 == 1:
+                    even_step_items.append(single_item)
+        return super()._update_unmasked_items(even_step_items)
+
+
+
 class PreviousComparison(ContainerFilter):
     """`Frame -> LeftToRight -> ContainerFilter -> PreviousComparison`
 
