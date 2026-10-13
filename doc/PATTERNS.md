@@ -24,8 +24,10 @@ clip = Clip(drum_kit) << Title("Funky Syncopation") \
 clip * 4 >> Plot()
 ```
 
-### Plot & Audio
+### Plot
 ![Funky Syncopation](Funky_Syncopation.png)
 
 [▶ Listen Audio](Funky_Syncopation.mp3)
+
+[▶ Listen Midi](Funky_Syncopation.mid)
 
