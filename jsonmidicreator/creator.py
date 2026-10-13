@@ -337,7 +337,7 @@ def renderMidiFile(midi_list: list[dict], filename="output.mid"):
                             24, 8
                         )
                     else:
-                        print(f"{RED}Error: Time Signature with wrong values!\033[0m")
+                        print(f"{RED}Error: Time Signature with invalid values!\033[0m")
 
             last_event["track"] = event["track"]
 
