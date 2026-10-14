@@ -2889,7 +2889,7 @@ class Settings(Generic):
 
 
     def getMidilistClocking(self) -> list[dict[str, int]]:
-        return sorted(
+        midi_clocking = sorted(
             [
                 {
                     "tick": c.getTicksFromPosition(tempo._position_beats),
@@ -2900,6 +2900,12 @@ class Settings(Generic):
             ],
             key=lambda tempo: tempo["tick"]
         )
+        if midi_clocking and midi_clocking[0]["tick"] > 0:
+            midi_clocking.insert(
+                0,
+                {"tick": 0, "bpm_10": midi_clocking[0]["bpm_10"]}
+            )
+        return midi_clocking
 
 
     def getSerialization(self) -> dict:
