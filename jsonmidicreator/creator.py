@@ -19,6 +19,7 @@ import os
 import ctypes
 import threading
 # import multiprocessing
+from fractions import Fraction
 import math
 import time
 
@@ -278,8 +279,8 @@ def renderMidiFile(midi_list: list[dict], filename="output.mid"):
     processed_events: list[dict] = []
     # Starts by validating all events by time
     for event in midi_list:
-        if all(key in event for key in ("event", "track", "track_name", "tempo", "time", "channel", "priority")) \
-            and isinstance(event["track"], int) and isinstance(event["time"], (float, int)) \
+        if all(key in event for key in ("event", "track", "track_name", "tempo", "position", "time", "channel", "priority")) \
+            and isinstance(event["track"], int) and isinstance(event["position"], Fraction) and isinstance(event["time"], (float, int)) \
             and event["track"] >= 0 and event["time"] >= 0 and isinstance(event["priority"], int):
 
             processed_events.append(event)
@@ -287,7 +288,7 @@ def renderMidiFile(midi_list: list[dict], filename="output.mid"):
             print("\033[93mWarning: Some midi events aren't valid!\033[0m")
     
     if len(processed_events) > 0:
-        processed_events = sorted(processed_events, key=lambda x: (x["track"], x["time"], x["priority"]))
+        processed_events = sorted(processed_events, key=lambda x: (x["track"], x["position"], x["priority"]))
 
         #
         # WHERE TEMPO IS SET ACCORDINGLY TO THE TEMPOS IN SETTING
