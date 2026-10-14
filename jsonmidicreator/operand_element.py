@@ -138,6 +138,10 @@ class Element(o.Operand):
         if field_1 is not None and field_1 != "":
             if '<' in field_1:
                 self._position_beats = Fraction(0)
+            elif '$' in field_1:    # Quantized to Steps
+                measure_beats = self % ra.Position() % ra.Measure() % ra.Beats() % Fraction()
+                step_beats = self % ra.Position() % ra.Step() % ra.Beats() % Fraction()
+                self._position_beats = measure_beats + step_beats
             elif '|' in field_1 and isinstance(previous_element, Element):    # Stemmed Element
                 self._position_beats = previous_element._position_beats
             if field_1[0] == "_":
