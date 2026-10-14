@@ -355,7 +355,8 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
         # of the common Beat, and TICKS_PER_BEAT defines its internal resolution.
         # TimeSignature is used internally as a musical grid for operations such as
         # measure repeating and beat selection; it does not redefine the timeline.
-        # The exported file uses a fixed 4/4 signature for a constant Beat Resolution.
+        # The exported file uses a fixed 4/4 signature for a constant Beat resolution,
+        # because the program is Beat centered and NOT Quarter-Note centered.
         MyMIDI.addTimeSignature(0, 0, 4, 2, 24, 8)
 
         last_event: dict = {
