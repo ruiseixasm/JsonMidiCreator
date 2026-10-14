@@ -136,7 +136,7 @@ class Element(o.Operand):
         token_operand = od.Token(token)
         field_1: str = token_operand.get_field(1)
         if field_1 is not None and field_1 != "":
-            if '|' in field_1:    # Stem Element
+            if '|' in field_1 and isinstance(previous_element, Element):    # Stemmed Element
                 self._position_beats = previous_element._position_beats
             if field_1[0] == "_":
                 field_1 = "0" + field_1 # Durations of zero aren't set (safe)
