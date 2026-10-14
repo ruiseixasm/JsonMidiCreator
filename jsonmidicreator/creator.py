@@ -287,7 +287,7 @@ def getTicksFromPosition(position_beats: Fraction) -> int:
     num: int = position_beats.numerator
     den: int = position_beats.denominator
     if den > 0 and num >= 0:
-        return (num * TICKS_PER_BEAT + den / 2) / den
+        return (num * TICKS_PER_BEAT + den // 2) // den
     return 0
 
 
