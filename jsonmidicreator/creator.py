@@ -289,6 +289,10 @@ def renderMidiFile(midi_list: list[dict], filename="output.mid"):
     if len(processed_events) > 0:
         processed_events = sorted(processed_events, key=lambda x: (x["track"], x["time"], x["priority"]))
 
+        #
+        # WHERE TEMPO IS SET ACCORDINGLY TO THE TEMPOS IN SETTING
+        #
+
         midi_tracks: set[int] = set()
         for event in processed_events:
             midi_tracks.add(event["track"]) # sets don't allow duplicates
