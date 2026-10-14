@@ -2888,6 +2888,20 @@ class Settings(Generic):
         }
 
 
+    def getMidilistClocking(self) -> list[dict[str, int]]:
+        return sorted(
+            [
+                {
+                    "tick": c.getTicksFromPosition(tempo._position_beats),
+                    "bpm_10": tempo._unit
+                }
+                for tempo in self._tempos
+                if tempo._position_beats >= 0 and tempo._unit > 0
+            ],
+            key=lambda tempo: tempo["tick"]
+        )
+
+
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["tempos"]               = o.serialize( self._tempos )
