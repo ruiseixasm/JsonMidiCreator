@@ -350,11 +350,17 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
             ticks_per_quarternote=TICKS_PER_BEAT
         )
 
+        # Standard MIDI File time-signature metadata.
+        # JsonMidiCreator uses a shared PPBeat timeline: BPM defines the duration
+        # of the common Beat, and TICKS_PER_BEAT defines its internal resolution.
+        # TimeSignature is used internally as a musical grid for operations such as
+        # measure repeating and beat selection; it does not redefine the timeline.
+        # The exported file uses a fixed 4/4 signature for a constant Beat Resolution.
+        MyMIDI.addTimeSignature(0, 0, 4, 2, 24, 8)
+
         last_event: dict = {
             "track":        -1,
-            "tempo":        -1,
-            "numerator":    -1,
-            "denominator":  -1
+            "tempo":        -1
         }
         for event in processed_events:
             if event["track"] != last_event["track"]:  # events already sorted (processed)
@@ -376,24 +382,6 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
                     )
                 else:
                     print(f"{RED}Error: Tempo is NOT a number!")
-            if all(key in event for key in ("numerator", "denominator")):
-                if event["track"] != last_event["track"] \
-                    or event["numerator"] != last_event["numerator"] or event["denominator"] != last_event["denominator"]:
-
-                    if isinstance(event["numerator"], int) and isinstance(event["denominator"], int) \
-                        and event["numerator"] > 0 and event["denominator"] > 0:
-
-                        last_event["numerator"] = event["numerator"]
-                        last_event["denominator"] = event["denominator"]
-                        MyMIDI.addTimeSignature(
-                            event["track"],
-                            event["time"],
-                            event["numerator"],
-                            int(math.log2(event["denominator"])),
-                            24, 8
-                        )
-                    else:
-                        print(f"{RED}Error: Time Signature with invalid values!\033[0m")
 
             last_event["track"] = event["track"]
 
@@ -586,19 +574,6 @@ def chat_gpt_solution(midi_list: list[dict], filename="output.mid"):
         if "tempo" in event and (last_event["track"] != track_num or last_event["tempo"] != event["tempo"]):
             track.append(MetaMessage('set_tempo', tempo=int(60000000 / event["tempo"]), time=event["time"]))
             last_event["tempo"] = event["tempo"]
-
-        # Time signature if provided
-        if "numerator" in event and "denominator" in event:
-            if last_event["track"] != track_num or \
-                    last_event["time_signature"] != (event["numerator"], event["denominator"]):
-                track.append(MetaMessage(
-                    'time_signature',
-                    numerator=event["numerator"],
-                    denominator=event["denominator"],
-                    clocks_per_click=24,
-                    time=event["time"]
-                ))
-                last_event["time_signature"] = (event["numerator"], event["denominator"])
 
         # Process different event types
         match event["event"]:

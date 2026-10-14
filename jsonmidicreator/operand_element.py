@@ -1564,8 +1564,6 @@ class DeviceElement(Element):
         elif position_beats < 0:
             return []
 
-        self_numerator: int = self._get_time_signature()._top
-        self_denominator: int = self._get_time_signature()._bottom
         self_position_beats: Fraction = position_beats + self._position_beats
         self_time: float = float(position_beats + self._position_beats)
         self_duration: float = float(self._duration_beats)
@@ -1583,8 +1581,6 @@ class DeviceElement(Element):
                     "event":        "Element",
                     "track":        track_number - 1,   # out of range shouldn't be exported as a midi track
                     "track_name":   track_name,
-                    "numerator":    self_numerator,
-                    "denominator":  self_denominator,
                     "tick":         c.getTicksFromPosition(self_position_beats),
                     "time":         self_time,          # beats
                     "duration":     self_duration,      # beats
