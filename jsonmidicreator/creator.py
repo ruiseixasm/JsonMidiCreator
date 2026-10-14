@@ -291,6 +291,12 @@ def getTicksFromPosition(position_beats: Fraction) -> int:
     return -1   # To be filtered out
 
 
+def getBeatsFromTicks(ticks: int) -> float:
+    if ticks >= 0:
+        return ticks / TICKS_PER_BEAT   # Already a float
+    return -1.0 # To be filtered out
+
+
 def renderMidiFile(midi_list: list[dict], filename="output.mid"):
     
     # Define ANSI escape codes for colors
