@@ -151,7 +151,8 @@ class Render(Process):
         # Rendering of the midi file
         match operand:
             case oc.Composition() | oe.Element():
-                c.renderMidiFile(operand.getMidilist(), file_path)
+                clocking = og.settings.getMidilistClocking()
+                c.renderMidiFile(clocking, operand.getMidilist(), file_path)
                 return operand
             case od.Line():
                 line_clip = oc.Clip(operand)
