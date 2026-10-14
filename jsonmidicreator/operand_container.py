@@ -369,8 +369,8 @@ class Container(o.Operand):
                 match operand._data:
                     case list():
                         return self._items
-                    # case of.Frame() | ch.Chaos():
-                    #     return self.__ior__(operand._data)
+                    case of.Frame() | ch.Chaos():
+                        return self.__ior__(operand._data)
                     case of.Frame():    # Works as a Selector, returns the Self container copy but with the Frame applied
                         # Attention: This Container shares the items if they are Operands, NO copy done
                         framed_items: list = []

@@ -387,10 +387,12 @@ class Element(o.Operand):
                     if operand >= Fraction(0) and self_duration != operand: # NOT already set
                         self_start: ra.Position = self.start()
                         self_finish: ra.Position = self.finish()
-                        at_finish_clip: oc.Clip = self._owner_clip % od.Pipe( of.Equal(self_finish) )
+                        at_finish_clip: oc.Clip = self._owner_clip.shallow_copy()
+                        at_finish_clip |= of.Equal(self_finish)
                         # Has to have at least one linked element
                         if at_finish_clip.len() > 0:
-                            same_locus_clip: oc.Clip = self._owner_clip % od.Pipe( of.Equal(self_start)**of.Equal(self_duration) )
+                            same_locus_clip: oc.Clip = self._owner_clip.shallow_copy()
+                            same_locus_clip |= of.Equal(self_start)**of.Equal(self_duration)
                             extra_duration: ra.Duration | ra.Length = operand - self_duration
                             if extra_duration > Fraction(0):
                                 for linked_element in at_finish_clip._items:
@@ -407,10 +409,12 @@ class Element(o.Operand):
                     self_duration: ra.Duration = self % ra.Duration()
                     if operand >= Fraction(0) and self_duration != operand: # NOT already set
                         self_start: ra.Position = self.start()
-                        with_finish_at_start_clip: oc.Clip = self._owner_clip % od.Pipe( of.Equal(ra.Finish(self_start)) )
+                        with_finish_at_start_clip: oc.Clip = self._owner_clip.shallow_copy()
+                        with_finish_at_start_clip |= of.Equal(ra.Finish(self_start))
                         # Has to have at least one linked element
                         if with_finish_at_start_clip.len() > 0:
-                            same_locus_clip: oc.Clip = self._owner_clip % od.Pipe( of.Equal(self_start)**of.Equal(self_duration) )
+                            same_locus_clip: oc.Clip = self._owner_clip.shallow_copy()
+                            same_locus_clip |= of.Equal(self_start)**of.Equal(self_duration)
                             extra_duration: ra.Duration | ra.Length = operand - self_duration
                             if extra_duration > Fraction(0):
                                 for linked_element in with_finish_at_start_clip._items:
