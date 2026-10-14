@@ -2083,6 +2083,7 @@ class Trigger(ChannelElement):
             note_dict["velocity"]       = self._velocity
             note_dict["pitch"]          = pitch_int
             note_dict["position_on"]    = absolute_position_beats
+            note_dict["priority"]       = 0x60
 
             self_midilist.append(note_dict)
 
@@ -2512,6 +2513,7 @@ class Note(ChannelElement):
             note_dict["velocity"]       = single_note._velocity
             note_dict["pitch"]          = pitch_int
             note_dict["position_on"]    = absolute_position_beats
+            note_dict["priority"]       = 0x60
 
             self_midilist.append(note_dict)
 
@@ -3967,6 +3969,11 @@ class ControlChange(Automatable):
         self_midilist: list[dict] = super().getMidilist(position_beats)
         self_midilist[0]["event"] = "ControllerEvent"
 
+        match(self._number):
+            case 0 | 32:    self_midilist[0]["priority"] = 0x11
+            case 123:       self_midilist[0]["priority"] = 0x90
+            case _:         self_midilist[0]["priority"] = 0x50
+
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["number"]      = self._number
         self_midilist[0]["value"]       = clamp_value_128(self._value)
@@ -4346,7 +4353,7 @@ class BankSelectMSB(ControlChange):
             return []
         self_midilist: list[dict] = super().getMidilist(position_beats)
         self_midilist[0]["event"] = "ControllerEvent"
-
+        self_midilist[0]["priority"] = 0x10
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["number"]      = 0,    # Bank Select MSB (CC 0)
         self_midilist[0]["value"]       = clamp_value_128(self._value)
@@ -4417,8 +4424,8 @@ class BankSelectLSB(ControlChange):
         elif position_beats < 0:
             return []
         self_midilist: list[dict] = super().getMidilist(position_beats)
-        self_midilist[0]["event"] = "ControllerEvent"
-
+        self_midilist[0]["event"]       = "ControllerEvent"
+        self_midilist[0]["priority"]    = 0x10
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["number"]      = 32,    # Bank Select LSB (CC 32)
         self_midilist[0]["value"]       = clamp_value_128(self._value)
@@ -4816,6 +4823,7 @@ class Aftertouch(Automatable):
         self_midilist: list = super().getMidilist(position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "ChannelPressure"
+        self_midilist[0]["priority"]    = 0x80
         self_midilist[0]["pressure"]    = clamp_value_128(self._pressure)
         return self_midilist
 
@@ -5199,6 +5207,7 @@ class PitchBend(Automatable):
         self_midilist: list = super().getMidilist(position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "PitchWheelEvent"
+        self_midilist[0]["priority"]    = 0x50
         self_midilist[0]["value"]       = self._get_bend(clamp_value_128(self._msb), clamp_value_128(self._lsb))
         return self_midilist
 
@@ -5721,6 +5730,7 @@ class ProgramChange(ChannelElement):
         self_midilist: list = super().getMidilist(position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "ProgramChange"
+        self_midilist[0]["priority"]    = 0x11
         self_midilist[0]["program"]     = self._program_0
         return self_midilist
 
