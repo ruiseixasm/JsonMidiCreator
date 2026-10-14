@@ -7,8 +7,8 @@ settings << [
     Tempo(90, Beats(4*4))
 ]
 
-sixteen_notes = Note(Beats(1)) / 4 * 4 << Title("Sixteen Beats")
+sixteen_notes = Note(Beats(1)) * 4 * 4 << Title("Sixteen Beats")
 # sixteen_notes >> Export("sixteen_beats.json")
-sixteen_notes >> Render("sixteen_beats.mid")
-# sixteen_notes >> Play(loops=1, verbose=True)
+# sixteen_notes >> Render("sixteen_beats.mid")
+sixteen_notes >> Play(loops=1, verbose=True)
 
