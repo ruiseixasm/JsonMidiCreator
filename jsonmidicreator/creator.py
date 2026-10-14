@@ -288,7 +288,7 @@ def getTicksFromPosition(position_beats: Fraction) -> int:
     den: int = position_beats.denominator
     if den > 0 and num >= 0:
         return (num * TICKS_PER_BEAT + den // 2) // den
-    return 0
+    return -1   # To be filtered out
 
 
 def renderMidiFile(midi_list: list[dict], filename="output.mid"):
