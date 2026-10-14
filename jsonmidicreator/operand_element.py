@@ -5903,6 +5903,16 @@ def get_elements_from_line(line: od.Line) -> list[Element]:
     return line_elements
 
 
+
+# inline uint32_t getTicksFromBeats(uint32_t num, uint32_t den) {
+# 	// Equivalent to Beat((uint32_t)(beats * TICKS_PER_BEAT + 0.5));
+# 	if (den > 0) {
+# 		return (num * TICKS_PER_BEAT + den / 2) / den;
+# 	}
+# 	return 0;
+# }
+
+
 # Voice Message           Status Byte      Data Byte1          Data Byte2
 # -------------           -----------   -----------------   -----------------
 # Note off                      8x      Key number          Note Off velocity

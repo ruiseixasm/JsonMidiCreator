@@ -323,149 +323,158 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
         print(f"{RED}Error: The 'midiutil' library is not installed.\033[0m")
         print("Please install it by running 'pip install midiutil'.")
         return
+
+    if clocking and midilist:
     
-    processed_events: list[dict] = []
-    # Starts by validating all events by time
-    for event in midilist:
-        if all(key in event for key in ("event", "track", "track_name", "tempo", "tick", "time", "channel", "priority")) \
-            and isinstance(event["track"], int) and isinstance(event["tick"], int) and isinstance(event["time"], (float, int)) \
-            and event["track"] >= 0 and event["time"] >= 0 and event["tick"] >= 0 and isinstance(event["priority"], int):
+        processed_events: list[dict] = []
+        # Starts by validating all events by time
+        for event in midilist:
+            if all(key in event for key in ("event", "track", "track_name", "tempo", "tick", "time", "channel", "priority")) \
+                and isinstance(event["track"], int) and isinstance(event["tick"], int) and isinstance(event["time"], (float, int)) \
+                and event["track"] >= 0 and event["time"] >= 0 and event["tick"] >= 0 and isinstance(event["priority"], int):
 
-            processed_events.append(event)
-        else:
-            print("\033[93mWarning: Some midi events aren't valid!\033[0m")
-    
-    if len(processed_events) > 0:
-        processed_events = sorted(processed_events, key=lambda x: (x["track"], x["tick"], x["priority"]))
+                processed_events.append(event)
+            else:
+                print("\033[93mWarning: Some midi events aren't valid!\033[0m")
+        
+        if len(processed_events) > 0:
+            processed_events = sorted(processed_events, key=lambda x: (x["track"], x["tick"], x["priority"]))
 
-        #
-        # WHERE TEMPO IS SET ACCORDINGLY TO THE TEMPOS IN SETTING
-        #
+            #
+            # WHERE TEMPO IS SET ACCORDINGLY TO THE TEMPOS IN SETTING
+            #
 
-        midi_tracks: set[int] = set()
-        for event in processed_events:
-            midi_tracks.add(event["track"]) # sets don't allow duplicates
-        MyMIDI = MIDIFile(
-            len(midi_tracks),
-            ticks_per_quarternote=TICKS_PER_BEAT
-        )
+            midi_tracks: set[int] = set()
+            for event in processed_events:
+                midi_tracks.add(event["track"]) # sets don't allow duplicates
+            MyMIDI = MIDIFile(
+                len(midi_tracks),
+                ticks_per_quarternote=TICKS_PER_BEAT
+            )
 
-        # Standard MIDI File time-signature metadata.
-        # JsonMidiCreator uses a shared PPBeat timeline: BPM defines the duration
-        # of the common Beat, and TICKS_PER_BEAT defines its internal resolution.
-        # TimeSignature is used internally as a musical grid for operations such as
-        # measure repeating and beat selection; it does not redefine the timeline.
-        # The exported file uses a fixed 4/4 signature for a constant Beat resolution,
-        # because the program is Beat centered and NOT Quarter-Note centered.
-        MyMIDI.addTimeSignature(0, 0, 4, 2, 24, 8)
+            # Standard MIDI File time-signature metadata.
+            # JsonMidiCreator uses a shared PPBeat timeline: BPM defines the duration
+            # of the common Beat, and TICKS_PER_BEAT defines its internal resolution.
+            # TimeSignature is used internally as a musical grid for operations such as
+            # measure repeating and beat selection; it does not redefine the timeline.
+            # The exported file uses a fixed 4/4 signature for a constant Beat resolution,
+            # because the program is Beat centered and NOT Quarter-Note centered.
+            MyMIDI.addTimeSignature(0, 0, 4, 2, 24, 8)
 
-        last_event: dict = {
-            "track":        -1,
-            "tempo":        -1
-        }
-        for event in processed_events:
-            if event["track"] != last_event["track"]:  # events already sorted (processed)
-                if isinstance(event["track_name"], str):
-                    MyMIDI.addTrackName(
-                        event["track"],
-                        event["time"],
-                        event["track_name"]
-                    )
-                else:
-                    print("Error, Track name is NOT a string!")
-            if event["track"] != last_event["track"] or event["tempo"] != last_event["tempo"]:  # events already sorted (processed)
-                if isinstance(event["tempo"], (float, int)):
-                    last_event["tempo"] = event["tempo"]
-                    MyMIDI.addTempo(
-                        event["track"],
-                        event["time"],
-                        event["tempo"]
-                    )
-                else:
-                    print(f"{RED}Error: Tempo is NOT a number!")
+            last_event: dict = {
+                "track":        -1,
+                "tempo":        -1
+            }
+            for event in processed_events:
+                if event["track"] != last_event["track"]:  # events already sorted (processed)
+                    if isinstance(event["track_name"], str):
+                        MyMIDI.addTrackName(
+                            event["track"],
+                            event["time"],
+                            event["track_name"]
+                        )
+                    else:
+                        print("Error, Track name is NOT a string!")
+                if event["track"] != last_event["track"] or event["tempo"] != last_event["tempo"]:  # events already sorted (processed)
+                    if isinstance(event["tempo"], (float, int)):
+                        last_event["tempo"] = event["tempo"]
+                        MyMIDI.addTempo(
+                            event["track"],
+                            event["time"],
+                            event["tempo"]
+                        )
+                    else:
+                        print(f"{RED}Error: Tempo is NOT a number!")
 
-            last_event["track"] = event["track"]
+                last_event["track"] = event["track"]
 
-            match event["event"]:
-                case "Note":
-                    if isinstance(event["duration"], (float, int)) and event["duration"] > 0:
+                match event["event"]:
+                    case "Note":
+                        if isinstance(event["duration"], (float, int)) and event["duration"] > 0:
+                            if 0 <= event["channel"] < 16:
+                                if 0 <= event["pitch"] < 128:
+                                    if 0 <= event["velocity"] < 128:
+                                        MyMIDI.addNote(
+                                            event["track"],
+                                            event["channel"],
+                                            event["pitch"],
+                                            event["time"],
+                                            event["duration"],
+                                            event["velocity"]
+                                        )
+                                    else:
+                                        print(f"{RED}Error: Note Velocity with wrong values! ({event['velocity']})\033[0m")
+                                else:
+                                    print(f"{RED}Error: Note Pitch with wrong values! ({event['pitch']})\033[0m")
+                            else:
+                                print(f"{RED}Error: Note Channel with wrong values! ({event['channel']})\033[0m")
+                        else:
+                            print(f"{RED}Error: Note Duration must be above zero! ({event['duration']})\033[0m")
+                    case "ControllerEvent":
                         if 0 <= event["channel"] < 16:
-                            if 0 <= event["pitch"] < 128:
-                                if 0 <= event["velocity"] < 128:
-                                    MyMIDI.addNote(
+                            if 0 <= event["number"] < 128:
+                                if 0 <= event["value"] < 128:
+                                    MyMIDI.addControllerEvent(
                                         event["track"],
                                         event["channel"],
-                                        event["pitch"],
                                         event["time"],
-                                        event["duration"],
-                                        event["velocity"]
+                                        event["number"],
+                                        event["value"]
                                     )
                                 else:
-                                    print(f"{RED}Error: Note Velocity with wrong values! ({event['velocity']})\033[0m")
+                                    print(f"{RED}Error: CC Value with wrong values! ({event['value']})\033[0m")
                             else:
-                                print(f"{RED}Error: Note Pitch with wrong values! ({event['pitch']})\033[0m")
+                                print(f"{RED}Error: CC Number with wrong values! ({event['number']})\033[0m")
                         else:
-                            print(f"{RED}Error: Note Channel with wrong values! ({event['channel']})\033[0m")
-                    else:
-                        print(f"{RED}Error: Note Duration must be above zero! ({event['duration']})\033[0m")
-                case "ControllerEvent":
-                    if 0 <= event["channel"] < 16:
-                        if 0 <= event["number"] < 128:
-                            if 0 <= event["value"] < 128:
-                                MyMIDI.addControllerEvent(
+                            print(f"{RED}Error: CC Channel with wrong values! ({event['channel']})\033[0m")
+                    case "PitchWheelEvent":
+                        if 0 <= event["channel"] < 16:
+                                if -8192 <= event["value"] < 8192:
+                                    MyMIDI.addPitchWheelEvent(
+                                        event["track"],
+                                        event["channel"],
+                                        event["time"],
+                                        event["value"]
+                                    )
+                                else:
+                                    print(f"{RED}Error: Pitch Value with wrong values! ({event['value']})\033[0m")
+                        else:
+                            print(f"{RED}Error: Pitch Channel with wrong values! ({event['channel']})\033[0m")
+                    case "ChannelPressure":
+                        if 0 <= event["channel"] < 16:
+                            if 0 <= event["pressure"] < 128:
+                                MyMIDI.addChannelPressure(
                                     event["track"],
                                     event["channel"],
                                     event["time"],
-                                    event["number"],
-                                    event["value"]
+                                    event["pressure"]
                                 )
                             else:
-                                print(f"{RED}Error: CC Value with wrong values! ({event['value']})\033[0m")
+                                print(f"{RED}Error: Channel Pressure Value with wrong values! ({event['pressure']})\033[0m")
                         else:
-                            print(f"{RED}Error: CC Number with wrong values! ({event['number']})\033[0m")
-                    else:
-                        print(f"{RED}Error: CC Channel with wrong values! ({event['channel']})\033[0m")
-                case "PitchWheelEvent":
-                    if 0 <= event["channel"] < 16:
-                            if -8192 <= event["value"] < 8192:
-                                MyMIDI.addPitchWheelEvent(
+                            print(f"{RED}Error: Channel Pressure Channel with wrong values! ({event['channel']})\033[0m")
+                    case "ProgramChange":
+                        if 0 <= event["channel"] < 16:
+                            if 0 <= event["program"] < 128:
+                                MyMIDI.addProgramChange(
                                     event["track"],
                                     event["channel"],
                                     event["time"],
-                                    event["value"]
+                                    event["program"]
                                 )
                             else:
-                                print(f"{RED}Error: Pitch Value with wrong values! ({event['value']})\033[0m")
-                    else:
-                        print(f"{RED}Error: Pitch Channel with wrong values! ({event['channel']})\033[0m")
-                case "ChannelPressure":
-                    if 0 <= event["channel"] < 16:
-                        if 0 <= event["pressure"] < 128:
-                            MyMIDI.addChannelPressure(
-                                event["track"],
-                                event["channel"],
-                                event["time"],
-                                event["pressure"]
-                            )
+                                print(f"{RED}Error: Program Change Program with wrong values! ({event['program']})\033[0m")
                         else:
-                            print(f"{RED}Error: Channel Pressure Value with wrong values! ({event['pressure']})\033[0m")
-                    else:
-                        print(f"{RED}Error: Channel Pressure Channel with wrong values! ({event['channel']})\033[0m")
-                case "ProgramChange":
-                    if 0 <= event["channel"] < 16:
-                        if 0 <= event["program"] < 128:
-                            MyMIDI.addProgramChange(
-                                event["track"],
-                                event["channel"],
-                                event["time"],
-                                event["program"]
-                            )
-                        else:
-                            print(f"{RED}Error: Program Change Program with wrong values! ({event['program']})\033[0m")
-                    else:
-                        print(f"{RED}Error: Program Change Channel with wrong values! ({event['channel']})\033[0m")
-        with open(filename, "wb") as output_file:   # opened to write in binary mode
-            MyMIDI.writeFile(output_file)
+                            print(f"{RED}Error: Program Change Channel with wrong values! ({event['channel']})\033[0m")
+            with open(filename, "wb") as output_file:   # opened to write in binary mode
+                MyMIDI.writeFile(output_file)
+
+    elif clocking:
+        print(f"{RED}Error: Empty Midilist, nothing to be rendered.\033[0m")
+
+    else:
+        print(f"{RED}Error: No Clocking, without Tempos nothing will be rendered.\033[0m")
+
 
 
 # Profilling methods
