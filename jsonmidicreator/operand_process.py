@@ -107,7 +107,7 @@ class Export(Process):
                         file_path = file_path
                     composition_length: ra.Length = operand % ra.Length()
                     composition_length_beats: Fraction = composition_length._rational   # Implicit rounding
-                    clocking: dict[str, list] = og.settings.getClocking(composition_length_beats)
+                    clocking: dict[str, list] = og.settings.getPlaylistClocking(composition_length_beats)
                     playlist: list[dict] = operand.getPlaylist()
                     c.exportJsonMidiPlay(clocking, playlist, file_path)
                 else:
@@ -116,7 +116,7 @@ class Export(Process):
             case oe.Element():
                 if not isinstance(file_path, str):
                     file_path = "json/_Export_jsonMidiPlayer.json"
-                clocking: dict[str, list] = og.settings.getClocking()
+                clocking: dict[str, list] = og.settings.getPlaylistClocking()
                 playlist: list[dict] = operand.getPlaylist()
                 c.exportJsonMidiPlay(clocking, playlist, file_path)
                 return operand
@@ -1364,9 +1364,9 @@ class Play(Process):
                 if operand._items:
                     composition_length: ra.Length = operand % ra.Length()
                     composition_length_beats: Fraction = composition_length._rational   # Implicit rounding
-                    clocking: dict[str, list] = og.settings.getClocking(composition_length_beats)
+                    clocking: dict[str, list] = og.settings.getPlaylistClocking(composition_length_beats)
                     if not self.set_length:
-                        clocking = og.settings.getClocking()
+                        clocking = og.settings.getPlaylistClocking()
                     playlist: list[dict] = operand.getPlaylist()  # Where the heavy lifting method is called
                     if self.plot and self.block:
                         # Start the function in a new process
@@ -1392,7 +1392,7 @@ class Play(Process):
                     print(f"Warning: Trying to play an **empty** list!")
                 return operand
             case oe.Element():
-                clocking: dict[str, list] = og.settings.getClocking()
+                clocking: dict[str, list] = og.settings.getPlaylistClocking()
                 playlist: list[dict] = operand.getPlaylist()  # Where the heavy lifting method is called
                 if self.plot and self.block:
                     # Start the function in a new process

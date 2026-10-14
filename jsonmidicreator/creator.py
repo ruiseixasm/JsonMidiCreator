@@ -22,6 +22,7 @@ import threading
 from fractions import Fraction
 import math
 import time
+from typing import TYPE_CHECKING
 
 # Determine the directory of the current Python file
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -295,6 +296,18 @@ def getBeatsFromTicks(ticks: int) -> float:
     if ticks >= 0:
         return ticks / TICKS_PER_BEAT   # Already a float
     return -1.0 # To be filtered out
+
+
+if TYPE_CHECKING:
+    from operand_unit import Tempo
+
+
+def interpolateTempo(left_tempo: dict[str, int], right_tempo: dict[str, int], tick: int) -> float:
+    if left_tempo["bpm_10"] == right_tempo["bpm_10"] or left_tempo["tick"] == right_tempo["tick"]:
+        return left_tempo["bpm_10"] / 10.0  # Divides by 10 because bpm on tempo is a x10 integer
+    ratio = (tick - left_tempo["tick"]) / (right_tempo["tick"] - left_tempo["tick"])
+    bpm_10 = left_tempo["bpm_10"] + ratio * (right_tempo["bpm_10"] - left_tempo["bpm_10"])
+    return bpm_10 / 10.0
 
 
 def renderMidiFile(midi_list: list[dict], filename="output.mid"):

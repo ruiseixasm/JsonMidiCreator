@@ -2875,7 +2875,7 @@ class Settings(Generic):
             and self._mtc_fps               == other._mtc_fps
     
 
-    def getClocking(self, length_beats: Fraction = Fraction(0)) -> dict[str, list]:
+    def getPlaylistClocking(self, length_beats: Fraction = Fraction(0)) -> dict[str, list]:
         return {
             "length_beats":         [length_beats.numerator, length_beats.denominator],
             "clocked_devices":      self._clocked_devices,
@@ -2886,6 +2886,7 @@ class Settings(Generic):
                 tempo % dict() for tempo in self._tempos
             ]
         }
+
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
