@@ -369,20 +369,6 @@ class Container(o.Operand):
                 match operand._data:
                     case list():
                         return self._items
-                    case of.Frame() | ch.Chaos():
-                        return self.__ior__(operand._data)
-                    case of.Frame():    # Works as a Selector, returns the Self container copy but with the Frame applied
-                        # Attention: This Container shares the items if they are Operands, NO copy done
-                        framed_items: list = []
-                        # One to One, NOT One to Many (return)
-                        operand._data._set_inside_container(self)
-                        for single_item in self.items_unmasked():
-                            if single_item == operand._data:
-                                framed_items.append(single_item)
-                        # Avoids the changing of the owner of the Clips
-                        clip_empty_copy = self.empty_copy()
-                        clip_empty_copy._items = framed_items
-                        return clip_empty_copy._sort_items()
                     case _:
                         return super().__mod__(operand)
             case list():
@@ -392,13 +378,7 @@ class Container(o.Operand):
             case bool():
                 return self._is_masked()
             case of.Frame():    # Works as a Selector, returns the Self container copy but with the Frame applied
-                framed_items: list = []
-                # One to One, NOT One to Many (return)
-                operand._set_inside_container(self)
-                for single_item in self.items_unmasked():
-                    if single_item == operand:
-                        framed_items.append(single_item)
-                return self.empty_copy(framed_items)._sort_items()  # Implicit copy of the `framed_items`
+                return self.__or__(operand)
             case _:
                 return super().__mod__(operand)
 
