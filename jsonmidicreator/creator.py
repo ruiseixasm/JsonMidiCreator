@@ -338,11 +338,6 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
                 print("\033[93mWarning: Some midi events aren't valid!\033[0m")
         
         if len(processed_events) > 0:
-            processed_events = sorted(processed_events, key=lambda x: (x["track"], x["tick"], x["priority"]))
-
-            #
-            # WHERE TEMPO IS SET ACCORDINGLY TO THE TEMPOS IN SETTING
-            #
 
             midi_tracks: set[int] = set()
             for event in processed_events:
@@ -361,19 +356,12 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
             # because the program is Beat centered and NOT Quarter-Note centered.
             MyMIDI.addTimeSignature(0, 0, 4, 2, 24, 8)
 
-            # Setting Track 0 is enough
-            MyMIDI.addTempo(
-                0,                              # Track 0
-                0.0,                            # Beats (float)
-                clocking[0]["bpm_10"] / 10.0    # BPM (float)
-            )
-
             # Tempo events are conventionally stored in Track 0 in a Type 1 MIDI file.
             midi_tempos: list[dict] = [
                 {
                     "event":    "Tempo",
-                    "track":    0,
-                    "tick":     clocking[0]["tick"],
+                    "track":    0,  # Setting Track 0 is enough
+                    "tick":     0,
                     "time":     0.0,
                     "bpm":      clocking[0]["bpm_10"] / 10.0,
                     "priority": 0x30
@@ -393,7 +381,7 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
                                 midi_tempos.append(
                                     {
                                         "event":    "Tempo",
-                                        "track":    0,
+                                        "track":    0,  # Setting Track 0 is enough
                                         "tick":     absolute_tick,
                                         "time":     getBeatsFromTicks(absolute_tick),
                                         "bpm":      interpolateTempo(left_tempo, right_tempo, absolute_tick),
@@ -404,6 +392,8 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
                             last_midi_tempo: dict = midi_tempos[-1]
                             last_midi_tempo["bpm"] = right_tempo["bpm_10"] / 10.0
 
+            processed_events.extend(midi_tempos)
+            processed_events = sorted(processed_events, key=lambda x: (x["track"], x["tick"], x["priority"]))
 
             last_event: dict = {
                 "track":        -1
@@ -422,6 +412,13 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
                 last_event["track"] = event["track"]
 
                 match event["event"]:
+                    case "Tempo":
+                        MyMIDI.addTempo(
+                            0,              # Track 0
+                            event["time"],  # Beats (float)
+                            event["bpm"]    # BPM (float)
+                        )
+
                     case "Note":
                         if isinstance(event["duration"], (float, int)) and event["duration"] > 0:
                             if 0 <= event["channel"] < 16:
