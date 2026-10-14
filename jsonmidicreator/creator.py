@@ -368,15 +368,41 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
                 clocking[0]["bpm_10"] / 10.0    # BPM (float)
             )
 
+            # Tempo events are conventionally stored in Track 0 in a Type 1 MIDI file.
             midi_tempos: list[dict] = [
                 {
                     "event":    "Tempo",
                     "track":    0,
-                    "time":     0.0,
                     "tick":     clocking[0]["tick"],
-                    "bpm":      clocking[0]["bpm_10"] / 10.0
+                    "time":     0.0,
+                    "bpm":      clocking[0]["bpm_10"] / 10.0,
+                    "priority": 0x30
                 }
             ]
+
+            for index, right_tempo in enumerate(clocking): # `clocking` is sorted by `tick` already
+                if index > 0:
+                    left_tempo = clocking[index - 1]
+                    if left_tempo["bpm_10"] != right_tempo["bpm_10"]:   # No need to add redundant Tempo
+                        if right_tempo["tick"] > left_tempo["tick"]:
+                            total_ticks: int = right_tempo["tick"] - left_tempo["tick"]
+                            left_tick: int = left_tempo["tick"]
+                            for relative_tick in range(total_ticks):
+                                interpolation_tick: int = relative_tick + 1
+                                absolute_tick: int = left_tick + interpolation_tick
+                                midi_tempos.append(
+                                    {
+                                        "event":    "Tempo",
+                                        "track":    0,
+                                        "tick":     absolute_tick,
+                                        "time":     getBeatsFromTicks(absolute_tick),
+                                        "bpm":      interpolateTempo(left_tempo, right_tempo, absolute_tick),
+                                        "priority": 0x30
+                                    }
+                                )
+                        else:   # Has to update the last same time Tempo
+                            last_midi_tempo: dict = midi_tempos[-1]
+                            last_midi_tempo["bpm"] = right_tempo["bpm_10"] / 10.0
 
 
             last_event: dict = {
