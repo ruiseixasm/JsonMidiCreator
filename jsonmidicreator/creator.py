@@ -414,7 +414,7 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
                 match event["event"]:
                     case "Tempo":
                         MyMIDI.addTempo(
-                            0,              # Track 0
+                            event["track"], # Track 0
                             event["time"],  # Beats (float)
                             event["bpm"]    # BPM (float)
                         )
