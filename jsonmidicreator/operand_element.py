@@ -1585,7 +1585,7 @@ class DeviceElement(Element):
                     "track_name":   track_name,
                     "numerator":    self_numerator,
                     "denominator":  self_denominator,
-                    "position":     self_position_beats,
+                    "tick":         c.getTicksFromPosition(self_position_beats),
                     "time":         self_time,          # beats
                     "duration":     self_duration,      # beats
                     "tempo":        self_tempo          # bpm
