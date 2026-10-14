@@ -8,5 +8,7 @@ settings << [
 ]
 
 sixteen_notes = Note(Beats(1)) / 4 * 4
-sixteen_notes >> Export("sixteen_beats.json") >> Play(loops=1, verbose=True)
+# sixteen_notes >> Export("sixteen_beats.json")
+sixteen_notes >> Render("sixteen_beats.mid")
+# sixteen_notes >> Play(loops=1, verbose=True)
 

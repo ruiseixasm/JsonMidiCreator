@@ -399,7 +399,7 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
                 "track":        -1
             }
             for event in processed_events:
-                if event["track"] != last_event["track"]:  # events already sorted (processed)
+                if event["track"] > 0 and event["track"] != last_event["track"]:  # events already sorted (processed)
                     if isinstance(event["track_name"], str):
                         MyMIDI.addTrackName(
                             event["track"],
@@ -409,7 +409,7 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
                     else:
                         print("Error, Track name is NOT a string!")
 
-                last_event["track"] = event["track"]
+                last_event["track"] = event["track"]    # processed_events are aggregated by track
 
                 match event["event"]:
                     case "Tempo":
