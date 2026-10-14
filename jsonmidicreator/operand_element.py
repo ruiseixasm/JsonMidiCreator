@@ -1567,7 +1567,7 @@ class DeviceElement(Element):
         self_numerator: int = self._get_time_signature()._top
         self_denominator: int = self._get_time_signature()._bottom
         self_position_beats: Fraction = position_beats + self._position_beats
-        self_position: float = float(position_beats + self._position_beats)
+        self_time: float = float(position_beats + self._position_beats)
         self_duration: float = float(self._duration_beats)
         self_tempo: float = og.settings % ou.Tempo() % float()
 
@@ -1586,7 +1586,7 @@ class DeviceElement(Element):
                     "numerator":    self_numerator,
                     "denominator":  self_denominator,
                     "position":     self_position_beats,
-                    "time":         self_position,      # beats
+                    "time":         self_time,          # beats
                     "duration":     self_duration,      # beats
                     "tempo":        self_tempo          # bpm
                 }
@@ -2065,10 +2065,6 @@ class Trigger(ChannelElement):
 
         if self._owner_clip is not None:
 
-            absolute_position_beats: Fraction = Fraction(0)
-            if position_beats is not None:
-                absolute_position_beats = position_beats + self._position_beats
-
             self_duration_beats: Fraction = self._duration_beats * self._gate
             self_duration: float = float(self_duration_beats)
             if self_duration == 0:
@@ -2493,10 +2489,6 @@ class Note(ChannelElement):
         component_notes: list[Note] = self.get_component_elements()
 
         for single_note in component_notes:
-
-            absolute_position_beats: Fraction = Fraction(0)
-            if position_beats is not None:
-                absolute_position_beats = position_beats + single_note._position_beats
 
             self_duration_beats: Fraction = single_note._duration_beats * single_note._gate
             self_duration: float = float(self_duration_beats)
