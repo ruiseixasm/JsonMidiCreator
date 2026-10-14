@@ -329,7 +329,7 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
         processed_events: list[dict] = []
         # Starts by validating all events by time
         for event in midilist:
-            if all(key in event for key in ("event", "track", "track_name", "tempo", "tick", "time", "channel", "priority")) \
+            if all(key in event for key in ("event", "track", "track_name", "tick", "time", "channel", "priority")) \
                 and isinstance(event["track"], int) and isinstance(event["tick"], int) and isinstance(event["time"], (float, int)) \
                 and event["track"] >= 0 and event["time"] >= 0 and event["tick"] >= 0 and isinstance(event["priority"], int):
 
