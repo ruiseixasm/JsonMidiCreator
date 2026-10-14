@@ -497,6 +497,33 @@ class Container(o.Operand):
         return self
 
 
+    def __ior__(self, operand: Any) -> Self:
+        match operand:
+            case of.Frame():
+                framed_items: list[Any] = []
+                operand._set_inside_container(self)
+                for single_item in self.items_unmasked():
+                    if single_item == operand:
+                        framed_items.append(single_item)
+                self._items = framed_items
+            case ch.Chaos():
+                chosen_items: list[Any] = []
+                for single_item in self.items_unmasked():
+                    if single_item == operand.chaoticize():
+                        chosen_items.append(single_item)
+                self._items = chosen_items
+            case tuple():
+                for single_item in operand:
+                    self |= single_item
+            case _:
+                equal_items: list[Any] = []
+                for single_item in self.items_unmasked():
+                    if single_item == operand:
+                        equal_items.append(single_item)
+                self._items = equal_items
+        return self
+
+
     # Pass trough operation as last resort
     def __rrshift__(self, operand: o.T) -> o.T:
         self << operand # Left shifts remaining parameter (Pass Through)

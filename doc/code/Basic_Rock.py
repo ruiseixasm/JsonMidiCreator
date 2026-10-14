@@ -7,8 +7,8 @@ basic_rock: str = (
 )
 
 clip = Clip(DrumKit("808"), Title("Basic Rock"), Line(basic_rock))
-clip += Trigger("Kick") * 16 % OnBeat()**Odd()
-clip += Trigger("Snare") * 16 % OnBeat()**Even()
-clip += Trigger("Closed") * 16 % Odd()
+clip += Trigger("Kick") * 16 | OnBeat()**Odd()
+clip += Trigger("Snare") * 16 | OnBeat()**Even()
+clip += Trigger("Closed") * 16 | Odd()
 
 clip * 4 << Channel(10) >> Plot()
