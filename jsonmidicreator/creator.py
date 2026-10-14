@@ -343,7 +343,7 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
             for event in processed_events:
                 midi_tracks.add(event["track"]) # sets don't allow duplicates
             MyMIDI = MIDIFile(
-                len(midi_tracks) + 1,   # Extra track for track 0 (Tempo and Time Signature)
+                len(midi_tracks),
                 ticks_per_quarternote=TICKS_PER_BEAT
             )
 
@@ -402,7 +402,7 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
                 if event["track"] > 0 and event["track"] != last_event["track"]:  # events already sorted (processed)
                     if isinstance(event["track_name"], str):
                         MyMIDI.addTrackName(
-                            event["track"],
+                            event["track"] - 1,
                             event["time"],
                             event["track_name"]
                         )
@@ -425,7 +425,7 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
                                 if 0 <= event["pitch"] < 128:
                                     if 0 <= event["velocity"] < 128:
                                         MyMIDI.addNote(
-                                            event["track"],
+                                            event["track"] - 1,
                                             event["channel"],
                                             event["pitch"],
                                             event["time"],
@@ -445,7 +445,7 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
                             if 0 <= event["number"] < 128:
                                 if 0 <= event["value"] < 128:
                                     MyMIDI.addControllerEvent(
-                                        event["track"],
+                                        event["track"] - 1,
                                         event["channel"],
                                         event["time"],
                                         event["number"],
@@ -461,7 +461,7 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
                         if 0 <= event["channel"] < 16:
                                 if -8192 <= event["value"] < 8192:
                                     MyMIDI.addPitchWheelEvent(
-                                        event["track"],
+                                        event["track"] - 1,
                                         event["channel"],
                                         event["time"],
                                         event["value"]
@@ -474,7 +474,7 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
                         if 0 <= event["channel"] < 16:
                             if 0 <= event["pressure"] < 128:
                                 MyMIDI.addChannelPressure(
-                                    event["track"],
+                                    event["track"] - 1,
                                     event["channel"],
                                     event["time"],
                                     event["pressure"]
@@ -487,7 +487,7 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
                         if 0 <= event["channel"] < 16:
                             if 0 <= event["program"] < 128:
                                 MyMIDI.addProgramChange(
-                                    event["track"],
+                                    event["track"] - 1,
                                     event["channel"],
                                     event["time"],
                                     event["program"]
