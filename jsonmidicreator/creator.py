@@ -368,6 +368,17 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
                 clocking[0]["bpm_10"] / 10.0    # BPM (float)
             )
 
+            midi_tempos: list[dict] = [
+                {
+                    "event":    "Tempo",
+                    "track":    0,
+                    "time":     0.0,
+                    "tick":     clocking[0]["tick"],
+                    "bpm":      clocking[0]["bpm_10"] / 10.0
+                }
+            ]
+
+
             last_event: dict = {
                 "track":        -1
             }
