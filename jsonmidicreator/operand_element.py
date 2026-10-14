@@ -1566,6 +1566,7 @@ class DeviceElement(Element):
 
         self_numerator: int = self._get_time_signature()._top
         self_denominator: int = self._get_time_signature()._bottom
+        self_position_beats: Fraction = position_beats + self._position_beats
         self_position: float = float(position_beats + self._position_beats)
         self_duration: float = float(self._duration_beats)
         self_tempo: float = og.settings % ou.Tempo() % float()
@@ -1584,6 +1585,7 @@ class DeviceElement(Element):
                     "track_name":   track_name,
                     "numerator":    self_numerator,
                     "denominator":  self_denominator,
+                    "position":     self_position_beats,
                     "time":         self_position,      # beats
                     "duration":     self_duration,      # beats
                     "tempo":        self_tempo          # bpm
@@ -2082,7 +2084,6 @@ class Trigger(ChannelElement):
             note_dict["duration"]       = self_duration
             note_dict["velocity"]       = self._velocity
             note_dict["pitch"]          = pitch_int
-            note_dict["position_on"]    = absolute_position_beats
             note_dict["priority"]       = 0x60
 
             self_midilist.append(note_dict)
@@ -2512,7 +2513,6 @@ class Note(ChannelElement):
             note_dict["duration"]       = self_duration
             note_dict["velocity"]       = single_note._velocity
             note_dict["pitch"]          = pitch_int
-            note_dict["position_on"]    = absolute_position_beats
             note_dict["priority"]       = 0x60
 
             self_midilist.append(note_dict)
