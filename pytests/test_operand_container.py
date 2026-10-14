@@ -1367,11 +1367,12 @@ def test_clip_line():
     # Resets the defaults
     settings << None
 
-    three_stem = Line("::C, :_|:E, :_|G")
+    three_stem = Line("::C, :|:E, :|:G")
     stem_chord = Clip(three_stem)
     assert stem_chord % int() == 3
     for single_note in stem_chord:
         assert single_note % Beats() == 1.0
+        assert single_note % Step() == 0
 
 
     cluster_line = Line("cl:3b:1n3m_3n3m_4n3m")
