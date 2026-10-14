@@ -5859,7 +5859,9 @@ _element_type: dict[str, type] = {
     'at':       Aftertouch,
     'pb':       PitchBend,
     'a':        Automation,
-    'pc':       ProgramChange
+    'pc':       ProgramChange,
+    'msb':      BankSelectMSB,
+    'lsb':      BankSelectLSB
 }
 
 
