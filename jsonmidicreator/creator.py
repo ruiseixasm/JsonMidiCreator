@@ -278,16 +278,16 @@ def renderMidiFile(midi_list: list[dict], filename="output.mid"):
     processed_events: list[dict] = []
     # Starts by validating all events by time
     for event in midi_list:
-        if all(key in event for key in ("event", "track", "track_name", "tempo", "time", "channel")) \
+        if all(key in event for key in ("event", "track", "track_name", "tempo", "time", "channel", "priority")) \
             and isinstance(event["track"], int) and isinstance(event["time"], (float, int)) \
-            and event["track"] >= 0 and event["time"] >= 0:
+            and event["track"] >= 0 and event["time"] >= 0 and isinstance(event["priority"], int):
 
             processed_events.append(event)
         else:
             print("\033[93mWarning: Some midi events aren't valid!\033[0m")
     
     if len(processed_events) > 0:
-        processed_events = sorted(processed_events, key=lambda x: (x["track"], x["time"]))
+        processed_events = sorted(processed_events, key=lambda x: (x["track"], x["time"], x["priority"]))
 
         midi_tracks: set[int] = set()
         for event in processed_events:
