@@ -187,7 +187,7 @@ class Container(o.Operand):
     def _append(self, item: any) -> Self:
         return self._extend([ item ])
 
-    def _remove(self, item, by_id: bool = True) -> Self:
+    def _delete_item(self, item, by_id: bool = True) -> Self:
         return self._delete([ item ], by_id)
     
     def _delete(self, items: list = None, by_id: bool = False) -> Self:
@@ -485,7 +485,8 @@ class Container(o.Operand):
                     if isinstance (single_item, o.Operand):
                         single_parameter = operand.chaoticize()
                         single_item << single_parameter
-
+            case ol.Delete():
+                self._delete(self.items_unmasked(), True)
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -545,14 +546,14 @@ class Container(o.Operand):
                 for single_item in self.items_unmasked():
                     single_parameter = operand.frame(single_item)
                     if single_parameter == ol.Full():
-                        self._remove(single_item)
+                        self._delete_item(single_item)
                     else:
                         single_item -= single_parameter
             case ch.Chaos():
                 for single_item in self.items_unmasked():
                     single_parameter = operand.chaoticize()
                     if single_parameter == ol.Full():
-                        self._remove(single_item)
+                        self._delete_item(single_item)
                     else:
                         single_item -= single_parameter
             case _:
@@ -2312,7 +2313,7 @@ class Clip(Composition):  # Just a container of Elements
                                 if i > 0:
                                     if single_element.start() == pitch_elements[root_element_i].finish():
                                         pitch_elements[root_element_i]._duration_beats += single_element._duration_beats
-                                        self._remove(single_element, True)
+                                        self._delete_item(single_element, True)
                                     else:
                                         root_element_i = i
                         # Reset Remaining Elements list

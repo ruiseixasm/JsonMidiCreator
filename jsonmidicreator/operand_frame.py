@@ -975,6 +975,13 @@ class BasicComparison(ContainerFilter):
     ----------
     Any(None) : The `other` operand the input item will be compared with.
     """
+    def _set_inside_container(self, container: 'Container') -> Self:
+        for other in self._parameters:
+            if isinstance(other, Frame):    # ALSO sets the container in the Frame as other
+                other._set_inside_container(container)
+        return super()._set_inside_container(container)
+
+
     def _update_unmasked_items(self, unmasked_items: list[Any]) -> Self:
         match_items: list[Any] = []
         for single_item in unmasked_items:
@@ -991,12 +998,6 @@ class BasicComparison(ContainerFilter):
     @staticmethod
     def _compare(input: Any, other: Any) -> bool:
         return True
-
-    def _set_inside_container(self, container: 'Container') -> Self:
-        for other in self._parameters:
-            if isinstance(other, Frame):    # ALSO sets the container in the Frame as other
-                other._set_inside_container(container)
-        return super()._set_inside_container(container)
 
 
 

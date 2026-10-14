@@ -97,21 +97,6 @@ class Operate(Transform):
 
 
 
-class Delete(Transform):
-    """`Transform -> Delete`
-
-    Deletes all the given items in the present container and propagates the deletion
-    of the same items for the containers above.
-
-    Args:
-        None
-    """
-    def _single_transform(self, clip: 'Clip') -> 'Clip':
-        clip._delete(clip.elements_unmasked(), True)    # Already recursive
-        return clip._sort_items()
-
-
-
 class Extend(Transform):
     """`Transform -> Extend`
 
@@ -132,6 +117,7 @@ class Extend(Transform):
         while clip % ra.Duration() + original_self_duration <= self._length:
             clip.__itruediv__(original_self)
         return clip._sort_items()
+
 
 
 class Fill(Transform):

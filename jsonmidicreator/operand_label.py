@@ -146,6 +146,23 @@ class Full(Carrier):
             return other == self
         return True
 
+
+
+
+class Delete(Label):
+    """`Label -> Delete`
+
+    Deletes all the unmasked items in the targeted `Container` or elements in it if a `Clip`.
+
+    Args:
+        None
+    """
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
+        clip._delete(clip.elements_unmasked(), True)    # Already recursive
+        return clip._sort_items()
+
+
+
     
 class Dummy(Label):
     """`Label -> Dummy`
