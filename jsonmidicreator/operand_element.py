@@ -1578,7 +1578,7 @@ class DeviceElement(Element):
         return [
                 {
                     "event":        "Element",
-                    "track":        track_number - 1,   # out of range shouldn't be exported as a midi track
+                    "track":        track_number,   # out of range shouldn't be exported as a midi track
                     "track_name":   track_name,
                     "tick":         c.getTicksFromPosition(self_position_beats),
                     "time":         self_time,          # beats

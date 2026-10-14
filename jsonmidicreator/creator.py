@@ -343,7 +343,7 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
             for event in processed_events:
                 midi_tracks.add(event["track"]) # sets don't allow duplicates
             MyMIDI = MIDIFile(
-                len(midi_tracks),
+                len(midi_tracks) + 1,   # Extra track for track 0 (Tempo and Time Signature)
                 ticks_per_quarternote=TICKS_PER_BEAT
             )
 
