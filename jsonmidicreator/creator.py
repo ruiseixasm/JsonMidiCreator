@@ -440,6 +440,7 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
                                 print(f"{RED}Error: Note Channel with wrong values! ({event['channel']})\033[0m")
                         else:
                             print(f"{RED}Error: Note Duration must be above zero! ({event['duration']})\033[0m")
+
                     case "ControllerEvent":
                         if 0 <= event["channel"] < 16:
                             if 0 <= event["number"] < 128:
@@ -457,6 +458,7 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
                                 print(f"{RED}Error: CC Number with wrong values! ({event['number']})\033[0m")
                         else:
                             print(f"{RED}Error: CC Channel with wrong values! ({event['channel']})\033[0m")
+
                     case "PitchWheelEvent":
                         if 0 <= event["channel"] < 16:
                                 if -8192 <= event["value"] < 8192:
@@ -470,6 +472,7 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
                                     print(f"{RED}Error: Pitch Value with wrong values! ({event['value']})\033[0m")
                         else:
                             print(f"{RED}Error: Pitch Channel with wrong values! ({event['channel']})\033[0m")
+
                     case "ChannelPressure":
                         if 0 <= event["channel"] < 16:
                             if 0 <= event["pressure"] < 128:
@@ -483,6 +486,7 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
                                 print(f"{RED}Error: Channel Pressure Value with wrong values! ({event['pressure']})\033[0m")
                         else:
                             print(f"{RED}Error: Channel Pressure Channel with wrong values! ({event['channel']})\033[0m")
+
                     case "ProgramChange":
                         if 0 <= event["channel"] < 16:
                             if 0 <= event["program"] < 128:
@@ -496,6 +500,7 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
                                 print(f"{RED}Error: Program Change Program with wrong values! ({event['program']})\033[0m")
                         else:
                             print(f"{RED}Error: Program Change Channel with wrong values! ({event['channel']})\033[0m")
+                            
             with open(filename, "wb") as output_file:   # opened to write in binary mode
                 MyMIDI.writeFile(output_file)
 
