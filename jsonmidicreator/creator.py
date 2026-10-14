@@ -326,7 +326,10 @@ def renderMidiFile(midi_list: list[dict], filename="output.mid"):
         midi_tracks: set[int] = set()
         for event in processed_events:
             midi_tracks.add(event["track"]) # sets don't allow duplicates
-        MIDIFile(len(midi_tracks), ticks_per_quarternote=TICKS_PER_BEAT)
+        MyMIDI = MIDIFile(
+            len(midi_tracks),
+            ticks_per_quarternote=TICKS_PER_BEAT
+        )
 
         last_event: dict = {
             "track":        -1,
