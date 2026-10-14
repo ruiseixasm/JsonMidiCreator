@@ -361,9 +361,15 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
             # because the program is Beat centered and NOT Quarter-Note centered.
             MyMIDI.addTimeSignature(0, 0, 4, 2, 24, 8)
 
+            # Setting Track 0 is enough
+            MyMIDI.addTempo(
+                0,                              # Track 0
+                0.0,                            # Beats (float)
+                clocking[0]["bpm_10"] / 10.0    # BPM (float)
+            )
+
             last_event: dict = {
-                "track":        -1,
-                "tempo":        -1
+                "track":        -1
             }
             for event in processed_events:
                 if event["track"] != last_event["track"]:  # events already sorted (processed)
@@ -375,16 +381,6 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
                         )
                     else:
                         print("Error, Track name is NOT a string!")
-                if event["track"] != last_event["track"] or event["tempo"] != last_event["tempo"]:  # events already sorted (processed)
-                    if isinstance(event["tempo"], (float, int)):
-                        last_event["tempo"] = event["tempo"]
-                        MyMIDI.addTempo(
-                            event["track"],
-                            event["time"],
-                            event["tempo"]
-                        )
-                    else:
-                        print(f"{RED}Error: Tempo is NOT a number!")
 
                 last_event["track"] = event["track"]
 
@@ -573,17 +569,12 @@ def chat_gpt_solution(midi_list: list[dict], filename="output.mid"):
             if "track_name" in event:
                 track.append(MetaMessage('track_name', name=event["track_name"], time=0))
 
-    last_event = {"track": -1, "tempo": None, "time_signature": None}
+    last_event = {"track": -1}
 
     # Process each event and add it to the corresponding track
     for event in processed_events:
         track_num = event["track"]
         track = track_dict[track_num]  # Retrieve the MidiTrack object for this track number
-
-        # Tempo setting if provided and different from last set tempo
-        if "tempo" in event and (last_event["track"] != track_num or last_event["tempo"] != event["tempo"]):
-            track.append(MetaMessage('set_tempo', tempo=int(60000000 / event["tempo"]), time=event["time"]))
-            last_event["tempo"] = event["tempo"]
 
         # Process different event types
         match event["event"]:

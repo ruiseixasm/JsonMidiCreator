@@ -1567,7 +1567,6 @@ class DeviceElement(Element):
         self_position_beats: Fraction = position_beats + self._position_beats
         self_time: float = float(position_beats + self._position_beats)
         self_duration: float = float(self._duration_beats)
-        self_tempo: float = og.settings % ou.Tempo() % float()
 
         track_number: int = 1
         track_name: str = "Track 1"
@@ -1583,8 +1582,7 @@ class DeviceElement(Element):
                     "track_name":   track_name,
                     "tick":         c.getTicksFromPosition(self_position_beats),
                     "time":         self_time,          # beats
-                    "duration":     self_duration,      # beats
-                    "tempo":        self_tempo          # bpm
+                    "duration":     self_duration       # beats
                 }
             ]
 
