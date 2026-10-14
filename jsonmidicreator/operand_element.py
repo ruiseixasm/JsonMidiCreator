@@ -4228,6 +4228,12 @@ class ControlChangePair(ControlChange):
             self_midilist_lsb: list[dict] = o.deep_copy(self_midilist)
             self_midilist_lsb[0]["number"]  = self._number_lsb
             self_midilist_lsb[0]["value"]   = clamp_value_128(self._value_lsb)
+            
+            match(self._number_lsb):
+                case 0 | 32:    self_midilist_lsb[0]["priority"] = 0x11
+                case 123:       self_midilist_lsb[0]["priority"] = 0x90
+                case _:         self_midilist_lsb[0]["priority"] = 0x50
+
             self_midilist.extend(self_midilist_lsb)
 
         return self_midilist
