@@ -185,6 +185,7 @@ def playJsonMidiPlay(clocking: dict[str, list], playlist: list[dict],
         # except Exception as e:
         #     print(f"An unexpected error occurred when calling the function 'play_ctypes': {e}")
 
+
 def exportJsonMidiPlay(clocking: dict[str, list], playlist: list[dict], filename):
     json_file_dict = {
             "filetype": "Json Midi Player",
@@ -247,6 +248,7 @@ def saveJsonMidiCreator(serialization: dict, filename: str, include_settings: bo
     with open(filename, "w") as outfile:
         json.dump(json_file_dict, outfile)
 
+
 def loadJsonMidiCreator(filename):
     try:
         with open(filename, "r") as infile:
@@ -260,6 +262,33 @@ def loadJsonMidiCreator(filename):
     except Exception as e:
         print(f"Unable to Load the file: {filename}")
     return []
+
+
+
+# static constexpr uint32_t TICKS_PER_BEAT 	= 960;	// Internal PPQN
+# static constexpr uint32_t CLOCKS_PER_BEAT 	= 24;   // MIDI spec
+# static constexpr uint32_t TICKS_PER_CLOCK 	= TICKS_PER_BEAT / CLOCKS_PER_BEAT;	// = 40
+
+# inline uint32_t getTicksFromBeats(uint32_t num, uint32_t den) {
+# 	// Equivalent to Beat((uint32_t)(beats * TICKS_PER_BEAT + 0.5));
+# 	if (den > 0) {
+# 		return (num * TICKS_PER_BEAT + den / 2) / den;
+# 	}
+# 	return 0;
+# }
+
+
+TICKS_PER_BEAT: int     = 960 	# Internal PPQN
+CLOCKS_PER_BEAT: int    = 24    # MIDI spec
+TICKS_PER_CLOCK: int    = TICKS_PER_BEAT // CLOCKS_PER_BEAT # = 40
+
+
+def getTicksFromPosition(position_beats: Fraction) -> int:
+    num: int = position_beats.numerator
+    den: int = position_beats.denominator
+    if den > 0 and num >= 0:
+        return (num * TICKS_PER_BEAT + den / 2) / den
+    return 0
 
 
 def renderMidiFile(midi_list: list[dict], filename="output.mid"):
