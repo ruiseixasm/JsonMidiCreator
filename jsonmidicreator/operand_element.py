@@ -551,7 +551,7 @@ class Element(o.Operand):
     def __imul__(self, operand: any) -> Union[TypeElement, 'Clip']:
         from . import operand_container as oc
         from . import operand_yielder as oy
-        from . import operand_transform as tr
+        from . import operand_transformation as tr
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element():

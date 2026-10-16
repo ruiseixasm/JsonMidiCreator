@@ -1933,7 +1933,7 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def __lshift__(self, operand: any) -> Self:
-        from . import operand_transform as tr
+        from . import operand_transformation as tr
         match operand:
             case Clip():
                 super().__lshift__(operand)

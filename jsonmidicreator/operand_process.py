@@ -35,7 +35,7 @@ from . import operand_container as oc
 from . import operand_frame as of
 from . import operand_chaos as ch
 from . import operand_tamer as ot
-from . import operand_transform as tr
+from . import operand_transformation as tr
 
 
 
