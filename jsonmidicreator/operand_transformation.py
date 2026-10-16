@@ -375,10 +375,10 @@ class Monofy(Transformation):
         return clip._sort_items()
 
 
-class Invert(Transformation):
-    """`Transformation -> Invert`
+class Reflect(Transformation):
+    """`Transformation -> Reflect`
 
-    `Invert` is similar to `Mirror` but based in a center defined by the first note on which all notes are vertically mirrored.
+    `Reflect` is similar to `Mirror` but centered in the first note on which all notes are vertically mirrored.
 
     Args:
         by_degree (bool): If `True` an inversion by Degree accordingly to the Key Signature, similar to the typical Staff, if False, \
