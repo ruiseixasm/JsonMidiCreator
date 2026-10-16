@@ -41,7 +41,7 @@ if TYPE_CHECKING:
     from operand_container import Clip
 
 
-class Transform(o.Operand):
+class Transformation(o.Operand):
     """`Transform`
 
     `Transform` is intended to manipulate a `Clip` based on a given transformation process.
@@ -52,16 +52,16 @@ class Transform(o.Operand):
 
     def transform(self, clip: 'Clip') -> 'Clip':
         self._single_transform(clip)
-        if isinstance(self._chained_operand, Transform):
+        if isinstance(self._chained_operand, Transformation):
             self._chained_operand.transform(clip)   # Recursive!
         return clip
 
 
     def new_iteration(self, iterations: list['oc.Clip']) -> Union['oc.Clip', 'ol.Null']:
         self._index += 1    # Starts at -1
-        transform: Transform = self
+        transform: Transformation = self
         for _ in range(self._index):
-            if isinstance(transform._chained_operand, Transform):
+            if isinstance(transform._chained_operand, Transformation):
                 transform = transform._chained_operand
             else:
                 self._index -= 1    # Reverts the previous increment
@@ -74,7 +74,7 @@ class Transform(o.Operand):
         return self
 
 
-class Operate(Transform):
+class Operate(Transformation):
     """`Transform -> Operate`
 
     Accepts a `lambda` function to act as a generic transformation.
@@ -97,7 +97,7 @@ class Operate(Transform):
 
 
 
-class Extend(Transform):
+class Extend(Transformation):
     """`Transform -> Extend`
 
     Extends (stretches) the given clip along a given length.
@@ -120,7 +120,7 @@ class Extend(Transform):
 
 
 
-class Fill(Transform):
+class Fill(Transformation):
     """`Transform -> Fill`
 
     Adds up Rests to empty spaces (lengths) in a staff for each Measure.
@@ -151,7 +151,7 @@ class Fill(Transform):
         return clip._sort_items()
 
 
-class Fit(Transform):
+class Fit(Transformation):
     """`Transform -> Fit`
 
     Moves the `Position` of the following Elements to match the finish of the previous
@@ -174,7 +174,7 @@ class Fit(Transform):
 
 
 
-class Link(Transform):
+class Link(Transformation):
     """`Transform -> Link`
 
     Adjusts the `Duration` of each element to link its finish with the start of the next element.
@@ -195,7 +195,7 @@ class Link(Transform):
 
 
 
-class Stack(Transform):
+class Stack(Transformation):
     """`Transform -> Stack`
 
     Moves each Element to start at the finish `Position` of the previous one.
@@ -212,7 +212,7 @@ class Stack(Transform):
         return clip._sort_items()
 
 
-class Close(Transform):
+class Close(Transformation):
     """`Transform -> Close`
 
     Sets the finish `Position` of the last `Element` to match the end if its occupying `Measure`.
@@ -229,7 +229,7 @@ class Close(Transform):
         return clip._sort_items()
 
 
-class Decompose(Transform):
+class Decompose(Transformation):
     """`Transform -> Decompose`
 
     Transform each element in its component elements if it's a composed element,
@@ -243,7 +243,7 @@ class Decompose(Transform):
         return clip._sort_items()
 
 
-class Tie(Transform):
+class Tie(Transformation):
     """`Transform -> Tie`
 
     Adjusts the pitch of successive notes to the previous one and sets all Notes as tied.
@@ -268,7 +268,7 @@ class Tie(Transform):
         return clip._sort_items()
 
 
-class Merge(Transform):
+class Merge(Transformation):
     """`Transform -> Merge`
 
     Adjusts the pitch of successive notes to the previous one and sets all Notes as tied.
@@ -290,7 +290,7 @@ class Merge(Transform):
 
 
 
-class Interpolate(Transform):
+class Interpolate(Transformation):
     """`Transform -> Interpolate`
 
     Interpolates the multiple values of a given `Automation` element by `Channel`.
@@ -354,7 +354,7 @@ class Interpolate(Transform):
 
 
 
-class Monofy(Transform):
+class Monofy(Transformation):
     """`Transform -> Monofy`
 
     Cuts out any part of an element Duration that overlaps with the next element.
@@ -375,7 +375,7 @@ class Monofy(Transform):
         return clip._sort_items()
 
 
-class Invert(Transform):
+class Invert(Transformation):
     """`Transform -> Invert`
 
     `Invert` is similar to `Mirror` but based in a center defined by the first note on which all notes are vertically mirrored.
@@ -420,7 +420,7 @@ class Invert(Transform):
 
 
 
-class Mirror(Transform):
+class Mirror(Transformation):
     """`Transform -> Mirror`
 
     `Mirror` is similar to reverse but instead of reversing the elements position it reverses the
@@ -483,7 +483,7 @@ class Mirror(Transform):
 
 
 
-class Reverse(Transform):
+class Reverse(Transformation):
     """`Transform -> Reverse`
 
     Reverses the sequence of the clip concerning the elements `Position`.
@@ -515,7 +515,7 @@ class Reverse(Transform):
 
 
 
-class Rotate(Transform):
+class Rotate(Transformation):
     """`Transform -> Rotate`
 
     `Rotate` does a left rotation of all elements by a given amount of rotation
@@ -548,7 +548,7 @@ class Rotate(Transform):
 
 
 
-class Clean(Transform):
+class Clean(Transformation):
     """`Transform -> Clean`
 
     With time a `Clip` may accumulate redundant Elements, this method removes all those elements.
@@ -570,7 +570,7 @@ class Clean(Transform):
 
 
 
-class Edit(Transform):
+class Edit(Transformation):
     """`Transform -> Edit`
 
     Allows the application of an edition on a targeted `Clip`
@@ -637,7 +637,7 @@ class Overlap(Edit):
     
 
 
-class Filter(Transform):
+class Filter(Transformation):
     """`Transform -> Filter`
 
     A `Filter` works exactly like a `Mask` with the difference of keeping just \
@@ -657,7 +657,7 @@ class Filter(Transform):
 
 
 
-class Sort(Transform):
+class Sort(Transformation):
     """`Transform -> Sort`
 
     Sorts the contained items by a given parameter type.
@@ -690,7 +690,7 @@ class Sort(Transform):
 
 
 
-class Smooth(Transform):
+class Smooth(Transformation):
     """`Transform -> Smooth`
 
     Adjusts each `Note` octave to have the closest pitch to the first, previous one or both.
@@ -772,7 +772,7 @@ class Smooth(Transform):
 
 
 
-class Slur(Transform):
+class Slur(Transformation):
     """`Transform -> Slur`
 
     Changes the note `Gate` in order to crate a small overlap.
@@ -796,7 +796,7 @@ class Slur(Transform):
 
 
 
-class Join(Transform):
+class Join(Transformation):
     """`Transform -> Join`
 
     Joins all same type notes with the same `Pitch` as a single `Note`, from left to right.
@@ -840,7 +840,7 @@ class Join(Transform):
 
 
 
-class Oscillate(Transform):
+class Oscillate(Transformation):
     """`Transform -> Oscillate`
 
     Applies for each item element the value at the given position given by the oscillator function at
@@ -890,7 +890,7 @@ class Oscillate(Transform):
 
 
 
-class Automate(Transform):
+class Automate(Transformation):
     """`Transform -> Automate`
 
     Distributes the values given by the Steps pattern in a way very like the stepper Drum Machine fashion.
@@ -964,7 +964,7 @@ class Automate(Transform):
 
 
 
-class Stepper(Transform):
+class Stepper(Transformation):
     """`Transform -> Stepper`
 
     Sets the steps in a Drum Machine for a given `Element`. The default element is `Note()` for None.
@@ -995,7 +995,7 @@ class Stepper(Transform):
 
 
 
-class Arpeggiate(Transform):
+class Arpeggiate(Transformation):
     """`Transform -> Arpeggiate`
 
     Distributes each element accordingly to the configured arpeggio by the parameters given.
@@ -1018,7 +1018,7 @@ class Arpeggiate(Transform):
 
 
 
-class Quantize(Transform):
+class Quantize(Transformation):
     """`Transform -> Quantize`
 
     Quantizes a `Clip` by a given amount from 0.0 to 1.0.
@@ -1056,7 +1056,7 @@ class Quantize(Transform):
 
 
 
-class IterateTransform(Transform):
+class IterateTransform(Transformation):
     """`Transform -> IterateTransform`
 
     This class allows the transformation of the `Clip` based on chaotic input in an iterative fashion.
@@ -1107,7 +1107,7 @@ class IterateTransform(Transform):
                     if callable(self.post_process):
                         candidate = self.post_process(candidate)
                     if not self.no_repetitions or not candidate in self._iterations:
-                        if isinstance(self._chained_operand, Transform):
+                        if isinstance(self._chained_operand, Transformation):
                             candidate = self._chained_operand.transform(candidate)   # Recursive!
                         if isinstance(candidate, ol.Null):
                             continue

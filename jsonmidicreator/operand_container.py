@@ -1981,7 +1981,7 @@ class Clip(Composition):  # Just a container of Elements
                 self._items = line_elements
                 self._set_owner_clip()
 
-            case tr.Transform():
+            case tr.Transformation():
                 # `transform` always returns self
                 return operand.transform(self) # Sorting already included
 

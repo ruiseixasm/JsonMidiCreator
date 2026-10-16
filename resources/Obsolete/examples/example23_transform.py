@@ -24,11 +24,11 @@ from jsonmidicreator import *
 notes = Note() * 4 << Once(1, 4, 5, 1)**Degree()
 notes >> Play()
 
-notes.copy() >> Transform(Chord) >> Play()
+notes.copy() >> Transformation(Chord) >> Play()
 
-notes * notes.copy().process(Transform(Chord)) >> Play()
+notes * notes.copy().process(Transformation(Chord)) >> Play()
 
-chords = notes >> Copy() >> Transform(Chord)
+chords = notes >> Copy() >> Transformation(Chord)
 
 notes << Duration(1/8) >> Stack()
 notes /= 2
