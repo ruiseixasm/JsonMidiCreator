@@ -157,9 +157,7 @@ class Delete(Label):
     Args:
         None
     """
-    def _single_transform(self, clip: 'Clip') -> 'Clip':
-        clip._delete(clip.elements_unmasked(), True)    # Already recursive
-        return clip._sort_items()
+    pass
 
 
 

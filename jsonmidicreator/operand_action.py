@@ -44,19 +44,32 @@ if TYPE_CHECKING:
 class Action(o.Operand):
     """`Action`
 
-    `Action` is intended to manipulate `Elements` in a `Clip` based on a given named action.
+    `Action` is intended to manipulate unmasked `Elements` in a `Clip` based on a given named action.
     The `action` method always returns the exact same inputted `Clip`.
     """
-    def _single_act(self, clip: 'Clip') -> 'Clip':
-        return clip
-
     def act(self, clip: 'Clip') -> 'Clip':
-        self._single_act(clip)
-        if isinstance(self._chained_operand, Action):
-            self._chained_operand.act(clip)   # Recursive!
-        return clip
+        for unmasked_element in clip.elements_unmasked():
+            self._single_act(unmasked_element)
+        return clip._sort_items()
 
 
+    def _single_act(self, element: 'Element') -> 'Element':
+        return element
+
+
+
+class Delete_2(Action):
+    """`Label -> Delete`
+
+    Deletes all the unmasked items in the targeted `Container` or elements in it if a `Clip`.
+
+    Args:
+        None
+    """
+    def _single_act(self, element: 'Element') -> 'Element':
+        if element._owner_clip is not None:
+            element._owner_clip._delete_item(element, True)
+        return element
 
 
 

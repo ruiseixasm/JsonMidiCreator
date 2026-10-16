@@ -1933,6 +1933,7 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def __lshift__(self, operand: any) -> Self:
+        from . import operand_action as oa
         from . import operand_transformation as tr
         match operand:
             case Clip():
@@ -1981,9 +1982,13 @@ class Clip(Composition):  # Just a container of Elements
                 self._items = line_elements
                 self._set_owner_clip()
 
+            case oa.Action():
+                # `act` always returns self
+                return operand.act(self)        # Sorting already included
+
             case tr.Transformation():
                 # `transform` always returns self
-                return operand.transform(self) # Sorting already included
+                return operand.transform(self)  # Sorting already included
 
             case ou.TrackNumber():
                 self._track_number = operand._unit
