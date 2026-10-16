@@ -1056,8 +1056,8 @@ class Quantize(Transformation):
 
 
 
-class IterateTransform(Transformation):
-    """`Transformation -> IterateTransform`
+class IteratedTransformation(Transformation):
+    """`Transformation -> IteratedTransformation`
 
     This class allows the transformation of the `Clip` based on chaotic input in an iterative fashion.
 
@@ -1084,7 +1084,7 @@ class IterateTransform(Transformation):
 
         
     def new_iteration(self, iterations: list['oc.Clip']) -> Union['oc.Clip', 'ol.Null']:
-        """`IterateTransform` uses the same starting clip as seed"""
+        """`IteratedTransformation` uses the same starting clip as seed"""
         transform: oc.Clip = self.transform(iterations[0].copy()) # Decouples
         if isinstance(transform, ol.Null):
             return ol.Null()
@@ -1118,8 +1118,8 @@ class IterateTransform(Transformation):
 
 
 
-class IVariate(IterateTransform):
-    """`Transformation -> IterateTransform -> IVariate`
+class IVariate(IteratedTransformation):
+    """`Transformation -> IteratedTransformation -> IVariate`
 
     This transformation respects the topology. The note count and relationships stay untouched;
     it only changes continuous space (pitch, timing, velocity), **only** the `Element` parameters.
@@ -1137,7 +1137,7 @@ class IVariate(IterateTransform):
 
 
 class ISplitDuration(IVariate):
-    """`Transformation -> IterateTransform -> IVariate -> ISplitDuration`
+    """`Transformation -> IteratedTransformation -> IVariate -> ISplitDuration`
 
     Adds splits to the `Clip` elements resulting in the given amount of durations (elements).
 
@@ -1192,7 +1192,7 @@ class ISplitDuration(IVariate):
 
 
 class IShuffleLocus(IVariate):
-    """`Transformation -> IterateTransform -> IVariate -> IShuffleLocus`
+    """`Transformation -> IteratedTransformation -> IVariate -> IShuffleLocus`
 
     This class shuffles the multiple locus around.
 
@@ -1222,7 +1222,7 @@ class IShuffleLocus(IVariate):
 
 
 class IShuffleDuration(IVariate):
-    """`Transformation -> IterateTransform -> IVariate -> IShuffleDuration`
+    """`Transformation -> IteratedTransformation -> IVariate -> IShuffleDuration`
 
     Moves the existent durations around while preserving the relative positions to them.
 
@@ -1272,7 +1272,7 @@ class IShuffleDuration(IVariate):
 
 
 class IChooseDuration(IShuffleDuration):
-    """`Transformation -> IterateTransform -> IVariate -> IShuffleDuration -> IChooseDuration`
+    """`Transformation -> IteratedTransformation -> IVariate -> IShuffleDuration -> IChooseDuration`
 
     Chooses durations from a given list and sets the element durations with it while preserving the relative positions.
 
@@ -1339,7 +1339,7 @@ class IChooseDuration(IShuffleDuration):
     
 
 class ISwapDuration(IVariate):
-    """`Transformation -> IterateTransform -> IVariate -> ISwapDuration`
+    """`Transformation -> IteratedTransformation -> IVariate -> ISwapDuration`
 
     Swaps subsequent elements durations but it doesn't necessarily preserve all relative positions.
 
@@ -1375,7 +1375,7 @@ class ISwapDuration(IVariate):
     
 
 class IShuffleParameter(IVariate):
-    """`Transformation -> IterateTransform -> IVariate -> IShuffleParameter`
+    """`Transformation -> IteratedTransformation -> IVariate -> IShuffleParameter`
 
     Shuffles a given parameter among the multiple elements in the clip.
 
@@ -1414,7 +1414,7 @@ class IShuffleParameter(IVariate):
 
 
 class ISetParameter(IVariate):
-    """`Transformation -> IterateTransform -> IVariate -> ISetParameter`
+    """`Transformation -> IteratedTransformation -> IVariate -> ISetParameter`
 
     Applies to each element the *chaotized* parameter or to all elements at once if `global_setting` is `True`.
 
@@ -1454,7 +1454,7 @@ class ISetParameter(IVariate):
 
 
 class IChooseParameter(IVariate):
-    """`Transformation -> IterateTransform -> IVariate -> IChooseParameter`
+    """`Transformation -> IteratedTransformation -> IVariate -> IChooseParameter`
 
     Choses a parameter from parameters for each `Clip` element.
 
@@ -1488,8 +1488,8 @@ class IChooseParameter(IVariate):
 
 
 
-class IMutate(IterateTransform):
-    """`Transformation -> IterateTransform -> IMutate`
+class IMutate(IteratedTransformation):
+    """`Transformation -> IteratedTransformation -> IMutate`
 
     This transformation changes the topology. The note count and relationships are changed;
     Type of Element, Note, Rest or ControlChange are possibly changed, and the number of elements too.
@@ -1506,8 +1506,8 @@ class IMutate(IterateTransform):
 
 
 
-class IYield(IterateTransform):
-    """`Transformation -> IterateTransform -> IYield`
+class IYield(IteratedTransformation):
+    """`Transformation -> IteratedTransformation -> IYield`
 
     This transformation overrides the topology with a new one. All the `Clip` content is replaced
     by a self generated, iterated, new one.
