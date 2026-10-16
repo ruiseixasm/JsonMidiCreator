@@ -147,20 +147,6 @@ class Full(Carrier):
         return True
 
 
-
-
-class Delete(Label):
-    """`Label -> Delete`
-
-    Deletes all the unmasked items in the targeted `Container` or elements in it if a `Clip`.
-
-    Args:
-        None
-    """
-    pass
-
-
-
     
 class Dummy(Label):
     """`Label -> Dummy`

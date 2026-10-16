@@ -469,10 +469,6 @@ class Element(o.Operand):
                         ]
                         self._owner_clip._extend(replacing_elements_list)
                     self._owner_clip._delete_item(self, True)._sort_items()  # Ultimately, replaces it with nothing
-            case ol.Delete():
-                # Deletes this element from the Clip
-                if self._owner_clip is not None:
-                    self._owner_clip._delete_item(self, True)
             case ou.Masked():
                 self._masked                = operand._unit != 0
             case od.Mask():                 self._masked = True

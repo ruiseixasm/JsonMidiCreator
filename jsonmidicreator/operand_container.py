@@ -467,8 +467,6 @@ class Container(o.Operand):
                     if isinstance (single_item, o.Operand):
                         single_parameter = operand.chaoticize()
                         single_item << single_parameter
-            case ol.Delete():
-                self._delete(self.items_unmasked(), True)
             case tuple():
                 for single_operand in operand:
                     self << single_operand

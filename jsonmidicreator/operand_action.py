@@ -46,6 +46,7 @@ class Action(o.Operand):
 
     `Action` is intended to manipulate unmasked `Elements` in a `Clip` based on a given named action.
     The `action` method always returns the exact same inputted `Clip`.
+    Contrary to a `Transformation`, an `Action` can be framed because it targets the Clip elements.
     """
     def act(self, clip: 'Clip') -> 'Clip':
         for unmasked_element in clip.elements_unmasked():
@@ -58,7 +59,7 @@ class Action(o.Operand):
 
 
 
-class Delete_2(Action):
+class Delete(Action):
     """`Label -> Delete`
 
     Deletes all the unmasked items in the targeted `Container` or elements in it if a `Clip`.
