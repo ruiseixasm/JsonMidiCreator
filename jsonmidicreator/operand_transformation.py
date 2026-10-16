@@ -42,9 +42,9 @@ if TYPE_CHECKING:
 
 
 class Transformation(o.Operand):
-    """`Transform`
+    """`Transformation`
 
-    `Transform` is intended to manipulate a `Clip` based on a given transformation process.
+    `Transformation` is intended to manipulate a `Clip` based on a given transformation process.
     The `transform` method always returns the exact same inputted `Clip`.
     """
     def _single_transform(self, clip: 'Clip') -> 'Clip':
@@ -75,7 +75,7 @@ class Transformation(o.Operand):
 
 
 class Operate(Transformation):
-    """`Transform -> Operate`
+    """`Transformation -> Operate`
 
     Accepts a `lambda` function to act as a generic transformation.
 
@@ -98,7 +98,7 @@ class Operate(Transformation):
 
 
 class Extend(Transformation):
-    """`Transform -> Extend`
+    """`Transformation -> Extend`
 
     Extends (stretches) the given clip along a given length.
 
@@ -121,7 +121,7 @@ class Extend(Transformation):
 
 
 class Fill(Transformation):
-    """`Transform -> Fill`
+    """`Transformation -> Fill`
 
     Adds up Rests to empty spaces (lengths) in a staff for each Measure.
 
@@ -152,7 +152,7 @@ class Fill(Transformation):
 
 
 class Fit(Transformation):
-    """`Transform -> Fit`
+    """`Transformation -> Fit`
 
     Moves the `Position` of the following Elements to match the finish of the previous
     `Element` by keeping its finish Position, meaning, by changing its `Duration`.
@@ -175,7 +175,7 @@ class Fit(Transformation):
 
 
 class Link(Transformation):
-    """`Transform -> Link`
+    """`Transformation -> Link`
 
     Adjusts the `Duration` of each element to link its finish with the start of the next element.
 
@@ -196,7 +196,7 @@ class Link(Transformation):
 
 
 class Stack(Transformation):
-    """`Transform -> Stack`
+    """`Transformation -> Stack`
 
     Moves each Element to start at the finish `Position` of the previous one.
 
@@ -213,7 +213,7 @@ class Stack(Transformation):
 
 
 class Close(Transformation):
-    """`Transform -> Close`
+    """`Transformation -> Close`
 
     Sets the finish `Position` of the last `Element` to match the end if its occupying `Measure`.
 
@@ -230,9 +230,9 @@ class Close(Transformation):
 
 
 class Decompose(Transformation):
-    """`Transform -> Decompose`
+    """`Transformation -> Decompose`
 
-    Transform each element in its component elements if it's a composed element,
+    Transformation each element in its component elements if it's a composed element,
     like a chord that is composed of multiple notes, so, it becomes those multiple notes instead.
 
     Args:
@@ -244,7 +244,7 @@ class Decompose(Transformation):
 
 
 class Tie(Transformation):
-    """`Transform -> Tie`
+    """`Transformation -> Tie`
 
     Adjusts the pitch of successive notes to the previous one and sets all Notes as tied.
 
@@ -269,7 +269,7 @@ class Tie(Transformation):
 
 
 class Merge(Transformation):
-    """`Transform -> Merge`
+    """`Transformation -> Merge`
 
     Adjusts the pitch of successive notes to the previous one and sets all Notes as tied.
 
@@ -291,7 +291,7 @@ class Merge(Transformation):
 
 
 class Interpolate(Transformation):
-    """`Transform -> Interpolate`
+    """`Transformation -> Interpolate`
 
     Interpolates the multiple values of a given `Automation` element by `Channel`.
 
@@ -355,7 +355,7 @@ class Interpolate(Transformation):
 
 
 class Monofy(Transformation):
-    """`Transform -> Monofy`
+    """`Transformation -> Monofy`
 
     Cuts out any part of an element Duration that overlaps with the next element.
 
@@ -376,7 +376,7 @@ class Monofy(Transformation):
 
 
 class Invert(Transformation):
-    """`Transform -> Invert`
+    """`Transformation -> Invert`
 
     `Invert` is similar to `Mirror` but based in a center defined by the first note on which all notes are vertically mirrored.
 
@@ -421,7 +421,7 @@ class Invert(Transformation):
 
 
 class Mirror(Transformation):
-    """`Transform -> Mirror`
+    """`Transformation -> Mirror`
 
     `Mirror` is similar to reverse but instead of reversing the elements position it reverses the
     Note's respective Pitch, like vertically mirrored.
@@ -484,7 +484,7 @@ class Mirror(Transformation):
 
 
 class Reverse(Transformation):
-    """`Transform -> Reverse`
+    """`Transformation -> Reverse`
 
     Reverses the sequence of the clip concerning the elements `Position`.
 
@@ -516,7 +516,7 @@ class Reverse(Transformation):
 
 
 class Rotate(Transformation):
-    """`Transform -> Rotate`
+    """`Transformation -> Rotate`
 
     `Rotate` does a left rotation of all elements by a given amount of rotation
 
@@ -549,7 +549,7 @@ class Rotate(Transformation):
 
 
 class Clean(Transformation):
-    """`Transform -> Clean`
+    """`Transformation -> Clean`
 
     With time a `Clip` may accumulate redundant Elements, this method removes all those elements.
 
@@ -571,7 +571,7 @@ class Clean(Transformation):
 
 
 class Edit(Transformation):
-    """`Transform -> Edit`
+    """`Transformation -> Edit`
 
     Allows the application of an edition on a targeted `Clip`
         
@@ -588,7 +588,7 @@ class Edit(Transformation):
 
 
 class Replace(Edit):
-    """`Transform -> Edit -> Replace`
+    """`Transformation -> Edit -> Replace`
 
     Allows the substitution on a target `Clip` section by the source `Clip` duration.
         
@@ -605,7 +605,7 @@ class Replace(Edit):
 
 
 class Insert(Edit):
-    """`Transform -> Edit -> Insert`
+    """`Transformation -> Edit -> Insert`
 
     Allows the insertion on a target `Clip` a section defined by a source `Clip` duration.
         
@@ -622,7 +622,7 @@ class Insert(Edit):
 
 
 class Overlap(Edit):
-    """`Transform -> Edit -> Overlap`
+    """`Transformation -> Edit -> Overlap`
 
     Allows the placing over a target `Clip` with a source `Clip` at a given position.
         
@@ -638,7 +638,7 @@ class Overlap(Edit):
 
 
 class Filter(Transformation):
-    """`Transform -> Filter`
+    """`Transformation -> Filter`
 
     A `Filter` works exactly like a `Mask` with the difference of keeping just \
         the matching items and deleting everything else.
@@ -658,7 +658,7 @@ class Filter(Transformation):
 
 
 class Sort(Transformation):
-    """`Transform -> Sort`
+    """`Transformation -> Sort`
 
     Sorts the contained items by a given parameter type.
 
@@ -691,7 +691,7 @@ class Sort(Transformation):
 
 
 class Smooth(Transformation):
-    """`Transform -> Smooth`
+    """`Transformation -> Smooth`
 
     Adjusts each `Note` octave to have the closest pitch to the first, previous one or both.
 
@@ -773,7 +773,7 @@ class Smooth(Transformation):
 
 
 class Slur(Transformation):
-    """`Transform -> Slur`
+    """`Transformation -> Slur`
 
     Changes the note `Gate` in order to crate a small overlap.
 
@@ -797,7 +797,7 @@ class Slur(Transformation):
 
 
 class Join(Transformation):
-    """`Transform -> Join`
+    """`Transformation -> Join`
 
     Joins all same type notes with the same `Pitch` as a single `Note`, from left to right.
 
@@ -841,7 +841,7 @@ class Join(Transformation):
 
 
 class Oscillate(Transformation):
-    """`Transform -> Oscillate`
+    """`Transformation -> Oscillate`
 
     Applies for each item element the value at the given position given by the oscillator function at
     that same position.
@@ -891,7 +891,7 @@ class Oscillate(Transformation):
 
 
 class Automate(Transformation):
-    """`Transform -> Automate`
+    """`Transformation -> Automate`
 
     Distributes the values given by the Steps pattern in a way very like the stepper Drum Machine fashion.
 
@@ -965,7 +965,7 @@ class Automate(Transformation):
 
 
 class Stepper(Transformation):
-    """`Transform -> Stepper`
+    """`Transformation -> Stepper`
 
     Sets the steps in a Drum Machine for a given `Element`. The default element is `Note()` for None.
 
@@ -996,7 +996,7 @@ class Stepper(Transformation):
 
 
 class Arpeggiate(Transformation):
-    """`Transform -> Arpeggiate`
+    """`Transformation -> Arpeggiate`
 
     Distributes each element accordingly to the configured arpeggio by the parameters given.
 
@@ -1019,7 +1019,7 @@ class Arpeggiate(Transformation):
 
 
 class Quantize(Transformation):
-    """`Transform -> Quantize`
+    """`Transformation -> Quantize`
 
     Quantizes a `Clip` by a given amount from 0.0 to 1.0.
 
@@ -1057,7 +1057,7 @@ class Quantize(Transformation):
 
 
 class IterateTransform(Transformation):
-    """`Transform -> IterateTransform`
+    """`Transformation -> IterateTransform`
 
     This class allows the transformation of the `Clip` based on chaotic input in an iterative fashion.
 
@@ -1119,7 +1119,7 @@ class IterateTransform(Transformation):
 
 
 class IVariate(IterateTransform):
-    """`Transform -> IterateTransform -> IVariate`
+    """`Transformation -> IterateTransform -> IVariate`
 
     This transformation respects the topology. The note count and relationships stay untouched;
     it only changes continuous space (pitch, timing, velocity), **only** the `Element` parameters.
@@ -1137,7 +1137,7 @@ class IVariate(IterateTransform):
 
 
 class ISplitDuration(IVariate):
-    """`Transform -> IterateTransform -> IVariate -> ISplitDuration`
+    """`Transformation -> IterateTransform -> IVariate -> ISplitDuration`
 
     Adds splits to the `Clip` elements resulting in the given amount of durations (elements).
 
@@ -1192,7 +1192,7 @@ class ISplitDuration(IVariate):
 
 
 class IShuffleLocus(IVariate):
-    """`Transform -> IterateTransform -> IVariate -> IShuffleLocus`
+    """`Transformation -> IterateTransform -> IVariate -> IShuffleLocus`
 
     This class shuffles the multiple locus around.
 
@@ -1222,7 +1222,7 @@ class IShuffleLocus(IVariate):
 
 
 class IShuffleDuration(IVariate):
-    """`Transform -> IterateTransform -> IVariate -> IShuffleDuration`
+    """`Transformation -> IterateTransform -> IVariate -> IShuffleDuration`
 
     Moves the existent durations around while preserving the relative positions to them.
 
@@ -1272,7 +1272,7 @@ class IShuffleDuration(IVariate):
 
 
 class IChooseDuration(IShuffleDuration):
-    """`Transform -> IterateTransform -> IVariate -> IShuffleDuration -> IChooseDuration`
+    """`Transformation -> IterateTransform -> IVariate -> IShuffleDuration -> IChooseDuration`
 
     Chooses durations from a given list and sets the element durations with it while preserving the relative positions.
 
@@ -1339,7 +1339,7 @@ class IChooseDuration(IShuffleDuration):
     
 
 class ISwapDuration(IVariate):
-    """`Transform -> IterateTransform -> IVariate -> ISwapDuration`
+    """`Transformation -> IterateTransform -> IVariate -> ISwapDuration`
 
     Swaps subsequent elements durations but it doesn't necessarily preserve all relative positions.
 
@@ -1375,7 +1375,7 @@ class ISwapDuration(IVariate):
     
 
 class IShuffleParameter(IVariate):
-    """`Transform -> IterateTransform -> IVariate -> IShuffleParameter`
+    """`Transformation -> IterateTransform -> IVariate -> IShuffleParameter`
 
     Shuffles a given parameter among the multiple elements in the clip.
 
@@ -1414,7 +1414,7 @@ class IShuffleParameter(IVariate):
 
 
 class ISetParameter(IVariate):
-    """`Transform -> IterateTransform -> IVariate -> ISetParameter`
+    """`Transformation -> IterateTransform -> IVariate -> ISetParameter`
 
     Applies to each element the *chaotized* parameter or to all elements at once if `global_setting` is `True`.
 
@@ -1454,7 +1454,7 @@ class ISetParameter(IVariate):
 
 
 class IChooseParameter(IVariate):
-    """`Transform -> IterateTransform -> IVariate -> IChooseParameter`
+    """`Transformation -> IterateTransform -> IVariate -> IChooseParameter`
 
     Choses a parameter from parameters for each `Clip` element.
 
@@ -1489,7 +1489,7 @@ class IChooseParameter(IVariate):
 
 
 class IMutate(IterateTransform):
-    """`Transform -> IterateTransform -> IMutate`
+    """`Transformation -> IterateTransform -> IMutate`
 
     This transformation changes the topology. The note count and relationships are changed;
     Type of Element, Note, Rest or ControlChange are possibly changed, and the number of elements too.
@@ -1507,7 +1507,7 @@ class IMutate(IterateTransform):
 
 
 class IYield(IterateTransform):
-    """`Transform -> IterateTransform -> IYield`
+    """`Transformation -> IterateTransform -> IYield`
 
     This transformation overrides the topology with a new one. All the `Clip` content is replaced
     by a self generated, iterated, new one.
