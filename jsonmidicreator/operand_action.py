@@ -294,11 +294,11 @@ class AmountedAction(Action):
 class SingleUseAction(AmountedAction):
     """`Act -> AmountedAction -> SingleUseAction`
 
-    `SingleUseAction` means once used it doesn't work anymore, you need toe create a new one.
+    `SingleUseAction` means once used it doesn't work anymore, you need to create a new one or set it with a new amount.
     
     Parameters
     ----------
-    int(1) : Sets the degree of inversion starting by 0 meaning no inversion
+    int(1) : Sets the amount for the Action
     """
 
 
