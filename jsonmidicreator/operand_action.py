@@ -95,7 +95,7 @@ class AmountedAction(SingleUseAction):
 
     def __neg__(self):
         self._amount *= -1
-        return self
+        return self.enable()
 
 
     def __mod__(self, operand: o.T) -> o.T:
