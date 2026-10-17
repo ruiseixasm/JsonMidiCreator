@@ -2444,6 +2444,8 @@ class Arpeggio(NoteEffect):
         self._index += self.convert_to_int(number)    # keeps track of each iteration
         return self
 
+
+
 class Repeat(NoteEffect):
     """`Generic -> NoteEffect -> Repeat`
 
@@ -2505,11 +2507,13 @@ class Repeat(NoteEffect):
                 break
         return repeated_note
 
+
     def apply(self, notes: list['Note']) -> list['Note']:
         repeated_notes: list['Note'] = []
         for single_note in notes:
             repeated_notes.extend(self._repeat_note(single_note))
         return super().apply(repeated_notes)
+
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -2570,6 +2574,7 @@ class Repeat(NoteEffect):
         self._chaos *= number
         self._index += self.convert_to_int(number)    # keeps track of each iteration
         return self
+
 
 
 class Overhang(NoteEffect):
@@ -2686,6 +2691,7 @@ class Coupler(NoteEffect):
             case _:
                 super().__lshift__(operand)
         return self
+
 
 
 class OctaveExpansion(NoteEffect):
