@@ -72,12 +72,12 @@ class Container(o.Operand):
                 for single_item in items_unmasked:
                     frame_result = index.frame(single_item)
                     if single_item == frame_result:
-                        return single_item
+                        return single_item  # The first occurrence
             case ch.Chaos():
                 for single_item in items_unmasked:
                     chaos_result = index.chaoticize()
                     if single_item == chaos_result:
-                        return single_item
+                        return single_item  # The first occurrence
             case od.Pipe():
                 match index._data:
                     case of.Frame():

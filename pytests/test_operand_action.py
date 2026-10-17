@@ -44,7 +44,8 @@ def test_invert():
     assert c_major[Beat(0)] % Octave() == c_major[Beat(1)] % Octave()
     c_major << Equal(Beat(1))**Invert()
     # c_major >> Plot()
-    # assert c_major[Beat(0)] % Octave() + 1 == c_major[Beat(1)] % Octave()
+    # c_major[Beat(0)] + c_major[Beat(1)] >> Plot()
+    assert c_major[Beat(0)] % Degree() + 2 == c_major[Beat(1)] % Degree()
 
 # test_invert()
 

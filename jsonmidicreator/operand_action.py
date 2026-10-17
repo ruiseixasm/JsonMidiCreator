@@ -331,10 +331,6 @@ class Invert(AmountedAction):
         return super().reset(*parameters)
 
 
-    def act(self, clip: 'Clip') -> 'Clip':
-        return super().act(clip)
-
-
     def act(self, element: 'Element') -> 'Element':
         if element.is_owned() and isinstance(element, oe.Note):
             element_position: ra.Position = element % ra.Position()
@@ -345,6 +341,7 @@ class Invert(AmountedAction):
                 clip_shallow_copy &= of.Equal(element_position)
                 notes = clip_shallow_copy._items    # Already without masked elements (framed)
                 self._apply_inversion(notes)
+                element_clip._sort_items()  # Required to update the positions in the list
         return element
 
 
