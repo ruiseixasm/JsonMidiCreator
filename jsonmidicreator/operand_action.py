@@ -300,14 +300,37 @@ class Invert(RepeatedAction):
     int(1) : Sets the degree of inversion starting by 0 meaning no inversion
     """
     def _single_act(self, element: 'Element') -> 'Element':
-        if element.is_owned():
+        if element.is_owned() and isinstance(element, oe.Note):
             element_clip: oc.Clip = element.element_clip()
             element_position: ra.Position = element % ra.Position()
             clip_shallow_copy = element_clip.shallow_copy()
             clip_shallow_copy &= of.Equal(element_position)
-
+            # By definition at least `element` in in position clip
+            if element is clip_shallow_copy[0]: # First element is element
+                notes = clip_shallow_copy._items    # Already without masked elements (framed)
+                self._apply_inversion(notes)
         return element
 
+
+    def _apply_inversion(self, notes: list['oe.Note']) -> list['oe.Note']:
+        # Where the inversions are done
+        inversion: int = self._amount % len(notes)
+        if inversion > 0:
+            first_note = notes[inversion]
+            not_first_note = True
+            while not_first_note:   # Try to implement while inversion > 0 here
+                not_first_note = False
+                for single_note in notes:
+                    if single_note._pitch < first_note._pitch:   # Critical operation
+                        single_note << single_note % ou.Octave() + 1
+                        if single_note % od.Pipe( int() ) < 128:
+                            not_first_note = True # to result in another while loop
+        # Final Octave adjustment
+        octave_offset: ou.Octave = ou.Octave( self._amount // len(notes) )
+        if octave_offset != 0:
+            for single_note in notes:
+                single_note += octave_offset
+        return notes
 
 
 
