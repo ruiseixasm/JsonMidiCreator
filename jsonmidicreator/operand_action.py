@@ -69,8 +69,18 @@ class Delete(Action):
 
 
 
-class AmountedAction(Action):
-    """`Action -> AmountedAction`
+class SingleUseAction(Action):
+    """`Action -> SingleUseAction`
+
+    `SingleUseAction` means once used it doesn't work anymore, you need to create a new one or set it with a new amount.
+    """
+    def enable(self) -> Self:
+        return self
+
+
+
+class AmountedAction(SingleUseAction):
+    """`Action -> SingleUseAction -> AmountedAction`
 
     `AmountedAction` means an `Action` with an amount associated.
     
@@ -81,10 +91,6 @@ class AmountedAction(Action):
     def __init__(self, *parameters):
         self._amount: int = 1
         super().__init__(*parameters)
-
-
-    def unit(self, number: int = None) -> Self:
-        return self << od.Pipe( number )
 
 
     def __neg__(self):
@@ -216,7 +222,7 @@ class AmountedAction(Action):
             case tuple():
                 for single_operand in operand:
                     self << single_operand
-        return self
+        return self.enable()
 
 
     def __iadd__(self, number: any) -> Self:
@@ -231,7 +237,7 @@ class AmountedAction(Action):
                 self._amount += number._unit
             case ra.Rational():
                 self._amount = int( self._amount + number._rational )
-        return self
+        return self.enable()
 
     
     def __isub__(self, number: any) -> Self:
@@ -246,7 +252,7 @@ class AmountedAction(Action):
                 self._amount -= number._unit
             case ra.Rational():
                 self._amount = int( self._amount - number._rational )
-        return self
+        return self.enable()
 
     
     def __imul__(self, number: any) -> Self:
@@ -261,7 +267,7 @@ class AmountedAction(Action):
                 self._amount *= number._unit
             case ra.Rational():
                 self._amount = int( self._amount * number._rational )
-        return self
+        return self.enable()
 
     
     def __itruediv__(self, number: any) -> Self:
@@ -280,41 +286,11 @@ class AmountedAction(Action):
             case ra.Rational():
                 if number._rational != 0:
                     self._amount = int( self._amount / number._rational )
-        return self
-
-
-class SingleUseAction(AmountedAction):
-    """`Act -> AmountedAction -> SingleUseAction`
-
-    `SingleUseAction` means once used it doesn't work anymore, you need to create a new one or set it with a new amount.
-    
-    Parameters
-    ----------
-    int(1) : Sets the amount for the Action
-    """
-
-    def __lshift__(self, operand: any) -> Self:
-        return self.__lshift__(operand).reset()
-
-
-    def __iadd__(self, number: any) -> Self:
-        return self.__iadd__(number).reset()
-
-    
-    def __isub__(self, number: any) -> Self:
-        return self.__isub__(number).reset()
-
-    
-    def __imul__(self, number: any) -> Self:
-        return self.__imul__(number).reset()
-
-    
-    def __itruediv__(self, number: any) -> Self:
-        return self.__itruediv__(number).reset()
+        return self.enable()
 
 
 class Invert(AmountedAction):
-    """`Act -> AmountedAction -> SingleUseAction -> Invert`
+    """`Act -> SingleUseAction -> AmountedAction -> Invert`
 
     Invert() inverts the selected elements for each given position.
     
@@ -326,10 +302,9 @@ class Invert(AmountedAction):
         self._last_position_beats = Fraction(-1)
         super().__init__(*parameters)
 
-    def reset(self, *parameters) -> Self:
+    def enable(self) -> Self:
         self._last_position_beats = Fraction(-1)
-        return super().reset(*parameters)
-
+        return self
 
     def act(self, element: 'Element') -> 'Element':
         if element.is_owned() and isinstance(element, oe.Note):
