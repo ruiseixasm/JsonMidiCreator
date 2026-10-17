@@ -74,7 +74,7 @@ class SingleUseAction(Action):
 
     `SingleUseAction` means once used it doesn't work anymore, you need to create a new one or set it with a new amount.
     """
-    def enable(self) -> Self:
+    def reuse(self) -> Self:
         return self
 
 
@@ -95,7 +95,7 @@ class AmountedAction(SingleUseAction):
 
     def __neg__(self):
         self._amount *= -1
-        return self.enable()
+        return self.reuse()
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -222,7 +222,7 @@ class AmountedAction(SingleUseAction):
             case tuple():
                 for single_operand in operand:
                     self << single_operand
-        return self.enable()
+        return self.reuse()
 
 
     def __iadd__(self, number: any) -> Self:
@@ -237,7 +237,7 @@ class AmountedAction(SingleUseAction):
                 self._amount += number._unit
             case ra.Rational():
                 self._amount = int( self._amount + number._rational )
-        return self.enable()
+        return self.reuse()
 
     
     def __isub__(self, number: any) -> Self:
@@ -252,7 +252,7 @@ class AmountedAction(SingleUseAction):
                 self._amount -= number._unit
             case ra.Rational():
                 self._amount = int( self._amount - number._rational )
-        return self.enable()
+        return self.reuse()
 
     
     def __imul__(self, number: any) -> Self:
@@ -267,7 +267,7 @@ class AmountedAction(SingleUseAction):
                 self._amount *= number._unit
             case ra.Rational():
                 self._amount = int( self._amount * number._rational )
-        return self.enable()
+        return self.reuse()
 
     
     def __itruediv__(self, number: any) -> Self:
@@ -286,7 +286,7 @@ class AmountedAction(SingleUseAction):
             case ra.Rational():
                 if number._rational != 0:
                     self._amount = int( self._amount / number._rational )
-        return self.enable()
+        return self.reuse()
 
 
 class Invert(AmountedAction):
@@ -302,7 +302,7 @@ class Invert(AmountedAction):
         self._last_position_beats = Fraction(-1)
         super().__init__(*parameters)
 
-    def enable(self) -> Self:
+    def reuse(self) -> Self:
         self._last_position_beats = Fraction(-1)
         return self
 
