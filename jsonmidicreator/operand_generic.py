@@ -2222,11 +2222,145 @@ class Effect(Generic):
         return elements
 
 
+
+class Repeat(Effect):
+    """`Generic -> Effect -> Repeat`
+
+    A `Repeat` repeats the `Element` accordingly to a given Duration.
+
+    Parameters
+    ----------
+    Duration(1/16), int, float : int for steps and float for note value.
+    Swing(0.5) : Sets the amount of time the Element is effectively placed relatively to its total duration.
+    Chaos(SinX()) : For the `Order` 5, "Chaotic", it uses the set Chaotic `Operand`.
+    """
+    def __init__(self, *parameters):
+        from . import operand_chaos as ch
+        self._duration_beats: Fraction  = Fraction(1, 4)    # duration in beats, NOT note value
+        self._swing: Fraction           = Fraction(1, 2)
+        self._chaos: ch.Chaos           = ch.SinX()
+        super().__init__(*parameters)
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case ra.Duration():     return operand._data << od.Pipe(self._count)
+                    case ra.Swing():        return operand._data << od.Pipe(self._swing)
+                    case _:                 return super().__mod__(operand)
+            case ra.Duration():        return ra.Duration() << od.Pipe(self._count)
+            case ra.Swing():        return ra.Swing() << od.Pipe(self._swing)
+            # Returns the SYMBOLIC value of each note
+            case ra.Duration():
+                return operand.copy(self._duration_beats)
+            case ra.TimeValue():
+                return operand.copy(ra.Duration(self._duration_beats))
+            case float():           return self % ra.NoteValue() % float()
+            case int():             return self % ra.Steps() % int()
+            case _:                 return super().__mod__(operand)
+
+
+    def _repeat_note(self, single_note: 'Note') -> list['Note']:
+        repeated_note: list[Note] = []
+        single_note_position: Fraction = single_note._position_beats
+        single_note_finish: Fraction = single_note_position + single_note._duration_beats
+        repeat_duration: Fraction = self._duration_beats
+        total_repeats: int = int(single_note._duration_beats / repeat_duration)
+        self._swing = max(Fraction(0), self._swing, min(Fraction(1), self._swing))
+        for repeat_i in range(total_repeats + 1):
+            new_note = single_note.copy()
+            repeated_note.append(new_note)
+            if repeat_i % 2 == 0:
+                new_note._duration_beats = repeat_duration * 2 * self._swing
+                new_note._position_beats = single_note_position + repeat_duration * repeat_i
+            else:
+                new_note._duration_beats = repeat_duration * 2 * (1 - self._swing)
+                new_note._position_beats = single_note_position + repeat_duration * (repeat_i + 1)
+                new_note._position_beats -= new_note._duration_beats
+            # Trim exceeding duration
+            new_note_finish: Fraction = new_note._position_beats + new_note._duration_beats
+            if new_note_finish >= single_note_finish:
+                new_note._duration_beats -= new_note_finish - single_note_finish
+                break
+        return repeated_note
+
+
+    def apply(self, notes: list['Note']) -> list['Note']:
+        repeated_notes: list['Note'] = []
+        for single_note in notes:
+            repeated_notes.extend(self._repeat_note(single_note))
+        return super().apply(repeated_notes)
+
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["duration_beats"] = o.serialize( self._duration_beats )
+        serialization["parameters"]["swing"]    = o.serialize( self._swing )
+        serialization["parameters"]["chaos"]    = o.serialize( self._chaos )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "duration_beats" in serialization["parameters"] and "swing" in serialization["parameters"] and "chaos" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._duration_beats    = o.deserialize( serialization["parameters"]["duration_beats"] )
+            self._swing             = o.deserialize( serialization["parameters"]["swing"] )
+            self._chaos             = o.deserialize( serialization["parameters"]["chaos"] )
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Repeat():
+                super().__lshift__(operand)
+                self._duration_beats    = operand._duration_beats
+                self._swing             = operand._swing
+            case od.Pipe():
+                match operand._data:
+                    case ra.Duration():             self._duration_beats = operand._data._rational
+                    case ra.Swing():                self._swing = operand._data._rational
+                    case _:                         super().__lshift__(operand)
+            case ra.Duration():
+                if operand > 0:
+                    self._duration = operand._rational
+            case ra.TimeValue():
+                if operand > 0:
+                    self << ra.Duration(operand)
+            case float():
+                if operand > 0:
+                    self << ra.NoteValue(operand)
+            case int():
+                if operand > 0:
+                    self << ra.Steps(operand)
+            case ra.Swing():
+                if operand < 0:
+                    self._swing = Fraction(0)
+                elif operand > 1:
+                    self._swing = Fraction(1)
+                else:
+                    self._swing = operand._rational
+            case _:
+                super().__lshift__(operand)
+        return self
+
+    def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
+        self._initiated = True
+        self._chaos *= number
+        self._index += self.convert_to_int(number)    # keeps track of each iteration
+        return self
+
+
+
 class NoteEffect(Effect):
     """`Generic -> Effect -> NoteEffect`
 
     A `NoteEffect` represents a manipulation of simultaneously played notes, like and Arpeggio.
     `NoteEffect` concern time changing behavior of notes, concerning their Position or Duration manipulation.
+
+    `NoteEffect` has `Pitch` associated to it.
 
     Effects can be chained, their never set each other because they don't share common parameters, once chained,
     with the operator `**`, they are read from left to right.
@@ -2436,137 +2570,6 @@ class Arpeggio(NoteEffect):
             case tuple():
                 for single_operand in operand:
                     self << single_operand
-        return self
-
-    def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
-        self._initiated = True
-        self._chaos *= number
-        self._index += self.convert_to_int(number)    # keeps track of each iteration
-        return self
-
-
-
-class Repeat(Effect):
-    """`Generic -> Effect -> Repeat`
-
-    A `Repeat` repeats the `Element` accordingly to a given Duration.
-
-    Parameters
-    ----------
-    Duration(1/16), int, float : int for steps and float for note value.
-    Swing(0.5) : Sets the amount of time the Element is effectively placed relatively to its total duration.
-    Chaos(SinX()) : For the `Order` 5, "Chaotic", it uses the set Chaotic `Operand`.
-    """
-    def __init__(self, *parameters):
-        from . import operand_chaos as ch
-        self._duration_beats: Fraction  = Fraction(1, 4)    # duration in beats, NOT note value
-        self._swing: Fraction           = Fraction(1, 2)
-        self._chaos: ch.Chaos           = ch.SinX()
-        super().__init__(*parameters)
-
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case ra.Duration():     return operand._data << od.Pipe(self._count)
-                    case ra.Swing():        return operand._data << od.Pipe(self._swing)
-                    case _:                 return super().__mod__(operand)
-            case ra.Duration():        return ra.Duration() << od.Pipe(self._count)
-            case ra.Swing():        return ra.Swing() << od.Pipe(self._swing)
-            # Returns the SYMBOLIC value of each note
-            case ra.Duration():
-                return operand.copy(self._duration_beats)
-            case ra.TimeValue():
-                return operand.copy(ra.Duration(self._duration_beats))
-            case float():           return self % ra.NoteValue() % float()
-            case int():             return self % ra.Steps() % int()
-            case _:                 return super().__mod__(operand)
-
-
-    def _repeat_note(self, single_note: 'Note') -> list['Note']:
-        repeated_note: list[Note] = []
-        single_note_position: Fraction = single_note._position_beats
-        single_note_finish: Fraction = single_note_position + single_note._duration_beats
-        repeat_duration: Fraction = self._duration_beats
-        total_repeats: int = int(single_note._duration_beats / repeat_duration)
-        self._swing = max(Fraction(0), self._swing, min(Fraction(1), self._swing))
-        for repeat_i in range(total_repeats + 1):
-            new_note = single_note.copy()
-            repeated_note.append(new_note)
-            if repeat_i % 2 == 0:
-                new_note._duration_beats = repeat_duration * 2 * self._swing
-                new_note._position_beats = single_note_position + repeat_duration * repeat_i
-            else:
-                new_note._duration_beats = repeat_duration * 2 * (1 - self._swing)
-                new_note._position_beats = single_note_position + repeat_duration * (repeat_i + 1)
-                new_note._position_beats -= new_note._duration_beats
-            # Trim exceeding duration
-            new_note_finish: Fraction = new_note._position_beats + new_note._duration_beats
-            if new_note_finish >= single_note_finish:
-                new_note._duration_beats -= new_note_finish - single_note_finish
-                break
-        return repeated_note
-
-
-    def apply(self, notes: list['Note']) -> list['Note']:
-        repeated_notes: list['Note'] = []
-        for single_note in notes:
-            repeated_notes.extend(self._repeat_note(single_note))
-        return super().apply(repeated_notes)
-
-
-    def getSerialization(self) -> dict:
-        serialization = super().getSerialization()
-        serialization["parameters"]["duration_beats"] = o.serialize( self._duration_beats )
-        serialization["parameters"]["swing"]    = o.serialize( self._swing )
-        serialization["parameters"]["chaos"]    = o.serialize( self._chaos )
-        return serialization
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict) -> Self:
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "duration_beats" in serialization["parameters"] and "swing" in serialization["parameters"] and "chaos" in serialization["parameters"]):
-
-            super().loadSerialization(serialization)
-            self._duration_beats    = o.deserialize( serialization["parameters"]["duration_beats"] )
-            self._swing             = o.deserialize( serialization["parameters"]["swing"] )
-            self._chaos             = o.deserialize( serialization["parameters"]["chaos"] )
-        return self
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case Repeat():
-                super().__lshift__(operand)
-                self._duration_beats    = operand._duration_beats
-                self._swing             = operand._swing
-            case od.Pipe():
-                match operand._data:
-                    case ra.Duration():             self._duration_beats = operand._data._rational
-                    case ra.Swing():                self._swing = operand._data._rational
-                    case _:                         super().__lshift__(operand)
-            case ra.Duration():
-                if operand > 0:
-                    self._duration = operand._rational
-            case ra.TimeValue():
-                if operand > 0:
-                    self << ra.Duration(operand)
-            case float():
-                if operand > 0:
-                    self << ra.NoteValue(operand)
-            case int():
-                if operand > 0:
-                    self << ra.Steps(operand)
-            case ra.Swing():
-                if operand < 0:
-                    self._swing = Fraction(0)
-                elif operand > 1:
-                    self._swing = Fraction(1)
-                else:
-                    self._swing = operand._rational
-            case _:
-                super().__lshift__(operand)
         return self
 
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
