@@ -77,12 +77,14 @@ class Delete(Action):
 
 
 
-class RepeatedAction(Action):
-    """`Action -> RepeatedAction`
+class AmountedAction(Action):
+    """`Action -> AmountedAction`
 
-    `Action` is intended to manipulate unmasked `Elements` in a `Clip` based on a given named action.
-    The `action` method always returns the exact same inputted `Clip`.
-    Contrary to a `Transformation`, an `Action` can be framed because it targets the Clip elements.
+    `AmountedAction` means an `Action` with an amount associated.
+    
+    Parameters
+    ----------
+    int(1) : Sets the amount for the Action
     """
     def __init__(self, *parameters):
         self._amount: int = 1
@@ -130,7 +132,7 @@ class RepeatedAction(Action):
     def __eq__(self, other: any) -> bool:
         from . import operand_rational as ra
         match other:
-            case RepeatedAction():
+            case AmountedAction():
                 return self._amount == other._amount
             case int() | float() | Fraction():
                 return self._amount == other
@@ -145,7 +147,7 @@ class RepeatedAction(Action):
     def __lt__(self, other: any) -> bool:
         from . import operand_rational as ra
         match other:
-            case RepeatedAction():
+            case AmountedAction():
                 return self._amount < other._amount
             case int() | float() | Fraction():
                 return self._amount < other
@@ -158,7 +160,7 @@ class RepeatedAction(Action):
     def __gt__(self, other: any) -> bool:
         from . import operand_rational as ra
         match other:
-            case RepeatedAction():
+            case AmountedAction():
                 return self._amount > other._amount
             case int() | float() | Fraction():
                 return self._amount > other
@@ -192,7 +194,7 @@ class RepeatedAction(Action):
         from . import operand_rational as ra
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case RepeatedAction():
+            case AmountedAction():
                 super().__lshift__(operand)
                 self._amount = operand._amount
             case od.Pipe():
@@ -229,7 +231,7 @@ class RepeatedAction(Action):
         from . import operand_rational as ra
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
         match number:
-            case RepeatedAction():
+            case AmountedAction():
                 self._amount += number._amount
             case int() | Fraction() | float():
                 self._amount = int( self._amount + number )
@@ -244,7 +246,7 @@ class RepeatedAction(Action):
         from . import operand_rational as ra
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
         match number:
-            case RepeatedAction():
+            case AmountedAction():
                 self._amount -= number._amount
             case int() | Fraction() | float():
                 self._amount = int( self._amount - number )
@@ -259,7 +261,7 @@ class RepeatedAction(Action):
         from . import operand_rational as ra
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
         match number:
-            case RepeatedAction():
+            case AmountedAction():
                 self._amount *= number._amount
             case int() | Fraction() | float():
                 self._amount = int( self._amount * number )
@@ -274,7 +276,7 @@ class RepeatedAction(Action):
         from . import operand_rational as ra
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
         match number:
-            case RepeatedAction():
+            case AmountedAction():
                 if number._amount != 0:
                     self._amount /= number._amount
             case int() | Fraction() | float():
@@ -289,9 +291,19 @@ class RepeatedAction(Action):
         return self
 
 
+class SingleUseAction(AmountedAction):
+    """`Act -> AmountedAction -> SingleUseAction`
 
-class Invert(RepeatedAction):
-    """`Act -> RepeatedAction -> Invert`
+    `SingleUseAction` means once used it doesn't work anymore, you need toe create a new one.
+    
+    Parameters
+    ----------
+    int(1) : Sets the degree of inversion starting by 0 meaning no inversion
+    """
+
+
+class Invert(AmountedAction):
+    """`Act -> AmountedAction -> SingleUseAction -> Invert`
 
     Invert() inverts the selected elements for each given position.
     
