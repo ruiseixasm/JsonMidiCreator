@@ -305,7 +305,7 @@ class Invert(RepeatedAction):
             element_position: ra.Position = element % ra.Position()
             clip_shallow_copy = element_clip.shallow_copy()
             clip_shallow_copy &= of.Equal(element_position)
-            # By definition at least `element` in in position clip
+            # By definition at least `element` is in position clip
             if element is clip_shallow_copy[0]: # First element is element
                 notes = clip_shallow_copy._items    # Already without masked elements (framed)
                 self._apply_inversion(notes)

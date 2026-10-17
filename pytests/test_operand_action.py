@@ -37,3 +37,13 @@ def test_delete():
     assert sixteen_triggers % int() == 0
 
 
+def test_invert():
+    c_major = Clip(":, :|:3n, :|:5n,")
+    assert c_major.len() == 3
+    c_major += c_major + Beat(1)
+    assert c_major[Beat(0)] % Octave() == c_major[Beat(1)] % Octave()
+    c_major << Equal(Beat(1))**Invert()
+    # c_major >> Plot()
+    # assert c_major[Beat(0)] % Octave() + 1 == c_major[Beat(1)] % Octave()
+    
+
