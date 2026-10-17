@@ -48,17 +48,8 @@ class Action(o.Operand):
     The `action` method always returns the exact same inputted `Clip`.
     Contrary to a `Transformation`, an `Action` can be framed because it targets the Clip elements.
     """
-    def act(self, clip: 'Clip') -> 'Clip':
-        for unmasked_element in clip.elements_unmasked():
-            self._single_act(unmasked_element)
-        return clip._sort_items()
-
-
-    def _single_act(self, element: 'Element') -> 'Element':
+    def act(self, element: 'Element') -> 'Element':
         return element
-
-
-    
 
 
 
@@ -70,9 +61,10 @@ class Delete(Action):
     Args:
         None
     """
-    def _single_act(self, element: 'Element') -> 'Element':
+    def act(self, element: 'Element') -> 'Element':
         if element.is_owned():
-            element._owner_clip._delete_item(element, True)
+            owner_clip =  element.element_clip()
+            owner_clip._delete_item(element)
         return element
 
 
@@ -343,7 +335,7 @@ class Invert(AmountedAction):
         return super().act(clip)
 
 
-    def _single_act(self, element: 'Element') -> 'Element':
+    def act(self, element: 'Element') -> 'Element':
         if element.is_owned() and isinstance(element, oe.Note):
             element_position: ra.Position = element % ra.Position()
             if element_position > self._last_position_beats:    # Only does a single inversion per position

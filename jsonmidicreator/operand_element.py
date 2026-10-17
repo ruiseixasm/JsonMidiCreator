@@ -361,6 +361,7 @@ class Element(o.Operand):
     def __lshift__(self, operand: any) -> Self:
         from . import operand_frame as of
         from . import operand_container as oc
+        from . import operand_action as oa
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Element():
@@ -482,6 +483,11 @@ class Element(o.Operand):
                 self._masked                = operand._unit != 0
             case od.Mask():                 self._masked = True
             case od.Unmask():               self._masked = False
+            
+            case oa.Action():
+                # `act` always returns self
+                return operand.act(self)        # Sorting already included
+
             case tuple():
                 for single_operand in operand:
                     self << single_operand
