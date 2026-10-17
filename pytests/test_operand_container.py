@@ -324,6 +324,16 @@ def test_new_container():
 # test_new_container()
 
 
+def test_item_add():
+    clip = Note() * 4
+    assert clip.len() == 4
+    existing_item = clip[0]
+    clip._append(existing_item)
+    assert clip.len() == 4
+    clip._append(Note())
+    assert clip.len() == 5
+
+
 def test_locus_stacking():
     eight_wholes = Note(1/1) * 8 + Iterate()**Degree()
     assert eight_wholes % Length() == 8 * 4 # Beats
