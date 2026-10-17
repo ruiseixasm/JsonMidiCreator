@@ -2446,15 +2446,15 @@ class Arpeggio(NoteEffect):
 
 
 
-class Repeat(NoteEffect):
-    """`Generic -> NoteEffect -> Repeat`
+class Repeat(Effect):
+    """`Generic -> Effect -> Repeat`
 
-    A `Repeat` repeats the note being pressed accordingly to a given Duration.
+    A `Repeat` repeats the `Element` accordingly to a given Duration.
 
     Parameters
     ----------
     Duration(1/16), int, float : int for steps and float for note value.
-    Swing(0.5) : Sets the amount of time the note is effectively pressed relatively to its total duration.
+    Swing(0.5) : Sets the amount of time the Element is effectively placed relatively to its total duration.
     Chaos(SinX()) : For the `Order` 5, "Chaotic", it uses the set Chaotic `Operand`.
     """
     def __init__(self, *parameters):

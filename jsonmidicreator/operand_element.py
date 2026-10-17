@@ -2226,7 +2226,7 @@ class Note(ChannelElement):
         self._gate: Fraction        = Fraction(1)
         self._tied: bool            = False
         self._pitch: og.Pitch       = og.Pitch()
-        self._element_effect: og.NoteEffect | None = None
+        self._element_effect: og.Effect | None = None
         super().__init__(*parameters)
 
     def velocity(self, velocity: int = 100) -> Self:
@@ -2350,7 +2350,7 @@ class Note(ChannelElement):
     
     def get_component_elements(self) -> list['Note']:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
-        if isinstance(self._element_effect, og.NoteEffect):
+        if isinstance(self._element_effect, og.Effect):
             return self._element_effect.apply([self])
         return [self]
     
@@ -2377,7 +2377,7 @@ class Note(ChannelElement):
                     case og.Pitch():        return self._pitch
                     case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
                                             return self._pitch % operand
-                    case og.NoteEffect():   return self._element_effect
+                    case og.Effect():       return self._element_effect
                     case _:                 return super().__mod__(operand)
             case ou.Velocity():     return ou.Velocity() << od.Pipe(self._velocity)
             case ra.Gate():         return ra.Gate() << od.Pipe(self._gate)
@@ -2385,9 +2385,9 @@ class Note(ChannelElement):
             case og.Pitch():        return self._pitch.copy()
             case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale() | ou.Mode():
                                     return self._pitch % operand
-            case og.NoteEffect():   return o.deep_copy(self._element_effect)
+            case og.Effect():       return o.deep_copy(self._element_effect)
             case ou.Direction() | ra.Swing() | ch.Chaos():
-                if isinstance(self._element_effect, og.NoteEffect):
+                if isinstance(self._element_effect, og.Effect):
                     return self._element_effect % operand
                 else:
                     return ol.Null()
@@ -2575,7 +2575,7 @@ class Note(ChannelElement):
                     case og.Pitch():        self._pitch     = operand._data
                     case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
                                             self._pitch << operand
-                    case og.NoteEffect():   self._element_effect = operand._data
+                    case og.Effect():       self._element_effect = operand._data
                     case _:                 super().__lshift__(operand)
             case ou.Velocity():     self._velocity = operand._unit
             case ra.Gate():         self._gate = operand._rational
@@ -2588,13 +2588,13 @@ class Note(ChannelElement):
                     self._pitch << operand
             case og.Pitch() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale() | ou.Mode():
                 self._pitch << operand
-            case og.NoteEffect():
+            case og.Effect():
                 self._element_effect = o.deep_copy(operand)
             case ou.Direction() | ra.Swing() | ch.Chaos():
-                if isinstance(self._element_effect, og.NoteEffect):
+                if isinstance(self._element_effect, og.Effect):
                     self._element_effect << operand
             case od.Remove():
-                if isinstance(operand._data, og.NoteEffect):
+                if isinstance(operand._data, og.Effect):
                     self._element_effect = None
             case _:
                 super().__lshift__(operand)
@@ -2704,7 +2704,7 @@ class Cluster(Note):
         for pitch_parameter in self._pitches:
             single_note: Note = Note(self, pitch_parameter)  # Owned by same clip
             cluster_notes.append( single_note )
-        if isinstance(self._element_effect, og.NoteEffect):
+        if isinstance(self._element_effect, og.Effect):
             cluster_notes = self._element_effect.apply(cluster_notes)
         return cluster_notes
 
@@ -3228,7 +3228,7 @@ class KeyScale(Note):
             scale_notes.append( new_note )
             new_note._pitch._transposition += shifting
         scale_notes = self._apply_inversion(scale_notes)
-        if isinstance(self._element_effect, og.NoteEffect):
+        if isinstance(self._element_effect, og.Effect):
             scale_notes = self._element_effect.apply(scale_notes)
         return scale_notes
     
@@ -3471,7 +3471,7 @@ class Chord(KeyScale):
                 if self._diminished:
                     single_note._pitch -= ou.Semitone(1)
         chord_notes = self._apply_inversion(chord_notes)
-        if isinstance(self._element_effect, og.NoteEffect):
+        if isinstance(self._element_effect, og.Effect):
             chord_notes = self._element_effect.apply(chord_notes)
         return chord_notes
     
@@ -3657,7 +3657,7 @@ class Tuplet(Note):
             retrigger_notes.append( single_note )
             note_position += note_duration
             self_iteration += 1
-        if isinstance(self._element_effect, og.NoteEffect):
+        if isinstance(self._element_effect, og.Effect):
             retrigger_notes = self._element_effect.apply(retrigger_notes)
         return retrigger_notes
 
