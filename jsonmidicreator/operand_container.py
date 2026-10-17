@@ -169,23 +169,28 @@ class Container(o.Operand):
 
 
     def _insert(self, items: list) -> Self:
-        # Avoids redundant items/objects
-        existing_ids: set[int] = {id(existing_item) for existing_item in self._items}
-        new_items: list = [new_item for new_item in items if id(new_item) not in existing_ids]
-        self._items = new_items + self._items
+        """Avoids redundant items/objects"""
+        new_items: list = [
+            new_item for new_item in items
+            if not any(new_item is single_item for single_item in self._items)
+        ]
+        self._items.insert(0, new_items)
         return self
 
     def _extend(self, items: list) -> Self:
-        # Avoids redundant items/objects
-        existing_ids: set[int] = {id(existing_item) for existing_item in self._items}
-        # Avoids duplication
-        new_items: list = [new_item for new_item in items if id(new_item) not in existing_ids]
+        new_items: list = [
+            new_item for new_item in items
+            if not any(new_item is single_item for single_item in self._items)
+        ]
         self._items.extend(new_items)
         return self
 
-
     def _append(self, item: any) -> Self:
-        return self._extend([ item ])
+        """Avoids redundant items/objects"""
+        if not any(item is single_item for single_item in self._items):
+            self._items.append(item)
+        return self
+
 
     def _delete_item(self, item, by_id: bool = True) -> Self:
         return self._delete([ item ], by_id)
