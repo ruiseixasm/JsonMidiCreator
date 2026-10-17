@@ -58,6 +58,9 @@ class Action(o.Operand):
         return element
 
 
+    
+
+
 
 class Delete(Action):
     """`Action -> Delete`
@@ -68,7 +71,7 @@ class Delete(Action):
         None
     """
     def _single_act(self, element: 'Element') -> 'Element':
-        if element._owner_clip is not None:
+        if element.is_owned():
             element._owner_clip._delete_item(element, True)
         return element
 
@@ -285,5 +288,20 @@ class RepeatedAction(Action):
                     self._amount = int( self._amount / number._rational )
         return self
 
+
+
+class Invert(RepeatedAction):
+    """`Act -> RepeatedAction -> Invert`
+
+    Invert() inverts the selected elements for each given position.
+    
+    Parameters
+    ----------
+    int(1) : Sets the degree of inversion starting by 0 meaning no inversion
+    """
+    def _single_act(self, element: 'Element') -> 'Element':
+        if element.is_owned():
+            ...
+        return element
 
 

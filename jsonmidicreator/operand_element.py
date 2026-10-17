@@ -96,6 +96,11 @@ class Element(o.Operand):
             self._owner_clip = owner_clip
         return self
 
+
+    def is_owned(self) -> bool:
+        return self._owner_clip is not None
+    
+
     def _get_time_signature(self) -> 'og.TimeSignature':
         if self._owner_clip is None:
             return og.settings._time_signature
