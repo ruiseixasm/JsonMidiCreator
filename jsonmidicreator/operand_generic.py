@@ -2202,8 +2202,28 @@ if TYPE_CHECKING:
     from operand_element import Note
 
 
-class NoteEffect(Generic):
-    """`Generic -> NoteEffect`
+class Effect(Generic):
+    """`Generic -> Effect`
+
+    A `Effect` represents a manipulation of elements, like and Arpeggio.
+    `Effect` concern time changing behavior of elements, concerning their Position or Duration manipulation.
+
+    Effects can be chained, their never set each other because they don't share common parameters, once chained,
+    with the operator `**`, they are read from left to right.
+    """
+    def apply(self, elements: list['Element']) -> list['Element']:
+        # Makes sure the next effect takes a sorted list of elements
+        elements.sort()
+        if isinstance(self._chained_operand, Effect):
+            return self._chained_operand.apply(elements)
+        # Finally removes all elements are cleaned from any possible existing `Effect`
+        for single_element in elements:
+            single_element._element_effect = None
+        return elements
+
+
+class NoteEffect(Effect):
+    """`Generic -> Effect -> NoteEffect`
 
     A `NoteEffect` represents a manipulation of simultaneously played notes, like and Arpeggio.
     `NoteEffect` concern time changing behavior of notes, concerning their Position or Duration manipulation.
@@ -2211,16 +2231,7 @@ class NoteEffect(Generic):
     Effects can be chained, their never set each other because they don't share common parameters, once chained,
     with the operator `**`, they are read from left to right.
     """
-    
-    def apply(self, notes: list['Note']) -> list['Note']:
-        # Makes sure the next effect takes a sorted list of notes
-        notes.sort()
-        if isinstance(self._chained_operand, NoteEffect):
-            return self._chained_operand.apply(notes)
-        # Finally removes all notes are cleaned from any possible existing `NoteEffect`
-        for single_note in notes:
-            single_note._note_effect = None
-        return notes
+    pass
 
 
 class Arpeggio(NoteEffect):

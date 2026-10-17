@@ -70,9 +70,9 @@ class Delete(Action):
 
 
 class SingleUse(Action):
-    """`Action -> SingleUseAction`
+    """`Action -> SingleUse`
 
-    `SingleUseAction` means once used it doesn't work anymore, you need to create a new one or set it with a new amount.
+    `SingleUse` means once used it doesn't work anymore, you need to create a new one or set it with a new amount.
     """
     def reuse(self) -> Self:
         return self
@@ -80,7 +80,7 @@ class SingleUse(Action):
 
 
 class AmountedAction(SingleUse):
-    """`Action -> SingleUseAction -> AmountedAction`
+    """`Action -> SingleUse -> AmountedAction`
 
     `AmountedAction` means an `Action` with an amount associated.
     
@@ -289,8 +289,9 @@ class AmountedAction(SingleUse):
         return self.reuse()
 
 
+
 class Invert(AmountedAction):
-    """`Action -> SingleUseAction -> AmountedAction -> Invert`
+    """`Action -> SingleUse -> AmountedAction -> Invert`
 
     Invert() inverts the selected elements for each given position.
     
@@ -341,8 +342,39 @@ class Invert(AmountedAction):
         return notes
 
 
-class Arpeggiate(SingleUse):
-    """`Action -> SingleUseAction -> Arpeggiate`
+class ApplyEffect(SingleUse):
+    """`Action -> SingleUse -> ApplyEffect`
+
+    Represents an Effect with multiple configuration parameters associated to.
+    """
+    def __init__(self, parameters: any = None):
+        super().__init__()
+        self._effect = og.Arpeggio(*parameters)
+        self._processed_elements: list[Element] = []
+
+
+    def act(self, element: 'Element') -> 'Element':
+        if element.is_owned():
+            element_position: ra.Position = element % ra.Position()
+            if element_position > self._last_position_beats:    # Only does a single inversion per position
+                self._last_position_beats = element_position % Fraction()
+                element_clip: oc.Clip = element.element_clip()
+                clip_shallow_copy = element_clip.shallow_copy()
+                clip_shallow_copy &= of.Equal(element_position)
+                elements = clip_shallow_copy._items    # Already without masked elements (framed)
+                self._apply_effect(elements)
+                self._processed_elements.extend(elements)
+                element_clip._sort_items()  # Required to update the positions in the list
+        return element
+
+
+    def _apply_effect(self, elements: list['Elements']) -> list['Elements']:
+        return elements
+
+
+
+class Arpeggiate(ApplyEffect):
+    """`Action -> SingleUse -> ApplyEffect-> Arpeggiate`
 
     Distributes each element accordingly to the configured arpeggio by the parameters given.
 
@@ -354,18 +386,15 @@ class Arpeggiate(SingleUse):
     """
     def __init__(self, parameters: any = None):
         super().__init__()
-        self._arpeggio = og.Arpeggio(*parameters)
-        self._arpeggiated_notes: list[oe.Note] = []
+        self._effect = og.Arpeggio(*parameters)
 
 
-    def _single_transform(self, clip: 'Clip') -> 'Clip':
-        arpeggio = og.Arpeggio(self.parameters)
-        arpeggio.arpeggiate_source(clip.elements_unmasked(), clip.start(), ra.Length( clip.net_duration() ))
-        return clip._sort_items()
+    def _apply_effect(self, elements: list['Element']) -> list['Element']:
+        return self._effect.apply(elements)
 
 
     def reuse(self) -> Self:
-        self._arpeggiated_notes = []
+        self._processed_elements = []
         return self
 
 
@@ -374,40 +403,40 @@ class Arpeggiate(SingleUse):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case og.Arpeggio():     return self._arpeggio
+                    case og.Arpeggio():     return self._effect
                     case _:                 return super().__mod__(operand)
-            case og.Arpeggio():     return self._arpeggio.copy()
-            case _:                 return self._arpeggio.__mod__(operand)
+            case og.Arpeggio():     return self._effect.copy()
+            case _:                 return self._effect.__mod__(operand)
 
 
     def __eq__(self, other: any) -> bool:
         match other:
             case od.Conditional():
-                return other == self._arpeggio
+                return other == self._effect
             case _:
-                return self._arpeggio == other
+                return self._effect == other
         return False
     
     def __lt__(self, other: any) -> bool:
         match other:
             case od.Conditional():
-                return other > self._arpeggio
+                return other > self._effect
             case _:
-                return self._arpeggio < other
+                return self._effect < other
         return False
     
     def __gt__(self, other: any) -> bool:
         match other:
             case od.Conditional():
-                return other < self._arpeggio
+                return other < self._effect
             case _:
-                return self._arpeggio > other
+                return self._effect > other
         return False
     
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["arpeggio"] = self._arpeggio
+        serialization["parameters"]["arpeggio"] = self._effect
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -417,41 +446,41 @@ class Arpeggiate(SingleUse):
             "arpeggio" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._arpeggio = serialization["parameters"]["arpeggio"]
+            self._effect = serialization["parameters"]["arpeggio"]
         return self
 
 
     def __lshift__(self, operand: any) -> Self:
         from . import operand_rational as ra
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        self._arpeggio.__lshift__(operand)
+        self._effect.__lshift__(operand)
         return self.reuse()
 
 
     def __iadd__(self, number: any) -> Self:
         from . import operand_rational as ra
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
-        self._arpeggio.__iadd__(number)
+        self._effect.__iadd__(number)
         return self.reuse()
 
     
     def __isub__(self, number: any) -> Self:
         from . import operand_rational as ra
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
-        self._arpeggio.__isub__(number)
+        self._effect.__isub__(number)
         return self.reuse()
 
     
     def __imul__(self, number: any) -> Self:
         from . import operand_rational as ra
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
-        self._arpeggio.__imul__(number)
+        self._effect.__imul__(number)
         return self.reuse()
 
     
     def __itruediv__(self, number: any) -> Self:
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
-        self._arpeggio.__itruediv__(number)
+        self._effect.__itruediv__(number)
         return self.reuse()
 
 
