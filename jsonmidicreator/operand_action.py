@@ -299,14 +299,24 @@ class Invert(RepeatedAction):
     ----------
     int(1) : Sets the degree of inversion starting by 0 meaning no inversion
     """
+    def __init__(self, *parameters):
+        self._last_position_beats = Fraction(-1)
+        super().__init__(*parameters)
+
+
+    def act(self, clip: 'Clip') -> 'Clip':
+        self._last_position_beats = Fraction(-1)
+        return super().act(clip)
+
+
     def _single_act(self, element: 'Element') -> 'Element':
         if element.is_owned() and isinstance(element, oe.Note):
-            element_clip: oc.Clip = element.element_clip()
             element_position: ra.Position = element % ra.Position()
-            clip_shallow_copy = element_clip.shallow_copy()
-            clip_shallow_copy &= of.Equal(element_position)
-            # By definition at least `element` is in position clip
-            if element is clip_shallow_copy[0]: # First element is element
+            if element_position > self._last_position_beats:    # Only does a single inversion per position
+                self._last_position_beats = element_position % Fraction()
+                element_clip: oc.Clip = element.element_clip()
+                clip_shallow_copy = element_clip.shallow_copy()
+                clip_shallow_copy &= of.Equal(element_position)
                 notes = clip_shallow_copy._items    # Already without masked elements (framed)
                 self._apply_inversion(notes)
         return element
