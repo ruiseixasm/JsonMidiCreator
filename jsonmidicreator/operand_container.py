@@ -168,16 +168,7 @@ class Container(o.Operand):
         return None
 
 
-    def _insert(self, items: list) -> Self:
-        """Avoids redundant items/objects"""
-        new_items: list = [
-            new_item for new_item in items
-            if not any(new_item is single_item for single_item in self._items)
-        ]
-        self._items.insert(0, new_items)
-        return self
-
-    def _extend(self, items: list) -> Self:
+    def extend(self, items: list) -> Self:
         new_items: list = [
             new_item for new_item in items
             if not any(new_item is single_item for single_item in self._items)
@@ -185,7 +176,13 @@ class Container(o.Operand):
         self._items.extend(new_items)
         return self
 
-    def _append(self, item: any) -> Self:
+    def insert(self, item: any) -> Self:
+        """Avoids redundant items/objects"""
+        if not any(item is single_item for single_item in self._items):
+            self._items.insert(0, item)
+        return self
+
+    def append(self, item: any) -> Self:
         """Avoids redundant items/objects"""
         if not any(item is single_item for single_item in self._items):
             self._items.append(item)
@@ -457,7 +454,7 @@ class Container(o.Operand):
                 # Remove previous Elements from the Container stack
                 self._delete() # deletes all
                 # Finally adds the decomposed elements to the Container stack
-                self._extend( o.deep_copy(operand) )
+                self.extend( o.deep_copy(operand) )
             case dict():
                 for index, item in operand.items():
                     if isinstance(index, int) and index >= 0 and index < len(self.items_unmasked()):
@@ -518,9 +515,9 @@ class Container(o.Operand):
     def __iadd__(self, operand: any) -> Self:
         match operand:
             case Container():
-                return self._extend( o.deep_copy(operand._items) )
+                return self.extend( o.deep_copy(operand._items) )
             case list():
-                return self._extend( o.deep_copy(operand) )
+                return self.extend( o.deep_copy(operand) )
             
             case tuple():
                 for single_operand in operand:
@@ -540,7 +537,7 @@ class Container(o.Operand):
 
     def __radd__(self, operand: any) -> Self:
         self_copy: Container = self.copy()
-        self_copy._insert([ o.deep_copy( operand ) ])
+        self_copy.insert(o.deep_copy( operand ))
         return self_copy
 
     def __isub__(self, operand: any) -> Self:
@@ -587,9 +584,9 @@ class Container(o.Operand):
                         new_items: list = [
                             o.deep_copy( data ) for data in items_copy
                         ]
-                        self._extend(new_items)  # Propagates upwards in the stack
+                        self.extend(new_items)  # Propagates upwards in the stack
                         operand -= 1
-                    self._extend(items_copy)  # Propagates upwards in the stack
+                    self.extend(items_copy)  # Propagates upwards in the stack
                 elif operand == 0:
                     self._delete()
             case of.Frame():
@@ -780,7 +777,7 @@ class Devices(Container):
         match operand:
             case od.Device():
                 if isinstance(operand._data, str):
-                    self._insert([ operand._data ]) # Places at the beginning
+                    self.insert(operand._data) # Places at the beginning
                 return self
         return super().__iadd__(operand)
 
@@ -2018,7 +2015,7 @@ class Clip(Composition):  # Just a container of Elements
                     # Remove previous Elements from the Container stack
                     self._delete(self.elements_unmasked(), True) # deletes by id, safer
                     # Finally adds the decomposed elements to the Container stack
-                    self._extend(o.deep_copy(operand))
+                    self.extend(o.deep_copy(operand))
                     self._set_owner_clip()
                 elif all(isinstance(item, og.Locus) for item in operand):
                     for single_element, locus in zip(self, operand):
@@ -2052,7 +2049,7 @@ class Clip(Composition):  # Just a container of Elements
 
             case oe.Element():
                 new_element: oe.Element = operand.copy()._set_owner_clip(self)
-                return self._append(new_element)._sort_items()  # Shall be sorted!
+                return self.append(new_element)._sort_items()  # Shall be sorted!
             
             case list():
                 if all(isinstance(item, oe.Element) for item in operand):
@@ -2064,12 +2061,12 @@ class Clip(Composition):  # Just a container of Elements
                     new_elements: list[oe.Element] = [
                         self[index].copy() for index in operand
                     ]
-                self._extend(new_elements)
+                self.extend(new_elements)
 
             # Place to add Line processing
             case od.Line():
                 line_elements: list[oe.Element] = oe.get_elements_from_line(operand)
-                self += Clip()._extend(line_elements)._set_owner_clip()
+                self += Clip().extend(line_elements)._set_owner_clip()
 
             case og.Locus():    # Inserts a Locus where crossing elements split
                 crossing_elements: list[oe.Element] = [
@@ -2093,7 +2090,7 @@ class Clip(Composition):  # Just a container of Elements
                         right_element._position_beats = split_position_beats
                         right_element._duration_beats = element_finish_beats - split_position_beats
                         bordering_elements.append(right_element)
-                self._extend(bordering_elements)
+                self.extend(bordering_elements)
                 # Makes sure all elements after split position are offset (Extends the duration)
                 for single_element in self._items:
                     if single_element._position_beats >= operand._position_beats:
@@ -2206,7 +2203,7 @@ class Clip(Composition):  # Just a container of Elements
             # Place to add Line processing
             case od.Line():
                 line_elements: list[oe.Element] = oe.get_elements_from_line(operand)
-                self *= Clip()._extend(line_elements)._set_owner_clip()
+                self *= Clip().extend(line_elements)._set_owner_clip()
 
             case og.Locus():    # Extract out the Locus are and trims everything else (Shrinks the duration)
                 overlapping_elements: list[oe.Element] = [
@@ -2355,7 +2352,7 @@ class Clip(Composition):  # Just a container of Elements
                                 new_elements.append(next_element)
                                 next_element._position_beats = next_split  # Just positions the `Element`
                                 next_split += segment_duration_beats
-                self._extend(new_elements)
+                self.extend(new_elements)
             
             # Divides the Clip `Duration` by the given `Length` amount as denominator
             case ra.Length():
@@ -2369,7 +2366,7 @@ class Clip(Composition):  # Just a container of Elements
                             next_element: oe.Element = first_element.copy() # already with the right duration
                             next_element._position_beats += first_element_duration * next_element_i
                             new_elements.append(next_element)
-                    self._extend(new_elements)
+                    self.extend(new_elements)
             # Divides the `Duration` by sections with the given `TimeValue` (ex.: note value)
             
             case ra.Position() | ra.TimeUnit(): # Single point split if Position
@@ -2390,9 +2387,9 @@ class Clip(Composition):  # Just a container of Elements
                             new_elements.append(new_element)
                             new_element._position_beats = split_position
                             new_element._duration_beats = right_duration
-                self._extend(new_elements)
+                self.extend(new_elements)
                 if self._items: # Uses the item Clip instead
-                    self._items[0]._owner_clip._extend(new_elements)._sort_items()
+                    self._items[0]._owner_clip.extend(new_elements)._sort_items()
 
             case og.Locus():    # Cuts out the Locus are and trims any overlap
                 overlapping_elements: list[oe.Element] = [
@@ -2417,7 +2414,7 @@ class Clip(Composition):  # Just a container of Elements
                         right_element._position_beats = locus_finish_beats
                         right_element._duration_beats = element_finish_beats - locus_finish_beats
                         bordering_elements.append(right_element)
-                self._extend(bordering_elements)
+                self.extend(bordering_elements)
 
             case _:
                 super().__ifloordiv__(operand)
@@ -2529,7 +2526,7 @@ class Clip(Composition):  # Just a container of Elements
         # Remove previous Elements from the Container stack
         self._delete(self.elements_unmasked(), True) # deletes by id, safer
         # Finally adds the decomposed elements to the Container stack
-        self._extend(decomposed_elements)
+        self.extend(decomposed_elements)
         return self._sort_items()
 
 
@@ -2950,16 +2947,16 @@ class Section(Composition):
                 new_part += operand
                 return new_part
             case Clip():
-                self._append(operand.copy())
+                self.append(operand.copy())
             case oe.Element():
-                self._append(
+                self.append(
                     Clip().__iadd__(operand)
                 )
 
             case ra.Position() | ra.TimeValue() | ra.TimeUnit():
                 self << self % ra.Position() + operand
             case list():
-                self._extend(o.deep_copy(operand))
+                self.extend(o.deep_copy(operand))
             case _:
                 super().__iadd__(operand)
         return self
@@ -2994,15 +2991,15 @@ class Section(Composition):
             case Clip():
                 self_length: ra.Length = self.gross_length()
                 if self_length is not None:
-                    self._append(operand + ra.Position(self_length))  # Implicit copy
+                    self.append(operand + ra.Position(self_length))  # Implicit copy
                 else:
-                    self._append(operand.copy())    # Explicit copy
+                    self.append(operand.copy())    # Explicit copy
             case oe.Element():
                 self_length: ra.Length = self.gross_length()
                 if self_length is not None:
-                    self._append(Clip(operand + ra.Position(self_length)))   # Implicit copy
+                    self.append(Clip(operand + ra.Position(self_length)))   # Implicit copy
                 else:
-                    self._append(Clip(operand))
+                    self.append(Clip(operand))
             case int():
                 new_blocks: list[Section] = []
                 if operand > 0:
@@ -3036,13 +3033,13 @@ class Section(Composition):
             case Clip():
                 finish_position: ra.Position = self.net_finish_unmasked()
                 repositioned_clip: Clip = operand + finish_position # Implicit copy
-                self._append(repositioned_clip) # No implicit copy
+                self.append(repositioned_clip) # No implicit copy
             case oe.Element():
                 finish_position: ra.Position = self.net_finish_unmasked()
                 repositioned_clip: Clip = Clip()
                 repositioned_clip += operand
                 repositioned_clip += finish_position
-                self._append(repositioned_clip) # No implicit copy
+                self.append(repositioned_clip) # No implicit copy
             case int():
                 if operand > 1:
                     single_shallow_copy: Section = self.shallow_copy()
@@ -3067,11 +3064,11 @@ class Section(Composition):
                     new_part += operand
                 return new_part
             case Clip():
-                self._append(operand.copy())
+                self.append(operand.copy())
             case oe.Element():
                 new_clip = Clip()
                 new_clip += operand
-                self._append(new_clip)
+                self.append(new_clip)
             case int():
                 if operand > 1:
                     single_shallow_copy: Section = self.shallow_copy()
@@ -3518,7 +3515,7 @@ class Part(Composition):
                 for single_section in operand:
                     self += single_section
             case Section():
-                self._append(Section(operand)._set_owner_part(self))._sort_items()
+                self.append(Section(operand)._set_owner_part(self))._sort_items()
             case Clip():
                 self += Section(operand)
             case oe.Element():
@@ -3527,7 +3524,7 @@ class Part(Composition):
             case list():
                 for item in operand:
                     if isinstance(item, Section):
-                        self._append(item.copy()._set_owner_part(self))
+                        self.append(item.copy()._set_owner_part(self))
             case _:
                 super().__iadd__(operand)
         return self
@@ -3560,7 +3557,7 @@ class Part(Composition):
                 for single_section in right_part:
                     single_section += position_offset
 
-                self._extend(right_part._items)
+                self.extend(right_part._items)
                 
             case Section():
                 self.__imul__(Part(operand))
@@ -3608,7 +3605,7 @@ class Part(Composition):
                 for single_section in right_part:
                     single_section += position_offset
 
-                self._extend(right_part._items)  # Propagates upwards in the stack
+                self.extend(right_part._items)  # Propagates upwards in the stack
             case Section():
                 self.__itruediv__(Part(operand))
             case Clip():

@@ -477,7 +477,7 @@ class Element(o.Operand):
                             (clip_element + self_position)._set_owner_clip(self._owner_clip)
                             for clip_element in operand._items
                         ]
-                        self._owner_clip._extend(replacing_elements_list)
+                        self._owner_clip.extend(replacing_elements_list)
                     self._owner_clip._delete_item(self, True)._sort_items()  # Ultimately, replaces it with nothing
             case ou.Masked():
                 self._masked                = operand._unit != 0
@@ -602,10 +602,10 @@ class Element(o.Operand):
                         new_elements.append(next_element)
                     place_measure += 1  # Moves one measure each time
                 if self._owner_clip is not None:    # Owner clip is always the base container
-                    return self._owner_clip._extend(new_elements)._sort_items()
+                    return self._owner_clip.extend(new_elements)._sort_items()
                 else:
                     new_clip: oc.Clip = oc.Clip()
-                    return new_clip._extend(new_elements)._set_owner_clip()
+                    return new_clip.extend(new_elements)._set_owner_clip()
 
             case ra.Stretch():
                 if operand._rational > 0:
@@ -621,7 +621,7 @@ class Element(o.Operand):
                             next_element: Element = self.copy()
                             new_elements.append(next_element)
                             next_element._position_beats += ra.Beats(ra.Measures(self._owner_clip, 1) * next_element_i)._rational
-                    return self._owner_clip._extend(new_elements)   # Allows the chaining of Clip operations
+                    return self._owner_clip.extend(new_elements)   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip().__iadd__(self).__imul__(operand)
                 
@@ -658,10 +658,10 @@ class Element(o.Operand):
                         next_position._position_beats = place_position_beats
                     place_position_beats += self._duration_beats
                 if self._owner_clip is not None:    # Owner clip is always the base container
-                    return self._owner_clip._extend(new_elements)._sort_items()
+                    return self._owner_clip.extend(new_elements)._sort_items()
                 else:
                     new_clip: oc.Clip = oc.Clip()
-                    return new_clip._extend(new_elements)._set_owner_clip()
+                    return new_clip.extend(new_elements)._set_owner_clip()
 
             case ra.Stretch():
                 if operand._rational > 0:
@@ -679,7 +679,7 @@ class Element(o.Operand):
                                 next_position: Element = self.copy()
                                 new_elements.append(next_position)
                                 next_position._position_beats += self._duration_beats * next_element_i
-                    return self._owner_clip._extend(new_elements)   # Allows the chaining of Clip operations
+                    return self._owner_clip.extend(new_elements)   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip().__iadd__(self)._set_owner_clip().__itruediv__(operand)
                 
@@ -728,10 +728,10 @@ class Element(o.Operand):
                     next_element._position_beats = place_position_beats
                     place_position_beats += self._duration_beats
                 if self._owner_clip is not None:    # Owner clip is always the base container
-                    return self._owner_clip._extend(new_elements)._sort_items()
+                    return self._owner_clip.extend(new_elements)._sort_items()
                 else:
                     new_clip: oc.Clip = oc.Clip()
-                    return new_clip._extend(new_elements)._set_owner_clip()
+                    return new_clip.extend(new_elements)._set_owner_clip()
 
             # Divides the `Duration` by sections with the given `Duration` (note value)
             case ra.Duration() | ra.NoteValue() | ra.TimeValue() | Fraction() | float():
@@ -756,7 +756,7 @@ class Element(o.Operand):
                                 new_elements.append(next_element)
                                 next_element._position_beats = next_split  # Just positions the `Element`
                                 next_split += segment_duration_beats
-                    return self._owner_clip._extend(new_elements)._sort_items()   # Allows the chaining of Clip operations
+                    return self._owner_clip.extend(new_elements)._sort_items()   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip().__iadd__(self).__ifloordiv__(operand)
                 
@@ -771,7 +771,7 @@ class Element(o.Operand):
                             next_element: Element = self.copy()
                             new_elements.append(next_element)
                             next_element._position_beats += self._duration_beats * next_element_i
-                    return self._owner_clip._extend(new_elements)._sort_items()   # Allows the chaining of Clip operations
+                    return self._owner_clip.extend(new_elements)._sort_items()   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip().__iadd__(self).__ifloordiv__(operand)
                 
@@ -790,7 +790,7 @@ class Element(o.Operand):
                             new_elements.append(right_element)
                             right_element._position_beats = split_position
                             right_element._duration_beats = right_duration
-                    return self._owner_clip._extend(new_elements)._sort_items()   # Allows the chaining of Clip operations
+                    return self._owner_clip.extend(new_elements)._sort_items()   # Allows the chaining of Clip operations
                 else:
                     return oc.Clip().__iadd__(self).__ifloordiv__(operand)
 
@@ -800,9 +800,9 @@ class Element(o.Operand):
                 for single_locus in loci:
                     new_elements.append(self.copy(single_locus))
                 if self._owner_clip is not None:    # Owner clip is always the base container
-                    return self._owner_clip._delete(self, True)._extend(new_elements)._sort_items()
+                    return self._owner_clip._delete(self, True).extend(new_elements)._sort_items()
                 else:
-                    return oc.Clip()._extend(new_elements)._sort_items()
+                    return oc.Clip().extend(new_elements)._sort_items()
             case tuple():
                 return super().__ifloordiv__(operand)
             case _:
@@ -853,7 +853,7 @@ class Element(o.Operand):
                 else:
                     new_elements.append(self.copy( ra.Position(beats) ))
 
-            new_clip._extend(new_elements)._sort_items()
+            new_clip.extend(new_elements)._sort_items()
             
         # Release these keys system-wide
         kb.unblock_key('enter')

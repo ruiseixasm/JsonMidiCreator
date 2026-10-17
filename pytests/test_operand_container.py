@@ -328,9 +328,9 @@ def test_item_add():
     clip = Note() * 4
     assert clip.len() == 4
     existing_item = clip[0]
-    clip._append(existing_item)
+    clip.append(existing_item)
     assert clip.len() == 4
-    clip._append(Note())
+    clip.append(Note())
     assert clip.len() == 5
 
 
