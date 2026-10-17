@@ -69,7 +69,7 @@ class Delete(Action):
 
 
 
-class SingleUseAction(Action):
+class SingleUse(Action):
     """`Action -> SingleUseAction`
 
     `SingleUseAction` means once used it doesn't work anymore, you need to create a new one or set it with a new amount.
@@ -79,7 +79,7 @@ class SingleUseAction(Action):
 
 
 
-class AmountedAction(SingleUseAction):
+class AmountedAction(SingleUse):
     """`Action -> SingleUseAction -> AmountedAction`
 
     `AmountedAction` means an `Action` with an amount associated.
@@ -290,7 +290,7 @@ class AmountedAction(SingleUseAction):
 
 
 class Invert(AmountedAction):
-    """`Act -> SingleUseAction -> AmountedAction -> Invert`
+    """`Action -> SingleUseAction -> AmountedAction -> Invert`
 
     Invert() inverts the selected elements for each given position.
     
@@ -339,6 +339,121 @@ class Invert(AmountedAction):
             for single_note in notes:
                 single_note += octave_offset
         return notes
+
+
+class Arpeggiate(SingleUse):
+    """`Action -> SingleUseAction -> Arpeggiate`
+
+    Distributes each element accordingly to the configured arpeggio by the parameters given.
+
+    Args:
+        Order(1), int : The notes changing order, with 1 being the "Up" order.
+        Duration(1/16), float : The duration after which the next note is played following the set `Order`.
+        Swing(0.5) : Sets the amount of time the note is effectively pressed relatively to its total duration.
+        Chaos(SinX()) : For the `Order` 5, "Chaotic", it uses the set Chaotic `Operand`.
+    """
+    def __init__(self, parameters: any = None):
+        super().__init__()
+        self._arpeggio = og.Arpeggio(*parameters)
+        self._arpeggiated_notes: list[oe.Note] = []
+
+
+    def _single_transform(self, clip: 'Clip') -> 'Clip':
+        arpeggio = og.Arpeggio(self.parameters)
+        arpeggio.arpeggiate_source(clip.elements_unmasked(), clip.start(), ra.Length( clip.net_duration() ))
+        return clip._sort_items()
+
+
+    def reuse(self) -> Self:
+        self._arpeggiated_notes = []
+        return self
+
+
+    def __mod__(self, operand: o.T) -> o.T:
+        from . import operand_rational as ra
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case og.Arpeggio():     return self._arpeggio
+                    case _:                 return super().__mod__(operand)
+            case og.Arpeggio():     return self._arpeggio.copy()
+            case _:                 return self._arpeggio.__mod__(operand)
+
+
+    def __eq__(self, other: any) -> bool:
+        match other:
+            case od.Conditional():
+                return other == self._arpeggio
+            case _:
+                return self._arpeggio == other
+        return False
+    
+    def __lt__(self, other: any) -> bool:
+        match other:
+            case od.Conditional():
+                return other > self._arpeggio
+            case _:
+                return self._arpeggio < other
+        return False
+    
+    def __gt__(self, other: any) -> bool:
+        match other:
+            case od.Conditional():
+                return other < self._arpeggio
+            case _:
+                return self._arpeggio > other
+        return False
+    
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["arpeggio"] = self._arpeggio
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "arpeggio" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._arpeggio = serialization["parameters"]["arpeggio"]
+        return self
+
+
+    def __lshift__(self, operand: any) -> Self:
+        from . import operand_rational as ra
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        self._arpeggio.__lshift__(operand)
+        return self.reuse()
+
+
+    def __iadd__(self, number: any) -> Self:
+        from . import operand_rational as ra
+        number = self._tail_wrap(number)      # Processes the tailed self operands if existent
+        self._arpeggio.__iadd__(number)
+        return self.reuse()
+
+    
+    def __isub__(self, number: any) -> Self:
+        from . import operand_rational as ra
+        number = self._tail_wrap(number)      # Processes the tailed self operands if existent
+        self._arpeggio.__isub__(number)
+        return self.reuse()
+
+    
+    def __imul__(self, number: any) -> Self:
+        from . import operand_rational as ra
+        number = self._tail_wrap(number)      # Processes the tailed self operands if existent
+        self._arpeggio.__imul__(number)
+        return self.reuse()
+
+    
+    def __itruediv__(self, number: any) -> Self:
+        number = self._tail_wrap(number)      # Processes the tailed self operands if existent
+        self._arpeggio.__itruediv__(number)
+        return self.reuse()
+
 
 
 

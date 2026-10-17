@@ -995,29 +995,6 @@ class Stepper(Transformation):
 
 
 
-class Arpeggiate(Transformation):
-    """`Transformation -> Arpeggiate`
-
-    Distributes each element accordingly to the configured arpeggio by the parameters given.
-
-    Args:
-        Order(1), int : The notes changing order, with 1 being the "Up" order.
-        Duration(1/16), float : The duration after which the next note is played following the set `Order`.
-        Swing(0.5) : Sets the amount of time the note is effectively pressed relatively to its total duration.
-        Chaos(SinX()) : For the `Order` 5, "Chaotic", it uses the set Chaotic `Operand`.
-    """
-    def __init__(self, parameters: any = None):
-        super().__init__()
-        self.parameters = parameters
-
-
-    def _single_transform(self, clip: 'Clip') -> 'Clip':
-        arpeggio = og.Arpeggio(self.parameters)
-        arpeggio.arpeggiate_source(clip.elements_unmasked(), clip.start(), ra.Length( clip.net_duration() ))
-        return clip._sort_items()
-
-
-
 class Quantize(Transformation):
     """`Transformation -> Quantize`
 

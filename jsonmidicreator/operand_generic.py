@@ -2248,7 +2248,7 @@ class Arpeggio(NoteEffect):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case ou.Direction():            return operand._data << od.Pipe( self._order )
+                    case ou.Direction():        return operand._data << od.Pipe( self._order )
                     case ra.Duration():         return operand._data << od.Pipe( self._duration_beats )
                     case ra.Swing():            return operand._data << od.Pipe( self._swing )
                     case ch.Chaos():            return self._chaos
@@ -2256,7 +2256,7 @@ class Arpeggio(NoteEffect):
                     case float():               return float( self._duration_beats )
                     case Fraction():            return self._duration_beats
                     case _:                     return super().__mod__(operand)
-            case ou.Direction():            return ou.Direction(self._order)
+            case ou.Direction():        return ou.Direction(self._order)
             case str():                 return ou.Direction(self._order) % str()
             case ra.Duration():         return ra.Duration( self._duration_beats )
             case ra.Swing():            return ra.Swing(self._swing)
