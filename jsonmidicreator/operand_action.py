@@ -346,51 +346,28 @@ class ApplyEffect(SingleUse):
     """`Action -> SingleUse -> ApplyEffect`
 
     Represents an Effect with multiple configuration parameters associated to.
+
+    Args:
+        Effect() : The Effect to be applied to the elements on each `Position`.
     """
     def __init__(self, parameters: any = None):
-        super().__init__()
-        self._effect = og.Arpeggio(*parameters)
+        self._effect: og.Effect = og.Effect()
         self._processed_elements: list[Element] = []
+        super().__init__(*parameters)
 
 
     def act(self, element: 'Element') -> 'Element':
         if element.is_owned():
-            element_position: ra.Position = element % ra.Position()
-            if element_position > self._last_position_beats:    # Only does a single inversion per position
-                self._last_position_beats = element_position % Fraction()
+            if not any(element is single_element for single_element in self._processed_elements):
+                element_position: ra.Position = element % ra.Position()
                 element_clip: oc.Clip = element.element_clip()
                 clip_shallow_copy = element_clip.shallow_copy()
                 clip_shallow_copy &= of.Equal(element_position)
                 elements = clip_shallow_copy._items    # Already without masked elements (framed)
-                self._apply_effect(elements)
+                self._effect.apply(elements)
                 self._processed_elements.extend(elements)
                 element_clip._sort_items()  # Required to update the positions in the list
         return element
-
-
-    def _apply_effect(self, elements: list['Elements']) -> list['Elements']:
-        return elements
-
-
-
-class Arpeggiate(ApplyEffect):
-    """`Action -> SingleUse -> ApplyEffect-> Arpeggiate`
-
-    Distributes each element accordingly to the configured arpeggio by the parameters given.
-
-    Args:
-        Order(1), int : The notes changing order, with 1 being the "Up" order.
-        Duration(1/16), float : The duration after which the next note is played following the set `Order`.
-        Swing(0.5) : Sets the amount of time the note is effectively pressed relatively to its total duration.
-        Chaos(SinX()) : For the `Order` 5, "Chaotic", it uses the set Chaotic `Operand`.
-    """
-    def __init__(self, parameters: any = None):
-        super().__init__()
-        self._effect = og.Arpeggio(*parameters)
-
-
-    def _apply_effect(self, elements: list['Element']) -> list['Element']:
-        return self._effect.apply(elements)
 
 
     def reuse(self) -> Self:
@@ -403,9 +380,9 @@ class Arpeggiate(ApplyEffect):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case og.Arpeggio():     return self._effect
+                    case og.Effect():       return self._effect
                     case _:                 return super().__mod__(operand)
-            case og.Arpeggio():     return self._effect.copy()
+            case og.Effect():       return self._effect.copy()
             case _:                 return self._effect.__mod__(operand)
 
 
@@ -436,17 +413,17 @@ class Arpeggiate(ApplyEffect):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["arpeggio"] = self._effect
+        serialization["parameters"]["effect"] = self._effect
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "arpeggio" in serialization["parameters"]):
+            "effect" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._effect = serialization["parameters"]["arpeggio"]
+            self._effect = serialization["parameters"]["effect"]
         return self
 
 
@@ -482,7 +459,5 @@ class Arpeggiate(ApplyEffect):
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
         self._effect.__itruediv__(number)
         return self.reuse()
-
-
 
 
