@@ -301,6 +301,25 @@ class SingleUseAction(AmountedAction):
     int(1) : Sets the amount for the Action
     """
 
+    def __lshift__(self, operand: any) -> Self:
+        return self.__lshift__(operand).reset()
+
+
+    def __iadd__(self, number: any) -> Self:
+        return self.__iadd__(number).reset()
+
+    
+    def __isub__(self, number: any) -> Self:
+        return self.__isub__(number).reset()
+
+    
+    def __imul__(self, number: any) -> Self:
+        return self.__imul__(number).reset()
+
+    
+    def __itruediv__(self, number: any) -> Self:
+        return self.__itruediv__(number).reset()
+
 
 class Invert(AmountedAction):
     """`Act -> AmountedAction -> SingleUseAction -> Invert`
@@ -315,9 +334,12 @@ class Invert(AmountedAction):
         self._last_position_beats = Fraction(-1)
         super().__init__(*parameters)
 
+    def reset(self, *parameters) -> Self:
+        self._last_position_beats = Fraction(-1)
+        return super().reset(*parameters)
+
 
     def act(self, clip: 'Clip') -> 'Clip':
-        self._last_position_beats = Fraction(-1)
         return super().act(clip)
 
 
