@@ -301,7 +301,13 @@ class Invert(RepeatedAction):
     """
     def _single_act(self, element: 'Element') -> 'Element':
         if element.is_owned():
-            ...
+            element_clip: oc.Clip = element.element_clip()
+            element_position: ra.Position = element % ra.Position()
+            clip_shallow_copy = element_clip.shallow_copy()
+            clip_shallow_copy &= of.Equal(element_position)
+
         return element
+
+
 
 

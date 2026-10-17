@@ -378,7 +378,7 @@ class Container(o.Operand):
             case bool():
                 return self._is_masked()
             case of.Frame():    # Works as a Selector, returns the Self container copy but with the Frame applied
-                return self.__or__(operand)
+                return self.__and__(operand)
             case _:
                 return super().__mod__(operand)
 
@@ -477,7 +477,7 @@ class Container(o.Operand):
         return self
 
 
-    def __ior__(self, operand: Any) -> Self:
+    def __iand__(self, operand: Any) -> Self:
         match operand:
             case of.Frame():
                 framed_items: list[Any] = []
@@ -494,7 +494,7 @@ class Container(o.Operand):
                 self._items = chosen_items
             case tuple():
                 for single_item in operand:
-                    self |= single_item
+                    self &= single_item
             case _:
                 equal_items: list[Any] = []
                 for single_item in self.items_unmasked():

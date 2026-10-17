@@ -94,7 +94,7 @@ class Operand:
 
     # & and | will not do a copy
     def __and__(self, operand: Any) -> Self:
-        return self.__iadd__(operand)
+        return self.copy().__iand__(operand)
 
     def __or__(self, operand: Any) -> Self:
         return self.copy().__ior__(operand)
