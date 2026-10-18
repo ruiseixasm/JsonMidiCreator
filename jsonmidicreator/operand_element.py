@@ -478,7 +478,7 @@ class Element(o.Operand):
                             for clip_element in operand._items
                         ]
                         self._owner_clip.extend(replacing_elements_list)
-                    self._owner_clip._delete_item(self, True)._sort_items()  # Ultimately, replaces it with nothing
+                    self._owner_clip.delete_item(self, True)._sort_items()  # Ultimately, replaces it with nothing
             case ou.Masked():
                 self._masked                = operand._unit != 0
             case od.Mask():                 self._masked = True
@@ -586,7 +586,7 @@ class Element(o.Operand):
                         self + self % ra.Length() * i % ra.Position() for i in range(operand)
                     ]
                     if self._owner_clip is not None:    # Owner clip is always the base container
-                        self._owner_clip._delete_item(self, True) # Starts by removing the actual element
+                        self._owner_clip.delete_item(self, True) # Starts by removing the actual element
                         self._owner_clip += self_elements
                         return self._owner_clip
                     else:
@@ -800,7 +800,7 @@ class Element(o.Operand):
                 for single_locus in loci:
                     new_elements.append(self.copy(single_locus))
                 if self._owner_clip is not None:    # Owner clip is always the base container
-                    return self._owner_clip._delete(self, True).extend(new_elements)._sort_items()
+                    return self._owner_clip.delete(self, True).extend(new_elements)._sort_items()
                 else:
                     return oc.Clip().extend(new_elements)._sort_items()
             case tuple():

@@ -285,7 +285,7 @@ class Merge(Transformation):
                 previous_element._duration_beats += unmasked_element._duration_beats
                 continue
             previous_element = unmasked_element
-        clip._delete(elements_to_remove, True)
+        clip.delete(elements_to_remove, True)
         return clip._sort_items()
 
 
@@ -565,7 +565,7 @@ class Clean(Transformation):
                     remove_items.append(single_element)
                     break
             unique_items.append(single_element)
-        clip._delete(remove_items, True)
+        clip.delete(remove_items, True)
         return clip._sort_items()
 
 
@@ -835,7 +835,7 @@ class Join(Transformation):
                     last_extended_notes[note_channel_pitch] = single_note
             else:
                 last_extended_notes[note_channel_pitch] = single_note   # Overrides previous existing notes (sorted by position)
-        clip._delete(joined_notes)
+        clip.delete(joined_notes)
         return clip._sort_items()
 
 

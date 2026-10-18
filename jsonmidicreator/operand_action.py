@@ -64,7 +64,7 @@ class Delete(Action):
     def act(self, element: 'Element') -> 'Element':
         if element.is_owned():
             owner_clip =  element.element_clip()
-            owner_clip._delete_item(element)
+            owner_clip.delete_item(element)
         return element
 
 
@@ -365,7 +365,7 @@ class ApplyEffect(SingleUse):
                 clip_shallow_copy &= of.Equal(element_position)
                 elements = clip_shallow_copy._items    # Already without masked elements (framed)
                 # Remove elements from clip
-                element_clip._delete(elements, True)
+                element_clip.delete(elements, True)
                 new_elements: list[oe.Element] = self._effect.apply(elements)
                 self._processed_elements.extend(new_elements)
                 # Add new elements to clip

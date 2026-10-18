@@ -188,10 +188,10 @@ class Container(o.Operand):
         return self
 
 
-    def _delete_item(self, item, by_id: bool = True) -> Self:
-        return self._delete([ item ], by_id)
+    def delete_item(self, item, by_id: bool = True) -> Self:
+        return self.delete([ item ], by_id)
     
-    def _delete(self, items: list = None, by_id: bool = False) -> Self:
+    def delete(self, items: list = None, by_id: bool = False) -> Self:
         if items is None:
             self._items.clear()
         else:
@@ -451,7 +451,7 @@ class Container(o.Operand):
                 self.loadSerialization( operand.getSerialization() )
             case list():
                 # Remove previous Elements from the Container stack
-                self._delete() # deletes all
+                self.delete() # deletes all
                 # Finally adds the decomposed elements to the Container stack
                 self.extend( o.deep_copy(operand) )
             case dict():
@@ -543,9 +543,9 @@ class Container(o.Operand):
     def __isub__(self, operand: any) -> Self:
         match operand:
             case Container():
-                return self._delete(operand._items)
+                return self.delete(operand._items)
             case list():
-                return self._delete(operand)
+                return self.delete(operand)
             
             case tuple():
                 for single_operand in operand:
@@ -555,14 +555,14 @@ class Container(o.Operand):
                 for single_item in self.items_unmasked():
                     single_parameter = operand.frame(single_item)
                     if single_parameter == ol.Full():
-                        self._delete_item(single_item)
+                        self.delete_item(single_item)
                     else:
                         single_item -= single_parameter
             case ch.Chaos():
                 for single_item in self.items_unmasked():
                     single_parameter = operand.chaoticize()
                     if single_parameter == ol.Full():
-                        self._delete_item(single_item)
+                        self.delete_item(single_item)
                     else:
                         single_item -= single_parameter
             case _:
@@ -588,7 +588,7 @@ class Container(o.Operand):
                         operand -= 1
                     self.extend(items_copy)  # Propagates upwards in the stack
                 elif operand == 0:
-                    self._delete()
+                    self.delete()
             case of.Frame():
                 operand._set_inside_container(self)
                 for single_item in self.items_unmasked():
@@ -712,7 +712,7 @@ class Container(o.Operand):
             Container: Returns an empty self but with all the rest parameters untouched except the ones
             changed by the imputed Args.
         """
-        self._delete(self._items, True)
+        self.delete(self._items, True)
         return super().clear(parameters)
     
 
@@ -784,7 +784,7 @@ class Devices(Container):
     def __isub__(self, operand: any) -> Self:
         match operand:
             case od.Device():
-                return self._delete([ operand._data ])
+                return self.delete([ operand._data ])
         return super().__isub__(operand)
 
 
@@ -2013,7 +2013,7 @@ class Clip(Composition):  # Just a container of Elements
             case list():
                 if all(isinstance(item, oe.Element) for item in operand):
                     # Remove previous Elements from the Container stack
-                    self._delete(self.elements_unmasked(), True) # deletes by id, safer
+                    self.delete(self.elements_unmasked(), True) # deletes by id, safer
                     # Finally adds the decomposed elements to the Container stack
                     self.extend(o.deep_copy(operand))
                     self._set_owner_clip()
@@ -2074,7 +2074,7 @@ class Clip(Composition):  # Just a container of Elements
                     if single_element.cross(operand % ra.Position())
                 ]
                 # Starts by removing the overlapping elements from the clip
-                self._delete(crossing_elements, True)
+                self.delete(crossing_elements, True)
                 # Creates new bordering elements
                 bordering_elements: list[oe.Element] = []
                 split_position_beats = operand % ra.Position() % Fraction()
@@ -2104,17 +2104,17 @@ class Clip(Composition):  # Just a container of Elements
     def __isub__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                return self._delete(operand.elements_unmasked())
+                return self.delete(operand.elements_unmasked())
             case oe.Element():
-                return self._delete([ operand ])
+                return self.delete([ operand ])
             case list():
                 if all(isinstance(item, oe.Element) for item in operand):
-                    return self._delete(operand)
+                    return self.delete(operand)
                 else: # Remove by index
                     elements_to_delete: list[oe.Element] = [
                         self[index] for index in operand
                     ]
-                    return self._delete(elements_to_delete, True)
+                    return self.delete(elements_to_delete, True)
             
             case str():
                 elements_place: list[int] = o.string_to_list(operand)
@@ -2122,7 +2122,7 @@ class Clip(Composition):  # Just a container of Elements
                 for index, placed in enumerate(elements_place):
                     if placed:
                         elements_to_delete.append(self[index])    # Shouldn't be copied
-                return self._delete(elements_to_delete, True)
+                return self.delete(elements_to_delete, True)
             
             case og.Locus():    # Cuts out the Locus are and trims any overlap
                 self //= operand
@@ -2166,7 +2166,7 @@ class Clip(Composition):  # Just a container of Elements
                     for _ in range(operand - 1):
                         self.__imul__(single_shallow_copy)
                 elif operand == 0:
-                    self._delete()
+                    self.delete()
 
             case ra.TimeUnit(): # Replicates elements with the TimeUnit offset for each add
                 self_repeating: int = operand % int() - 1
@@ -2211,7 +2211,7 @@ class Clip(Composition):  # Just a container of Elements
                     if single_element.overlap(operand)
                 ]
                 # Starts by removing ALL elements from the clip
-                self._delete()
+                self.delete()
                 # Creates new bordering elements
                 for single_element in overlapping_elements:
                     single_element.trim(operand)
@@ -2251,7 +2251,7 @@ class Clip(Composition):  # Just a container of Elements
                     for _ in range(operand - 1):
                         self.__itruediv__(single_shallow_copy)
                 elif operand == 0:
-                    self._delete()
+                    self.delete()
 
             case ra.TimeUnit(): # Replicates elements with the TimeUnit offset for each add
                 self_repeating: int = operand % int() - 1
@@ -2322,7 +2322,7 @@ class Clip(Composition):  # Just a container of Elements
                                 if i > 0:
                                     if single_element.start() == pitch_elements[root_element_i].finish():
                                         pitch_elements[root_element_i]._duration_beats += single_element._duration_beats
-                                        self._delete_item(single_element, True)
+                                        self.delete_item(single_element, True)
                                     else:
                                         root_element_i = i
                         # Reset Remaining Elements list
@@ -2397,7 +2397,7 @@ class Clip(Composition):  # Just a container of Elements
                     if single_element.overlap(operand)
                 ]
                 # Starts by removing the overlapping elements from the clip
-                self._delete(overlapping_elements, True)
+                self.delete(overlapping_elements, True)
                 # Creates new bordering elements
                 bordering_elements: list[oe.Element] = []
                 locus_start_beats = operand.start() % Fraction()
@@ -2524,7 +2524,7 @@ class Clip(Composition):  # Just a container of Elements
             for single_component in component_elements:
                 decomposed_elements.append(single_component)
         # Remove previous Elements from the Container stack
-        self._delete(self.elements_unmasked(), True) # deletes by id, safer
+        self.delete(self.elements_unmasked(), True) # deletes by id, safer
         # Finally adds the decomposed elements to the Container stack
         self.extend(decomposed_elements)
         return self._sort_items()
@@ -2967,7 +2967,7 @@ class Section(Composition):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Clip():
-                return self._delete([ operand ])
+                return self.delete([ operand ])
             case ra.Position() | ra.TimeValue() | ra.TimeUnit():
                 self << self % ra.Position() - operand
             case _:
@@ -3046,7 +3046,7 @@ class Section(Composition):
                     for _ in range(operand - 1):
                         self.__itruediv__(single_shallow_copy)
                 elif operand == 0:
-                    self._delete()
+                    self.delete()
                     
             case _:
                 super().__itruediv__(operand)
@@ -3075,7 +3075,7 @@ class Section(Composition):
                     for _ in range(operand - 1):
                         self += single_shallow_copy
                 elif operand == 0:
-                    self._delete()
+                    self.delete()
 
             case _:
                 super().__ifloordiv__(operand)
@@ -3533,9 +3533,9 @@ class Part(Composition):
     def __isub__(self, operand: any) -> Self:
         match operand:
             case Part():
-                return self._delete(operand._items)
+                return self.delete(operand._items)
             case Section():
-                return self._delete([ operand ])
+                return self.delete([ operand ])
             case Clip():
                 clip_block: Section = Section(operand)
                 self -= clip_block
@@ -3572,7 +3572,7 @@ class Part(Composition):
                     for _ in range(operand - 1):
                         self.__imul__(single_shallow_copy)
                 elif operand == 0:
-                    self._delete()
+                    self.delete()
                 
             case list():
                 base_blocks: list[Section] = []
@@ -3619,7 +3619,7 @@ class Part(Composition):
                     for _ in range(operand - 1):
                         self.__itruediv__(single_shallow_copy)
                 elif operand == 0:
-                    self._delete()
+                    self.delete()
                     
             case _:
                 super().__itruediv__(operand)
@@ -3642,7 +3642,7 @@ class Part(Composition):
                     for _ in range(operand - 1):
                         self += single_shallow_copy
                 elif operand == 0:
-                    self._delete()
+                    self.delete()
 
             case _:
                 super().__ifloordiv__(operand)
