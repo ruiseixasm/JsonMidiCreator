@@ -67,11 +67,6 @@ class Container(o.Operand):
     def __getitem__(self, index: Any) -> any:
         items_unmasked = self.items_unmasked()
         match index:
-            case of.Frame():
-                index._set_inside_container(self)
-                framed_items: list[Any] = index._get_unmasked_items()
-                if framed_items:
-                    return framed_items[0]  # The first occurrence
             case ch.Chaos():
                 for single_item in items_unmasked:
                     chaos_result = index.chaoticize()
@@ -79,13 +74,6 @@ class Container(o.Operand):
                         return single_item  # The first occurrence
             case od.Pipe():
                 match index._data:
-                    case of.Frame():
-                        pipped_frame = index._data
-                        pipped_frame._set_inside_container(self)
-                        for single_item in items_unmasked:
-                            frame_result = pipped_frame.frame(single_item)
-                            if single_item == od.Pipe(frame_result):
-                                return single_item
                     case ch.Chaos():
                         pipped_chaos = index._data
                         for single_item in items_unmasked:
@@ -419,7 +407,6 @@ class Container(o.Operand):
         return self
 
     def __lshift__(self, operand: any) -> Self:
-        from . import operand_action as oa
         match operand:
             case Container():
                 super().__lshift__(operand)
@@ -429,13 +416,6 @@ class Container(o.Operand):
                 match operand._data:
                     case list():
                         self._items = operand._data
-                    case of.Frame():
-                        operand._data._set_inside_container(self)
-                        framed_items: list[Any] = operand._data._get_unmasked_items()
-                        for single_item in framed_items:
-                            if isinstance(single_item, o.Operand):
-                                framed_parameter = operand._data.frame(single_item)
-                                single_item << od.Pipe( framed_parameter )
                     case ch.Chaos():
                         for single_item in self.items_unmasked():
                             if isinstance(single_item, o.Operand):
@@ -461,16 +441,6 @@ class Container(o.Operand):
                 for index, item in operand.items():
                     if isinstance(index, int) and index >= 0 and index < len(self.items_unmasked()):
                         self.items_unmasked()[index] = o.deep_copy(item)
-            case of.Frame():
-                operand._set_inside_container(self)
-                framed_items: list[Any] = operand._get_unmasked_items()
-                framed_operand: Any = operand.get_operand()
-                if isinstance(framed_operand, oa.Action):
-                    framed_operand._scoped_elements = framed_items
-                for single_item in framed_items:
-                    if isinstance (single_item, o.Operand):
-                        framed_parameter = operand.frame(single_item)
-                        single_item << framed_parameter
             case ch.Chaos():
                 for single_item in self.items_unmasked():
                     if isinstance (single_item, o.Operand):
@@ -1428,6 +1398,11 @@ class Clip(Composition):  # Just a container of Elements
 
     def __getitem__(self, index: Any) -> 'oe.Element':
         match index:
+            case of.Frame():
+                index._set_inside_container(self)
+                framed_items: list[Any] = index._get_unmasked_items()
+                if framed_items:
+                    return framed_items[0]  # The first occurrence
             case ra.Convertible():
                 elements_unmasked = self.elements_unmasked()
                 for single_element in elements_unmasked:
@@ -1435,6 +1410,13 @@ class Clip(Composition):  # Just a container of Elements
                         return single_element
             case od.Pipe():
                 match index._data:
+                    case of.Frame():
+                        pipped_frame = index._data
+                        pipped_frame._set_inside_container(self)
+                        for single_item in self.elements_unmasked():
+                            frame_result = pipped_frame.frame(single_item)
+                            if single_item == od.Pipe(frame_result):
+                                return single_item
                     case ra.Convertible():
                         elements_unmasked = self.elements_unmasked()
                         for single_element in elements_unmasked:
@@ -1942,6 +1924,7 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def __lshift__(self, operand: any) -> Self:
+        from . import operand_action as oa
         from . import operand_transformation as tr
         match operand:
             case Clip():
@@ -1976,9 +1959,26 @@ class Clip(Composition):  # Just a container of Elements
                             for item in self.elements_unmasked():
                                 item <<= operand._data
 
+                    case of.Frame():
+                        operand._data._set_inside_container(self)
+                        framed_items: list[Any] = operand._data._get_unmasked_items()
+                        for single_item in framed_items:
+                            if isinstance(single_item, o.Operand):
+                                framed_parameter = operand._data.frame(single_item)
+                                single_item << od.Pipe( framed_parameter )
                     case _:
                         super().__lshift__(operand)
 
+            case of.Frame():
+                operand._set_inside_container(self)
+                framed_items: list[Any] = operand._get_unmasked_items()
+                framed_operand: Any = operand.get_operand()
+                if isinstance(framed_operand, oa.Action):
+                    framed_operand._scoped_elements = framed_items
+                for single_item in framed_items:
+                    if isinstance (single_item, o.Operand):
+                        framed_parameter = operand.frame(single_item)
+                        single_item << framed_parameter
             case str():
                 if operand.find(" ") != -1 or operand.find(",") != -1:  # "," is what defines a line
                     self.__lshift__(od.Line(operand))
