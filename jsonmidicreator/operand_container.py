@@ -69,10 +69,9 @@ class Container(o.Operand):
         match index:
             case of.Frame():
                 index._set_inside_container(self)
-                for single_item in items_unmasked:
-                    frame_result = index.frame(single_item)
-                    if single_item == frame_result:
-                        return single_item  # The first occurrence
+                framed_items: list[Any] = index._get_unmasked_items()
+                if framed_items:
+                    return framed_items[0]  # The first occurrence
             case ch.Chaos():
                 for single_item in items_unmasked:
                     chaos_result = index.chaoticize()
