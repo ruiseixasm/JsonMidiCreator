@@ -524,7 +524,8 @@ class Container(o.Operand):
                     self += single_operand
             case of.Frame():
                 operand._set_inside_container(self)
-                for single_item in self.items_unmasked():
+                framed_items: list[Any] = operand._get_unmasked_items()
+                for single_item in framed_items:
                     single_item += operand.frame(single_item)
             case ch.Chaos():
                 for single_item in self.items_unmasked():
@@ -552,7 +553,8 @@ class Container(o.Operand):
                     self -= single_operand
             case of.Frame():
                 operand._set_inside_container(self)
-                for single_item in self.items_unmasked():
+                framed_items: list[Any] = operand._get_unmasked_items()
+                for single_item in framed_items:
                     single_parameter = operand.frame(single_item)
                     if single_parameter == ol.Full():
                         self.delete_item(single_item)
@@ -591,7 +593,8 @@ class Container(o.Operand):
                     self.delete()
             case of.Frame():
                 operand._set_inside_container(self)
-                for single_item in self.items_unmasked():
+                framed_items: list[Any] = operand._get_unmasked_items()
+                for single_item in framed_items:
                     single_item *= operand.frame(single_item)
             case ch.Chaos():
                 for single_item in self.items_unmasked():
@@ -612,7 +615,8 @@ class Container(o.Operand):
                 pass
             case of.Frame():
                 operand._set_inside_container(self)
-                for single_item in self.items_unmasked():
+                framed_items: list[Any] = operand._get_unmasked_items()
+                for single_item in framed_items:
                     single_item /= operand.frame(single_item)
             case ch.Chaos():
                 for single_item in self.items_unmasked():
@@ -632,7 +636,8 @@ class Container(o.Operand):
                 pass
             case of.Frame():
                 operand._set_inside_container(self)
-                for single_item in self.items_unmasked():
+                framed_items: list[Any] = operand._get_unmasked_items()
+                for single_item in framed_items:
                     single_item //= operand.frame(single_item)
             case ch.Chaos():
                 for single_item in self.items_unmasked():
