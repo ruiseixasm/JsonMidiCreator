@@ -99,6 +99,12 @@ class Frame(o.Operand):
         return self
 
 
+    def _get_unmasked_items(self) -> list[Any]:
+        if isinstance(self._chained_operand, Frame):    # Recursive call
+            return self._chained_operand._get_unmasked_items()
+        return self._unmasked_items
+
+
     def get_operand(self) -> Any:
         if isinstance(self._chained_operand, Frame):
             return self._chained_operand.get_operand()
