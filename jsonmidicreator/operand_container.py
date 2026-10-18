@@ -1939,24 +1939,24 @@ class Clip(Composition):  # Just a container of Elements
 
                     case of.Frame():
                         operand._data._set_inside_container(self)
-                        framed_items: list[Any] = operand._data._get_unmasked_items()
-                        for single_item in framed_items:
-                            if isinstance(single_item, o.Operand):
-                                framed_parameter = operand._data.frame(single_item)
-                                single_item << od.Pipe( framed_parameter )
+                        framed_elements: list[oe.Element] = operand._data._get_unmasked_items()
+                        for single_item in framed_elements:
+                            framed_parameter = operand._data.frame(single_item)
+                            if isinstance(framed_parameter, o.Operand):
+                                framed_parameter._scoped_elements = framed_elements
+                            single_item << od.Pipe( framed_parameter )
                     case _:
                         super().__lshift__(operand)
 
             case of.Frame():
                 operand._set_inside_container(self)
-                framed_items: list[Any] = operand._get_unmasked_items()
+                framed_elements: list[oe.Element] = operand._get_unmasked_items()
                 framed_operand: Any = operand.get_operand()
                 if isinstance(framed_operand, oa.Action):
-                    framed_operand._scoped_elements = framed_items
-                for single_item in framed_items:
-                    if isinstance (single_item, o.Operand):
-                        framed_parameter = operand.frame(single_item)
-                        single_item << framed_parameter
+                    framed_operand._scoped_elements = framed_elements
+                for single_item in framed_elements:
+                    framed_parameter = operand.frame(single_item)
+                    single_item << framed_parameter
             case str():
                 if operand.find(" ") != -1 or operand.find(",") != -1:  # "," is what defines a line
                     self.__lshift__(od.Line(operand))
