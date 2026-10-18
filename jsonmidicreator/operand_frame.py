@@ -83,7 +83,7 @@ class Frame(o.Operand):
 
     def _set_inside_clip(self, clip: 'Clip') -> Self:
         from . import operand_container as oc
-        clip._set = False   # In order to contained items know it was set by them (Element items)
+        clip._set = False   # In order to contained elements know it was set by them
         if isinstance(clip, oc.Clip):
             self._update_unmasked_elements( clip.elements_unmasked() )
         else:
@@ -92,10 +92,10 @@ class Frame(o.Operand):
         return self.reset()
 
 
-    def _update_unmasked_elements(self, unmasked_items: list[Any]) -> Self:
-        self._unmasked_elements = unmasked_items
+    def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
+        self._unmasked_elements = unmasked_elements
         if isinstance(self._chained_operand, Frame):    # Recursive call
-            self._chained_operand._update_unmasked_elements(unmasked_items)
+            self._chained_operand._update_unmasked_elements(unmasked_elements)
         return self
 
 
@@ -360,11 +360,11 @@ class SendTo(LeftToRight):
 class Choice(LeftToRight):
     """`Frame -> LeftToRight -> Choice`
 
-    A `Choice` is a group of items that can be chosen from based on the input as the chooser.
+    A `Choice` is a group of elements that can be chosen from based on the input as the chooser.
 
     Parameters
     ----------
-    Any(None) : Multiple items to be chosen.
+    Any(None) : Multiple elements to be chosen.
     """
     def frame(self, input: o.T) -> o.T:
         if len(self._parameters) > 0:
@@ -383,12 +383,12 @@ class Choice(LeftToRight):
 class Pick(LeftToRight):
     """`Frame -> LeftToRight -> Pick`
 
-    A `Pick` is a group of items that can be picketed from based on the input as the picker.
-    The difference with `Choice` is that each picked item becomes unavailable until all items are picked.
+    A `Pick` is a group of elements that can be picketed from based on the input as the picker.
+    The difference with `Choice` is that each picked item becomes unavailable until all elements are picked.
 
     Parameters
     ----------
-    Any(None) : Multiple items to be picketed.
+    Any(None) : Multiple elements to be picketed.
     """
     def __init__(self, *parameters):
         super().__init__(*parameters)
@@ -633,11 +633,11 @@ class Mux(LeftToRight):
 class Foreach(LeftToRight):
     """`Frame -> LeftToRight -> Foreach`
 
-    A `Foreach` cycles through a set of items and returns to the first one whenever reaches the end of it.
+    A `Foreach` cycles through a set of elements and returns to the first one whenever reaches the end of it.
 
     Parameters
     ----------
-    Any(None) : The set of items to loop through.
+    Any(None) : The set of elements to loop through.
 
     Examples
     --------
@@ -661,12 +661,12 @@ class Foreach(LeftToRight):
 class Once(Foreach):
     """`Frame -> LeftToRight -> Foreach -> Once`
 
-    A `Once` is a Foreach that loops through a set of items only once, not returning to the first one \
+    A `Once` is a Foreach that loops through a set of elements only once, not returning to the first one \
         when it reaches the last one.
 
     Parameters
     ----------
-    Any(None) : The set of items to loop through only once.
+    Any(None) : The set of elements to loop through only once.
 
     Examples
     --------
@@ -735,14 +735,14 @@ class ItemType(ContainerFilter):
     ----------
     type(None) : A single or multiple types can be set as accepted ones.
     """
-    def _update_unmasked_elements(self, unmasked_items: list[Any]) -> Self:
-        type_items: list[Any] = []
-        for single_item in unmasked_items:
+    def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
+        type_elements: list[Any] = []
+        for single_element in unmasked_elements:
             for operand_class in self._parameters:
-                if isinstance(single_item, operand_class):
-                    type_items.append(single_item)
+                if isinstance(single_element, operand_class):
+                    type_elements.append(single_element)
                     break
-        return super()._update_unmasked_elements(type_items)
+        return super()._update_unmasked_elements(type_elements)
 
 
 
@@ -752,7 +752,7 @@ class First(ContainerFilter):
     A `First` only lets the first `amount` of elements in a `Clip` to pass to the next `Frame`.
 
     Args:
-        amount (int): The number of items at the beginning. The default is 1.
+        amount (int): The number of elements at the beginning. The default is 1.
     """
     def __init__(self, amount: int = 1):
         super().__init__()
@@ -761,12 +761,12 @@ class First(ContainerFilter):
             self._named_parameters['amount'] = amount
 
 
-    def _update_unmasked_elements(self, unmasked_items: list[Any]) -> Self:
-        amount_items: int = self._named_parameters['amount']
-        first_items: list[Any] = unmasked_items
-        if len(unmasked_items) > amount_items:
-            first_items = unmasked_items[:amount_items]
-        return super()._update_unmasked_elements(first_items)
+    def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
+        amount_elements: int = self._named_parameters['amount']
+        first_elements: list[Any] = unmasked_elements
+        if len(unmasked_elements) > amount_elements:
+            first_elements = unmasked_elements[:amount_elements]
+        return super()._update_unmasked_elements(first_elements)
 
 
 
@@ -776,7 +776,7 @@ class Last(ContainerFilter):
     A `Last` only lets the last `amount` of elements in a `Clip` to pass to the next `Frame`.
 
     Args:
-        amount (int): The number of items at the end. The default is 1.
+        amount (int): The number of elements at the end. The default is 1.
     """
     def __init__(self, amount: int = 1):
         super().__init__()
@@ -785,13 +785,13 @@ class Last(ContainerFilter):
             self._named_parameters['amount'] = amount
 
 
-    def _update_unmasked_elements(self, unmasked_items: list[Any]) -> Self:
-        amount_items: int = self._named_parameters['amount']
-        last_items: list[Any] = unmasked_items
-        if len(unmasked_items) > amount_items:
-            first_item: int = len(unmasked_items) - amount_items
-            last_items = unmasked_items[first_item:]
-        return super()._update_unmasked_elements(last_items)
+    def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
+        amount_elements: int = self._named_parameters['amount']
+        last_elements: list[Any] = unmasked_elements
+        if len(unmasked_elements) > amount_elements:
+            first_item: int = len(unmasked_elements) - amount_elements
+            last_elements = unmasked_elements[first_item:]
+        return super()._update_unmasked_elements(last_elements)
 
 
 
@@ -810,12 +810,12 @@ class Nth(ContainerFilter):
         self._named_parameters['parameters'] = parameters
 
 
-    def _update_unmasked_elements(self, unmasked_items: list[Any]) -> Self:
-        nth_items: list[Any] = []
-        for index, single_item in enumerate(unmasked_items):
+    def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
+        nth_elements: list[Any] = []
+        for index, single_item in enumerate(unmasked_elements):
             if index + 1 in self._named_parameters['parameters']:
-                nth_items.append(single_item)
-        return super()._update_unmasked_elements(nth_items)
+                nth_elements.append(single_item)
+        return super()._update_unmasked_elements(nth_elements)
 
 
 
@@ -834,12 +834,12 @@ class At(ContainerFilter):
         self._named_parameters['parameters'] = parameters
 
 
-    def _update_unmasked_elements(self, unmasked_items: list[Any]) -> Self:
-        at_items: list[Any] = []
-        for index, single_item in enumerate(unmasked_items):
+    def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
+        at_elements: list[Any] = []
+        for index, single_item in enumerate(unmasked_elements):
             if index in self._named_parameters['parameters']:
-                at_items.append(single_item)
-        return super()._update_unmasked_elements(at_items)
+                at_elements.append(single_item)
+        return super()._update_unmasked_elements(at_elements)
 
 
 
@@ -852,12 +852,12 @@ class Odd(ContainerFilter):
     ----------
     None : `Odd` doesn't have parameters to be set.
     """
-    def _update_unmasked_elements(self, unmasked_items: list[Any]) -> Self:
-        odd_items: list[Any] = [
-            single_item for index, single_item in enumerate(unmasked_items)
+    def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
+        odd_elements: list[Any] = [
+            single_item for index, single_item in enumerate(unmasked_elements)
             if index % 2 == 0   # Odd is nth based
         ]
-        return super()._update_unmasked_elements(odd_items)
+        return super()._update_unmasked_elements(odd_elements)
 
 
 
@@ -870,12 +870,12 @@ class Even(ContainerFilter):
     ----------
     None : `Even` doesn't have parameters to be set.
     """
-    def _update_unmasked_elements(self, unmasked_items: list[Any]) -> Self:
-        even_items: list[Any] = [
-            single_item for index, single_item in enumerate(unmasked_items)
+    def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
+        even_elements: list[Any] = [
+            single_item for index, single_item in enumerate(unmasked_elements)
             if index % 2 == 1   # Even is nth based
         ]
-        return super()._update_unmasked_elements(even_items)
+        return super()._update_unmasked_elements(even_elements)
 
 
 
@@ -893,13 +893,13 @@ class Every(ContainerFilter):
         self._named_parameters['nths'] = nth
 
 
-    def _update_unmasked_elements(self, unmasked_items: list[Any]) -> Self:
+    def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
         from . import operand_container as oc
-        nth_items: list[Any] = []
+        nth_elements: list[Any] = []
         if self._named_parameters['nths'] > 0:
             nth: int = 0
             previous_measure: int | None = None
-            for single_item in unmasked_items:
+            for single_item in unmasked_elements:
                 if isinstance(single_item, (oe.Element, oc.Composition)):
                     present_measure: ra.Measure = single_item % ra.Measure()
                     if isinstance(present_measure, ra.Measure):
@@ -907,9 +907,9 @@ class Every(ContainerFilter):
                             nth = 0   # Resets the nth counter
                         nth += 1
                         if nth % self._named_parameters['nths'] == 0:
-                            nth_items.append(single_item)
+                            nth_elements.append(single_item)
                         previous_measure = present_measure
-        return super()._update_unmasked_elements(nth_items)
+        return super()._update_unmasked_elements(nth_elements)
     
 
 
@@ -937,14 +937,14 @@ class Either(ContainerFilter):
     ----------
     Any(None) : One or more conditions where **at-least one** needs to be met.
     """
-    def _update_unmasked_elements(self, unmasked_items: list[Any]) -> Self:
-        either_items: list[Any] = []
-        for single_item in unmasked_items:
+    def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
+        either_elements: list[Any] = []
+        for single_item in unmasked_elements:
             for condition in self._parameters:
                 if single_item == condition:
-                    either_items.append(single_item)
+                    either_elements.append(single_item)
                     break
-        return super()._update_unmasked_elements(either_items)
+        return super()._update_unmasked_elements(either_elements)
 
 
 
@@ -957,18 +957,18 @@ class Neither(ContainerFilter):
     ----------
     Any(None) : One or more conditions where **none** can be met.
     """
-    def _update_unmasked_elements(self, unmasked_items: list[Any]) -> Self:
-        either_items: list[Any] = []
-        for single_item in unmasked_items:
+    def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
+        either_elements: list[Any] = []
+        for single_item in unmasked_elements:
             for condition in self._parameters:
                 if single_item == condition:
-                    either_items.append(single_item)
+                    either_elements.append(single_item)
                     break
-        neither_items: list[Any] = [
-            single_item for single_item in unmasked_items
-            if not any(single_item is item for item in either_items)
+        neither_elements: list[Any] = [
+            single_item for single_item in unmasked_elements
+            if not any(single_item is item for item in either_elements)
         ]
-        return super()._update_unmasked_elements(neither_items)
+        return super()._update_unmasked_elements(neither_elements)
 
 
 
@@ -988,17 +988,17 @@ class BasicComparison(ContainerFilter):
         return super()._set_inside_clip(container)
 
 
-    def _update_unmasked_elements(self, unmasked_items: list[Any]) -> Self:
-        match_items: list[Any] = []
-        for single_item in unmasked_items:
+    def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
+        match_elements: list[Any] = []
+        for single_item in unmasked_elements:
             matches: bool = True
             for other in self._parameters:
                 if not self._compare(single_item, other): # Where the comparison is made
                     matches = False
                     break
             if matches:
-                match_items.append(single_item)
-        return super()._update_unmasked_elements(match_items)
+                match_elements.append(single_item)
+        return super()._update_unmasked_elements(match_elements)
     
 
     @staticmethod
@@ -1014,7 +1014,7 @@ class Equal(BasicComparison):
 
     Parameters
     ----------
-    Any(None) : One or more `other` items where **all** need to be met as equal (`==`).
+    Any(None) : One or more `other` elements where **all** need to be met as equal (`==`).
     """
     @staticmethod
     def _compare(input: Any, other: Any) -> bool:
@@ -1029,7 +1029,7 @@ class NotEqual(BasicComparison):
 
     Parameters
     ----------
-    Any(None) : One or more `other` items where **all** need to be met as NOT equal (`not ==`).
+    Any(None) : One or more `other` elements where **all** need to be met as NOT equal (`not ==`).
     """
     @staticmethod
     def _compare(input: Any, other: Any) -> bool:
@@ -1044,7 +1044,7 @@ class Above(BasicComparison):
 
     Parameters
     ----------
-    Any(None) : One or more `other` items where **all** need to be met as greater (`>`).
+    Any(None) : One or more `other` elements where **all** need to be met as greater (`>`).
     """
     @staticmethod
     def _compare(input: Any, other: Any) -> bool:
@@ -1059,7 +1059,7 @@ class Bellow(BasicComparison):
 
     Parameters
     ----------
-    Any(None) : One or more `other` items where **all** need to be met as less (`<`).
+    Any(None) : One or more `other` elements where **all** need to be met as less (`<`).
     """
     @staticmethod
     def _compare(input: Any, other: Any) -> bool:
@@ -1074,7 +1074,7 @@ class AboveOrEqual(BasicComparison):
 
     Parameters
     ----------
-    Any(None) : One or more `other` items where **all** need to be met as greater or equal (`>=`).
+    Any(None) : One or more `other` elements where **all** need to be met as greater or equal (`>=`).
     """
     @staticmethod
     def _compare(input: Any, other: Any) -> bool:
@@ -1089,7 +1089,7 @@ class BellowOrEqual(BasicComparison):
 
     Parameters
     ----------
-    Any(None) : One or more `other` items where **all** need to be met as less or equal (`<=`).
+    Any(None) : One or more `other` elements where **all** need to be met as less or equal (`<=`).
     """
     @staticmethod
     def _compare(input: Any, other: Any) -> bool:
@@ -1106,15 +1106,15 @@ class OnBeat(ContainerFilter):
     ----------
     None : `OnBeat` doesn't have parameters to be set.
     """
-    def _update_unmasked_elements(self, unmasked_items: list[Any]) -> Self:
-        on_beat_items: list[Any] = []
+    def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
+        on_beat_elements: list[Any] = []
         steps_per_beat: int = int(1 / og.settings._quantization)
-        for single_item in unmasked_items:
+        for single_item in unmasked_elements:
             if isinstance(single_item, oe.Element):
                 position_step: int = single_item % ra.Step() % int()
                 if position_step % steps_per_beat == 0:
-                    on_beat_items.append(single_item)
-        return super()._update_unmasked_elements(on_beat_items)
+                    on_beat_elements.append(single_item)
+        return super()._update_unmasked_elements(on_beat_elements)
 
 
 
@@ -1127,15 +1127,15 @@ class OffBeat(ContainerFilter):
     ----------
     None : `OffBeat` doesn't have parameters to be set.
     """
-    def _update_unmasked_elements(self, unmasked_items: list[Any]) -> Self:
-        off_beat_items: list[Any] = []
+    def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
+        off_beat_elements: list[Any] = []
         steps_per_beat: int = int(1 / og.settings._quantization)
-        for single_item in unmasked_items:
+        for single_item in unmasked_elements:
             if isinstance(single_item, oe.Element):
                 position_step: int = single_item % ra.Step() % int()
                 if position_step % steps_per_beat == round(steps_per_beat / 2):
-                    off_beat_items.append(single_item)
-        return super()._update_unmasked_elements(off_beat_items)
+                    off_beat_elements.append(single_item)
+        return super()._update_unmasked_elements(off_beat_elements)
 
 
 
@@ -1148,14 +1148,14 @@ class DownBeat(ContainerFilter):
     ----------
     None : `DownBeat` doesn't have parameters to be set.
     """
-    def _update_unmasked_elements(self, unmasked_items: list[Any]) -> Self:
-        down_beat_items: list[Any] = []
-        for single_item in unmasked_items:
+    def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
+        down_beat_elements: list[Any] = []
+        for single_item in unmasked_elements:
             if isinstance(single_item, oe.Element):
                 position_step: int = single_item % ra.Step() % int()
                 if position_step == 0:
-                    down_beat_items.append(single_item)
-        return super()._update_unmasked_elements(down_beat_items)
+                    down_beat_elements.append(single_item)
+        return super()._update_unmasked_elements(down_beat_elements)
 
 
 
@@ -1168,17 +1168,17 @@ class UpBeat(ContainerFilter):
     ----------
     None : `UpBeat` doesn't have parameters to be set.
     """
-    def _update_unmasked_elements(self, unmasked_items: list[Any]) -> Self:
-        up_beat_items: list[Any] = []
+    def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
+        up_beat_elements: list[Any] = []
         steps_per_beat: int = int(1 / og.settings._quantization)
-        for single_item in unmasked_items:
+        for single_item in unmasked_elements:
             if isinstance(input, oe.Element):
                 steps_per_measure: int = single_item._get_time_signature()._top * steps_per_beat
                 position_step: int = single_item % ra.Step() % int()
                 half_beat_steps: int = round(steps_per_beat / 2)
                 if (position_step + half_beat_steps) % steps_per_measure == 0:
-                    up_beat_items.append(single_item)
-        return super()._update_unmasked_elements(up_beat_items)
+                    up_beat_elements.append(single_item)
+        return super()._update_unmasked_elements(up_beat_elements)
 
 
 
@@ -1191,14 +1191,14 @@ class OddStep(ContainerFilter):
     ----------
     None : `OddStep` doesn't have parameters to be set.
     """
-    def _update_unmasked_elements(self, unmasked_items: list[Any]) -> Self:
-        odd_step_items: list[Any] = []
-        for single_item in unmasked_items:
+    def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
+        odd_step_elements: list[Any] = []
+        for single_item in unmasked_elements:
             if isinstance(single_item, oe.Element):
                 position_step: int = single_item % ra.Step() % int()
                 if position_step % 2 == 0:
-                    odd_step_items.append(single_item)
-        return super()._update_unmasked_elements(odd_step_items)
+                    odd_step_elements.append(single_item)
+        return super()._update_unmasked_elements(odd_step_elements)
 
 
 
@@ -1213,14 +1213,14 @@ class EvenStep(ContainerFilter):
     ----------
     None : `EvenStep` doesn't have parameters to be set.
     """
-    def _update_unmasked_elements(self, unmasked_items: list[Any]) -> Self:
-        even_step_items: list[Any] = []
-        for single_item in unmasked_items:
+    def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
+        even_step_elements: list[Any] = []
+        for single_item in unmasked_elements:
             if isinstance(single_item, oe.Element):
                 position_step: int = single_item % ra.Step() % int()
                 if position_step % 2 == 1:
-                    even_step_items.append(single_item)
-        return super()._update_unmasked_elements(even_step_items)
+                    even_step_elements.append(single_item)
+        return super()._update_unmasked_elements(even_step_elements)
 
 
 
@@ -1233,10 +1233,10 @@ class PreviousComparison(ContainerFilter):
     ----------
     Any(None) : One or more conditions where **all** need to be met.
     """
-    def _update_unmasked_elements(self, unmasked_items: list[Any]) -> Self:
-        passed_items: list[Any] = []
+    def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
+        passed_elements: list[Any] = []
         previous_parameter: Any = None
-        for single_item in unmasked_items:
+        for single_item in unmasked_elements:
             matches: bool = True
             if previous_parameter is not None:
                 parameter: Any = previous_parameter
@@ -1246,9 +1246,9 @@ class PreviousComparison(ContainerFilter):
                 if not self._compare(single_item, parameter): # Where the comparison is made
                     matches = False
             if matches:
-                passed_items.append(single_item)
+                passed_elements.append(single_item)
             previous_parameter = single_item
-        return super()._update_unmasked_elements(passed_items)
+        return super()._update_unmasked_elements(passed_elements)
     
 
     @staticmethod
@@ -1260,7 +1260,7 @@ class PreviousComparison(ContainerFilter):
 class AllMatch(PreviousComparison):
     """`Frame -> LeftToRight -> ContainerFilter -> PreviousComparison -> AllMatch`
 
-    An `AllMatch` checks if the successive items share a matching parameter.
+    An `AllMatch` checks if the successive elements share a matching parameter.
 
     Parameters
     ----------
@@ -1275,7 +1275,7 @@ class AllMatch(PreviousComparison):
 class AllIncreasing(PreviousComparison):
     """`Frame -> LeftToRight -> ContainerFilter -> PreviousComparison -> AllIncreasing`
 
-    An `AllIncreasing` checks if the successive items have an increasing parameter.
+    An `AllIncreasing` checks if the successive elements have an increasing parameter.
 
     Parameters
     ----------
@@ -1290,7 +1290,7 @@ class AllIncreasing(PreviousComparison):
 class AllDecreasing(PreviousComparison):
     """`Frame -> LeftToRight -> ContainerFilter -> PreviousComparison -> AllDecreasing`
 
-    An `AllDecreasing` checks if the successive items have a decreasing parameter.
+    An `AllDecreasing` checks if the successive elements have a decreasing parameter.
 
     Parameters
     ----------
@@ -1305,7 +1305,7 @@ class AllDecreasing(PreviousComparison):
 class AllNotIncreasing(PreviousComparison):
     """`Frame -> LeftToRight -> ContainerFilter -> PreviousComparison -> AllNotIncreasing`
 
-    An `AllNotIncreasing` checks if the successive items have NOT an increasing parameter.
+    An `AllNotIncreasing` checks if the successive elements have NOT an increasing parameter.
 
     Parameters
     ----------
@@ -1320,7 +1320,7 @@ class AllNotIncreasing(PreviousComparison):
 class AllNotDecreasing(PreviousComparison):
     """`Frame -> LeftToRight -> ContainerFilter -> PreviousComparison -> AllNotDecreasing`
 
-    An `AllNotDecreasing` checks if the successive items have NOT a decreasing parameter.
+    An `AllNotDecreasing` checks if the successive elements have NOT a decreasing parameter.
 
     Parameters
     ----------
@@ -1346,13 +1346,13 @@ class Cross(ContainerFilter):
         self._named_parameters['position'] = ra.Position(position)
 
 
-    def _update_unmasked_elements(self, unmasked_items: list[Any]) -> Self:
-        crossing_items: list[Any] = []
-        for single_item in unmasked_items:
+    def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
+        crossing_elements: list[Any] = []
+        for single_item in unmasked_elements:
             if isinstance(single_item, oe.Element):
                 if isinstance(single_item, oe.Element) and single_item.cross(self._named_parameters['position']):
-                    crossing_items.append(single_item)
-        return super()._update_unmasked_elements(crossing_items)
+                    crossing_elements.append(single_item)
+        return super()._update_unmasked_elements(crossing_elements)
 
 
 
@@ -1370,13 +1370,13 @@ class Overlap(ContainerFilter):
         self._named_parameters['locus'] = og.Locus(locus)
 
 
-    def _update_unmasked_elements(self, unmasked_items: list[Any]) -> Self:
-        overlapping_items: list[Any] = []
-        for single_item in unmasked_items:
+    def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
+        overlapping_elements: list[Any] = []
+        for single_item in unmasked_elements:
             if isinstance(single_item, oe.Element):
                 if isinstance(single_item, oe.Element) and single_item.overlap(self._named_parameters['locus']):
-                    overlapping_items.append(single_item)
-        return super()._update_unmasked_elements(overlapping_items)
+                    overlapping_elements.append(single_item)
+        return super()._update_unmasked_elements(overlapping_elements)
 
 
 
