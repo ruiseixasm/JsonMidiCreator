@@ -2444,6 +2444,23 @@ class Arpeggio(NoteEffect):
             case _:
                 return notes  # Default to "Up"
 
+
+    # def _generate_sequence(self, notes: list['Note'], index: int) -> 'Note':
+    #     """Returns the Note at the given index in the arpeggio sequence."""
+    #     size = len(notes)
+    #     match ou.Direction.numberToName(self._order):
+    #         case "Down":
+    #             return notes[size - 1 - index]
+    #         case "UpDown":
+    #             return notes[index if index < size else 2 * size - 2 - index]
+    #         case "DownUp":
+    #             return notes[size - 1 - index if index < size else index - size + 1]
+    #         case "Chaotic":
+    #             return self._shuffle_list(notes)[index]
+    #         case _:
+    #             return notes[index % size]
+        
+
     def apply(self, notes: list['Note']) -> list['Note']:
         arpeggiated_notes: list['Note'] = []
         if self._order > 0 and len(notes) > 0:
@@ -2458,12 +2475,12 @@ class Arpeggio(NoteEffect):
             
             sequenced_notes: list['Note'] = self._generate_sequence(notes)
             total_notes: int = len(sequenced_notes)
-            nth_note: int = 1
+            note_index: int = 0
             while note_start_position < arpeggio_end_position:
-                new_note: Note = sequenced_notes[(nth_note - 1) % total_notes].copy()
+                new_note: Note = sequenced_notes[note_index % total_notes].copy()
                 arpeggiated_notes.append(new_note)
                 new_note << note_start_position
-                if nth_note % 2 == 1:   # Odd note
+                if note_index % 2 == 0:   # Odd note
                     new_note << odd_length
                 else:
                     new_note << even_length
@@ -2473,7 +2490,7 @@ class Arpeggio(NoteEffect):
                     new_note += length_deficit
                     break
                 note_start_position = note_end_position
-                nth_note += 1
+                note_index += 1
         return super().apply(arpeggiated_notes)
 
 
