@@ -2428,37 +2428,21 @@ class Arpeggio(NoteEffect):
 
         return shuffled_list
 
-    def _generate_sequence(self, notes: list['Note']) -> list['Note']:
-        """Generates the sequence of the arpeggio order."""
-        match ou.Direction.numberToName( self._order ):
-            case "Up":
-                return notes
+
+    def _next_note(self, notes: list['Note'], index: int) -> 'Note':
+        """Returns the Note at the given index in the arpeggio sequence."""
+        size = len(notes)
+        match ou.Direction.numberToName(self._order):
             case "Down":
-                return notes[::-1]
+                return notes[size - 1 - index]
             case "UpDown":
-                return notes + notes[-2:0:-1]  # Ascend then descend
+                return notes[index if index < size else 2 * size - 2 - index]
             case "DownUp":
-                return notes[::-1] + notes[1:-1]  # Descend then ascend
+                return notes[size - 1 - index if index < size else index - size + 1]
             case "Chaotic":
-                return self._shuffle_list(notes)
+                return self._shuffle_list(notes)[index]
             case _:
-                return notes  # Default to "Up"
-
-
-    # def _generate_sequence(self, notes: list['Note'], index: int) -> 'Note':
-    #     """Returns the Note at the given index in the arpeggio sequence."""
-    #     size = len(notes)
-    #     match ou.Direction.numberToName(self._order):
-    #         case "Down":
-    #             return notes[size - 1 - index]
-    #         case "UpDown":
-    #             return notes[index if index < size else 2 * size - 2 - index]
-    #         case "DownUp":
-    #             return notes[size - 1 - index if index < size else index - size + 1]
-    #         case "Chaotic":
-    #             return self._shuffle_list(notes)[index]
-    #         case _:
-    #             return notes[index % size]
+                return notes[index % size]
         
 
     def apply(self, notes: list['Note']) -> list['Note']:
@@ -2473,11 +2457,9 @@ class Arpeggio(NoteEffect):
             odd_length: ra.Length = note_length * 2 * self._swing
             even_length: ra.Length = note_length * 2 - odd_length
             
-            sequenced_notes: list['Note'] = self._generate_sequence(notes)
-            total_notes: int = len(sequenced_notes)
             note_index: int = 0
             while note_start_position < arpeggio_end_position:
-                new_note: Note = sequenced_notes[note_index % total_notes].copy()
+                new_note: Note = self._next_note(notes, note_index).copy()
                 arpeggiated_notes.append(new_note)
                 new_note << note_start_position
                 if note_index % 2 == 0:   # Odd note
@@ -2503,7 +2485,7 @@ class Arpeggio(NoteEffect):
             odd_length: ra.Length = note_length * 2 * self._swing
             even_length: ra.Length = note_length * 2 - odd_length
             
-            sequenced_notes: list['Note'] = self._generate_sequence(notes)
+            sequenced_notes: list['Note'] = self._next_note(notes)
             nth_note: int = 1
             for note_i in range(total_notes):
                 notes[note_i] = sequenced_notes[note_i]
