@@ -461,7 +461,8 @@ class Container(o.Operand):
                         self.items_unmasked()[index] = o.deep_copy(item)
             case of.Frame():
                 operand._set_inside_container(self)
-                for single_item in self.items_unmasked():
+                framed_items: list[Any] = operand._get_unmasked_items()
+                for single_item in framed_items:
                     if isinstance (single_item, o.Operand):
                         single_item << operand.frame(single_item)
             case ch.Chaos():
