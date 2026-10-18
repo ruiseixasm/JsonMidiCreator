@@ -435,10 +435,6 @@ class Container(o.Operand):
 
     def __iand__(self, operand: Any) -> Self:
         match operand:
-            case of.Frame():
-                operand._set_inside_container(self)
-                framed_items: list[Any] = operand._get_unmasked_items()
-                self._items = framed_items
             case ch.Chaos():
                 chosen_items: list[Any] = []
                 for single_item in self.items_unmasked():
@@ -2062,6 +2058,17 @@ class Clip(Composition):  # Just a container of Elements
             case _:
                 super().__lshift__(operand)
         return self._sort_items()
+
+
+    def __iand__(self, operand: Any) -> Self:
+        match operand:
+            case of.Frame():
+                operand._set_inside_container(self)
+                framed_items: list[Any] = operand._get_unmasked_items()
+                self._items = framed_items
+            case _:
+                super().__iand__(operand)
+        return self
 
 
     # Avoids the costly copy of Track self doing +=
