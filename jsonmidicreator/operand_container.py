@@ -463,7 +463,8 @@ class Container(o.Operand):
                 framed_items: list[Any] = operand._get_unmasked_items()
                 for single_item in framed_items:
                     if isinstance (single_item, o.Operand):
-                        single_item << operand.frame(single_item)
+                        framed_parameter = operand.frame(single_item)
+                        single_item << framed_parameter
             case ch.Chaos():
                 for single_item in self.items_unmasked():
                     if isinstance (single_item, o.Operand):
