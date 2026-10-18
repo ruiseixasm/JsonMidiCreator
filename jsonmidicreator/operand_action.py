@@ -350,7 +350,7 @@ class ApplyEffect(SingleUse):
     Args:
         Effect() : The Effect to be applied to the elements on each `Position`.
     """
-    def __init__(self, parameters: any = None):
+    def __init__(self, *parameters):
         self._effect: og.Effect = og.Effect()
         self._processed_elements: list[Element] = []
         super().__init__(*parameters)
@@ -392,6 +392,8 @@ class ApplyEffect(SingleUse):
 
     def __eq__(self, other: any) -> bool:
         match other:
+            case ApplyEffect():
+                return self._effect == other._effect
             case od.Conditional():
                 return other == self._effect
             case _:
@@ -400,6 +402,8 @@ class ApplyEffect(SingleUse):
     
     def __lt__(self, other: any) -> bool:
         match other:
+            case ApplyEffect():
+                return self._effect < other._effect
             case od.Conditional():
                 return other > self._effect
             case _:
@@ -408,6 +412,8 @@ class ApplyEffect(SingleUse):
     
     def __gt__(self, other: any) -> bool:
         match other:
+            case ApplyEffect():
+                return self._effect > other._effect
             case od.Conditional():
                 return other < self._effect
             case _:
@@ -434,7 +440,23 @@ class ApplyEffect(SingleUse):
     def __lshift__(self, operand: any) -> Self:
         from . import operand_rational as ra
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        self._effect.__lshift__(operand)
+        match operand:
+            case ApplyEffect():
+                super().__lshift__(operand)
+                self._effect = operand._effect.copy()
+            case od.Pipe():
+                match operand._data:
+                    case og.Effect():
+                        self._effect = operand._data
+                    case _:
+                        self._effect.__lshift__(operand)
+            case og.Effect():
+                self._effect = operand.copy()
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
+            case _:
+                self._effect.__lshift__(operand)
         return self.reuse()
 
 
