@@ -665,11 +665,6 @@ class Container(o.Operand):
                             id(single_item) for single_item in self._items
                             if not any(single_item == cond_item for cond_item in single_condition)
                         )
-                    case of.Frame():
-                        single_condition._set_inside_container(self)
-                        for single_item in self._items:
-                            if not single_item == single_condition.frame(single_item):
-                                excluded_item_ids.add(id(single_item))
                     case ch.Chaos():
                         for single_item in self._items:
                             chaotic_result = single_condition.chaoticize()
@@ -2451,6 +2446,34 @@ class Clip(Composition):  # Just a container of Elements
             case _:
                 super().__ifloordiv__(operand)
         return self._sort_items()  # Shall be sorted!
+
+
+    def filter(self, *conditions) -> Self:
+        """
+        A `Filter` works exactly like a `Mask` with the difference of keeping just \
+            the matching items and deleting everything else.
+
+        Conditions
+        ----------
+        Any : Conditions that need to be matched in an `And` alike fashion.
+
+        Returns:
+            Container: The same self object with the items processed.
+        """
+        excluded_item_ids: set = set()
+        if conditions:
+            # And type of conditions, not meeting any means excluded
+            for single_condition in conditions:
+                match single_condition:
+                    case of.Frame():
+                        single_condition._set_inside_container(self)
+                        for single_item in self._items:
+                            if not single_item == single_condition.frame(single_item):
+                                excluded_item_ids.add(id(single_item))
+                        self._delete_by_ids(excluded_item_ids)
+                    case _:
+                        super().filter(*conditions)
+        return self
 
 
     def mask(self, *conditions) -> Self:
