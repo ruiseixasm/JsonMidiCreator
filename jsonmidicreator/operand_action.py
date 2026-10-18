@@ -48,6 +48,11 @@ class Action(o.Operand):
     The `action` method always returns the exact same inputted `Clip`.
     Contrary to a `Transformation`, an `Action` can be framed because it targets the Clip elements.
     """
+    def __init__(self, *parameters):
+        self._scoped_elements: list[oe.Element] = []
+        super().__init__(*parameters)
+
+
     def act(self, element: 'Element') -> 'Element':
         return element
 
