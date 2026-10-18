@@ -1902,7 +1902,6 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def __lshift__(self, operand: any) -> Self:
-        from . import operand_action as oa
         from . import operand_transformation as tr
         match operand:
             case Clip():
@@ -1951,11 +1950,10 @@ class Clip(Composition):  # Just a container of Elements
             case of.Frame():
                 operand._set_inside_container(self)
                 framed_elements: list[oe.Element] = operand._get_unmasked_items()
-                framed_operand: Any = operand.get_operand()
-                if isinstance(framed_operand, oa.Action):
-                    framed_operand._scoped_elements = framed_elements
                 for single_item in framed_elements:
                     framed_parameter = operand.frame(single_item)
+                    if isinstance(framed_parameter, o.Operand):
+                        framed_parameter._scoped_elements = framed_elements
                     single_item << framed_parameter
             case str():
                 if operand.find(" ") != -1 or operand.find(",") != -1:  # "," is what defines a line
