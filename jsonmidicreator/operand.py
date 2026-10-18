@@ -58,7 +58,7 @@ class Operand:
         self._initiated: bool               = False
         self._set: bool                     = False # Intended to be used by Frame subclasses to flag set Operands
         self._index: int                    = -1    # negative means no iteration so far
-        self._scoped_elements: list[oe.Element] = []
+        self._scoped_elements: list[oe.Element] | None = None
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
