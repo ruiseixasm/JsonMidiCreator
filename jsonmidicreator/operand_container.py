@@ -2657,6 +2657,7 @@ class Section(Composition):
             case Section():
                 return super().__eq__(other) and self._position_beats == other._position_beats
             case of.Frame():
+                other._set_inside_container(self)
                 for single_clip in self._items:
                     if not single_clip == other:
                         return False
@@ -2669,6 +2670,7 @@ class Section(Composition):
             case Section():
                 return self._position_beats < other._position_beats
             case of.Frame():
+                other._set_inside_container(self)
                 for single_clip in self._items:
                     if not single_clip < other:
                         return False
@@ -2681,6 +2683,7 @@ class Section(Composition):
             case Section():
                 return self._position_beats > other._position_beats
             case of.Frame():
+                other._set_inside_container(self)
                 for single_clip in self._items:
                     if not single_clip > other:
                         return False
