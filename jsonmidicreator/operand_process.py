@@ -1109,12 +1109,12 @@ class Plot(Process):
                         if minimum_position is None:
                             minimum_position = single_note._position_beats
                             root_pitch: int = single_note._pitch.get_absolute_pitch()
-                            single_note._pitch << plotting_pitch
+                            single_note._pitch.set_absolute_pitch(plotting_pitch)
                             plotting_pitch -= root_pitch
                         else:
                             if single_note._position_beats < minimum_position:
                                 minimum_position = single_note._position_beats
-                            single_note._pitch += plotting_pitch
+                            single_note._pitch += ou.Semitone(plotting_pitch)
                     for single_note in at_position_audible:
                         single_note._position_beats -= minimum_position
                 elif self.by_channel:
