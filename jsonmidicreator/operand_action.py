@@ -387,7 +387,7 @@ class ApplyEffect(SingleUse):
                     case og.Effect():       return self._effect
                     case _:                 return super().__mod__(operand)
             case og.Effect():       return self._effect.copy()
-            case _:                 return self._effect.__mod__(operand)
+            case _:                 return super().__mod__(operand)
 
 
     def __eq__(self, other: any) -> bool:
@@ -449,14 +449,11 @@ class ApplyEffect(SingleUse):
                     case og.Effect():
                         self._effect = operand._data
                     case _:
-                        self._effect.__lshift__(operand)
+                        super().__lshift__(operand)
             case og.Effect():
                 self._effect = operand.copy()
-            case tuple():
-                for single_operand in operand:
-                    self << single_operand
             case _:
-                self._effect.__lshift__(operand)
+                super().__lshift__(operand)
         return self.reuse()
 
 
