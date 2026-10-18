@@ -50,7 +50,7 @@ class Frame(o.Operand):
         self._chained_operand: any      = ol.Full()
         self._parameters: tuple         = parameters
         self._named_parameters: dict    = {}
-        self._unmasked_elements: list['oe.Element'] = []
+        self._unmasked_elements: list[oe.Element] = []
         self._root_frame: bool = True
         
     # It has to include self, contrary to the Operand __next__ that excludes the self!!
