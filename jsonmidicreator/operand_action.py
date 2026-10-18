@@ -362,6 +362,9 @@ class ApplyEffect(SingleUse):
                 element_position: ra.Position = element % ra.Position()
                 element_clip: oc.Clip = element.element_clip()
                 clip_shallow_copy = element_clip.shallow_copy()
+                framed_elements = element.framed_elements()
+                if framed_elements is not None:
+                    clip_shallow_copy._items = framed_elements
                 clip_shallow_copy &= of.Equal(element_position)
                 elements = clip_shallow_copy._items    # Already without masked elements (framed)
                 # Remove elements from clip
