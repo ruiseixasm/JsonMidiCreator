@@ -369,7 +369,7 @@ class ApplyEffect(SingleUse):
 
     def act(self, element: 'Element') -> Self:
         if element.is_owned():
-            if not any(id(element) is single_element for single_element in self._processed_element_ids):
+            if not any(id(element) == single_element_id for single_element_id in self._processed_element_ids):
                 element_position: ra.Position = element % ra.Position()
                 element_clip: oc.Clip = element.element_clip()
                 clip_shallow_copy = element_clip.shallow_copy()
