@@ -2430,17 +2430,19 @@ class Arpeggio(NoteEffect):
 
 
     def _next_note(self, notes: list['Note'], index: int) -> 'Note':
-        """Returns the Note at the given index in the arpeggio sequence."""
+        """Returns a Note according to the arpeggio order."""
         size = len(notes)
         match ou.Direction.numberToName(self._order):
             case "Down":
-                return notes[size - 1 - index]
+                return notes[-(index % size) - 1]
             case "UpDown":
+                index %= max(1, 2 * size - 2)
                 return notes[index if index < size else 2 * size - 2 - index]
             case "DownUp":
+                index %= max(1, 2 * size - 2)
                 return notes[size - 1 - index if index < size else index - size + 1]
             case "Chaotic":
-                return self._shuffle_list(notes)[index]
+                return self._shuffle_list(notes)[index % size]
             case _:
                 return notes[index % size]
         
