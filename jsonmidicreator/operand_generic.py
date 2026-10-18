@@ -2457,23 +2457,23 @@ class Arpeggio(NoteEffect):
             even_length: ra.Length = note_length * 2 - odd_length
             
             sequenced_notes: list['Note'] = self._generate_sequence(notes)
+            total_notes: int = len(sequenced_notes)
             nth_note: int = 1
             while note_start_position < arpeggio_end_position:
-                for source_note in sequenced_notes:
-                    new_note: Note = source_note.copy()
-                    arpeggiated_notes.append(new_note)
-                    new_note << note_start_position
-                    if nth_note % 2 == 1:   # Odd note
-                        new_note << odd_length
-                    else:
-                        new_note << even_length
-                    note_end_position: ra.Position = note_start_position + new_note % od.Pipe( ra.Length() )
-                    if note_end_position > arpeggio_end_position:
-                        length_deficit: ra.Length = arpeggio_length - arpeggio_end_position
-                        new_note += length_deficit
-                        break
-                    note_start_position = note_end_position
-                    nth_note += 1
+                new_note: Note = sequenced_notes[(nth_note - 1) % total_notes].copy()
+                arpeggiated_notes.append(new_note)
+                new_note << note_start_position
+                if nth_note % 2 == 1:   # Odd note
+                    new_note << odd_length
+                else:
+                    new_note << even_length
+                note_end_position: ra.Position = note_start_position + new_note % od.Pipe( ra.Length() )
+                if note_end_position > arpeggio_end_position:
+                    length_deficit: ra.Length = arpeggio_length - arpeggio_end_position
+                    new_note += length_deficit
+                    break
+                note_start_position = note_end_position
+                nth_note += 1
         return super().apply(arpeggiated_notes)
 
 

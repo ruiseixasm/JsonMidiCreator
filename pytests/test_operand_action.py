@@ -70,7 +70,7 @@ def test_framed_action():
     c_major = Clip(":, :|:3n, :|:5n,") * 2
     # c_major >> Plot()
     c_major << Equal(Measure(1))**ApplyEffect(Arpeggio())
-    c_major >> Plot()
+    # c_major >> Plot()
     for single_note in c_major & Measure(0):
         single_note % Position() == Position(0)
     actual_position = Position(1)
@@ -79,7 +79,7 @@ def test_framed_action():
         actual_position += single_note % Length()
     total_notes: int = (c_major & Measure(1)) % Duration() / Steps(1) % int()
     total_notes >> Print()
-    # assert total_notes == 4
+    assert total_notes == 4
 
 test_framed_action()
 
