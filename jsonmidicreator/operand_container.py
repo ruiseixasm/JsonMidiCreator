@@ -1339,8 +1339,8 @@ class Clip(Composition):  # Just a container of Elements
     def __getitem__(self, index: Any) -> 'oe.Element':
         match index:
             case of.Frame():
-                index._set_inside_container(self)
-                framed_items: list[Any] = index._get_unmasked_items()
+                index._set_inside_clip(self)
+                framed_items: list[Any] = index._get_unmasked_elements()
                 if framed_items:
                     return framed_items[0]  # The first occurrence
             case ra.Convertible():
@@ -1352,7 +1352,7 @@ class Clip(Composition):  # Just a container of Elements
                 match index._data:
                     case of.Frame():
                         pipped_frame = index._data
-                        pipped_frame._set_inside_container(self)
+                        pipped_frame._set_inside_clip(self)
                         for single_item in self.elements_unmasked():
                             frame_result = pipped_frame.frame(single_item)
                             if single_item == od.Pipe(frame_result):
@@ -1606,7 +1606,7 @@ class Clip(Composition):  # Just a container of Elements
     def __eq__(self, other: any) -> bool:
         match other:
             case of.Frame():
-                other._set_inside_container(self)
+                other._set_inside_clip(self)
                 for single_element in self.elements_unmasked():
                     other_frame = other.frame(single_element)
                     if not single_element == other_frame:
@@ -1618,7 +1618,7 @@ class Clip(Composition):  # Just a container of Elements
     def __lt__(self, other: any) -> bool:
         match other:
             case of.Frame():
-                other._set_inside_container(self)
+                other._set_inside_clip(self)
                 for single_element in self.elements_unmasked():
                     other_item = other.frame(single_element)
                     if not single_element < other_item:
@@ -1630,7 +1630,7 @@ class Clip(Composition):  # Just a container of Elements
     def __gt__(self, other: any) -> bool:
         match other:
             case of.Frame():
-                other._set_inside_container(self)
+                other._set_inside_clip(self)
                 for single_element in self.elements_unmasked():
                     other_item = other.frame(single_element)
                     if not single_element > other_item:
@@ -1938,8 +1938,8 @@ class Clip(Composition):  # Just a container of Elements
                                 item <<= operand._data
 
                     case of.Frame():
-                        operand._data._set_inside_container(self)
-                        self._framed_elements = operand._data._get_unmasked_items()
+                        operand._data._set_inside_clip(self)
+                        self._framed_elements = operand._data._get_unmasked_elements()
                         for single_item in self._framed_elements:
                             framed_parameter = operand._data.frame(single_item)
                             single_item << od.Pipe( framed_parameter )
@@ -1948,8 +1948,8 @@ class Clip(Composition):  # Just a container of Elements
                         super().__lshift__(operand)
 
             case of.Frame():
-                operand._set_inside_container(self)
-                self._framed_elements = operand._get_unmasked_items()
+                operand._set_inside_clip(self)
+                self._framed_elements = operand._get_unmasked_elements()
                 for single_item in self._framed_elements:
                     framed_parameter = operand.frame(single_item)
                     single_item << framed_parameter
@@ -2026,8 +2026,8 @@ class Clip(Composition):  # Just a container of Elements
     def __iand__(self, operand: Any) -> Self:
         match operand:
             case of.Frame():
-                operand._set_inside_container(self)
-                self._items = operand._get_unmasked_items()
+                operand._set_inside_clip(self)
+                self._items = operand._get_unmasked_elements()
             case _:
                 super().__iand__(operand)
         return self
@@ -2046,8 +2046,8 @@ class Clip(Composition):  # Just a container of Elements
                 return self.append(new_element)._sort_items()  # Shall be sorted!
             
             case of.Frame():
-                operand._set_inside_container(self)
-                self._framed_elements = operand._get_unmasked_items()
+                operand._set_inside_clip(self)
+                self._framed_elements = operand._get_unmasked_elements()
                 for single_item in self._framed_elements:
                     single_item += operand.frame(single_item)
                 self._framed_elements = None
@@ -2118,8 +2118,8 @@ class Clip(Composition):  # Just a container of Elements
                     return self.delete(elements_to_delete, True)
             
             case of.Frame():
-                operand._set_inside_container(self)
-                self._framed_elements = operand._get_unmasked_items()
+                operand._set_inside_clip(self)
+                self._framed_elements = operand._get_unmasked_elements()
                 for single_item in self._framed_elements:
                     single_parameter = operand.frame(single_item)
                     if single_parameter == ol.Full():
@@ -2210,8 +2210,8 @@ class Clip(Composition):  # Just a container of Elements
                 self._items = clip_elements
 
             case of.Frame():
-                operand._set_inside_container(self)
-                self._framed_elements = operand._get_unmasked_items()
+                operand._set_inside_clip(self)
+                self._framed_elements = operand._get_unmasked_elements()
                 for single_item in self._framed_elements:
                     single_item *= operand.frame(single_item)
                 self._framed_elements = None
@@ -2273,8 +2273,8 @@ class Clip(Composition):  # Just a container of Elements
                     self.delete()
 
             case of.Frame():
-                operand._set_inside_container(self)
-                self._framed_elements = operand._get_unmasked_items()
+                operand._set_inside_clip(self)
+                self._framed_elements = operand._get_unmasked_elements()
                 for single_item in self._framed_elements:
                     single_item /= operand.frame(single_item)
                 self._framed_elements = None
@@ -2358,8 +2358,8 @@ class Clip(Composition):  # Just a container of Elements
                         ]
 
             case of.Frame():
-                operand._set_inside_container(self)
-                self._framed_elements = operand._get_unmasked_items()
+                operand._set_inside_clip(self)
+                self._framed_elements = operand._get_unmasked_elements()
                 for single_item in self._framed_elements:
                     single_item //= operand.frame(single_item)
                 self._framed_elements = None
@@ -2472,7 +2472,7 @@ class Clip(Composition):  # Just a container of Elements
             for single_condition in conditions:
                 match single_condition:
                     case of.Frame():
-                        single_condition._set_inside_container(self)
+                        single_condition._set_inside_clip(self)
                         for single_item in self._items:
                             if not single_item == single_condition.frame(single_item):
                                 excluded_item_ids.add(id(single_item))
@@ -2506,7 +2506,7 @@ class Clip(Composition):  # Just a container of Elements
                             if isinstance(single_element, o.Operand):
                                 new_mask.append(any(single_element == cond_item for cond_item in single_condition))
                     case of.Frame():
-                        single_condition._set_inside_container(self)
+                        single_condition._set_inside_clip(self)
                         for single_element in self._items:
                             if isinstance(single_element, o.Operand):
                                 framed_result = single_condition.frame(single_element)
