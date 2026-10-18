@@ -2027,8 +2027,7 @@ class Clip(Composition):  # Just a container of Elements
         match operand:
             case of.Frame():
                 operand._set_inside_container(self)
-                framed_items: list[Any] = operand._get_unmasked_items()
-                self._items = framed_items
+                self._items = operand._get_unmasked_items()
             case _:
                 super().__iand__(operand)
         return self
@@ -2045,11 +2044,13 @@ class Clip(Composition):  # Just a container of Elements
             case oe.Element():
                 new_element: oe.Element = operand.copy()._set_owner_clip(self)
                 return self.append(new_element)._sort_items()  # Shall be sorted!
+            
             case of.Frame():
                 operand._set_inside_container(self)
-                framed_items: list[Any] = operand._get_unmasked_items()
-                for single_item in framed_items:
+                self._framed_elements = operand._get_unmasked_items()
+                for single_item in self._framed_elements:
                     single_item += operand.frame(single_item)
+                self._framed_elements = None
             
             case list():
                 if all(isinstance(item, oe.Element) for item in operand):
@@ -2118,13 +2119,15 @@ class Clip(Composition):  # Just a container of Elements
             
             case of.Frame():
                 operand._set_inside_container(self)
-                framed_items: list[Any] = operand._get_unmasked_items()
-                for single_item in framed_items:
+                self._framed_elements = operand._get_unmasked_items()
+                for single_item in self._framed_elements:
                     single_parameter = operand.frame(single_item)
                     if single_parameter == ol.Full():
                         self.delete_item(single_item)
                     else:
                         single_item -= single_parameter
+                self._framed_elements = None
+
             case str():
                 elements_place: list[int] = o.string_to_list(operand)
                 elements_to_delete: list[oe.Element] = []
@@ -2208,9 +2211,11 @@ class Clip(Composition):  # Just a container of Elements
 
             case of.Frame():
                 operand._set_inside_container(self)
-                framed_items: list[Any] = operand._get_unmasked_items()
-                for single_item in framed_items:
+                self._framed_elements = operand._get_unmasked_items()
+                for single_item in self._framed_elements:
                     single_item *= operand.frame(single_item)
+                self._framed_elements = None
+
             case str():
                 self.__imul__(od.Line(operand))
 
@@ -2269,9 +2274,11 @@ class Clip(Composition):  # Just a container of Elements
 
             case of.Frame():
                 operand._set_inside_container(self)
-                framed_items: list[Any] = operand._get_unmasked_items()
-                for single_item in framed_items:
+                self._framed_elements = operand._get_unmasked_items()
+                for single_item in self._framed_elements:
                     single_item /= operand.frame(single_item)
+                self._framed_elements = None
+
             case ra.TimeUnit(): # Replicates elements with the TimeUnit offset for each add
                 self_repeating: int = operand % int() - 1
                 if self_repeating > 0:
@@ -2352,9 +2359,11 @@ class Clip(Composition):  # Just a container of Elements
 
             case of.Frame():
                 operand._set_inside_container(self)
-                framed_items: list[Any] = operand._get_unmasked_items()
-                for single_item in framed_items:
+                self._framed_elements = operand._get_unmasked_items()
+                for single_item in self._framed_elements:
                     single_item //= operand.frame(single_item)
+                self._framed_elements = None
+
             case ra.Duration() | ra.TimeValue() | float():
                 new_elements: list[oe.Element] = []
                 for first_element in self.elements_unmasked():
