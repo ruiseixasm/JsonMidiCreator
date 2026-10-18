@@ -430,9 +430,11 @@ class Container(o.Operand):
                         self._items = operand._data
                     case of.Frame():
                         operand._data._set_inside_container(self)
-                        for single_item in self.items_unmasked():
+                        framed_items: list[Any] = operand._data._get_unmasked_items()
+                        for single_item in framed_items:
                             if isinstance(single_item, o.Operand):
-                                single_item << od.Pipe( operand._data.frame(single_item) )
+                                framed_parameter = operand._data.frame(single_item)
+                                single_item << od.Pipe( framed_parameter )
                     case ch.Chaos():
                         for single_item in self.items_unmasked():
                             if isinstance(single_item, o.Operand):
