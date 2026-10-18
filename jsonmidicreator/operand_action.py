@@ -364,8 +364,12 @@ class ApplyEffect(SingleUse):
                 clip_shallow_copy = element_clip.shallow_copy()
                 clip_shallow_copy &= of.Equal(element_position)
                 elements = clip_shallow_copy._items    # Already without masked elements (framed)
-                self._effect.apply(elements)
-                self._processed_elements.extend(elements)
+                # Remove elements from clip
+                element_clip._delete(elements, True)
+                new_elements: list[oe.Element] = self._effect.apply(elements)
+                self._processed_elements.extend(new_elements)
+                # Add new elements to clip
+                element_clip.extend(new_elements)
                 element_clip._sort_items()  # Required to update the positions in the list
         return element
 
