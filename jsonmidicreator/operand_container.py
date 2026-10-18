@@ -419,6 +419,7 @@ class Container(o.Operand):
         return self
 
     def __lshift__(self, operand: any) -> Self:
+        from . import operand_action as oa
         match operand:
             case Container():
                 super().__lshift__(operand)
@@ -463,6 +464,9 @@ class Container(o.Operand):
             case of.Frame():
                 operand._set_inside_container(self)
                 framed_items: list[Any] = operand._get_unmasked_items()
+                framed_operand: Any = operand.get_operand()
+                if isinstance(framed_operand, oa.Action):
+                    framed_operand._scoped_elements = framed_items
                 for single_item in framed_items:
                     if isinstance (single_item, o.Operand):
                         framed_parameter = operand.frame(single_item)
