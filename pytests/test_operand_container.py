@@ -83,7 +83,7 @@ def test_container_content():
 
 def test_container_mod():
 
-    keys_container: Container = Container([Pitch(), Pitch(), Pitch(), Pitch(), Pitch(), Pitch(), Pitch()])
+    keys_container: Clip = Clip([Note(), Note(), Note(), Note(), Note(), Note(), Note()])
     assert keys_container.len() == 7
     for single_item in keys_container:
         assert single_item % Key() == "C"
@@ -91,8 +91,8 @@ def test_container_mod():
     keys_container += Iterate()**Degree()
     keys: list = ["C", "D", "E", "F", "G", "A", "B"]
     for degree in range(7):
-        keys_container[degree] % str() >> Print()
-        assert keys_container[degree] % Key() == keys[degree]
+        keys_container[degree] % Pitch() % str() >> Print()
+        assert keys_container[degree] % Pitch() % Key() == keys[degree]
 
     two_notes = Note() * 2
     one_note = two_notes & First()

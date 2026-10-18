@@ -469,11 +469,6 @@ class Container(o.Operand):
             case tuple():
                 for single_operand in operand:
                     self += single_operand
-            case of.Frame():
-                operand._set_inside_container(self)
-                framed_items: list[Any] = operand._get_unmasked_items()
-                for single_item in framed_items:
-                    single_item += operand.frame(single_item)
             case ch.Chaos():
                 for single_item in self.items_unmasked():
                     single_parameter = operand.chaoticize()
@@ -2082,6 +2077,11 @@ class Clip(Composition):  # Just a container of Elements
             case oe.Element():
                 new_element: oe.Element = operand.copy()._set_owner_clip(self)
                 return self.append(new_element)._sort_items()  # Shall be sorted!
+            case of.Frame():
+                operand._set_inside_container(self)
+                framed_items: list[Any] = operand._get_unmasked_items()
+                for single_item in framed_items:
+                    single_item += operand.frame(single_item)
             
             case list():
                 if all(isinstance(item, oe.Element) for item in operand):
