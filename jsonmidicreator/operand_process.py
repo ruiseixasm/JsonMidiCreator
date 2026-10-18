@@ -432,7 +432,7 @@ class Plot(Process):
                     info: str = ""
                     if single_note["self"]._tied:
                         info += " Tied"
-                    if isinstance(single_note["self"]._note_effect, og.NoteEffect):
+                    if isinstance(single_note["self"]._element_effect, og.NoteEffect):
                         info += " FX"
                     self._ax.text(float(single_note["position_on"]), single_note["pitch"] + 0.3, info, ha='left', va='bottom', fontsize=4,
                         color='black',  # Outline color
@@ -572,7 +572,7 @@ class Plot(Process):
                     info: str = ""
                     if single_note["self"]._tied:
                         info += " Tied"
-                    if isinstance(single_note["self"]._note_effect, og.NoteEffect):
+                    if isinstance(single_note["self"]._element_effect, og.NoteEffect):
                         info += " FX"
                     self._ax.text(float(single_note["position_on"]), single_note["pitch"] + 0.3, info, ha='left', va='bottom', fontsize=4,
                         color='black',  # Outline color

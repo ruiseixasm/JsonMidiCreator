@@ -49,3 +49,9 @@ def test_invert():
 
 # test_invert()
 
+
+def test_effect():
+    c_major = Clip(":, :|:3n, :|:5n,")
+    c_major << ApplyEffect(Arpeggio())
+    # c_major >> Plot()
+
