@@ -1134,7 +1134,7 @@ class Plot(Process):
                         if single_trigger.get_sample_id() == plotting_sample_id
                     ]
                     if matching_trigger:
-                        matching_trigger[0]._position_beats = 0
+                        matching_trigger[0]._position_beats = Fraction(0)
                         at_position_audible = matching_trigger
                     else:
                         at_position_audible.sort(key=lambda trigger:trigger.get_sample_id())
