@@ -289,13 +289,6 @@ class Container(o.Operand):
                 return self._items == other
             case od.Conditional():
                 return other == self
-            case of.Frame():
-                other._set_inside_container(self)
-                for single_item in self.items_unmasked():
-                    other_frame = other.frame(single_item)
-                    if not single_item == other_frame:
-                        return False
-                return True
             case ch.Chaos():
                 for single_item in self.items_unmasked():
                     other_chaoticize = other.chaoticize()
@@ -307,13 +300,6 @@ class Container(o.Operand):
 
     def __lt__(self, other: any) -> bool:
         match other:
-            case of.Frame():
-                other._set_inside_container(self)
-                for single_item in self._items:
-                    other_item = other.frame(single_item)
-                    if not single_item < other_item:
-                        return False
-                return True
             case ch.Chaos():
                 for single_item in self._items:
                     other_item = other.chaoticize()
@@ -325,13 +311,6 @@ class Container(o.Operand):
 
     def __gt__(self, other: any) -> bool:
         match other:
-            case of.Frame():
-                other._set_inside_container(self)
-                for single_item in self._items:
-                    other_item = other.frame(single_item)
-                    if not single_item > other_item:
-                        return False
-                return True
             case ch.Chaos():
                 for single_item in self._items:
                     other_item = other.chaoticize()
@@ -1661,6 +1640,43 @@ class Clip(Composition):  # Just a container of Elements
             single_element for single_element in self.all_elements()
             if single_element._position_beats <= position_beats < single_element._position_beats + single_element._duration_beats
         ] 
+
+
+    def __eq__(self, other: any) -> bool:
+        match other:
+            case of.Frame():
+                other._set_inside_container(self)
+                for single_element in self.elements_unmasked():
+                    other_frame = other.frame(single_element)
+                    if not single_element == other_frame:
+                        return False
+                return True
+            case _:
+                return super().__eq__(other)
+
+    def __lt__(self, other: any) -> bool:
+        match other:
+            case of.Frame():
+                other._set_inside_container(self)
+                for single_element in self.elements_unmasked():
+                    other_item = other.frame(single_element)
+                    if not single_element < other_item:
+                        return False
+                return True
+            case _:
+                return super().__lt__(other)
+
+    def __gt__(self, other: any) -> bool:
+        match other:
+            case of.Frame():
+                other._set_inside_container(self)
+                for single_element in self.elements_unmasked():
+                    other_item = other.frame(single_element)
+                    if not single_element > other_item:
+                        return False
+                return True
+            case _:
+                return super().__gt__(other)
 
 
     def __mod__(self, operand: o.T) -> o.T:
