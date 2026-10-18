@@ -2386,6 +2386,7 @@ class Arpeggio(NoteEffect):
         self._duration_beats: Fraction = Fraction(1, 4) # duration in beats, NOT note value
         self._swing: Fraction = Fraction(1, 2)
         self._chaos: ch.Chaos = ch.SinX()
+        self._chaotic_sequence: list[oe.Note] = []
         super().__init__(*parameters)
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -2442,7 +2443,9 @@ class Arpeggio(NoteEffect):
                 index %= max(1, 2 * size - 2)
                 return notes[size - 1 - index if index < size else index - size + 1]
             case "Chaotic":
-                return self._shuffle_list(notes)[index % size]
+                if index % size == 0:
+                    self._chaotic_sequence = self._shuffle_list(notes)
+                return self._chaotic_sequence[index % size]
             case _:
                 return notes[index % size]
         
