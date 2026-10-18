@@ -345,8 +345,6 @@ class Container(o.Operand):
                 return self.len()
             case bool():
                 return self._is_masked()
-            case of.Frame():    # Works as a Selector, returns the Self container copy but with the Frame applied
-                return self.__and__(operand)
             case _:
                 return super().__mod__(operand)
 
@@ -1702,6 +1700,8 @@ class Clip(Composition):  # Just a container of Elements
                         return operand._data << self._enabled == 0
                     case _:
                         return super().__mod__(operand)
+            case of.Frame():    # Works as a Selector, returns the Self container copy but with the Frame applied
+                return self.__and__(operand)
             case ou.TrackNumber():
                 return ou.TrackNumber(self._track_number)
             case Devices():
