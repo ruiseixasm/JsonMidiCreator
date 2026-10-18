@@ -485,11 +485,8 @@ class Container(o.Operand):
     def __iand__(self, operand: Any) -> Self:
         match operand:
             case of.Frame():
-                framed_items: list[Any] = []
                 operand._set_inside_container(self)
-                for single_item in self.items_unmasked():
-                    if single_item == operand:
-                        framed_items.append(single_item)
+                framed_items: list[Any] = operand._get_unmasked_items()
                 self._items = framed_items
             case ch.Chaos():
                 chosen_items: list[Any] = []

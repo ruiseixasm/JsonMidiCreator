@@ -274,9 +274,12 @@ def test_first_selector():
 
 def test_last_selector():
     four_notes = Note() * 4 + Iterate()**Degree()
+    # four_notes >> Plot()
     two_notes = four_notes % Last(2)
     assert two_notes % int() == 2
     assert two_notes[0] == four_notes[2]
+
+# test_last_selector()
 
 
 def test_at_selector():
