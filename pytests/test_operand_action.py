@@ -52,6 +52,13 @@ def test_invert():
 
 def test_effect():
     c_major = Clip(":, :|:3n, :|:5n,")
+    for single_note in c_major:
+        single_note % Position() == Position(0)
     c_major << ApplyEffect(Arpeggio())
     # c_major >> Plot()
+    actual_position = Position(0)
+    for single_note in c_major:
+        single_note % Position() == actual_position
+        actual_position += single_note % Length()
+
 
