@@ -736,7 +736,7 @@ class ItemType(ContainerFilter):
     type(None) : A single or multiple types can be set as accepted ones.
     """
     def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
-        type_elements: list[Any] = []
+        type_elements: list[oe.Element] = []
         for single_element in unmasked_elements:
             for operand_class in self._parameters:
                 if isinstance(single_element, operand_class):
@@ -811,7 +811,7 @@ class Nth(ContainerFilter):
 
 
     def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
-        nth_elements: list[Any] = []
+        nth_elements: list[oe.Element] = []
         for index, single_item in enumerate(unmasked_elements):
             if index + 1 in self._named_parameters['parameters']:
                 nth_elements.append(single_item)
@@ -835,7 +835,7 @@ class At(ContainerFilter):
 
 
     def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
-        at_elements: list[Any] = []
+        at_elements: list[oe.Element] = []
         for index, single_item in enumerate(unmasked_elements):
             if index in self._named_parameters['parameters']:
                 at_elements.append(single_item)
@@ -895,7 +895,7 @@ class Every(ContainerFilter):
 
     def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
         from . import operand_container as oc
-        nth_elements: list[Any] = []
+        nth_elements: list[oe.Element] = []
         if self._named_parameters['nths'] > 0:
             nth: int = 0
             previous_measure: int | None = None
@@ -938,7 +938,7 @@ class Either(ContainerFilter):
     Any(None) : One or more conditions where **at-least one** needs to be met.
     """
     def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
-        either_elements: list[Any] = []
+        either_elements: list[oe.Element] = []
         for single_item in unmasked_elements:
             for condition in self._parameters:
                 if single_item == condition:
@@ -958,7 +958,7 @@ class Neither(ContainerFilter):
     Any(None) : One or more conditions where **none** can be met.
     """
     def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
-        either_elements: list[Any] = []
+        either_elements: list[oe.Element] = []
         for single_item in unmasked_elements:
             for condition in self._parameters:
                 if single_item == condition:
@@ -989,7 +989,7 @@ class BasicComparison(ContainerFilter):
 
 
     def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
-        match_elements: list[Any] = []
+        match_elements: list[oe.Element] = []
         for single_item in unmasked_elements:
             matches: bool = True
             for other in self._parameters:
@@ -1107,7 +1107,7 @@ class OnBeat(ContainerFilter):
     None : `OnBeat` doesn't have parameters to be set.
     """
     def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
-        on_beat_elements: list[Any] = []
+        on_beat_elements: list[oe.Element] = []
         steps_per_beat: int = int(1 / og.settings._quantization)
         for single_item in unmasked_elements:
             if isinstance(single_item, oe.Element):
@@ -1128,7 +1128,7 @@ class OffBeat(ContainerFilter):
     None : `OffBeat` doesn't have parameters to be set.
     """
     def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
-        off_beat_elements: list[Any] = []
+        off_beat_elements: list[oe.Element] = []
         steps_per_beat: int = int(1 / og.settings._quantization)
         for single_item in unmasked_elements:
             if isinstance(single_item, oe.Element):
@@ -1149,7 +1149,7 @@ class DownBeat(ContainerFilter):
     None : `DownBeat` doesn't have parameters to be set.
     """
     def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
-        down_beat_elements: list[Any] = []
+        down_beat_elements: list[oe.Element] = []
         for single_item in unmasked_elements:
             if isinstance(single_item, oe.Element):
                 position_step: int = single_item % ra.Step() % int()
@@ -1169,7 +1169,7 @@ class UpBeat(ContainerFilter):
     None : `UpBeat` doesn't have parameters to be set.
     """
     def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
-        up_beat_elements: list[Any] = []
+        up_beat_elements: list[oe.Element] = []
         steps_per_beat: int = int(1 / og.settings._quantization)
         for single_item in unmasked_elements:
             if isinstance(input, oe.Element):
@@ -1192,7 +1192,7 @@ class OddStep(ContainerFilter):
     None : `OddStep` doesn't have parameters to be set.
     """
     def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
-        odd_step_elements: list[Any] = []
+        odd_step_elements: list[oe.Element] = []
         for single_item in unmasked_elements:
             if isinstance(single_item, oe.Element):
                 position_step: int = single_item % ra.Step() % int()
@@ -1214,7 +1214,7 @@ class EvenStep(ContainerFilter):
     None : `EvenStep` doesn't have parameters to be set.
     """
     def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
-        even_step_elements: list[Any] = []
+        even_step_elements: list[oe.Element] = []
         for single_item in unmasked_elements:
             if isinstance(single_item, oe.Element):
                 position_step: int = single_item % ra.Step() % int()
@@ -1234,7 +1234,7 @@ class PreviousComparison(ContainerFilter):
     Any(None) : One or more conditions where **all** need to be met.
     """
     def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
-        passed_elements: list[Any] = []
+        passed_elements: list[oe.Element] = []
         previous_parameter: Any = None
         for single_item in unmasked_elements:
             matches: bool = True
@@ -1347,7 +1347,7 @@ class Cross(ContainerFilter):
 
 
     def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
-        crossing_elements: list[Any] = []
+        crossing_elements: list[oe.Element] = []
         for single_item in unmasked_elements:
             if isinstance(single_item, oe.Element):
                 if isinstance(single_item, oe.Element) and single_item.cross(self._named_parameters['position']):
@@ -1371,7 +1371,7 @@ class Overlap(ContainerFilter):
 
 
     def _update_unmasked_elements(self, unmasked_elements: list[Any]) -> Self:
-        overlapping_elements: list[Any] = []
+        overlapping_elements: list[oe.Element] = []
         for single_item in unmasked_elements:
             if isinstance(single_item, oe.Element):
                 if isinstance(single_item, oe.Element) and single_item.overlap(self._named_parameters['locus']):
