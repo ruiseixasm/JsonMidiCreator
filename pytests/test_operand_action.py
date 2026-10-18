@@ -62,3 +62,15 @@ def test_effect():
         actual_position += single_note % Length()
 
 
+def test_framed_action():
+    c_major = Clip(":, :|:3n, :|:5n,") * 2
+    # c_major >> Plot()
+    c_major << Equal(Measure(1))**ApplyEffect(Arpeggio())
+    # c_major >> Plot()
+    for single_note in c_major & Measure(0):
+        single_note % Position() == Position(0)
+    actual_position = Position(1)
+    for single_note in c_major & Measure(1):
+        single_note % Position() == actual_position
+        actual_position += single_note % Length()
+
