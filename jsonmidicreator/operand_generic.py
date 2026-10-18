@@ -2451,7 +2451,7 @@ class Arpeggio(NoteEffect):
             time_signature: TimeSignature = notes[0]._get_time_signature()
             note_start_position: ra.Position = notes[0] % od.Pipe( ra.Position() )
             arpeggio_length: ra.Length = notes[0] % od.Pipe( ra.Length() )
-            arpeggio_end_position: ra.Position = arpeggio_length % ra.Position()
+            arpeggio_end_position: ra.Position = note_start_position + arpeggio_length % ra.Position()
             note_length: ra.Length = ra.Length(time_signature, self._duration_beats)
             odd_length: ra.Length = note_length * 2 * self._swing
             even_length: ra.Length = note_length * 2 - odd_length
