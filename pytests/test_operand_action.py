@@ -81,5 +81,5 @@ def test_framed_action():
     total_notes >> Print()
     assert total_notes == 4
 
-test_framed_action()
+# test_framed_action()
 

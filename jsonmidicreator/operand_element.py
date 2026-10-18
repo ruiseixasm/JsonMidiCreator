@@ -90,6 +90,10 @@ class Element(o.Operand):
             self << single_parameter
 
 
+    def __hash__(self):
+        return hash(self.id)
+    
+
     def _set_owner_clip(self, owner_clip: 'Clip') -> Self:
         from . import operand_container as oc
         if isinstance(owner_clip, oc.Clip):

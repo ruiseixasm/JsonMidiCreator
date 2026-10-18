@@ -363,13 +363,13 @@ class ApplyEffect(SingleUse):
     """
     def __init__(self, *parameters):
         self._effect: og.Effect = og.Effect()
-        self._processed_elements: list[Element] = []
+        self._processed_element_ids: set[Element] = set()
         super().__init__(*parameters)
 
 
     def act(self, element: 'Element') -> Self:
         if element.is_owned():
-            if not any(element is single_element for single_element in self._processed_elements):
+            if not any(id(element) is single_element for single_element in self._processed_element_ids):
                 element_position: ra.Position = element % ra.Position()
                 element_clip: oc.Clip = element.element_clip()
                 clip_shallow_copy = element_clip.shallow_copy()
@@ -381,15 +381,16 @@ class ApplyEffect(SingleUse):
                     elements = clip_shallow_copy._items    # Already without masked elements (framed)
                     # Remove elements from clip
                     element_clip.delete(elements, True)
+                    self._processed_element_ids.update(id(single_element) for single_element in elements)
                     new_elements: list[oe.Element] = self._effect.apply(elements)
-                    self._processed_elements.extend(new_elements)
+                    self._processed_element_ids.update(id(single_element) for single_element in new_elements)
                     # Add new elements to clip
                     element_clip.extend(new_elements)
         return self.try_close(element)
 
 
     def reuse(self) -> Self:
-        self._processed_elements = []
+        self._processed_element_ids = set()
         return self
 
 
