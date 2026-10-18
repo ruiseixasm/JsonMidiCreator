@@ -329,7 +329,6 @@ class Invert(AmountedAction):
                 clip_shallow_copy &= of.Equal(element_position)
                 notes = clip_shallow_copy._items    # Already without masked elements (framed)
                 self._apply_inversion(notes)
-                element_clip._sort_items()  # Required to update the positions in the list
         return self.try_close(element)
 
 
@@ -386,7 +385,6 @@ class ApplyEffect(SingleUse):
                     self._processed_elements.extend(new_elements)
                     # Add new elements to clip
                     element_clip.extend(new_elements)
-                    element_clip._sort_items()  # Required to update the positions in the list
         return self.try_close(element)
 
 
