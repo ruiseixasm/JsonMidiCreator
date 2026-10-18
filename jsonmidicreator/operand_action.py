@@ -48,8 +48,8 @@ class Action(o.Operand):
     The `action` method always returns the exact same inputted `Clip`.
     Contrary to a `Transformation`, an `Action` can be framed because it targets the Clip elements.
     """
-    def act(self, element: 'Element') -> 'Element':
-        return element
+    def act(self, element: 'Element') -> Self:
+        return self
 
 
 
@@ -61,11 +61,11 @@ class Delete(Action):
     Args:
         None
     """
-    def act(self, element: 'Element') -> 'Element':
+    def act(self, element: 'Element') -> Self:
         if element.is_owned() and not element.framed_out():
             owner_clip = element.element_clip()
             owner_clip.delete_item(element)
-        return element
+        return self
 
 
 
@@ -75,6 +75,15 @@ class SingleUse(Action):
     `SingleUse` means once used it doesn't work anymore, you need to create a new one or set it with a new amount.
     """
     def reuse(self) -> Self:
+        return self
+
+
+    def try_close(self, element: 'Element') -> Self:
+        if element.is_owned():
+            targeted_elements = element.targeted_elements()
+            if targeted_elements and element is targeted_elements[-1]:
+                element.element_clip()._sort_items()
+                self.reuse()
         return self
 
 
@@ -307,7 +316,7 @@ class Invert(AmountedAction):
         self._last_position_beats = Fraction(-1)
         return self
 
-    def act(self, element: 'Element') -> 'Element':
+    def act(self, element: 'Element') -> Self:
         if element.is_owned() and isinstance(element, oe.Note):
             element_position: ra.Position = element % ra.Position()
             if element_position > self._last_position_beats:    # Only does a single inversion per position
@@ -321,7 +330,7 @@ class Invert(AmountedAction):
                 notes = clip_shallow_copy._items    # Already without masked elements (framed)
                 self._apply_inversion(notes)
                 element_clip._sort_items()  # Required to update the positions in the list
-        return element
+        return self.try_close(element)
 
 
     def _apply_inversion(self, notes: list['oe.Note']) -> list['oe.Note']:
@@ -359,7 +368,7 @@ class ApplyEffect(SingleUse):
         super().__init__(*parameters)
 
 
-    def act(self, element: 'Element') -> 'Element':
+    def act(self, element: 'Element') -> Self:
         if element.is_owned():
             if not any(element is single_element for single_element in self._processed_elements):
                 element_position: ra.Position = element % ra.Position()
@@ -368,16 +377,17 @@ class ApplyEffect(SingleUse):
                 framed_elements = element.framed_elements()
                 if framed_elements is not None:
                     clip_shallow_copy._items = framed_elements
-                clip_shallow_copy &= of.Equal(element_position)
-                elements = clip_shallow_copy._items    # Already without masked elements (framed)
-                # Remove elements from clip
-                element_clip.delete(elements, True)
-                new_elements: list[oe.Element] = self._effect.apply(elements)
-                self._processed_elements.extend(new_elements)
-                # Add new elements to clip
-                element_clip.extend(new_elements)
-                element_clip._sort_items()  # Required to update the positions in the list
-        return element
+                if clip_shallow_copy._items:
+                    clip_shallow_copy &= of.Equal(element_position)
+                    elements = clip_shallow_copy._items    # Already without masked elements (framed)
+                    # Remove elements from clip
+                    element_clip.delete(elements, True)
+                    new_elements: list[oe.Element] = self._effect.apply(elements)
+                    self._processed_elements.extend(new_elements)
+                    # Add new elements to clip
+                    element_clip.extend(new_elements)
+                    element_clip._sort_items()  # Required to update the positions in the list
+        return self.try_close(element)
 
 
     def reuse(self) -> Self:

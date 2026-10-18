@@ -74,3 +74,5 @@ def test_framed_action():
         single_note % Position() == actual_position
         actual_position += single_note % Length()
 
+test_framed_action()
+
