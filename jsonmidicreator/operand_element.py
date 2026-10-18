@@ -103,6 +103,18 @@ class Element(o.Operand):
 
     def element_clip(self) -> Union[None, 'Clip']:
         return self._owner_clip
+
+
+    def framed_elements(self) -> Union[None, list['Element']]:
+        if self._owner_clip is None:
+            return None
+        return self._owner_clip._framed_elements
+
+
+    def framed_out(self) -> bool:
+        if self._owner_clip is None or self._owner_clip._framed_elements is None:
+            return False
+        return not any(self is single_element for single_element in self._owner_clip._framed_elements)
     
 
     def _get_time_signature(self) -> 'og.TimeSignature':

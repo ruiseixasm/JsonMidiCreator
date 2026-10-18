@@ -62,8 +62,8 @@ class Delete(Action):
         None
     """
     def act(self, element: 'Element') -> 'Element':
-        if element.is_owned():
-            owner_clip =  element.element_clip()
+        if element.is_owned() and not element.framed_out():
+            owner_clip = element.element_clip()
             owner_clip.delete_item(element)
         return element
 
