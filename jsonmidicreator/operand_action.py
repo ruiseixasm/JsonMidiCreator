@@ -314,6 +314,9 @@ class Invert(AmountedAction):
                 self._last_position_beats = element_position % Fraction()
                 element_clip: oc.Clip = element.element_clip()
                 clip_shallow_copy = element_clip.shallow_copy()
+                framed_elements = element.framed_elements()
+                if framed_elements is not None:
+                    clip_shallow_copy._items = framed_elements
                 clip_shallow_copy &= of.Equal(element_position)
                 notes = clip_shallow_copy._items    # Already without masked elements (framed)
                 self._apply_inversion(notes)
