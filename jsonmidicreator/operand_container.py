@@ -493,15 +493,6 @@ class Container(o.Operand):
             case tuple():
                 for single_operand in operand:
                     self -= single_operand
-            case of.Frame():
-                operand._set_inside_container(self)
-                framed_items: list[Any] = operand._get_unmasked_items()
-                for single_item in framed_items:
-                    single_parameter = operand.frame(single_item)
-                    if single_parameter == ol.Full():
-                        self.delete_item(single_item)
-                    else:
-                        single_item -= single_parameter
             case ch.Chaos():
                 for single_item in self.items_unmasked():
                     single_parameter = operand.chaoticize()
@@ -533,11 +524,6 @@ class Container(o.Operand):
                     self.extend(items_copy)  # Propagates upwards in the stack
                 elif operand == 0:
                     self.delete()
-            case of.Frame():
-                operand._set_inside_container(self)
-                framed_items: list[Any] = operand._get_unmasked_items()
-                for single_item in framed_items:
-                    single_item *= operand.frame(single_item)
             case ch.Chaos():
                 for single_item in self.items_unmasked():
                     single_parameter = operand.chaoticize()
@@ -555,11 +541,6 @@ class Container(o.Operand):
         match operand:
             case Container():
                 pass
-            case of.Frame():
-                operand._set_inside_container(self)
-                framed_items: list[Any] = operand._get_unmasked_items()
-                for single_item in framed_items:
-                    single_item /= operand.frame(single_item)
             case ch.Chaos():
                 for single_item in self.items_unmasked():
                     single_parameter = operand.chaoticize()
@@ -576,11 +557,6 @@ class Container(o.Operand):
         match operand:
             case Container():
                 pass
-            case of.Frame():
-                operand._set_inside_container(self)
-                framed_items: list[Any] = operand._get_unmasked_items()
-                for single_item in framed_items:
-                    single_item //= operand.frame(single_item)
             case ch.Chaos():
                 for single_item in self.items_unmasked():
                     single_parameter = operand.chaoticize()
@@ -2148,6 +2124,15 @@ class Clip(Composition):  # Just a container of Elements
                     ]
                     return self.delete(elements_to_delete, True)
             
+            case of.Frame():
+                operand._set_inside_container(self)
+                framed_items: list[Any] = operand._get_unmasked_items()
+                for single_item in framed_items:
+                    single_parameter = operand.frame(single_item)
+                    if single_parameter == ol.Full():
+                        self.delete_item(single_item)
+                    else:
+                        single_item -= single_parameter
             case str():
                 elements_place: list[int] = o.string_to_list(operand)
                 elements_to_delete: list[oe.Element] = []
@@ -2229,6 +2214,11 @@ class Clip(Composition):  # Just a container of Elements
                     clip_start += locus._duration_beats
                 self._items = clip_elements
 
+            case of.Frame():
+                operand._set_inside_container(self)
+                framed_items: list[Any] = operand._get_unmasked_items()
+                for single_item in framed_items:
+                    single_item *= operand.frame(single_item)
             case str():
                 self.__imul__(od.Line(operand))
 
@@ -2285,6 +2275,11 @@ class Clip(Composition):  # Just a container of Elements
                 elif operand == 0:
                     self.delete()
 
+            case of.Frame():
+                operand._set_inside_container(self)
+                framed_items: list[Any] = operand._get_unmasked_items()
+                for single_item in framed_items:
+                    single_item /= operand.frame(single_item)
             case ra.TimeUnit(): # Replicates elements with the TimeUnit offset for each add
                 self_repeating: int = operand % int() - 1
                 if self_repeating > 0:
@@ -2363,6 +2358,11 @@ class Clip(Composition):  # Just a container of Elements
                                 if not any(id(remaining_e) == id(pitch_e) for pitch_e in pitch_elements)
                         ]
 
+            case of.Frame():
+                operand._set_inside_container(self)
+                framed_items: list[Any] = operand._get_unmasked_items()
+                for single_item in framed_items:
+                    single_item //= operand.frame(single_item)
             case ra.Duration() | ra.TimeValue() | float():
                 new_elements: list[oe.Element] = []
                 for first_element in self.elements_unmasked():
