@@ -1318,7 +1318,6 @@ class Clip(Composition):  # Just a container of Elements
         self._enabled: bool             = True
         self._items: list[oe.Element]   = []
         self._drum_kit: dict[str, Any]  = {}
-        self._framed_elements: list[oe.Element] | None = None
         for single_operand in operands:
             self << single_operand
 
