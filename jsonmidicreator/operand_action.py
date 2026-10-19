@@ -48,16 +48,10 @@ class Action(o.Operand):
     The `action` method always returns the exact same inputted `Clip`.
     Contrary to a `Transformation`, an `Action` can be framed because it targets the Clip elements.
     """
-    def act(self, element: 'Element') -> Self:
-        if isinstance(self._chained_operand, Action):
-            return self._chained_operand.act(element)
-        return self
-
-
-    def act(self, clip: 'Clip', scoped_elements: list['Element']) -> Self:
+    def act(self, clip: 'Clip', scoped_elements: list['Element']) -> 'Clip':
         if isinstance(self._chained_operand, Action):
             return self._chained_operand.act(clip, scoped_elements)
-        return self
+        return clip
 
 
 
@@ -69,7 +63,7 @@ class Delete(Action):
     Args:
         None
     """
-    def act(self, clip: 'Clip', scoped_elements: list['Element']) -> Self:
+    def act(self, clip: 'Clip', scoped_elements: list['Element']) -> 'Clip':
         clip.delete(scoped_elements, True)
         return super().act(clip, scoped_elements)
 
@@ -310,7 +304,7 @@ class Invert(AmountedAction):
         super().__init__(*parameters)
 
 
-    def act(self, clip: 'Clip', scoped_elements: list['Element']) -> Self:
+    def act(self, clip: 'Clip', scoped_elements: list['Element']) -> 'Clip':
         for single_element in scoped_elements:
             if isinstance(single_element, oe.Note):
                 element_position: ra.Position = single_element % ra.Position()
@@ -369,7 +363,7 @@ class Arpeggiate(Aggregated):
         super().__init__(*parameters)
 
 
-    def act(self, clip: 'Clip', scoped_elements: list['Element']) -> Self:
+    def act(self, clip: 'Clip', scoped_elements: list['Element']) -> 'Clip':
         new_scoped_elements: list[oe.Element] = []
         for single_element in scoped_elements:
             if not any(id(single_element) == single_element_id for single_element_id in self._processed_element_ids):
