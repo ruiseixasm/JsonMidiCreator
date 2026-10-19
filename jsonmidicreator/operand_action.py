@@ -54,9 +54,9 @@ class Action(o.Operand):
         return self
 
 
-    def act_new(self, clip: 'Clip', scoped_elements: list['Element']) -> Self:
+    def act(self, clip: 'Clip', scoped_elements: list['Element']) -> Self:
         if isinstance(self._chained_operand, Action):
-            return self._chained_operand.act_new(clip, scoped_elements)
+            return self._chained_operand.act(clip, scoped_elements)
         return self
 
 
@@ -69,9 +69,9 @@ class Delete(Action):
     Args:
         None
     """
-    def act_new(self, clip: 'Clip', scoped_elements: list['Element']) -> Self:
+    def act(self, clip: 'Clip', scoped_elements: list['Element']) -> Self:
         clip.delete(scoped_elements, True)
-        return super().act_new(clip, scoped_elements)
+        return super().act(clip, scoped_elements)
 
 
 
@@ -309,7 +309,7 @@ class Invert(AmountedAction):
         super().__init__(*parameters)
 
 
-    def act_new(self, clip: 'Clip', scoped_elements: list['Element']) -> Self:
+    def act(self, clip: 'Clip', scoped_elements: list['Element']) -> Self:
         for single_element in scoped_elements:
             if isinstance(single_element, oe.Note):
                 element_position: ra.Position = single_element % ra.Position()
@@ -322,7 +322,7 @@ class Invert(AmountedAction):
                     # This edits the note pitch, it doesn't add new ones
                     self._apply_inversion(clip_shallow_copy._items)
         clip._sort_items()
-        return super().act_new(clip, scoped_elements)
+        return super().act(clip, scoped_elements)
 
 
     def _apply_inversion(self, notes: list['oe.Note']) -> list['oe.Note']:
@@ -364,7 +364,7 @@ class Arpeggiate(Aggregated):
         super().__init__(*parameters)
 
 
-    def act_new(self, clip: 'Clip', scoped_elements: list['Element']) -> Self:
+    def act(self, clip: 'Clip', scoped_elements: list['Element']) -> Self:
         new_scoped_elements: list[oe.Element] = []
         for single_element in scoped_elements:
             if not any(id(single_element) == single_element_id for single_element_id in self._processed_element_ids):
@@ -384,7 +384,7 @@ class Arpeggiate(Aggregated):
                     element_clip.extend(new_elements)
                     new_scoped_elements.extend(new_elements)
         clip._sort_items()
-        return super().act_new(clip, new_scoped_elements)
+        return super().act(clip, new_scoped_elements)
 
 
     def _shuffle_list(self, list: list) -> list:

@@ -1952,7 +1952,7 @@ class Clip(Composition):  # Just a container of Elements
                 framed_operand = operand.get_operand()
                 if isinstance(framed_operand, oa.Action):
                     # `act` always returns self
-                    return framed_operand.act_new(self, framed_elements)  # Sorting already included
+                    return framed_operand.act(self, framed_elements)  # Sorting already included
                 else:
                     for single_item in framed_elements:
                         framed_parameter = operand.frame(single_item)
@@ -1961,7 +1961,7 @@ class Clip(Composition):  # Just a container of Elements
 
             case oa.Action():
                 # `act` always returns self
-                return operand.act_new(self, self.elements_unmasked())  # Sorting already included
+                return operand.act(self, self.elements_unmasked())  # Sorting already included
 
             case tr.Transformation():
                 # `transform` always returns self
