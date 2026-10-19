@@ -2250,7 +2250,6 @@ class Note(ChannelElement):
         self._gate: Fraction        = Fraction(1)
         self._tied: bool            = False
         self._pitch: og.Pitch       = og.Pitch()
-        self._element_effect: og.Effect | None = None
         super().__init__(*parameters)
 
     def velocity(self, velocity: int = 100) -> Self:
@@ -2334,8 +2333,7 @@ class Note(ChannelElement):
                     and self._velocity  == other._velocity \
                     and self._gate      == other._gate \
                     and self._tied      == other._tied \
-                    and self._pitch     == other._pitch \
-                    and self._element_effect == other._element_effect
+                    and self._pitch     == other._pitch
             case Element():
                 # Makes a playlist comparison
                 return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
@@ -2374,8 +2372,6 @@ class Note(ChannelElement):
     
     def get_component_elements(self) -> list['Note']:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
-        if isinstance(self._element_effect, og.Effect):
-            return self._element_effect.apply([self])
         return [self]
     
 
@@ -2401,7 +2397,6 @@ class Note(ChannelElement):
                     case og.Pitch():        return self._pitch
                     case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
                                             return self._pitch % operand
-                    case og.Effect():       return self._element_effect
                     case _:                 return super().__mod__(operand)
             case ou.Velocity():     return ou.Velocity() << od.Pipe(self._velocity)
             case ra.Gate():         return ra.Gate() << od.Pipe(self._gate)
@@ -2409,12 +2404,6 @@ class Note(ChannelElement):
             case og.Pitch():        return self._pitch.copy()
             case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale() | ou.Mode():
                                     return self._pitch % operand
-            case og.Effect():       return o.deep_copy(self._element_effect)
-            case ou.Direction() | ra.Swing() | ch.Chaos():
-                if isinstance(self._element_effect, og.Effect):
-                    return self._element_effect % operand
-                else:
-                    return ol.Null()
             case ou.PitchCentroid():
                 return ou.PitchCentroid(self.pitch_centroid())
             case _:                 return super().__mod__(operand)
@@ -2562,7 +2551,6 @@ class Note(ChannelElement):
         serialization["parameters"]["gate"]     = o.serialize( self._gate )
         serialization["parameters"]["tied_to_previous"]     = o.serialize( self._tied )
         serialization["parameters"]["pitch"]    = o.serialize( self._pitch )
-        serialization["parameters"]["note_effect"] = o.serialize( self._element_effect )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -2570,14 +2558,13 @@ class Note(ChannelElement):
     def loadSerialization(self, serialization: dict) -> 'Note':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "velocity" in serialization["parameters"] and "gate" in serialization["parameters"] and "tied_to_previous" in serialization["parameters"] and
-            "pitch" in serialization["parameters"] and "note_effect" in serialization["parameters"]):
+            "pitch" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._velocity  = o.deserialize( serialization["parameters"]["velocity"] )
             self._gate      = o.deserialize( serialization["parameters"]["gate"] )
             self._tied      = o.deserialize( serialization["parameters"]["tied_to_previous"] )
             self._pitch     = o.deserialize( serialization["parameters"]["pitch"] )
-            self._element_effect = o.deserialize( serialization["parameters"]["note_effect"] )
         return self
 
 
@@ -2590,7 +2577,6 @@ class Note(ChannelElement):
                 self._gate          = operand._gate
                 self._tied          = operand._tied
                 self._pitch         << operand._pitch
-                self._element_effect   = o.deep_copy(operand._element_effect)
             case od.Pipe():
                 match operand._data:
                     case ou.Velocity():     self._velocity  = operand._data._unit
@@ -2599,7 +2585,6 @@ class Note(ChannelElement):
                     case og.Pitch():        self._pitch     = operand._data
                     case ou.PitchParameter() | ou.Natural() | ou.Quality() | str() | og.Scale():
                                             self._pitch << operand
-                    case og.Effect():       self._element_effect = operand._data
                     case _:                 super().__lshift__(operand)
             case ou.Velocity():     self._velocity = operand._unit
             case ra.Gate():         self._gate = operand._rational
@@ -2612,14 +2597,6 @@ class Note(ChannelElement):
                     self._pitch << operand
             case og.Pitch() | ou.PitchParameter() | ou.Natural() | ou.Quality() | None | og.Scale() | ou.Mode():
                 self._pitch << operand
-            case og.Effect():
-                self._element_effect = o.deep_copy(operand)
-            case ou.Direction() | ra.Swing() | ch.Chaos():
-                if isinstance(self._element_effect, og.Effect):
-                    self._element_effect << operand
-            case od.Remove():
-                if isinstance(operand._data, og.Effect):
-                    self._element_effect = None
             case _:
                 super().__lshift__(operand)
         return self
@@ -2728,8 +2705,6 @@ class Cluster(Note):
         for pitch_parameter in self._pitches:
             single_note: Note = Note(self, pitch_parameter)  # Owned by same clip
             cluster_notes.append( single_note )
-        if isinstance(self._element_effect, og.Effect):
-            cluster_notes = self._element_effect.apply(cluster_notes)
         return cluster_notes
 
 
@@ -3252,8 +3227,6 @@ class KeyScale(Note):
             scale_notes.append( new_note )
             new_note._pitch._transposition += shifting
         scale_notes = self._apply_inversion(scale_notes)
-        if isinstance(self._element_effect, og.Effect):
-            scale_notes = self._element_effect.apply(scale_notes)
         return scale_notes
     
 
@@ -3495,8 +3468,6 @@ class Chord(KeyScale):
                 if self._diminished:
                     single_note._pitch -= ou.Semitone(1)
         chord_notes = self._apply_inversion(chord_notes)
-        if isinstance(self._element_effect, og.Effect):
-            chord_notes = self._element_effect.apply(chord_notes)
         return chord_notes
     
 
@@ -3681,8 +3652,6 @@ class Tuplet(Note):
             retrigger_notes.append( single_note )
             note_position += note_duration
             self_iteration += 1
-        if isinstance(self._element_effect, og.Effect):
-            retrigger_notes = self._element_effect.apply(retrigger_notes)
         return retrigger_notes
 
     def getPlotlist(self, position_beats: Fraction | None = None) -> list[dict]:

@@ -399,6 +399,7 @@ class Unmask(Masking):
     pass
 
 
+
 class Parameter(Data):
     """`Data -> Parameter`
 
@@ -410,16 +411,6 @@ class Parameter(Data):
     """
     pass
 
-class Remove(Parameter):
-    """`Data -> Parameter -> Remove`
-
-    `Remove` allows a given parameter to be removed. The parameter needs to be removable.
-    
-    Parameters
-    ----------
-    Any() : Any type of operand.
-    """
-    pass
 
 
 class Field(Data):
