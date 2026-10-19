@@ -122,13 +122,6 @@ class Element(o.Operand):
             return None
         return self._owner_clip._framed_elements
 
-
-    def framed_out(self) -> bool:
-        if self._owner_clip is None or self._owner_clip._framed_elements is None:
-            return False
-        return not any(self is single_element for single_element in self._owner_clip._framed_elements)
-    
-
     def _get_time_signature(self) -> 'og.TimeSignature':
         if self._owner_clip is None:
             return og.settings._time_signature

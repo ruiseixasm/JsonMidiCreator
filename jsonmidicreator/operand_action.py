@@ -69,13 +69,6 @@ class Delete(Action):
     Args:
         None
     """
-    def act(self, element: 'Element') -> Self:
-        if element.is_owned() and not element.framed_out():
-            owner_clip = element.element_clip()
-            owner_clip.delete_item(element)
-        return self
-
-
     def act_new(self, clip: 'Clip', scoped_elements: list['Element']) -> Self:
         clip.delete(scoped_elements, True)
         return super().act_new(clip, scoped_elements)
@@ -329,22 +322,6 @@ class Invert(AmountedAction):
         self._last_position_beats = Fraction(-1)
         return self
 
-    def act(self, element: 'Element') -> Self:
-        if element.is_owned() and isinstance(element, oe.Note):
-            element_position: ra.Position = element % ra.Position()
-            if element_position > self._last_position_beats:    # Only does a single inversion per position
-                self._last_position_beats = element_position % Fraction()
-                element_clip: oc.Clip = element.element_clip()
-                clip_shallow_copy = element_clip.shallow_copy()
-                framed_elements = element.framed_elements()
-                if framed_elements is not None:
-                    clip_shallow_copy._items = framed_elements
-                clip_shallow_copy &= of.Equal(element_position)
-                notes = clip_shallow_copy._items    # Already without masked elements (framed)
-                self._apply_inversion(notes)
-        self.process_finish(element)
-        return super().act(element)
-
 
     def act_new(self, clip: 'Clip', scoped_elements: list['Element']) -> Self:
         for single_element in scoped_elements:
@@ -353,10 +330,8 @@ class Invert(AmountedAction):
                 if element_position > self._last_position_beats:    # Only does a single inversion per position
                     self._last_position_beats = element_position % Fraction()
                     element_clip: oc.Clip = single_element.element_clip()
-                    clip_shallow_copy = element_clip.shallow_copy()
-                    framed_elements = single_element.framed_elements()
-                    if framed_elements is not None:
-                        clip_shallow_copy._items = framed_elements
+                    clip_shallow_copy = element_clip.empty_copy()
+                    clip_shallow_copy._items = scoped_elements.copy()
                     clip_shallow_copy &= of.Equal(element_position)
                     # This edits the note pitch, it doesn't add new ones
                     self._apply_inversion(clip_shallow_copy._items)
@@ -403,28 +378,6 @@ class Arpeggiate(Aggregated):
         super().__init__(*parameters)
 
 
-    def act(self, element: 'Element') -> Self:
-        if element.is_owned():
-            if not any(id(element) == single_element_id for single_element_id in self._processed_element_ids):
-                element_position: ra.Position = element % ra.Position()
-                element_clip: oc.Clip = element.element_clip()
-                clip_shallow_copy = element_clip.shallow_copy()
-                framed_elements = element.framed_elements()
-                if framed_elements is not None:
-                    clip_shallow_copy._items = framed_elements
-                if clip_shallow_copy._items:
-                    clip_shallow_copy &= of.Equal(element_position)
-                    elements = clip_shallow_copy._items    # Already without masked elements (framed)
-                    # Remove elements from clip
-                    element_clip.delete(elements, True)
-                    self._processed_element_ids.update(id(single_element) for single_element in elements)
-                    new_elements: list[oe.Element] = self.arpeggiate(elements)
-                    self._processed_element_ids.update(id(single_element) for single_element in new_elements)
-                    # Add new elements to clip
-                    element_clip.extend(new_elements)
-        return self.process_finish(element)
-
-
     def act_new(self, clip: 'Clip', scoped_elements: list['Element']) -> Self:
         new_scoped_elements: list[oe.Element] = []
         for single_element in scoped_elements:
@@ -432,10 +385,8 @@ class Arpeggiate(Aggregated):
                 # The single_element and all on the same position will be replaced
                 element_position: ra.Position = single_element % ra.Position()
                 element_clip: oc.Clip = single_element.element_clip()
-                clip_shallow_copy = element_clip.shallow_copy()
-                framed_elements = single_element.framed_elements()
-                if framed_elements is not None:
-                    clip_shallow_copy._items = framed_elements
+                clip_shallow_copy = element_clip.empty_copy()
+                clip_shallow_copy._items = scoped_elements.copy()
                 if clip_shallow_copy._items:
                     clip_shallow_copy &= of.Equal(element_position)
                     elements = clip_shallow_copy._items    # Already without masked elements (framed)

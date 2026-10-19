@@ -1940,26 +1940,25 @@ class Clip(Composition):  # Just a container of Elements
 
                     case of.Frame():
                         operand._data._set_inside_clip(self)
-                        self._framed_elements = operand._data._get_unmasked_elements()
-                        for single_item in self._framed_elements:
+                        framed_elements = operand._data._get_unmasked_elements()
+                        for single_item in framed_elements:
                             framed_parameter = operand._data.frame(single_item)
                             single_item << od.Pipe( framed_parameter )
-                        self._framed_elements = None
                     case _:
                         super().__lshift__(operand)
 
             case of.Frame():
                 operand._set_inside_clip(self)
-                self._framed_elements = operand._get_unmasked_elements()
+                framed_elements = operand._get_unmasked_elements()
                 framed_operand = operand.get_operand()
                 if isinstance(framed_operand, oa.Action):
                     # `act` always returns self
-                    return framed_operand.act_new(self, self._framed_elements)  # Sorting already included
+                    return framed_operand.act_new(self, framed_elements)  # Sorting already included
                 else:
-                    for single_item in self._framed_elements:
+                    for single_item in framed_elements:
                         framed_parameter = operand.frame(single_item)
                         single_item << framed_parameter
-                self._framed_elements = None
+                framed_elements = None
 
             case oa.Action():
                 # `act` always returns self
@@ -2058,10 +2057,10 @@ class Clip(Composition):  # Just a container of Elements
             
             case of.Frame():
                 operand._set_inside_clip(self)
-                self._framed_elements = operand._get_unmasked_elements()
-                for single_item in self._framed_elements:
+                framed_elements = operand._get_unmasked_elements()
+                for single_item in framed_elements:
                     single_item += operand.frame(single_item)
-                self._framed_elements = None
+                framed_elements = None
             
             case list():
                 if all(isinstance(item, oe.Element) for item in operand):
@@ -2130,14 +2129,14 @@ class Clip(Composition):  # Just a container of Elements
             
             case of.Frame():
                 operand._set_inside_clip(self)
-                self._framed_elements = operand._get_unmasked_elements()
-                for single_item in self._framed_elements:
+                framed_elements = operand._get_unmasked_elements()
+                for single_item in framed_elements:
                     single_parameter = operand.frame(single_item)
                     if single_parameter == ol.Full():
                         self.delete_item(single_item)
                     else:
                         single_item -= single_parameter
-                self._framed_elements = None
+                framed_elements = None
 
             case str():
                 elements_place: list[int] = o.string_to_list(operand)
@@ -2222,10 +2221,10 @@ class Clip(Composition):  # Just a container of Elements
 
             case of.Frame():
                 operand._set_inside_clip(self)
-                self._framed_elements = operand._get_unmasked_elements()
-                for single_item in self._framed_elements:
+                framed_elements = operand._get_unmasked_elements()
+                for single_item in framed_elements:
                     single_item *= operand.frame(single_item)
-                self._framed_elements = None
+                framed_elements = None
 
             case str():
                 self.__imul__(od.Line(operand))
@@ -2285,10 +2284,10 @@ class Clip(Composition):  # Just a container of Elements
 
             case of.Frame():
                 operand._set_inside_clip(self)
-                self._framed_elements = operand._get_unmasked_elements()
-                for single_item in self._framed_elements:
+                framed_elements = operand._get_unmasked_elements()
+                for single_item in framed_elements:
                     single_item /= operand.frame(single_item)
-                self._framed_elements = None
+                framed_elements = None
 
             case ra.TimeUnit(): # Replicates elements with the TimeUnit offset for each add
                 self_repeating: int = operand % int() - 1
@@ -2370,10 +2369,10 @@ class Clip(Composition):  # Just a container of Elements
 
             case of.Frame():
                 operand._set_inside_clip(self)
-                self._framed_elements = operand._get_unmasked_elements()
-                for single_item in self._framed_elements:
+                framed_elements = operand._get_unmasked_elements()
+                for single_item in framed_elements:
                     single_item //= operand.frame(single_item)
-                self._framed_elements = None
+                framed_elements = None
 
             case ra.Duration() | ra.TimeValue() | float():
                 new_elements: list[oe.Element] = []
