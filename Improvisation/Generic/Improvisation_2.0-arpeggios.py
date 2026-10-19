@@ -21,7 +21,7 @@ from jsonmidicreator import *
 settings << Tempo(110)
 
 tonic_key = TonicKey("C")
-chromatic_notes = Cluster(tonic_key, [0.0, 1.0, 2.0, 3.0], 4.0, Arpeggio("UpDown", 1/8)) * 1
+chromatic_notes = Clip(":4.0:0n, :|:1n, :|:2n, :|:3n,") << tonic_key << Arpeggiate("UpDown", 1/8)
 
 for key in range(8):
     chromatic_notes += TonicKey(key)

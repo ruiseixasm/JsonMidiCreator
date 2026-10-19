@@ -24,35 +24,36 @@ from jsonmidicreator import *
 
 major_chord = Chord(Length(1), Size(4))
 major_chord >> Play()
+major_chord << Decompose()
 
-major_chord << Arpeggio("Up") << Length(2)
+major_chord << Length(2) << Arpeggiate("Up")
 major_chord >> Play()
 
-major_chord << Arpeggio("Down")
+major_chord << Arpeggiate("Down")
 major_chord >> Play()
 
-major_chord << Arpeggio("UpDown")
+major_chord << Arpeggiate("UpDown")
 major_chord >> Play()
 
-major_chord << Arpeggio("DownUp")
+major_chord << Arpeggiate("DownUp")
 major_chord >> Play()
 
-major_chord << Arpeggio("Chaotic")
+major_chord << Arpeggiate("Chaotic")
 major_chord >> Play()
 
 
-major_chord << Arpeggio("Up") << Swing(0.65)
+major_chord << Arpeggiate("Up", Swing(0.65))
 major_chord >> Play()
 
-major_chord << Direction("Down")
+major_chord << Arpeggiate("Down", Swing(0.65))
 major_chord >> Play()
 
-major_chord << Direction("UpDown")
+major_chord << Arpeggiate("UpDown", Swing(0.65))
 major_chord >> Play()
 
-major_chord << Direction("DownUp")
+major_chord << Arpeggiate("DownUp", Swing(0.65))
 major_chord >> Play()
 
-major_chord << Direction("Chaotic")
+major_chord << Arpeggiate("Chaotic", Swing(0.65))
 major_chord >> Play()
 
