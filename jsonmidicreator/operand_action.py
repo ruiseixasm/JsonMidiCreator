@@ -406,40 +406,43 @@ class Arpeggiate(Aggregated):
         arpeggiated_notes: list['oe.Note'] = []
         if self._order > 0 and len(notes) > 0:
 
-            time_signature: og.TimeSignature = notes[0]._get_time_signature()
             note_start_position: ra.Position = notes[0] % od.Pipe( ra.Position() )
-            arpeggio_length: ra.Length = notes[0] % od.Pipe( ra.Length() )
-            arpeggio_end_position: ra.Position = note_start_position + arpeggio_length % ra.Position()
-            note_length: ra.Length = ra.Length(time_signature, self._duration_beats)
-            odd_length: ra.Length = note_length * 2 * self._swing
-            even_length: ra.Length = note_length * 2 - odd_length
-            
-            note_index: int = 0
-            while note_start_position < arpeggio_end_position:
-                # Filter out released notes
+            pressed_notes: list[oe.Note] = Arpeggiate._pressed_notes(notes, note_start_position)
+            if pressed_notes:
+                time_signature: og.TimeSignature = pressed_notes[0]._get_time_signature()
+                arpeggio_length: ra.Length = pressed_notes[0] % od.Pipe( ra.Length() )
+                arpeggio_end_position: ra.Position = note_start_position + arpeggio_length % ra.Position()
+                note_length: ra.Length = ra.Length(time_signature, self._duration_beats)
+                odd_length: ra.Length = note_length * 2 * self._swing
+                even_length: ra.Length = note_length * 2 - odd_length
+                
+                note_index: int = 0
+                while note_start_position < arpeggio_end_position:
+                    # Filter out released notes
 
-                new_note: oe.Note = self._next_note(notes, note_index).copy()
-                arpeggiated_notes.append(new_note)
-                new_note << note_start_position
-                if note_index % 2 == 0:   # Odd note
-                    new_note << odd_length
-                else:
-                    new_note << even_length
-                note_end_position: ra.Position = note_start_position + new_note % od.Pipe( ra.Length() )
-                if note_end_position > arpeggio_end_position:
-                    length_deficit: ra.Length = arpeggio_length - arpeggio_end_position
-                    new_note += length_deficit
-                    break
-                note_start_position = note_end_position
-                note_index += 1
+                    new_note: oe.Note = self._next_note(pressed_notes, note_index).copy()
+                    arpeggiated_notes.append(new_note)
+                    new_note << note_start_position
+                    if note_index % 2 == 0:   # Odd note
+                        new_note << odd_length
+                    else:
+                        new_note << even_length
+                    note_end_position: ra.Position = note_start_position + new_note % od.Pipe( ra.Length() )
+                    if note_end_position > arpeggio_end_position:
+                        length_deficit: ra.Length = arpeggio_length - arpeggio_end_position
+                        new_note += length_deficit
+                        break
+                    note_start_position = note_end_position
+                    note_index += 1
         return arpeggiated_notes
 
 
     @staticmethod
     def _pressed_notes(notes: list['oe.Note'], finish_beats: Fraction) -> list['oe.Note']:
-
-        return notes
-
+        return [
+            single_note for single_note in notes
+            if single_note._position_beats + single_note._duration_beats > finish_beats
+        ]
 
 
     def _next_note(self, notes: list['oe.Note'], index: int) -> 'oe.Note':
