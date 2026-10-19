@@ -2421,43 +2421,40 @@ class Note(ChannelElement):
             derived_note: 'Note' = None) -> list[dict]:
         
         self_plotlist: list[dict] = []
-        component_notes: list[Note] = self.get_component_elements()
 
-        for single_note in component_notes:
+        if self._duration_beats == 0:
+            return []
 
-            if single_note._duration_beats == 0:
-                continue    # Next note
+        pitch_int: int = self._pitch.get_absolute_pitch()
+        if self.is_clipped(pitch_int):
+            return []
 
-            pitch_int: int = single_note._pitch.get_absolute_pitch()
-            if single_note.is_clipped(pitch_int):
-                continue    # Next note
+        position_on: Fraction = Fraction(0)
+        if position_beats is not None:
+            position_on = position_beats + self._position_beats
 
-            position_on: Fraction = Fraction(0)
-            if position_beats is not None:
-                position_on = position_beats + single_note._position_beats
+        position_off: Fraction = position_on + self._duration_beats
+        self_to_plot: Note = self if derived_note is None else derived_note # Info to be represented
 
-            position_off: Fraction = position_on + single_note._duration_beats
-            self_to_plot: Note = self if derived_note is None else derived_note # Info to be represented
-
-            self_plotlist.append(
-                {
-                    "note": {
-                        "position_on": position_on,
-                        "position_off": position_off,
-                        "enabled": True if self._owner_clip is None else self._owner_clip._enabled,
-                        "pitch": pitch_int,
-                        "tonic_key": single_note._pitch._tonic_key % 12,
-                        "sharps": single_note._pitch.get_sharps(),
-                        "mode": single_note._pitch._diatonic_mode_0,
-                        "key_tonic": single_note._pitch._tonic_key,
-                        "accidentals": single_note._pitch % ou.Accidental() % int(),
-                        "velocity": single_note._velocity,
-                        "channel": single_note._channel_0,
-                        "masked": single_note._masked,
-                        "self": self_to_plot
-                    }
+        self_plotlist.append(
+            {
+                "note": {
+                    "position_on": position_on,
+                    "position_off": position_off,
+                    "enabled": True if self._owner_clip is None else self._owner_clip._enabled,
+                    "pitch": pitch_int,
+                    "tonic_key": self._pitch._tonic_key % 12,
+                    "sharps": self._pitch.get_sharps(),
+                    "mode": self._pitch._diatonic_mode_0,
+                    "key_tonic": self._pitch._tonic_key,
+                    "accidentals": self._pitch % ou.Accidental() % int(),
+                    "velocity": self._velocity,
+                    "channel": self._channel_0,
+                    "masked": self._masked,
+                    "self": self_to_plot
                 }
-            )
+            }
+        )
 
         return self_plotlist
 
