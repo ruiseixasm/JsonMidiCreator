@@ -109,7 +109,7 @@ class Element(o.Operand):
         return self._owner_clip
 
 
-    def targeted_elements(self) -> list['Element']:
+    def scoped_elements(self) -> list['Element']:
         if self._owner_clip is None:
             return [self]
         if self._owner_clip._framed_elements is None:

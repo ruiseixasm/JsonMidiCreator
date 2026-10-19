@@ -80,7 +80,7 @@ class SingleUse(Action):
 
     def try_close(self, element: 'Element') -> Self:
         if element.is_owned():
-            targeted_elements = element.targeted_elements()
+            targeted_elements = element.scoped_elements()
             if targeted_elements and element is targeted_elements[-1]:
                 element.element_clip()._sort_items()
                 self.reuse()
