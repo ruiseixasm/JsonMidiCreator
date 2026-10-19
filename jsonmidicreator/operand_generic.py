@@ -2216,9 +2216,6 @@ class Effect(Generic):
         elements.sort()
         if isinstance(self._chained_operand, Effect):
             return self._chained_operand.apply(elements)
-        # Finally removes all elements are cleaned from any possible existing `Effect`
-        for single_element in elements:
-            single_element._element_effect = None
         return elements
 
 
