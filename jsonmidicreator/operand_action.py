@@ -349,10 +349,14 @@ class Invert(AmountedAction):
 class Arpeggiate(Aggregated):
     """`Action -> Aggregated -> Arpeggiate`
 
-    Represents an Effect with multiple configuration parameters associated to.
+    `Arpeggiate` lets a group of simultaneously played notes to be played in sequence accordingly to the Arpeggio configuration.
 
-    Args:
-        Effect() : The Effect to be applied to the elements on each `Position`.
+    Parameters
+    ----------
+    Order(1), int : The notes changing order, with 1 being the "Up" order.
+    Duration(1/16), float : The duration after which the next note is played following the set `Order`.
+    Swing(0.5) : Sets the amount of time the note is effectively pressed relatively to its total duration.
+    Chaos(SinX()) : For the `Order` 5, "Chaotic", it uses the set Chaotic `Operand`.
     """
     def __init__(self, *parameters):
         self._order: int = 1    # "Up" by default
