@@ -417,26 +417,23 @@ class Arpeggiate(Aggregated):
                 even_length: ra.Length = rate_length * 2 - odd_length
                 note_index: int = 0
                 while pressed_notes:
-                    new_note: oe.Note = self._next_note(pressed_notes, note_index).copy()
-                    arpeggiated_notes.append(new_note)
-                    new_note << note_start_position
-                    new_length: ra.Length = odd_length
-                    if note_index % 2:  # Even nth note
-                        new_length = even_length
-                    new_finish: ra.Position = note_start_position + new_length
-                    new_note_finish: ra.Position = new_note.finish()
-                    if new_note_finish < new_finish:    # Don't change duration
-                        note_end_position: ra.Position = new_note_finish
-                    else:
-                        new_note << new_length  # Sets smaller length
-                        note_end_position: ra.Position = new_finish
-                    if note_end_position > arpeggio_end_position:
-                        length_deficit: ra.Length = arpeggio_length - arpeggio_end_position
-                        new_note += length_deficit
-                        break
-                    note_start_position = note_end_position
-                    # Filter out released notes
-                    pressed_notes = Arpeggiate._pressed_notes(notes, note_start_position)
+                    new_note: oe.Note = self._next_note(notes, note_index).copy()
+                    if new_note.finish() > note_start_position:
+                        arpeggiated_notes.append(new_note)
+                        new_note << note_start_position
+                        new_length: ra.Length = odd_length
+                        if note_index % 2:  # Even nth note
+                            new_length = even_length
+                        new_finish: ra.Position = note_start_position + new_length
+                        new_note_finish: ra.Position = new_note.finish()
+                        if new_note_finish < new_finish:    # Don't change duration
+                            note_end_position: ra.Position = new_note_finish
+                        else:
+                            new_note << new_length  # Sets smaller length
+                            note_end_position: ra.Position = new_finish
+                        note_start_position = note_end_position
+                        # Filter out released notes
+                        pressed_notes = Arpeggiate._pressed_notes(pressed_notes, note_start_position)
                     note_index += 1
         return arpeggiated_notes
 
