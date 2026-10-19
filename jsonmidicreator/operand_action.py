@@ -378,7 +378,7 @@ class Arpeggiate(Aggregated):
                     # Remove elements from clip
                     element_clip.delete(elements, True)
                     self._processed_element_ids.update(id(single_element) for single_element in elements)
-                    new_elements: list[oe.Element] = self.arpeggiate(elements)
+                    new_elements: list[oe.Element] = self._arpeggiate(elements)
                     # Add new elements to clip
                     element_clip.extend(new_elements)
                     new_scoped_elements.extend(new_elements)
@@ -401,7 +401,7 @@ class Arpeggiate(Aggregated):
         return shuffled_list
 
 
-    def arpeggiate(self, notes: list['oe.Note']) -> list['oe.Note']:
+    def _arpeggiate(self, notes: list['oe.Note']) -> list['oe.Note']:
         arpeggiated_notes: list['oe.Note'] = []
         if self._order > 0 and len(notes) > 0:
 
