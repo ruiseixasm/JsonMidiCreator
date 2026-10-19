@@ -349,7 +349,7 @@ class Arpeggiate(Aggregated):
     Parameters
     ----------
     Order(1), int : The notes changing order, with 1 being the "Up" order.
-    Duration(1/16), float : The duration after which the next note is played following the set `Order`.
+    Rate(1/16), float : The Rate note value after which the next note is played following the set `Order`.
     Swing(0.5) : Sets the amount of time the note is effectively pressed relatively to its total duration.
     Chaos(SinX()) : For the `Order` 5, "Chaotic", it uses the set Chaotic `Operand`.
     """
