@@ -428,11 +428,11 @@ class Arpeggiate(Aggregated):
                         new_length = even_length
                     new_finish: ra.Position = note_start_position + new_length
                     new_note_finish: ra.Position = new_note.finish()
-                    if new_note_finish < new_finish:
-                        new_note << new_length
+                    if new_note_finish < new_finish:    # Don't change duration
+                        note_end_position: ra.Position = new_note_finish
                     else:
-                        new_note << new_length
-                    note_end_position: ra.Position = note_start_position + new_note % od.Pipe( ra.Length() )
+                        new_note << new_length  # Sets smaller length
+                        note_end_position: ra.Position = new_finish
                     if note_end_position > arpeggio_end_position:
                         length_deficit: ra.Length = arpeggio_length - arpeggio_end_position
                         new_note += length_deficit
