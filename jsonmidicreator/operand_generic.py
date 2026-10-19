@@ -2418,7 +2418,7 @@ class Arpeggio(NoteEffect):
         target_picks = []
 
         while len(source_picks) > 0:
-            target_picks.append(source_picks.pop(self._chaos @ 1 % int() % len(source_picks)))
+            target_picks.append(source_picks.pop(self._chaos % int() % len(source_picks)))
 
         shuffled_list = []
         for pick in target_picks:
@@ -2532,6 +2532,7 @@ class Arpeggio(NoteEffect):
             self._swing                 = o.deserialize( serialization["parameters"]["swing"] )
             self._chaos                 = o.deserialize( serialization["parameters"]["chaos"] )
         return self
+
     
     def __lshift__(self, operand: any) -> Self:
         from . import operand_chaos as ch

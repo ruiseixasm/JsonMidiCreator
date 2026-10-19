@@ -49,6 +49,8 @@ class Action(o.Operand):
     Contrary to a `Transformation`, an `Action` can be framed because it targets the Clip elements.
     """
     def act(self, element: 'Element') -> Self:
+        if isinstance(self._chained_operand, Action):
+            return self._chained_operand.act(element)
         return self
 
 
@@ -69,16 +71,16 @@ class Delete(Action):
 
 
 
-class SingleUse(Action):
-    """`Action -> SingleUse`
+class Aggregated(Action):
+    """`Action -> Aggregated`
 
-    `SingleUse` means once used it doesn't work anymore, you need to create a new one or set it with a new amount.
+    `Aggregated` means that multiple Elements are processed at once and not just one by one.
     """
     def reuse(self) -> Self:
         return self
 
 
-    def try_close(self, element: 'Element') -> Self:
+    def process_finish(self, element: 'Element') -> Self:
         if element.is_owned():
             targeted_elements = element.scoped_elements()
             if targeted_elements and element is targeted_elements[-1]:
@@ -88,8 +90,8 @@ class SingleUse(Action):
 
 
 
-class AmountedAction(SingleUse):
-    """`Action -> SingleUse -> AmountedAction`
+class AmountedAction(Aggregated):
+    """`Action -> Aggregated -> AmountedAction`
 
     `AmountedAction` means an `Action` with an amount associated.
     
@@ -300,7 +302,7 @@ class AmountedAction(SingleUse):
 
 
 class Invert(AmountedAction):
-    """`Action -> SingleUse -> AmountedAction -> Invert`
+    """`Action -> Aggregated -> AmountedAction -> Invert`
 
     Invert() inverts the selected elements for each given position.
     
@@ -329,7 +331,8 @@ class Invert(AmountedAction):
                 clip_shallow_copy &= of.Equal(element_position)
                 notes = clip_shallow_copy._items    # Already without masked elements (framed)
                 self._apply_inversion(notes)
-        return self.try_close(element)
+        self.process_finish(element)
+        return super().act(element)
 
 
     def _apply_inversion(self, notes: list['oe.Note']) -> list['oe.Note']:
@@ -353,8 +356,8 @@ class Invert(AmountedAction):
         return notes
 
 
-class ApplyEffect(SingleUse):
-    """`Action -> SingleUse -> ApplyEffect`
+class Arpeggiate(Aggregated):
+    """`Action -> Aggregated -> Arpeggiate`
 
     Represents an Effect with multiple configuration parameters associated to.
 
@@ -362,7 +365,11 @@ class ApplyEffect(SingleUse):
         Effect() : The Effect to be applied to the elements on each `Position`.
     """
     def __init__(self, *parameters):
-        self._effect: og.Effect = og.Effect()
+        self._order: int = 1    # "Up" by default
+        self._duration_beats: Fraction = Fraction(1, 4) # duration in beats, NOT note value
+        self._swing: Fraction = Fraction(1, 2)
+        self._chaos: ch.Chaos = ch.SinX()
+        self._chaotic_sequence: list[oe.Note] = []
         self._processed_element_ids: set[Element] = set()
         super().__init__(*parameters)
 
@@ -382,11 +389,11 @@ class ApplyEffect(SingleUse):
                     # Remove elements from clip
                     element_clip.delete(elements, True)
                     self._processed_element_ids.update(id(single_element) for single_element in elements)
-                    new_elements: list[oe.Element] = self._effect.apply(elements)
+                    new_elements: list[oe.Element] = self.arpeggiate(elements)
                     self._processed_element_ids.update(id(single_element) for single_element in new_elements)
                     # Add new elements to clip
                     element_clip.extend(new_elements)
-        return self.try_close(element)
+        return self.process_finish(element)
 
 
     def reuse(self) -> Self:
@@ -394,108 +401,172 @@ class ApplyEffect(SingleUse):
         return self
 
 
+    def _shuffle_list(self, list: list) -> list:
+        
+        source_picks = [*range(len(list))]
+        target_picks = []
+
+        while len(source_picks) > 0:
+            target_picks.append(source_picks.pop(self._chaos % int() % len(source_picks)))
+
+        shuffled_list = []
+        for pick in target_picks:
+            shuffled_list.append(list[pick])
+
+        return shuffled_list
+
+
+    def arpeggiate(self, notes: list['oe.Note']) -> list['oe.Note']:
+        arpeggiated_notes: list['oe.Note'] = []
+        if self._order > 0 and len(notes) > 0:
+
+            time_signature: og.TimeSignature = notes[0]._get_time_signature()
+            note_start_position: ra.Position = notes[0] % od.Pipe( ra.Position() )
+            arpeggio_length: ra.Length = notes[0] % od.Pipe( ra.Length() )
+            arpeggio_end_position: ra.Position = note_start_position + arpeggio_length % ra.Position()
+            note_length: ra.Length = ra.Length(time_signature, self._duration_beats)
+            odd_length: ra.Length = note_length * 2 * self._swing
+            even_length: ra.Length = note_length * 2 - odd_length
+            
+            note_index: int = 0
+            while note_start_position < arpeggio_end_position:
+                new_note: oe.Note = self._next_note(notes, note_index).copy()
+                arpeggiated_notes.append(new_note)
+                new_note << note_start_position
+                if note_index % 2 == 0:   # Odd note
+                    new_note << odd_length
+                else:
+                    new_note << even_length
+                note_end_position: ra.Position = note_start_position + new_note % od.Pipe( ra.Length() )
+                if note_end_position > arpeggio_end_position:
+                    length_deficit: ra.Length = arpeggio_length - arpeggio_end_position
+                    new_note += length_deficit
+                    break
+                note_start_position = note_end_position
+                note_index += 1
+        return arpeggiated_notes
+
+
+    def _next_note(self, notes: list['oe.Note'], index: int) -> 'oe.Note':
+        """Returns a Note according to the arpeggio order."""
+        size = len(notes)
+        match ou.Direction.numberToName(self._order):
+            case "Down":
+                return notes[-(index % size) - 1]
+            case "UpDown":
+                index %= max(1, 2 * size - 2)
+                return notes[index if index < size else 2 * size - 2 - index]
+            case "DownUp":
+                index %= max(1, 2 * size - 2)
+                return notes[size - 1 - index if index < size else index - size + 1]
+            case "Chaotic":
+                if index % size == 0:
+                    self._chaotic_sequence = self._shuffle_list(notes)
+                return self._chaotic_sequence[index % size]
+            case _:
+                return notes[index % size]
+
+    
+    def __eq__(self, other: 'Arpeggiate') -> bool:
+        if type(self) != type(other):
+            return False
+        if isinstance(other, Arpeggiate):
+            return  self._order                 == other._order \
+                and self._duration_beats        == other._duration_beats \
+                and self._chaos                 == other._chaos
+        if isinstance(other, od.Conditional):
+            return other == self
+        return super().__eq__(other)
+    
+
     def __mod__(self, operand: o.T) -> o.T:
-        from . import operand_rational as ra
+        from . import operand_chaos as ch
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case og.Effect():       return self._effect
-                    case _:                 return super().__mod__(operand)
-            case og.Effect():       return self._effect.copy()
-            case _:                 return super().__mod__(operand)
+                    case ou.Direction():        return operand._data << od.Pipe( self._order )
+                    case ra.Duration():         return operand._data << od.Pipe( self._duration_beats )
+                    case ra.Swing():            return operand._data << od.Pipe( self._swing )
+                    case ch.Chaos():            return self._chaos
+                    case int():                 return self._order
+                    case float():               return float( self._duration_beats )
+                    case Fraction():            return self._duration_beats
+                    case _:                     return super().__mod__(operand)
+            case ou.Direction():        return ou.Direction(self._order)
+            case str():                 return ou.Direction(self._order) % str()
+            case ra.Duration():         return ra.Duration( self._duration_beats )
+            case ra.Swing():            return ra.Swing(self._swing)
+            case ch.Chaos():            return self._chaos.copy()
+            case int():                 return self._order
+            case float():               return float( self._duration_beats )
+            case Fraction():            return self._duration_beats
+            case Arpeggiate():
+                return operand.copy(self)
+            case _:                     return super().__mod__(operand)
 
-
-    def __eq__(self, other: any) -> bool:
-        match other:
-            case ApplyEffect():
-                return self._effect == other._effect
-            case od.Conditional():
-                return other == self._effect
-            case _:
-                return self._effect == other
-        return False
-    
-    def __lt__(self, other: any) -> bool:
-        match other:
-            case ApplyEffect():
-                return self._effect < other._effect
-            case od.Conditional():
-                return other > self._effect
-            case _:
-                return self._effect < other
-        return False
-    
-    def __gt__(self, other: any) -> bool:
-        match other:
-            case ApplyEffect():
-                return self._effect > other._effect
-            case od.Conditional():
-                return other < self._effect
-            case _:
-                return self._effect > other
-        return False
-    
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["effect"] = self._effect
+        serialization["parameters"]["order"]            = o.serialize( self._order )
+        serialization["parameters"]["duration_beats"]         = o.serialize( self._duration_beats )
+        serialization["parameters"]["swing"]            = o.serialize( self._swing )
+        serialization["parameters"]["chaos"]            = o.serialize( self._chaos )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "effect" in serialization["parameters"]):
+            "order" in serialization["parameters"] and "duration_beats" in serialization["parameters"] and
+            "swing" in serialization["parameters"] and "chaos" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._effect = serialization["parameters"]["effect"]
+            self._order                 = o.deserialize( serialization["parameters"]["order"] )
+            self._duration_beats        = o.deserialize( serialization["parameters"]["duration_beats"] )
+            self._swing                 = o.deserialize( serialization["parameters"]["swing"] )
+            self._chaos                 = o.deserialize( serialization["parameters"]["chaos"] )
         return self
-
+    
 
     def __lshift__(self, operand: any) -> Self:
-        from . import operand_rational as ra
+        from . import operand_chaos as ch
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case ApplyEffect():
+            case Arpeggiate():
                 super().__lshift__(operand)
-                self._effect = operand._effect.copy()
+                self._order                 = operand._order
+                self._duration_beats        = operand._duration_beats
+                self._swing                 = operand._swing
+                self._chaos                 = operand._chaos.copy()
             case od.Pipe():
                 match operand._data:
-                    case og.Effect():
-                        self._effect = operand._data
-                    case _:
-                        super().__lshift__(operand)
-            case og.Effect():
-                self._effect = operand.copy()
-            case _:
-                super().__lshift__(operand)
-        return self.reuse()
+                    case ou.Direction():                self._order = operand._data._unit
+                    case ra.Duration():             self._duration_beats = operand._data._rational
+                    case ra.Swing():                self._swing = operand._data._rational
+                    case ch.Chaos():                self._chaos = operand._data
+                    case int():                     self._order = operand._data
+                    case float():                   self._duration_beats = ra.Duration(operand._data)._rational
+                    case Fraction():                self._duration_beats = operand._data
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case ou.Direction():                self._order = operand._unit
+            case str():                     self._order = ou.Direction(operand)._unit
+            case ra.Duration():             self._duration_beats = operand._rational
+            case ra.Swing():
+                if operand < 0:
+                    self._swing = Fraction(0)
+                elif operand > 1:
+                    self._swing = Fraction(1)
+                else:
+                    self._swing = operand._rational
+            case ch.Chaos():                self._chaos << operand
+            case int():                     self._order = operand
+            case float():                   self._duration_beats = ra.Duration(operand)._rational
+            case Fraction():                self._duration_beats = operand
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
+        return self
 
-
-    def __iadd__(self, number: any) -> Self:
-        from . import operand_rational as ra
-        number = self._tail_wrap(number)      # Processes the tailed self operands if existent
-        self._effect.__iadd__(number)
-        return self.reuse()
-
-    
-    def __isub__(self, number: any) -> Self:
-        from . import operand_rational as ra
-        number = self._tail_wrap(number)      # Processes the tailed self operands if existent
-        self._effect.__isub__(number)
-        return self.reuse()
-
-    
-    def __imul__(self, number: any) -> Self:
-        from . import operand_rational as ra
-        number = self._tail_wrap(number)      # Processes the tailed self operands if existent
-        self._effect.__imul__(number)
-        return self.reuse()
-
-    
-    def __itruediv__(self, number: any) -> Self:
-        number = self._tail_wrap(number)      # Processes the tailed self operands if existent
-        self._effect.__itruediv__(number)
-        return self.reuse()
 
 

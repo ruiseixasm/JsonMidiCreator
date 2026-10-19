@@ -54,7 +54,7 @@ def test_effect():
     c_major = Clip(":, :|:3n, :|:5n,")
     for single_note in c_major:
         single_note % Position() == Position(0)
-    c_major << ApplyEffect(Arpeggio())
+    c_major << Arpeggiate()
     # c_major >> Plot()
     actual_position = Position(0)
     for single_note in c_major:
@@ -70,7 +70,7 @@ def test_effect():
 def test_framed_action():
     c_major = Clip(":, :|:3n, :|:5n,") * 2
     # c_major >> Plot()
-    c_major << Equal(Measure(1))**ApplyEffect(Arpeggio())
+    c_major << Equal(Measure(1))**Arpeggiate()
     # c_major >> Plot()
     for single_note in c_major & Measure(0):
         single_note % Position() == Position(0)

@@ -27,6 +27,6 @@ from jsonmidicreator import *
 single_chord = Chord() * 1
 single_chord >> Play()
 
-single_chord >> Decompose() >> Arpeggiate() >> Play()
+single_chord >> Decompose() << Arpeggiate() >> Play()
 
 
