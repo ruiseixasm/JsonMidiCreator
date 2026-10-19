@@ -116,12 +116,6 @@ class Element(o.Operand):
             return self._owner_clip.elements_unmasked()
         return self._owner_clip._framed_elements
 
-
-    def framed_elements(self) -> Union[None, list['Element']]:
-        if self._owner_clip is None:
-            return None
-        return self._owner_clip._framed_elements
-
     def _get_time_signature(self) -> 'og.TimeSignature':
         if self._owner_clip is None:
             return og.settings._time_signature

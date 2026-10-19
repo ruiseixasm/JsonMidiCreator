@@ -80,17 +80,7 @@ class Aggregated(Action):
 
     `Aggregated` means that multiple Elements are processed at once and not just one by one.
     """
-    def reuse(self) -> Self:
-        return self
-
-
-    def process_finish(self, element: 'Element') -> Self:
-        if element.is_owned():
-            targeted_elements = element.scoped_elements()
-            if targeted_elements and element is targeted_elements[-1]:
-                element.element_clip()._sort_items()
-                self.reuse()
-        return self
+    pass
 
 
 
@@ -110,7 +100,7 @@ class AmountedAction(Aggregated):
 
     def __neg__(self):
         self._amount *= -1
-        return self.reuse()
+        return self
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -237,7 +227,7 @@ class AmountedAction(Aggregated):
             case tuple():
                 for single_operand in operand:
                     self << single_operand
-        return self.reuse()
+        return self
 
 
     def __iadd__(self, number: any) -> Self:
@@ -252,7 +242,7 @@ class AmountedAction(Aggregated):
                 self._amount += number._unit
             case ra.Rational():
                 self._amount = int( self._amount + number._rational )
-        return self.reuse()
+        return self
 
     
     def __isub__(self, number: any) -> Self:
@@ -267,7 +257,7 @@ class AmountedAction(Aggregated):
                 self._amount -= number._unit
             case ra.Rational():
                 self._amount = int( self._amount - number._rational )
-        return self.reuse()
+        return self
 
     
     def __imul__(self, number: any) -> Self:
@@ -282,7 +272,7 @@ class AmountedAction(Aggregated):
                 self._amount *= number._unit
             case ra.Rational():
                 self._amount = int( self._amount * number._rational )
-        return self.reuse()
+        return self
 
     
     def __itruediv__(self, number: any) -> Self:
@@ -301,7 +291,7 @@ class AmountedAction(Aggregated):
             case ra.Rational():
                 if number._rational != 0:
                     self._amount = int( self._amount / number._rational )
-        return self.reuse()
+        return self
 
 
 
@@ -317,10 +307,6 @@ class Invert(AmountedAction):
     def __init__(self, *parameters):
         self._last_position_beats = Fraction(-1)
         super().__init__(*parameters)
-
-    def reuse(self) -> Self:
-        self._last_position_beats = Fraction(-1)
-        return self
 
 
     def act_new(self, clip: 'Clip', scoped_elements: list['Element']) -> Self:
@@ -399,11 +385,6 @@ class Arpeggiate(Aggregated):
                     new_scoped_elements.extend(new_elements)
         clip._sort_items()
         return super().act_new(clip, new_scoped_elements)
-
-
-    def reuse(self) -> Self:
-        self._processed_element_ids = set()
-        return self
 
 
     def _shuffle_list(self, list: list) -> list:
