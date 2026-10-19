@@ -1903,6 +1903,7 @@ class Clip(Composition):  # Just a container of Elements
 
 
     def __lshift__(self, operand: any) -> Self:
+        from . import operand_action as oa
         from . import operand_transformation as tr
         match operand:
             case Clip():
@@ -1954,6 +1955,15 @@ class Clip(Composition):  # Just a container of Elements
                     framed_parameter = operand.frame(single_item)
                     single_item << framed_parameter
                 self._framed_elements = None
+
+            case oa.Action():
+                # `transform` always returns self
+                return operand.act_new(self, self.elements_unmasked())  # Sorting already included
+
+            case tr.Transformation():
+                # `transform` always returns self
+                return operand.transform(self)  # Sorting already included
+
             case str():
                 if operand.find(" ") != -1 or operand.find(",") != -1:  # "," is what defines a line
                     self.__lshift__(od.Line(operand))
@@ -1964,10 +1974,6 @@ class Clip(Composition):  # Just a container of Elements
                 line_elements: list[oe.Element] = oe.get_elements_from_line(operand)
                 self._items = line_elements
                 self._set_owner_clip()
-
-            case tr.Transformation():
-                # `transform` always returns self
-                return operand.transform(self)  # Sorting already included
 
             case ou.TrackNumber():
                 self._track_number = operand._unit

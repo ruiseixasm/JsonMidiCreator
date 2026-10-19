@@ -360,6 +360,7 @@ class Invert(AmountedAction):
                     clip_shallow_copy &= of.Equal(element_position)
                     # This edits the note pitch, it doesn't add new ones
                     self._apply_inversion(clip_shallow_copy._items)
+        clip._sort_items()
         return super().act_new(clip, scoped_elements)
 
 
@@ -445,6 +446,7 @@ class Arpeggiate(Aggregated):
                     # Add new elements to clip
                     element_clip.extend(new_elements)
                     new_scoped_elements.extend(new_elements)
+        clip._sort_items()
         return super().act_new(clip, new_scoped_elements)
 
 
