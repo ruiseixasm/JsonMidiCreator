@@ -423,10 +423,10 @@ class Arpeggiate(Aggregated):
                     new_note: oe.Note = self._next_note(pressed_notes, note_index).copy()
                     arpeggiated_notes.append(new_note)
                     new_note << note_start_position
-                    if note_index % 2 == 0:   # Odd note
-                        new_note << odd_length
-                    else:
-                        new_note << even_length
+                    new_length: ra.Length = odd_length
+                    if note_index % 2:  # Even nth note
+                        new_length = even_length
+                    new_note << new_length
                     note_end_position: ra.Position = note_start_position + new_note % od.Pipe( ra.Length() )
                     if note_end_position > arpeggio_end_position:
                         length_deficit: ra.Length = arpeggio_length - arpeggio_end_position
