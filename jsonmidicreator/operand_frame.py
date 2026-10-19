@@ -726,10 +726,10 @@ class ClipFilter(LeftToRight):
 
 
 
-class ItemType(ClipFilter):
-    """`Frame -> LeftToRight -> ClipFilter -> ItemType`
+class ElementType(ClipFilter):
+    """`Frame -> LeftToRight -> ClipFilter -> ElementType`
 
-    An `ItemType` only lets specified types of inputs to be passed to the next `Frame`.
+    An `ElementType` only lets specified types of inputs to be passed to the next `Frame`.
 
     Parameters
     ----------
