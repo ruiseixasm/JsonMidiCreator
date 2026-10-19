@@ -2462,7 +2462,6 @@ class Note(ChannelElement):
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
 
         self_playlist: list[dict] = []
-        component_notes: list[Note] = self.get_component_elements()
 
         absolute_position_beats: Fraction = Fraction(0)
         if position_beats is not None:
@@ -2514,28 +2513,25 @@ class Note(ChannelElement):
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
         
         self_midilist: list[dict] = []
-        component_notes: list[Note] = self.get_component_elements()
 
-        for single_note in component_notes:
+        self_duration_beats: Fraction = self._duration_beats * self._gate
+        self_duration: float = float(self_duration_beats)
+        if self_duration == 0:
+            return []
 
-            self_duration_beats: Fraction = single_note._duration_beats * single_note._gate
-            self_duration: float = float(self_duration_beats)
-            if self_duration == 0:
-                continue    # Next note
+        pitch_int: int = self._pitch.get_absolute_pitch()
+        if self.is_clipped(pitch_int):
+            return []
 
-            pitch_int: int = single_note._pitch.get_absolute_pitch()
-            if single_note.is_clipped(pitch_int):
-                continue    # Next note
+        # Validation is done by midiutil Midi Range Validation
+        note_dict: dict             = super().getMidilist(position_beats)[0]
+        note_dict["event"]          = "Note"
+        note_dict["duration"]       = self_duration
+        note_dict["velocity"]       = self._velocity
+        note_dict["pitch"]          = pitch_int
+        note_dict["priority"]       = 0x60
 
-            # Validation is done by midiutil Midi Range Validation
-            note_dict: dict             = super().getMidilist(position_beats)[0]
-            note_dict["event"]          = "Note"
-            note_dict["duration"]       = self_duration
-            note_dict["velocity"]       = single_note._velocity
-            note_dict["pitch"]          = pitch_int
-            note_dict["priority"]       = 0x60
-
-            self_midilist.append(note_dict)
+        self_midilist.append(note_dict)
 
         return self_midilist
 
