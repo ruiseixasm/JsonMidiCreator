@@ -2421,40 +2421,43 @@ class Note(ChannelElement):
             derived_note: 'Note' = None) -> list[dict]:
         
         self_plotlist: list[dict] = []
+        component_notes: list[Note] = self.get_component_elements()
 
-        if self._duration_beats == 0:
-            return []
+        for single_note in component_notes:
 
-        pitch_int: int = self._pitch.get_absolute_pitch()
-        if self.is_clipped(pitch_int):
-            return []
+            if single_note._duration_beats == 0:
+                continue    # Next note
 
-        position_on: Fraction = Fraction(0)
-        if position_beats is not None:
-            position_on = position_beats + self._position_beats
+            pitch_int: int = single_note._pitch.get_absolute_pitch()
+            if single_note.is_clipped(pitch_int):
+                continue    # Next note
 
-        position_off: Fraction = position_on + self._duration_beats
-        self_to_plot: Note = self if derived_note is None else derived_note # Info to be represented
+            position_on: Fraction = Fraction(0)
+            if position_beats is not None:
+                position_on = position_beats + single_note._position_beats
 
-        self_plotlist.append(
-            {
-                "note": {
-                    "position_on": position_on,
-                    "position_off": position_off,
-                    "enabled": True if self._owner_clip is None else self._owner_clip._enabled,
-                    "pitch": pitch_int,
-                    "tonic_key": self._pitch._tonic_key % 12,
-                    "sharps": self._pitch.get_sharps(),
-                    "mode": self._pitch._diatonic_mode_0,
-                    "key_tonic": self._pitch._tonic_key,
-                    "accidentals": self._pitch % ou.Accidental() % int(),
-                    "velocity": self._velocity,
-                    "channel": self._channel_0,
-                    "masked": self._masked,
-                    "self": self_to_plot
+            position_off: Fraction = position_on + single_note._duration_beats
+            self_to_plot: Note = self if derived_note is None else derived_note # Info to be represented
+
+            self_plotlist.append(
+                {
+                    "note": {
+                        "position_on": position_on,
+                        "position_off": position_off,
+                        "enabled": True if self._owner_clip is None else self._owner_clip._enabled,
+                        "pitch": pitch_int,
+                        "tonic_key": single_note._pitch._tonic_key % 12,
+                        "sharps": single_note._pitch.get_sharps(),
+                        "mode": single_note._pitch._diatonic_mode_0,
+                        "key_tonic": single_note._pitch._tonic_key,
+                        "accidentals": single_note._pitch % ou.Accidental() % int(),
+                        "velocity": single_note._velocity,
+                        "channel": single_note._channel_0,
+                        "masked": single_note._masked,
+                        "self": self_to_plot
+                    }
                 }
-            }
-        )
+            )
 
         return self_plotlist
 
@@ -2462,50 +2465,53 @@ class Note(ChannelElement):
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
 
         self_playlist: list[dict] = []
+        component_notes: list[Note] = self.get_component_elements()
 
-        absolute_position_beats: Fraction = Fraction(0)
-        if position_beats is not None:
-            absolute_position_beats = position_beats + self._position_beats
+        for single_note in component_notes:
 
-        if absolute_position_beats < 0 or self._duration_beats <= 0:
-            return []
+            absolute_position_beats: Fraction = Fraction(0)
+            if position_beats is not None:
+                absolute_position_beats = position_beats + single_note._position_beats
 
-        pitch_int: int = self._pitch.get_absolute_pitch()
-        if self.is_clipped(pitch_int):
-            return []
+            if absolute_position_beats < 0 or single_note._duration_beats <= 0:
+                continue    # Next note
 
-        if devices_header:
-            devices: list[str] = og.settings._devices
-            if self._owner_clip is not None:
-                devices = self._owner_clip._devices
+            pitch_int: int = single_note._pitch.get_absolute_pitch()
+            if single_note.is_clipped(pitch_int):
+                continue    # Next note
+
+            if devices_header:
+                devices: list[str] = og.settings._devices
+                if self._owner_clip is not None:
+                    devices = self._owner_clip._devices
+                self_playlist.append(
+                    {"devices": devices}
+                )
+
+            # Midi validation is done in the JsonMidiPlayer program
             self_playlist.append(
-                {"devices": devices}
+                {
+                    "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
+                    "midi_message": {
+                        "status_byte": 0x90 | single_note._channel_0,
+                        "data_byte_1": pitch_int,
+                        "data_byte_2": single_note._velocity
+                    }
+                }
+            )
+            finish_position_beats: Fraction = absolute_position_beats + single_note._duration_beats * single_note._gate
+            self_playlist.append(
+                {
+                    "position_beats": [finish_position_beats.numerator, finish_position_beats.denominator],
+                    "midi_message": {
+                        "status_byte": 0x80 | single_note._channel_0,
+                        "data_byte_1": pitch_int,
+                        "data_byte_2": 0
+                    }
+                }
             )
 
-        # Midi validation is done in the JsonMidiPlayer program
-        self_playlist.append(
-            {
-                "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
-                "midi_message": {
-                    "status_byte": 0x90 | self._channel_0,
-                    "data_byte_1": pitch_int,
-                    "data_byte_2": self._velocity
-                }
-            }
-        )
-        finish_position_beats: Fraction = absolute_position_beats + self._duration_beats * self._gate
-        self_playlist.append(
-            {
-                "position_beats": [finish_position_beats.numerator, finish_position_beats.denominator],
-                "midi_message": {
-                    "status_byte": 0x80 | self._channel_0,
-                    "data_byte_1": pitch_int,
-                    "data_byte_2": 0
-                }
-            }
-        )
-
-        # Already with a Playlist at this point
+            # Already with a Playlist at this point
 
         return self_playlist
 
@@ -2513,25 +2519,28 @@ class Note(ChannelElement):
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
         
         self_midilist: list[dict] = []
+        component_notes: list[Note] = self.get_component_elements()
 
-        self_duration_beats: Fraction = self._duration_beats * self._gate
-        self_duration: float = float(self_duration_beats)
-        if self_duration == 0:
-            return []
+        for single_note in component_notes:
 
-        pitch_int: int = self._pitch.get_absolute_pitch()
-        if self.is_clipped(pitch_int):
-            return []
+            self_duration_beats: Fraction = single_note._duration_beats * single_note._gate
+            self_duration: float = float(self_duration_beats)
+            if self_duration == 0:
+                continue    # Next note
 
-        # Validation is done by midiutil Midi Range Validation
-        note_dict: dict             = super().getMidilist(position_beats)[0]
-        note_dict["event"]          = "Note"
-        note_dict["duration"]       = self_duration
-        note_dict["velocity"]       = self._velocity
-        note_dict["pitch"]          = pitch_int
-        note_dict["priority"]       = 0x60
+            pitch_int: int = single_note._pitch.get_absolute_pitch()
+            if single_note.is_clipped(pitch_int):
+                continue    # Next note
 
-        self_midilist.append(note_dict)
+            # Validation is done by midiutil Midi Range Validation
+            note_dict: dict             = super().getMidilist(position_beats)[0]
+            note_dict["event"]          = "Note"
+            note_dict["duration"]       = self_duration
+            note_dict["velocity"]       = single_note._velocity
+            note_dict["pitch"]          = pitch_int
+            note_dict["priority"]       = 0x60
+
+            self_midilist.append(note_dict)
 
         return self_midilist
 
