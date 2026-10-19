@@ -1443,6 +1443,46 @@ class Quantization(Duration):
         super().__init__(1/16, *parameters)
 
 
+        
+class Rate(Duration):
+    """`Rational -> Convertible -> Measurement -> Duration -> Rate`
+
+    `Rate` sets the arpeggio note value as it's rate, with 1/16 as the default value.
+    
+    It is possible to use 'triplet' note value adding a T to the string version of it, like so:
+
+        +---------+------------+
+        | str()   | Note Value |
+        +---------+------------+
+        | "1"     | 1/1        |
+        | "1/2"   | 1/2        |
+        | "1/2T"  | 1/3        |
+        | "1/4"   | 1/4        |
+        | "1/4T"  | 1/6        |
+        | "1/8"   | 1/8        |
+        | "1/8T"  | 1/12       |
+        | "1/16"  | 1/16       |
+        | "1/16T" | 1/24       |
+        | "1/32"  | 1/32       |
+        | "1/32T" | 1/48       |
+        | "1/64"  | 1/64       |
+        | "1/64T" | 1/96       |
+        +---------+------------+
+
+    Parameters
+    ----------
+    float(0), int : Duration as 1, 1/2, 1/4, 1/8, 1/16, 1/32.
+
+    Notes
+    ----------
+    Internally, `Duration` values are normalized to `Beats`. However, multiplication and division expect a scalar (float),
+    such as 0.5 or 2.0. The scalar modifies the duration proportionally as `NoteValue` instead of the internal `Beats`.
+    """
+    def __init__(self, *parameters):
+        super().__init__(1/16, *parameters)
+
+
+
 class TimeValue(Convertible):  # Works as Absolute Beats
     """`Rational -> Convertible -> TimeValue`
 
