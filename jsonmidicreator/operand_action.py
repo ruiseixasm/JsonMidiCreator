@@ -428,6 +428,7 @@ class Arpeggiate(Aggregated):
         new_scoped_elements: list[oe.Element] = []
         for single_element in scoped_elements:
             if not any(id(single_element) == single_element_id for single_element_id in self._processed_element_ids):
+                # The single_element and all on the same position will be replaced
                 element_position: ra.Position = single_element % ra.Position()
                 element_clip: oc.Clip = single_element.element_clip()
                 clip_shallow_copy = element_clip.shallow_copy()
@@ -441,7 +442,6 @@ class Arpeggiate(Aggregated):
                     element_clip.delete(elements, True)
                     self._processed_element_ids.update(id(single_element) for single_element in elements)
                     new_elements: list[oe.Element] = self.arpeggiate(elements)
-                    self._processed_element_ids.update(id(single_element) for single_element in new_elements)
                     # Add new elements to clip
                     element_clip.extend(new_elements)
                     new_scoped_elements.extend(new_elements)
