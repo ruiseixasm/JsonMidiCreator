@@ -420,7 +420,7 @@ class Arpeggiate(Aggregated):
                 while pressed_notes:
                     new_note: oe.Note = self._next_note(notes, note_index).copy()
                     new_note_finish: ra.Position = new_note.finish()
-                    if new_note_finish > note_start_position: # Simple skip released notes
+                    if new_note_finish > note_start_position: # Simply skip released notes
                         arpeggiated_notes.append(new_note)
                         new_note << note_start_position
                         new_length: ra.Length = odd_length
