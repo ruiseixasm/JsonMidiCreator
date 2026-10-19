@@ -410,22 +410,20 @@ class Arpeggiate(Aggregated):
             pressed_notes: list[oe.Note] = Arpeggiate._pressed_notes(notes, note_start_position)
             if pressed_notes:
                 time_signature: og.TimeSignature = pressed_notes[0]._get_time_signature()
-                arpeggio_length: ra.Length = pressed_notes[0] % od.Pipe( ra.Length() )
-                arpeggio_end_position: ra.Position = note_start_position + arpeggio_length % ra.Position()
                 rate_length: ra.Length = ra.Length(time_signature, self._rate_beats)
                 odd_length: ra.Length = rate_length * 2 * self._swing
                 even_length: ra.Length = rate_length * 2 - odd_length
                 note_index: int = 0
                 while pressed_notes:
                     new_note: oe.Note = self._next_note(notes, note_index).copy()
-                    if new_note.finish() > note_start_position:
+                    new_note_finish: ra.Position = new_note.finish()
+                    if new_note_finish > note_start_position: # Simple skip released notes
                         arpeggiated_notes.append(new_note)
                         new_note << note_start_position
                         new_length: ra.Length = odd_length
                         if note_index % 2:  # Even nth note
                             new_length = even_length
                         new_finish: ra.Position = note_start_position + new_length
-                        new_note_finish: ra.Position = new_note.finish()
                         if new_note_finish < new_finish:    # Don't change duration
                             note_end_position: ra.Position = new_note_finish
                         else:
