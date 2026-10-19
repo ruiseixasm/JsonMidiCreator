@@ -54,6 +54,12 @@ class Action(o.Operand):
         return self
 
 
+    def act_new(self, clip: 'Clip', scoped_elements: list['Element']) -> Self:
+        if isinstance(self._chained_operand, Action):
+            return self._chained_operand.act_new(clip, scoped_elements)
+        return self
+
+
 
 class Delete(Action):
     """`Action -> Delete`
@@ -68,6 +74,11 @@ class Delete(Action):
             owner_clip = element.element_clip()
             owner_clip.delete_item(element)
         return self
+
+
+    def act_new(self, clip: 'Clip', scoped_elements: list['Element']) -> Self:
+        clip.delete(scoped_elements, True)
+        return super().act_new(clip, scoped_elements)
 
 
 
@@ -333,6 +344,23 @@ class Invert(AmountedAction):
                 self._apply_inversion(notes)
         self.process_finish(element)
         return super().act(element)
+
+
+    def act_new(self, clip: 'Clip', scoped_elements: list['Element']) -> Self:
+        for single_element in scoped_elements:
+            if isinstance(single_element, oe.Note):
+                element_position: ra.Position = single_element % ra.Position()
+                if element_position > self._last_position_beats:    # Only does a single inversion per position
+                    self._last_position_beats = element_position % Fraction()
+                    element_clip: oc.Clip = single_element.element_clip()
+                    clip_shallow_copy = element_clip.shallow_copy()
+                    framed_elements = single_element.framed_elements()
+                    if framed_elements is not None:
+                        clip_shallow_copy._items = framed_elements
+                    clip_shallow_copy &= of.Equal(element_position)
+                    notes = clip_shallow_copy._items    # Already without masked elements (framed)
+                    self._apply_inversion(notes)
+        return super().act_new(clip, scoped_elements)
 
 
     def _apply_inversion(self, notes: list['oe.Note']) -> list['oe.Note']:
