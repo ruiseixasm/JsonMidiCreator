@@ -358,8 +358,8 @@ class Invert(AmountedAction):
                     if framed_elements is not None:
                         clip_shallow_copy._items = framed_elements
                     clip_shallow_copy &= of.Equal(element_position)
-                    notes = clip_shallow_copy._items    # Already without masked elements (framed)
-                    self._apply_inversion(notes)
+                    # This edits the note pitch, it doesn't add new ones
+                    self._apply_inversion(clip_shallow_copy._items)
         return super().act_new(clip, scoped_elements)
 
 
@@ -422,6 +422,30 @@ class Arpeggiate(Aggregated):
                     # Add new elements to clip
                     element_clip.extend(new_elements)
         return self.process_finish(element)
+
+
+    def act_new(self, clip: 'Clip', scoped_elements: list['Element']) -> Self:
+        new_scoped_elements: list[oe.Element] = []
+        for single_element in scoped_elements:
+            if not any(id(single_element) == single_element_id for single_element_id in self._processed_element_ids):
+                element_position: ra.Position = single_element % ra.Position()
+                element_clip: oc.Clip = single_element.element_clip()
+                clip_shallow_copy = element_clip.shallow_copy()
+                framed_elements = single_element.framed_elements()
+                if framed_elements is not None:
+                    clip_shallow_copy._items = framed_elements
+                if clip_shallow_copy._items:
+                    clip_shallow_copy &= of.Equal(element_position)
+                    elements = clip_shallow_copy._items    # Already without masked elements (framed)
+                    # Remove elements from clip
+                    element_clip.delete(elements, True)
+                    self._processed_element_ids.update(id(single_element) for single_element in elements)
+                    new_elements: list[oe.Element] = self.arpeggiate(elements)
+                    self._processed_element_ids.update(id(single_element) for single_element in new_elements)
+                    # Add new elements to clip
+                    element_clip.extend(new_elements)
+                    new_scoped_elements.extend(new_elements)
+        return super().act_new(clip, new_scoped_elements)
 
 
     def reuse(self) -> Self:
