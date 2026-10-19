@@ -78,7 +78,8 @@ class Delete(Action):
 class Aggregated(Action):
     """`Action -> Aggregated`
 
-    `Aggregated` means that multiple Elements are processed at once and not just one by one.
+    `Aggregated` means that multiple Elements are processed at once and not just one by one,
+    normally aggregated or grouped by `Position`.
     """
     pass
 
