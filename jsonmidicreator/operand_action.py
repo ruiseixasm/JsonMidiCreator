@@ -407,7 +407,10 @@ class Arpeggiate(Aggregated):
         if self._order > 0 and len(notes) > 0:
 
             note_start_position: ra.Position = notes[0] % od.Pipe( ra.Position() )
-            pressed_notes: list[oe.Note] = Arpeggiate._pressed_notes(notes, note_start_position)
+            pressed_notes: list[oe.Note] = [
+                single_note for single_note in notes
+                if single_note._position_beats + single_note._duration_beats > note_start_position
+            ]
             if pressed_notes:
                 time_signature: og.TimeSignature = pressed_notes[0]._get_time_signature()
                 rate_length: ra.Length = ra.Length(time_signature, self._rate_beats)
@@ -431,17 +434,12 @@ class Arpeggiate(Aggregated):
                             note_end_position: ra.Position = new_finish
                         note_start_position = note_end_position
                         # Filter out released notes
-                        pressed_notes = Arpeggiate._pressed_notes(pressed_notes, note_start_position)
+                        pressed_notes = [
+                            single_note for single_note in pressed_notes
+                            if single_note._position_beats + single_note._duration_beats > note_start_position
+                        ]
                     note_index += 1
         return arpeggiated_notes
-
-
-    @staticmethod
-    def _pressed_notes(notes: list['oe.Note'], finish_beats: Fraction) -> list['oe.Note']:
-        return [
-            single_note for single_note in notes
-            if single_note._position_beats + single_note._duration_beats > finish_beats
-        ]
 
 
     def _next_note(self, notes: list['oe.Note'], index: int) -> 'oe.Note':
