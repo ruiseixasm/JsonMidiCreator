@@ -366,22 +366,23 @@ class Arpeggiate(Aggregated):
     def act(self, clip: 'Clip', scoped_elements: list['Element']) -> 'Clip':
         new_scoped_elements: list[oe.Element] = []
         for single_element in scoped_elements:
-            if not any(id(single_element) == single_element_id for single_element_id in self._processed_element_ids):
+            if isinstance(single_element, oe.Note) \
+                and not any(id(single_element) == single_element_id for single_element_id in self._processed_element_ids):
                 # The single_element and all on the same position will be replaced
                 element_position: ra.Position = single_element % ra.Position()
                 element_clip: oc.Clip = single_element.element_clip()
                 clip_shallow_copy = element_clip.empty_copy()
                 clip_shallow_copy._items = scoped_elements.copy()
                 if clip_shallow_copy._items:
-                    clip_shallow_copy &= of.Equal(element_position)
-                    elements = clip_shallow_copy._items    # Already without masked elements (framed)
+                    clip_shallow_copy &= of.Equal(element_position, of.ElementType(oe.Note))
+                    notes = clip_shallow_copy._items    # Already without masked elements (framed)
                     # Remove elements from clip
-                    element_clip.delete(elements, True)
-                    self._processed_element_ids.update(id(single_element) for single_element in elements)
-                    new_elements: list[oe.Element] = self._arpeggiate(elements)
+                    element_clip.delete(notes, True)
+                    self._processed_element_ids.update(id(single_note) for single_note in notes)
+                    new_notes: list[oe.Element] = self._arpeggiate(notes)
                     # Add new elements to clip
-                    element_clip.extend(new_elements)
-                    new_scoped_elements.extend(new_elements)
+                    element_clip.extend(new_notes)
+                    new_scoped_elements.extend(new_notes)
         clip._sort_items()
         return super().act(clip, new_scoped_elements)
 
@@ -415,6 +416,8 @@ class Arpeggiate(Aggregated):
             
             note_index: int = 0
             while note_start_position < arpeggio_end_position:
+                # Filter out released notes
+
                 new_note: oe.Note = self._next_note(notes, note_index).copy()
                 arpeggiated_notes.append(new_note)
                 new_note << note_start_position
@@ -430,6 +433,13 @@ class Arpeggiate(Aggregated):
                 note_start_position = note_end_position
                 note_index += 1
         return arpeggiated_notes
+
+
+    @staticmethod
+    def _pressed_notes(notes: list['oe.Note'], finish_beats: Fraction) -> list['oe.Note']:
+
+        return notes
+
 
 
     def _next_note(self, notes: list['oe.Note'], index: int) -> 'oe.Note':
