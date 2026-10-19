@@ -2464,51 +2464,49 @@ class Note(ChannelElement):
         self_playlist: list[dict] = []
         component_notes: list[Note] = self.get_component_elements()
 
-        for single_note in component_notes:
+        absolute_position_beats: Fraction = Fraction(0)
+        if position_beats is not None:
+            absolute_position_beats = position_beats + self._position_beats
 
-            absolute_position_beats: Fraction = Fraction(0)
-            if position_beats is not None:
-                absolute_position_beats = position_beats + single_note._position_beats
+        if absolute_position_beats < 0 or self._duration_beats <= 0:
+            return []
 
-            if absolute_position_beats < 0 or single_note._duration_beats <= 0:
-                continue    # Next note
+        pitch_int: int = self._pitch.get_absolute_pitch()
+        if self.is_clipped(pitch_int):
+            return []
 
-            pitch_int: int = single_note._pitch.get_absolute_pitch()
-            if single_note.is_clipped(pitch_int):
-                continue    # Next note
-
-            if devices_header:
-                devices: list[str] = og.settings._devices
-                if self._owner_clip is not None:
-                    devices = self._owner_clip._devices
-                self_playlist.append(
-                    {"devices": devices}
-                )
-
-            # Midi validation is done in the JsonMidiPlayer program
+        if devices_header:
+            devices: list[str] = og.settings._devices
+            if self._owner_clip is not None:
+                devices = self._owner_clip._devices
             self_playlist.append(
-                {
-                    "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
-                    "midi_message": {
-                        "status_byte": 0x90 | single_note._channel_0,
-                        "data_byte_1": pitch_int,
-                        "data_byte_2": single_note._velocity
-                    }
-                }
-            )
-            finish_position_beats: Fraction = absolute_position_beats + single_note._duration_beats * single_note._gate
-            self_playlist.append(
-                {
-                    "position_beats": [finish_position_beats.numerator, finish_position_beats.denominator],
-                    "midi_message": {
-                        "status_byte": 0x80 | single_note._channel_0,
-                        "data_byte_1": pitch_int,
-                        "data_byte_2": 0
-                    }
-                }
+                {"devices": devices}
             )
 
-            # Already with a Playlist at this point
+        # Midi validation is done in the JsonMidiPlayer program
+        self_playlist.append(
+            {
+                "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator],
+                "midi_message": {
+                    "status_byte": 0x90 | self._channel_0,
+                    "data_byte_1": pitch_int,
+                    "data_byte_2": self._velocity
+                }
+            }
+        )
+        finish_position_beats: Fraction = absolute_position_beats + self._duration_beats * self._gate
+        self_playlist.append(
+            {
+                "position_beats": [finish_position_beats.numerator, finish_position_beats.denominator],
+                "midi_message": {
+                    "status_byte": 0x80 | self._channel_0,
+                    "data_byte_1": pitch_int,
+                    "data_byte_2": 0
+                }
+            }
+        )
+
+        # Already with a Playlist at this point
 
         return self_playlist
 
