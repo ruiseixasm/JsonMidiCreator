@@ -1951,13 +1951,18 @@ class Clip(Composition):  # Just a container of Elements
             case of.Frame():
                 operand._set_inside_clip(self)
                 self._framed_elements = operand._get_unmasked_elements()
-                for single_item in self._framed_elements:
-                    framed_parameter = operand.frame(single_item)
-                    single_item << framed_parameter
+                framed_operand = operand.get_operand()
+                if isinstance(framed_operand, oa.Action):
+                    # `act` always returns self
+                    return framed_operand.act_new(self, self._framed_elements)  # Sorting already included
+                else:
+                    for single_item in self._framed_elements:
+                        framed_parameter = operand.frame(single_item)
+                        single_item << framed_parameter
                 self._framed_elements = None
 
             case oa.Action():
-                # `transform` always returns self
+                # `act` always returns self
                 return operand.act_new(self, self.elements_unmasked())  # Sorting already included
 
             case tr.Transformation():
