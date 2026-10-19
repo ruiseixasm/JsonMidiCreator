@@ -415,11 +415,8 @@ class Arpeggiate(Aggregated):
                 rate_length: ra.Length = ra.Length(time_signature, self._rate_beats)
                 odd_length: ra.Length = rate_length * 2 * self._swing
                 even_length: ra.Length = rate_length * 2 - odd_length
-                
                 note_index: int = 0
                 while pressed_notes:
-                    # Filter out released notes
-
                     new_note: oe.Note = self._next_note(pressed_notes, note_index).copy()
                     arpeggiated_notes.append(new_note)
                     new_note << note_start_position
@@ -438,6 +435,7 @@ class Arpeggiate(Aggregated):
                         new_note += length_deficit
                         break
                     note_start_position = note_end_position
+                    # Filter out released notes
                     pressed_notes = Arpeggiate._pressed_notes(notes, note_start_position)
                     note_index += 1
         return arpeggiated_notes
