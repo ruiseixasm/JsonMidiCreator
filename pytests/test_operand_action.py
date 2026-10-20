@@ -95,3 +95,12 @@ def test_sustain_action():
 
 # test_sustain_action()
 
+
+def test_retrigger_notes():
+    four_notes = Note(1/1) * 4 << Iterate(1)**Degree()
+    four_notes << Retrigger(Swing(2/3))
+    # four_notes >> Plot()
+    assert four_notes % int() == 16 * 4
+
+# test_retrigger_notes()
+
