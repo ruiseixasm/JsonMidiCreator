@@ -341,6 +341,56 @@ class Invert(AmountedAction):
         return notes
 
 
+class Sustain(Aggregated):
+    """`Action -> Aggregated -> Sustain`
+
+    `Sustain` extends the duration of all notes like if the sustain pedal was pressed all the time.
+    It keeps retriggering the though, meaning, they are released only when they are retriggered.
+
+    It works like sustain for with the total duration up to the last released note.
+
+    Parameters
+    ----------
+    Any(None) : The `Operand` to be used as input.
+    """
+    @staticmethod
+    def _sustain_notes(notes: list['oe.Note']) -> dict[int, list['oe.Note']]:
+        global_finish = Fraction(0)
+        sustained_channel_pitch_notes: dict[int, list[oe.Note]] = {} # channel_pitch based
+        # Add the hanged notes and respective sustain duration
+        for single_note in notes:
+            note_finish: Fraction = single_note % ra.Finish() % Fraction()
+            # Critical line setting the absolute finish
+            global_finish = max(global_finish, note_finish)
+            channel_0: int = single_note._channel_0
+            pitch: int = single_note._pitch.get_absolute_pitch()
+            channel_pitch: int = channel_0 << 7 | pitch # (4 bits, 7 bits)
+            if channel_pitch in sustained_channel_pitch_notes:
+                channel_pitch_notes: list[oe.Note] = sustained_channel_pitch_notes[channel_pitch]
+                channel_pitch_notes[-1] << ra.Finish(single_note % ra.Start())
+                channel_pitch_notes.append(single_note.copy())
+            else:
+                sustained_channel_pitch_notes[channel_pitch] = [single_note.copy()]
+        # Extend all rotted notes to the global finish
+        for channel_pitch_notes in sustained_channel_pitch_notes.values():
+            channel_pitch_notes[-1] << ra.Finish(global_finish)
+        return sustained_channel_pitch_notes
+
+
+    def act(self, clip: 'Clip', scoped_elements: list['Element']) -> 'Clip':
+        scoped_notes: list[oe.Note] = [
+            single_note for single_note in scoped_elements
+            if isinstance(single_note, oe.Note)
+        ]
+        clip.delete(scoped_notes, True)
+        sustained_notes: list['oe.Note'] = []
+        sustained_channel_pitch_notes: dict[int, list[oe.Note]] = Sustain._sustain_notes(scoped_notes)
+        for channel_pitch_notes in sustained_channel_pitch_notes.values():
+            sustained_notes.extend(channel_pitch_notes)
+        return clip.extend(sustained_notes)._sort_items()
+
+
+
 class Arpeggiate(Aggregated):
     """`Action -> Aggregated -> Arpeggiate`
 
@@ -564,52 +614,125 @@ class Arpeggiate(Aggregated):
         return self
 
 
-class Sustain(Aggregated):
-    """`Action -> Aggregated -> Sustain`
 
-    `Sustain` extends the duration of all notes like if the sustain pedal was pressed all the time.
-    It keeps retriggering the though, meaning, they are released only when they are retriggered.
+class Retrigger(Aggregated):
+    """`GAction -> Aggregated -> Retrigger`
 
-    It works like sustain for with the total duration up to the last released note.
+    A `Retrigger` repeats the `Element` accordingly to a given Rate.
 
     Parameters
     ----------
-    Any(None) : The `Operand` to be used as input.
+    Rate(1/16), int, float : int for steps and float for note value.
+    Swing(0.5) : Sets the amount of time the Element is effectively placed relatively to its total duration.
     """
-    @staticmethod
-    def _sustain_notes(notes: list['oe.Note']) -> dict[int, list['oe.Note']]:
-        global_finish = Fraction(0)
-        sustained_channel_pitch_notes: dict[int, list[oe.Note]] = {} # channel_pitch based
-        # Add the hanged notes and respective sustain duration
-        for single_note in notes:
-            note_finish: Fraction = single_note % ra.Finish() % Fraction()
-            # Critical line setting the absolute finish
-            global_finish = max(global_finish, note_finish)
-            channel_0: int = single_note._channel_0
-            pitch: int = single_note._pitch.get_absolute_pitch()
-            channel_pitch: int = channel_0 << 7 | pitch # (4 bits, 7 bits)
-            if channel_pitch in sustained_channel_pitch_notes:
-                channel_pitch_notes: list[oe.Note] = sustained_channel_pitch_notes[channel_pitch]
-                channel_pitch_notes[-1] << ra.Finish(single_note % ra.Start())
-                channel_pitch_notes.append(single_note.copy())
+    def __init__(self, *parameters):
+        from . import operand_chaos as ch
+        self._rate_beats: Fraction  = Fraction(1, 4)    # duration in beats
+        self._swing: Fraction       = Fraction(1, 2)
+        super().__init__(*parameters)
+
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case ra.Rate():     return operand._data << od.Pipe(self._count)
+                    case ra.Swing():        return operand._data << od.Pipe(self._swing)
+                    case _:                 return super().__mod__(operand)
+            case ra.Rate():        return ra.Rate() << od.Pipe(self._count)
+            case ra.Swing():        return ra.Swing() << od.Pipe(self._swing)
+            # Returns the SYMBOLIC value of each note
+            case ra.Rate():
+                return operand.copy(self._rate_beats)
+            case ra.TimeValue():
+                return operand.copy(ra.Rate(self._rate_beats))
+            case float():           return self % ra.NoteValue() % float()
+            case int():             return self % ra.Steps() % int()
+            case _:                 return super().__mod__(operand)
+
+
+    def _repeat_element(self, single_element: 'oe.Element') -> list['oe.Element']:
+        repeated_elements: list[oe.Note] = []
+        single_note_position: Fraction = single_element._position_beats
+        single_note_finish: Fraction = single_note_position + single_element._duration_beats
+        total_retriggers: int = int(single_element._duration_beats / self._rate_beats)
+        self._swing = max(Fraction(0), self._swing, min(Fraction(1), self._swing))
+        for repeat_i in range(total_retriggers + 1):
+            new_element = single_element.copy()
+            repeated_elements.append(new_element)
+            if repeat_i % 2 == 0:
+                new_element._duration_beats = self._rate_beats * 2 * self._swing
+                new_element._position_beats = single_note_position + self._rate_beats * repeat_i
             else:
-                sustained_channel_pitch_notes[channel_pitch] = [single_note.copy()]
-        # Extend all rotted notes to the global finish
-        for channel_pitch_notes in sustained_channel_pitch_notes.values():
-            channel_pitch_notes[-1] << ra.Finish(global_finish)
-        return sustained_channel_pitch_notes
+                new_element._duration_beats = self._rate_beats * 2 * (1 - self._swing)
+                new_element._position_beats = single_note_position + self._rate_beats * (repeat_i + 1)
+                new_element._position_beats -= new_element._duration_beats
+            # Trim exceeding duration
+            new_note_finish: Fraction = new_element._position_beats + new_element._duration_beats
+            if new_note_finish >= single_note_finish:
+                new_element._duration_beats -= new_note_finish - single_note_finish
+                break
+        return repeated_elements
 
 
-    def act(self, clip: 'Clip', scoped_elements: list['Element']) -> 'Clip':
-        scoped_notes: list[oe.Note] = [
-            single_note for single_note in scoped_elements
-            if isinstance(single_note, oe.Note)
-        ]
-        clip.delete(scoped_notes, True)
-        sustained_notes: list['oe.Note'] = []
-        sustained_channel_pitch_notes: dict[int, list[oe.Note]] = Sustain._sustain_notes(scoped_notes)
-        for channel_pitch_notes in sustained_channel_pitch_notes.values():
-            sustained_notes.extend(channel_pitch_notes)
-        return clip.extend(sustained_notes)._sort_items()
+    def apply(self, elements: list['oe.Element']) -> list['oe.Element']:
+        repeated_notes: list['oe.Element'] = []
+        for single_note in elements:
+            repeated_notes.extend(self._repeat_element(single_note))
+        return super().apply(repeated_notes)
+
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["rate"]     = o.serialize( self._rate_beats )
+        serialization["parameters"]["swing"]    = o.serialize( self._swing )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "rate" in serialization["parameters"] and "swing" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._rate_beats        = o.deserialize( serialization["parameters"]["rate"] )
+            self._swing             = o.deserialize( serialization["parameters"]["swing"] )
+        return self
+
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Retrigger():
+                super().__lshift__(operand)
+                self._rate_beats        = operand._rate_beats
+                self._swing             = operand._swing
+            case od.Pipe():
+                match operand._data:
+                    case ra.Rate():                 self._rate_beats = operand._data._rational
+                    case ra.Swing():                self._swing = operand._data._rational
+                    case _:                         super().__lshift__(operand)
+            case ra.Rate():
+                if operand > 0:
+                    self._duration = operand._rational
+            case ra.TimeValue():
+                if operand > 0:
+                    self << ra.Rate(operand)
+            case float():
+                if operand > 0:
+                    self << ra.NoteValue(operand)
+            case int():
+                if operand > 0:
+                    self << ra.Steps(operand)
+            case ra.Swing():
+                if operand < 0:
+                    self._swing = Fraction(0)
+                elif operand > 1:
+                    self._swing = Fraction(1)
+                else:
+                    self._swing = operand._rational
+            case _:
+                super().__lshift__(operand)
+        return self
 
 
