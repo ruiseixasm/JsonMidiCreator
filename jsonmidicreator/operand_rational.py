@@ -1471,7 +1471,7 @@ class Rate(Duration):
 
     Parameters
     ----------
-    float(0), int : Duration as 1, 1/2, 1/4, 1/8, 1/16, 1/32.
+    Steps(1), float, int : Duration as 1, 1/2, 1/4, 1/8, 1/16, 1/32.
 
     Notes
     ----------
@@ -1479,7 +1479,8 @@ class Rate(Duration):
     such as 0.5 or 2.0. The scalar modifies the duration proportionally as `NoteValue` instead of the internal `Beats`.
     """
     def __init__(self, *parameters):
-        super().__init__(1/16, *parameters)
+        from . import operand_generic as og
+        super().__init__(og.settings._quantization, *parameters)
 
 
 
