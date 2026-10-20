@@ -616,7 +616,7 @@ class Arpeggiate(Aggregated):
 
 
 class Retrigger(Aggregated):
-    """`GAction -> Aggregated -> Retrigger`
+    """`Action -> Aggregated -> Retrigger`
 
     A `Retrigger` repeats the `Element` accordingly to a given Rate.
 
@@ -632,23 +632,12 @@ class Retrigger(Aggregated):
         super().__init__(*parameters)
 
 
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case ra.Rate():     return operand._data << od.Pipe(self._count)
-                    case ra.Swing():        return operand._data << od.Pipe(self._swing)
-                    case _:                 return super().__mod__(operand)
-            case ra.Rate():        return ra.Rate() << od.Pipe(self._count)
-            case ra.Swing():        return ra.Swing() << od.Pipe(self._swing)
-            # Returns the SYMBOLIC value of each note
-            case ra.Rate():
-                return operand.copy(self._rate_beats)
-            case ra.TimeValue():
-                return operand.copy(ra.Rate(self._rate_beats))
-            case float():           return self % ra.NoteValue() % float()
-            case int():             return self % ra.Steps() % int()
-            case _:                 return super().__mod__(operand)
+    def act(self, clip: 'Clip', scoped_elements: list['Element']) -> 'Clip':
+        retriggered_elements: list['oe.Element'] = []
+        clip.delete(scoped_elements, True)
+        for single_element in scoped_elements:
+            retriggered_elements.extend(self._repeat_element(single_element))
+        clip.extend(retriggered_elements)
 
 
     def _repeat_element(self, single_element: 'oe.Element') -> list['oe.Element']:
@@ -675,11 +664,23 @@ class Retrigger(Aggregated):
         return repeated_elements
 
 
-    def apply(self, elements: list['oe.Element']) -> list['oe.Element']:
-        repeated_notes: list['oe.Element'] = []
-        for single_note in elements:
-            repeated_notes.extend(self._repeat_element(single_note))
-        return super().apply(repeated_notes)
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case ra.Rate():     return operand._data << od.Pipe(self._count)
+                    case ra.Swing():        return operand._data << od.Pipe(self._swing)
+                    case _:                 return super().__mod__(operand)
+            case ra.Rate():        return ra.Rate() << od.Pipe(self._count)
+            case ra.Swing():        return ra.Swing() << od.Pipe(self._swing)
+            # Returns the SYMBOLIC value of each note
+            case ra.Rate():
+                return operand.copy(self._rate_beats)
+            case ra.TimeValue():
+                return operand.copy(ra.Rate(self._rate_beats))
+            case float():           return self % ra.NoteValue() % float()
+            case int():             return self % ra.Steps() % int()
+            case _:                 return super().__mod__(operand)
 
 
     def getSerialization(self) -> dict:
