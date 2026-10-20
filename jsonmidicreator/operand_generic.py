@@ -2366,10 +2366,10 @@ class NoteEffect(Effect):
 
 
 
-class Overhang(NoteEffect):
-    """`Generic -> NoteEffect -> Overhang`
+class Sustain(NoteEffect):
+    """`Generic -> NoteEffect -> Sustain`
 
-    An `Overhang` extends the duration of all notes like if the sustain pedal was pressed all the time.
+    `Sustain` extends the duration of all notes like if the sustain pedal was pressed all the time.
     It keeps retriggering the though, meaning, they are released only when they are retriggered.
 
     It works like sustain for with the total duration up to the last released note.
@@ -2380,12 +2380,13 @@ class Overhang(NoteEffect):
     """
 
     @staticmethod
-    def _hanged_notes(notes: list['Note']) -> dict[int, list['Note']]:
+    def _sustain_notes(notes: list['Note']) -> dict[int, list['Note']]:
         global_finish = Fraction(0)
         overhang_channel_pitch_notes: dict[int, list[Note]] = {} # channel_pitch based
         # Add the hanged notes and respective sustain duration
         for single_note in notes:
             note_finish: Fraction = single_note % ra.Finish() % Fraction()
+            # Critical line setting the absolute finish
             global_finish = max(global_finish, note_finish)
             channel_0: int = single_note._channel_0
             pitch: int = single_note._pitch.get_absolute_pitch()
@@ -2396,7 +2397,7 @@ class Overhang(NoteEffect):
                 channel_pitch_notes.append(single_note.copy())
             else:
                 overhang_channel_pitch_notes[channel_pitch] = [single_note.copy()]
-        # Extend all notes to the global finish
+        # Extend all rotted notes to the global finish
         for channel_pitch_notes in overhang_channel_pitch_notes.values():
             channel_pitch_notes[-1] << ra.Finish(global_finish)
         return overhang_channel_pitch_notes
@@ -2405,7 +2406,7 @@ class Overhang(NoteEffect):
     @staticmethod
     def apply(notes: list['Note']) -> list['Note']:
         overhang_notes: list['Note'] = []
-        overhang_channel_pitch_notes: dict[int, list[Note]] = Overhang._hanged_notes(notes)
+        overhang_channel_pitch_notes: dict[int, list[Note]] = Sustain._sustain_notes(notes)
         for channel_pitch_notes in overhang_channel_pitch_notes.values():
             for single_note in channel_pitch_notes:
                 overhang_notes.append(single_note)
