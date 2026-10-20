@@ -2351,23 +2351,6 @@ class Repeat(Effect):
 
 
 
-class NoteEffect(Effect):
-    """`Generic -> Effect -> NoteEffect`
-
-    A `NoteEffect` represents a manipulation of simultaneously played notes, like and Arpeggio.
-    `NoteEffect` concern time changing behavior of notes, concerning their Position or Duration manipulation.
-
-    `NoteEffect` has `Pitch` associated to it.
-
-    Effects can be chained, their never set each other because they don't share common parameters, once chained,
-    with the operator `**`, they are read from left to right.
-    """
-    pass
-
-
-
-
-
 class Settings(Generic):
     """`Generic -> Settings`
 
