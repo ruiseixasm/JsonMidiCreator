@@ -2198,27 +2198,6 @@ class PitchTransitions(Generic):
         return self
 
 
-if TYPE_CHECKING:
-    from operand_element import Note
-
-
-class Effect(Generic):
-    """`Generic -> Effect`
-
-    A `Effect` represents a manipulation of elements, like and Arpeggio.
-    `Effect` concern time changing behavior of elements, concerning their Position or Duration manipulation.
-
-    Effects can be chained, their never set each other because they don't share common parameters, once chained,
-    with the operator `**`, they are read from left to right.
-    """
-    def apply(self, elements: list['Element']) -> list['Element']:
-        # Makes sure the next effect takes a sorted list of elements
-        elements.sort()
-        if isinstance(self._chained_operand, Effect):
-            return self._chained_operand.apply(elements)
-        return elements
-
-
 
 class Settings(Generic):
     """`Generic -> Settings`
