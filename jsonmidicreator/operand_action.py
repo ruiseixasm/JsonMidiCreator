@@ -564,4 +564,52 @@ class Arpeggiate(Aggregated):
         return self
 
 
+class Sustain(Aggregated):
+    """`Action -> Aggregated -> Sustain`
+
+    `Sustain` extends the duration of all notes like if the sustain pedal was pressed all the time.
+    It keeps retriggering the though, meaning, they are released only when they are retriggered.
+
+    It works like sustain for with the total duration up to the last released note.
+
+    Parameters
+    ----------
+    Any(None) : The `Operand` to be used as input.
+    """
+    @staticmethod
+    def _sustain_notes(notes: list['oe.Note']) -> dict[int, list['oe.Note']]:
+        global_finish = Fraction(0)
+        sustained_channel_pitch_notes: dict[int, list[oe.Note]] = {} # channel_pitch based
+        # Add the hanged notes and respective sustain duration
+        for single_note in notes:
+            note_finish: Fraction = single_note % ra.Finish() % Fraction()
+            # Critical line setting the absolute finish
+            global_finish = max(global_finish, note_finish)
+            channel_0: int = single_note._channel_0
+            pitch: int = single_note._pitch.get_absolute_pitch()
+            channel_pitch: int = channel_0 << 7 | pitch # (4 bits, 7 bits)
+            if channel_pitch in sustained_channel_pitch_notes:
+                channel_pitch_notes: list[oe.Note] = sustained_channel_pitch_notes[channel_pitch]
+                channel_pitch_notes[-1] << ra.Finish(single_note % ra.Start())
+                channel_pitch_notes.append(single_note.copy())
+            else:
+                sustained_channel_pitch_notes[channel_pitch] = [single_note.copy()]
+        # Extend all rotted notes to the global finish
+        for channel_pitch_notes in sustained_channel_pitch_notes.values():
+            channel_pitch_notes[-1] << ra.Finish(global_finish)
+        return sustained_channel_pitch_notes
+
+
+    def act(self, clip: 'Clip', scoped_elements: list['Element']) -> 'Clip':
+        scoped_notes: list[oe.Note] = [
+            single_note for single_note in scoped_elements
+            if isinstance(single_note, oe.Note)
+        ]
+        clip.delete(scoped_notes, True)
+        sustained_notes: list['oe.Note'] = []
+        sustained_channel_pitch_notes: dict[int, list[oe.Note]] = Sustain._sustain_notes(scoped_notes)
+        for channel_pitch_notes in sustained_channel_pitch_notes.values():
+            sustained_notes.extend(channel_pitch_notes)
+        return clip.extend(sustained_notes)._sort_items()
+
 

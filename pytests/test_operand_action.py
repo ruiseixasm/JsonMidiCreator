@@ -50,7 +50,7 @@ def test_invert():
 # test_invert()
 
 
-def test_effect():
+def test_arpeggio_action():
     c_major = Clip(":, :|:3n, :|:5n,")
     for single_note in c_major:
         single_note % Position() == Position(0)
@@ -64,7 +64,7 @@ def test_effect():
     total_notes >> Print()
     assert total_notes == 4
 
-# test_effect()
+# test_arpeggio_action()
 
 
 def test_framed_action():
@@ -83,4 +83,14 @@ def test_framed_action():
     assert total_notes == 4
 
 # test_framed_action()
+
+
+def test_sustain_action():
+    c_major = Clip(":, :|:3n, :|:5n,")
+    for single_note in c_major:
+        single_note % Position() == Position(0)
+    c_major << Arpeggiate()
+    c_major >> Plot()
+
+# test_sustain_action()
 
