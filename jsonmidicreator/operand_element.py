@@ -1798,7 +1798,7 @@ class Trigger(ChannelElement):
     Tied(False) : Sets a `Note` as tied if set as `True`.
     Sample("Kick"), str : In case it is a `DrumKit` sample to be played, set the name of that sample via `Trigger`.
     Position(0), TimeValue, TimeUnit : The position on the staff in `Measures`.
-    Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
+    Duration(Steps(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """

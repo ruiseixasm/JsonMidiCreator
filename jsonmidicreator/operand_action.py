@@ -399,13 +399,13 @@ class Arpeggiate(Aggregated):
     Parameters
     ----------
     Order(1), int : The notes changing order, with 1 being the "Up" order.
-    Rate(1/16), float : The Rate note value after which the next note is played following the set `Order`.
+    Rate(Steps(1)), float : The Rate note value after which the next note is played following the set `Order`.
     Swing(0.5) : Sets the amount of time the note is effectively pressed relatively to its total duration.
     Chaos(SinX()) : For the `Order` 5, "Chaotic", it uses the set Chaotic `Operand`.
     """
     def __init__(self, *parameters):
         self._order: int = 1    # "Up" by default
-        self._rate_beats: Fraction = Fraction(1, 4) # duration in beats, NOT note value
+        self._rate_beats: Fraction = og.settings._quantization  # Quantization is a Beats value already
         self._swing: Fraction = Fraction(1, 2)
         self._chaos: ch.Chaos = ch.SinX()
         self._chaotic_sequence: list[oe.Note] = []
@@ -622,12 +622,11 @@ class Retrigger(Aggregated):
 
     Parameters
     ----------
-    Rate(1/16), int, float : int for steps and float for note value.
+    Rate(Steps(1)), int, float : int for steps and float for note value.
     Swing(0.5) : Sets the amount of time the Element is effectively placed relatively to its total duration.
     """
     def __init__(self, *parameters):
-        from . import operand_chaos as ch
-        self._rate_beats: Fraction  = Fraction(1, 4)    # duration in beats
+        self._rate_beats: Fraction  = og.settings._quantization # Quantization is a Beats value already
         self._swing: Fraction       = Fraction(1, 2)
         super().__init__(*parameters)
 
