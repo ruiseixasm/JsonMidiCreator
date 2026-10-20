@@ -89,8 +89,9 @@ def test_sustain_action():
     c_major = Clip(":, :|:3n, :|:5n,")
     for single_note in c_major:
         single_note % Position() == Position(0)
-    c_major << Arpeggiate()
-    c_major >> Plot()
+    c_major << Arpeggiate() << Sustain()
+    # c_major >> Plot()
+    assert c_major[Degree(5)] % Finish() == Beats(1)
 
 # test_sustain_action()
 
