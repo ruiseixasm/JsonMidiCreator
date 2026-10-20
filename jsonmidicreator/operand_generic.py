@@ -2397,7 +2397,7 @@ class Overhang(NoteEffect):
             else:
                 overhang_channel_pitch_notes[channel_pitch] = [single_note.copy()]
         # Extend all notes to the global finish
-        for channel_pitch_notes in overhang_channel_pitch_notes.items():
+        for channel_pitch_notes in overhang_channel_pitch_notes.values():
             channel_pitch_notes[-1] << ra.Finish(global_finish)
         return overhang_channel_pitch_notes
 
@@ -2406,7 +2406,7 @@ class Overhang(NoteEffect):
     def apply(notes: list['Note']) -> list['Note']:
         overhang_notes: list['Note'] = []
         overhang_channel_pitch_notes: dict[int, list[Note]] = Overhang._hanged_notes(notes)
-        for channel_pitch_notes in overhang_channel_pitch_notes.items():
+        for channel_pitch_notes in overhang_channel_pitch_notes.values():
             for single_note in channel_pitch_notes:
                 overhang_notes.append(single_note)
         return super().apply(overhang_notes)
