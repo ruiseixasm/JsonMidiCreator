@@ -2372,6 +2372,8 @@ class Overhang(NoteEffect):
     An `Overhang` extends the duration of all notes like if the sustain pedal was pressed all the time.
     It keeps retriggering the though, meaning, they are released only when they are retriggered.
 
+    It works like sustain for with the total duration up to the last released note.
+
     Parameters
     ----------
     Any(None) : The `Operand` to be used as input.
