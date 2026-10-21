@@ -2,12 +2,12 @@ from jsonmidicreator import *
 
 settings << Tempo(120)
 
-basic_rock: str = (
+percussion_preset: str = (
     # Has to add "," in order to be considered as a Line if set as string
     "pc::32," # Jazz Percussion Preset, the 32
 )
 
-clip = Clip(DrumKit("808"), Title("Bossa Nova"), basic_rock)
+clip = Clip(DrumKit("808"), Title("Bossa Nova"), percussion_preset)
 # It's a 2 Measures pattern (`* 2`)
 clip += Clip(
     "t::Kick, :_6, :_8, :_14,"  # Integers on Position parameter means Step
