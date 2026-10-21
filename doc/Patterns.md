@@ -1,10 +1,10 @@
 # Patterns
-## Common Patterns
 For the Chrome browser you can add the following extension
 [Midi Player](https://chromewebstore.google.com/detail/khppfbnjbaampmeeiocjhcodkklkcfjf?utm_source=item-share-cb)
 in order to play the **Midi Files** below directly in the browser.
 
 
+## Common Patterns
 ### Basic Rock
 #### Code
 ```py
@@ -93,4 +93,21 @@ clip * 2 << Channel(10) >> Plot()
 
 ## Single Patterns
 ### Clumsy Delete
+#### Code
+```py
+from jsonmidicreator import *
+
+settings << Tempo(80)
+
+clip = Clip(DrumKit("808"), Title("Unexpected Delete"))
+clip += Trigger("Snare") * 16 << OnBeat()**Excluding()**Even()**Delete()
+
+clip * 4 << Channel(10) >> Plot()
+```
+
+#### Plot
+![Bossa_Nova](plot/Unexpected_Delete.png)
+
+[♫ Download MIDI File](midi/Unexpected_Delete.mid)
+
 
