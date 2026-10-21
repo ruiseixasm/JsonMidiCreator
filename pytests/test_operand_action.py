@@ -109,5 +109,8 @@ def test_complementary_notes():
     sixteen_triggers = Trigger() * 16
     odd_notes = ~sixteen_triggers << Even()**Delete()
     even_notes = ~sixteen_triggers << Even()**Keep()
+    assert odd_notes != even_notes
+    assert odd_notes != sixteen_triggers
+    assert even_notes != sixteen_triggers
     assert odd_notes + even_notes == sixteen_triggers
 
