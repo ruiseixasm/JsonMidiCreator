@@ -31,13 +31,13 @@ from . import operand_generic as og
 from . import operand_element as oe
 
 if TYPE_CHECKING:
-    from operand_container import Container
+    from operand_container import Clip
 
 # Works as a traditional C list (chained)
 class Frame(o.Operand):
     """`Frame`
 
-    A `Frame` is exclusive to the `Container` class in order to apply framed parameters.
+    A `Frame` is exclusive to the `Clip` class in order to apply framed parameters.
     Frames can be chained with other Frames with the `**` operator. A `Frame` is a read-only class!
 
     Parameters
@@ -51,6 +51,7 @@ class Frame(o.Operand):
         self._parameters: tuple         = parameters
         self._named_parameters: dict    = {}
         self._unmasked_elements: list[oe.Element] = []
+        self._filtered_elements: list[oe.Element] = []
         self._root_frame: bool = True
         
     # It has to include self, contrary to the Operand __next__ that excludes the self!!
@@ -85,15 +86,16 @@ class Frame(o.Operand):
         from . import operand_container as oc
         clip._set = False   # In order to contained elements know it was set by them
         if isinstance(clip, oc.Clip):
-            self._update_unmasked_elements( clip.elements_unmasked() )
+            self._unmasked_elements = clip.elements_unmasked()
         else:
-            self._update_unmasked_elements( [] )
+            self._unmasked_elements = []
+        self._update_unmasked_elements( self._unmasked_elements )
         # Finally, does all remaining resets for each operand
         return self.reset()
 
 
     def _update_unmasked_elements(self, unmasked_elements: list['oe.Element']) -> Self:
-        self._unmasked_elements = unmasked_elements
+        self._filtered_elements = unmasked_elements
         if isinstance(self._chained_operand, Frame):    # Recursive call
             self._chained_operand._update_unmasked_elements(unmasked_elements)
         return self
@@ -102,7 +104,7 @@ class Frame(o.Operand):
     def _get_unmasked_elements(self) -> list[Any]:
         if isinstance(self._chained_operand, Frame):    # Recursive call
             return self._chained_operand._get_unmasked_elements()
-        return self._unmasked_elements
+        return self._filtered_elements
 
 
     def get_operand(self) -> Any:
@@ -718,11 +720,31 @@ class ClipFilter(LeftToRight):
     None : `ClipFilter` doesn't have parameters to be set.
     """
     def frame(self, input: o.T) -> o.T:
-        if any(input is single_item for single_item in self._unmasked_elements):
+        if any(input is single_item for single_item in self._filtered_elements):
             if isinstance(self._chained_operand, Frame):
                 return self._chained_operand.frame(input)
             return self._chained_operand
         return ol.Null()
+
+
+
+class Excluding(ClipFilter):
+    """`Frame -> LeftToRight -> ClipFilter -> Excluding`
+
+    `Excluding` excludes the given elements and keeps the complementary unmasked ones.
+
+    Parameters
+    ----------
+    type(None) : A single or multiple types can be set as accepted ones.
+    """
+    def _update_unmasked_elements(self, unmasked_elements: list['oe.Element']) -> Self:
+        type_elements: list[oe.Element] = []
+        for single_element in unmasked_elements:
+            for operand_class in self._parameters:
+                if isinstance(single_element, operand_class):
+                    type_elements.append(single_element)
+                    break
+        return super()._update_unmasked_elements(type_elements)
 
 
 
@@ -981,11 +1003,11 @@ class BasicComparison(ClipFilter):
     ----------
     Any(None) : The `other` operand the input item will be compared with.
     """
-    def _set_inside_clip(self, container: 'Container') -> Self:
+    def _set_inside_clip(self, clip: 'Clip') -> Self:
         for other in self._parameters:
-            if isinstance(other, Frame):    # ALSO sets the container in the Frame as other
-                other._set_inside_clip(container)
-        return super()._set_inside_clip(container)
+            if isinstance(other, Frame):    # ALSO sets the clip in the Frame as other
+                other._set_inside_clip(clip)
+        return super()._set_inside_clip(clip)
 
 
     def _update_unmasked_elements(self, unmasked_elements: list['oe.Element']) -> Self:

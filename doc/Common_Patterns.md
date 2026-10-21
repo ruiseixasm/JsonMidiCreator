@@ -1,11 +1,12 @@
-# Common Patterns
+# Patterns
+## Common Patterns
 For the Chrome browser you can add the following extension
 [Midi Player](https://chromewebstore.google.com/detail/khppfbnjbaampmeeiocjhcodkklkcfjf?utm_source=item-share-cb)
 in order to play the **Midi Files** below directly in the browser.
 
 
-## Basic Rock
-### Code
+### Basic Rock
+#### Code
 ```py
 from jsonmidicreator import *
 
@@ -23,14 +24,14 @@ clip += Trigger("Closed") * 16 % Odd()
 clip * 4 << Channel(10) >> Plot()
 ```
 
-### Plot
+#### Plot
 ![Basic Rock](plot/Basic_Rock.png)
 
 [♫ Download MIDI File](midi/Basic_Rock.mid)
 
 
-## Funky Syncopation
-### Code
+### Funky Syncopation
+#### Code
 ```py
 from jsonmidicreator import *
 
@@ -51,14 +52,14 @@ clip = Clip(drum_kit) << Title("Funky Syncopation") \
 clip * 4 >> Plot()
 ```
 
-### Plot
+#### Plot
 ![Funky Syncopation](plot/Funky_Syncopation.png)
 
 [♫ Download MIDI File](midi/Funky_Syncopation.mid)
 
 
-## Bossa Nova
-### Code
+### Bossa Nova
+#### Code
 ```py
 from jsonmidicreator import *
 
@@ -84,8 +85,12 @@ clip += Trigger("::Shaker:70") * 16 * 2 << OnBeat()**Velocity(110)
 clip * 2 << Channel(10) >> Plot()
 ```
 
-### Plot
+#### Plot
 ![Bossa_Nova](plot/Bossa_Nova.png)
 
 [♫ Download MIDI File](midi/Bossa_Nova.mid)
+
+
+## Single Patterns
+### Clumsy Delete
 
