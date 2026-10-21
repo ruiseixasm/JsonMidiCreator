@@ -85,19 +85,26 @@ class Frame(o.Operand):
     def _set_inside_clip(self, clip: 'Clip') -> Self:
         from . import operand_container as oc
         clip._set = False   # In order to contained elements know it was set by them
+        unmasked_elements: list[oe.Element] = []
         if isinstance(clip, oc.Clip):
-            self._unmasked_elements = clip.elements_unmasked()
-        else:
-            self._unmasked_elements = []
-        self._update_filtered_elements( self._unmasked_elements )
+            unmasked_elements = clip.elements_unmasked()
+        self._update_unmasked_elements( unmasked_elements )
+        self._update_filtered_elements( unmasked_elements )
         # Finally, does all remaining resets for each operand
         return self.reset()
 
 
-    def _update_filtered_elements(self, unmasked_elements: list['oe.Element']) -> Self:
-        self._filtered_elements = unmasked_elements
+    def _update_unmasked_elements(self, unmasked_elements: list['oe.Element']) -> Self:
+        self._unmasked_elements = unmasked_elements
         if isinstance(self._chained_operand, Frame):    # Recursive call
-            self._chained_operand._update_filtered_elements(unmasked_elements)
+            self._chained_operand._update_unmasked_elements(unmasked_elements)
+        return self
+
+
+    def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
+        self._filtered_elements = filtered_elements
+        if isinstance(self._chained_operand, Frame):    # Recursive call
+            self._chained_operand._update_filtered_elements(filtered_elements)
         return self
 
 
@@ -731,16 +738,16 @@ class ClipFilter(LeftToRight):
 class Excluding(ClipFilter):
     """`Frame -> LeftToRight -> ClipFilter -> Excluding`
 
-    `Excluding` excludes the given elements and keeps the complementary unmasked ones.
+    `Excluding` excludes the given filtered elements and keeps the complementary unmasked ones.
 
     Parameters
     ----------
     type(None) : A single or multiple types can be set as accepted ones.
     """
-    def _update_filtered_elements(self, unmasked_elements: list['oe.Element']) -> Self:
+    def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
         remaining_elements: list[oe.Element] = [
-            single_element for single_element in self._unmasked_elements
-            if not any(single_element is item for item in unmasked_elements)
+            single_unmasked for single_unmasked in self._unmasked_elements
+            if not any(single_unmasked is single_filtered for single_filtered in filtered_elements)
         ]
         return super()._update_filtered_elements(remaining_elements)
 
@@ -755,9 +762,9 @@ class ElementType(ClipFilter):
     ----------
     type(None) : A single or multiple types can be set as accepted ones.
     """
-    def _update_filtered_elements(self, unmasked_elements: list['oe.Element']) -> Self:
+    def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
         type_elements: list[oe.Element] = []
-        for single_element in unmasked_elements:
+        for single_element in filtered_elements:
             for operand_class in self._parameters:
                 if isinstance(single_element, operand_class):
                     type_elements.append(single_element)
@@ -781,11 +788,11 @@ class First(ClipFilter):
             self._named_parameters['amount'] = amount
 
 
-    def _update_filtered_elements(self, unmasked_elements: list['oe.Element']) -> Self:
+    def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
         amount_elements: int = self._named_parameters['amount']
-        first_elements: list[oe.Element] = unmasked_elements
-        if len(unmasked_elements) > amount_elements:
-            first_elements = unmasked_elements[:amount_elements]
+        first_elements: list[oe.Element] = filtered_elements
+        if len(filtered_elements) > amount_elements:
+            first_elements = filtered_elements[:amount_elements]
         return super()._update_filtered_elements(first_elements)
 
 
@@ -805,12 +812,12 @@ class Last(ClipFilter):
             self._named_parameters['amount'] = amount
 
 
-    def _update_filtered_elements(self, unmasked_elements: list['oe.Element']) -> Self:
+    def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
         amount_elements: int = self._named_parameters['amount']
-        last_elements: list[oe.Element] = unmasked_elements
-        if len(unmasked_elements) > amount_elements:
-            first_item: int = len(unmasked_elements) - amount_elements
-            last_elements = unmasked_elements[first_item:]
+        last_elements: list[oe.Element] = filtered_elements
+        if len(filtered_elements) > amount_elements:
+            first_item: int = len(filtered_elements) - amount_elements
+            last_elements = filtered_elements[first_item:]
         return super()._update_filtered_elements(last_elements)
 
 
@@ -830,9 +837,9 @@ class Nth(ClipFilter):
         self._named_parameters['parameters'] = parameters
 
 
-    def _update_filtered_elements(self, unmasked_elements: list['oe.Element']) -> Self:
+    def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
         nth_elements: list[oe.Element] = []
-        for index, single_item in enumerate(unmasked_elements):
+        for index, single_item in enumerate(filtered_elements):
             if index + 1 in self._named_parameters['parameters']:
                 nth_elements.append(single_item)
         return super()._update_filtered_elements(nth_elements)
@@ -854,9 +861,9 @@ class At(ClipFilter):
         self._named_parameters['parameters'] = parameters
 
 
-    def _update_filtered_elements(self, unmasked_elements: list['oe.Element']) -> Self:
+    def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
         at_elements: list[oe.Element] = []
-        for index, single_item in enumerate(unmasked_elements):
+        for index, single_item in enumerate(filtered_elements):
             if index in self._named_parameters['parameters']:
                 at_elements.append(single_item)
         return super()._update_filtered_elements(at_elements)
@@ -872,9 +879,9 @@ class Odd(ClipFilter):
     ----------
     None : `Odd` doesn't have parameters to be set.
     """
-    def _update_filtered_elements(self, unmasked_elements: list['oe.Element']) -> Self:
+    def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
         odd_elements: list[oe.Element] = [
-            single_item for index, single_item in enumerate(unmasked_elements)
+            single_item for index, single_item in enumerate(filtered_elements)
             if index % 2 == 0   # Odd is nth based
         ]
         return super()._update_filtered_elements(odd_elements)
@@ -890,9 +897,9 @@ class Even(ClipFilter):
     ----------
     None : `Even` doesn't have parameters to be set.
     """
-    def _update_filtered_elements(self, unmasked_elements: list['oe.Element']) -> Self:
+    def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
         even_elements: list[oe.Element] = [
-            single_item for index, single_item in enumerate(unmasked_elements)
+            single_item for index, single_item in enumerate(filtered_elements)
             if index % 2 == 1   # Even is nth based
         ]
         return super()._update_filtered_elements(even_elements)
@@ -913,13 +920,13 @@ class Every(ClipFilter):
         self._named_parameters['nths'] = nth
 
 
-    def _update_filtered_elements(self, unmasked_elements: list['oe.Element']) -> Self:
+    def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
         from . import operand_container as oc
         nth_elements: list[oe.Element] = []
         if self._named_parameters['nths'] > 0:
             nth: int = 0
             previous_measure: int | None = None
-            for single_item in unmasked_elements:
+            for single_item in filtered_elements:
                 if isinstance(single_item, (oe.Element, oc.Composition)):
                     present_measure: ra.Measure = single_item % ra.Measure()
                     if isinstance(present_measure, ra.Measure):
@@ -957,9 +964,9 @@ class Either(ClipFilter):
     ----------
     Any(None) : One or more conditions where **at-least one** needs to be met.
     """
-    def _update_filtered_elements(self, unmasked_elements: list['oe.Element']) -> Self:
+    def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
         either_elements: list[oe.Element] = []
-        for single_item in unmasked_elements:
+        for single_item in filtered_elements:
             for condition in self._parameters:
                 if single_item == condition:
                     either_elements.append(single_item)
@@ -977,15 +984,15 @@ class Neither(ClipFilter):
     ----------
     Any(None) : One or more conditions where **none** can be met.
     """
-    def _update_filtered_elements(self, unmasked_elements: list['oe.Element']) -> Self:
+    def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
         either_elements: list[oe.Element] = []
-        for single_element in unmasked_elements:
+        for single_element in filtered_elements:
             for condition in self._parameters:
                 if single_element == condition:
                     either_elements.append(single_element)
                     break
         neither_elements: list[oe.Element] = [
-            single_element for single_element in unmasked_elements
+            single_element for single_element in filtered_elements
             if not any(single_element is item for item in either_elements)
         ]
         return super()._update_filtered_elements(neither_elements)
@@ -1008,9 +1015,9 @@ class BasicComparison(ClipFilter):
         return super()._set_inside_clip(clip)
 
 
-    def _update_filtered_elements(self, unmasked_elements: list['oe.Element']) -> Self:
+    def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
         match_elements: list[oe.Element] = []
-        for single_item in unmasked_elements:
+        for single_item in filtered_elements:
             matches: bool = True
             for other in self._parameters:
                 if not self._compare(single_item, other): # Where the comparison is made
@@ -1126,10 +1133,10 @@ class OnBeat(ClipFilter):
     ----------
     None : `OnBeat` doesn't have parameters to be set.
     """
-    def _update_filtered_elements(self, unmasked_elements: list['oe.Element']) -> Self:
+    def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
         on_beat_elements: list[oe.Element] = []
         steps_per_beat: int = int(1 / og.settings._quantization)
-        for single_item in unmasked_elements:
+        for single_item in filtered_elements:
             if isinstance(single_item, oe.Element):
                 position_step: int = single_item % ra.Step() % int()
                 if position_step % steps_per_beat == 0:
@@ -1147,10 +1154,10 @@ class OffBeat(ClipFilter):
     ----------
     None : `OffBeat` doesn't have parameters to be set.
     """
-    def _update_filtered_elements(self, unmasked_elements: list['oe.Element']) -> Self:
+    def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
         off_beat_elements: list[oe.Element] = []
         steps_per_beat: int = int(1 / og.settings._quantization)
-        for single_item in unmasked_elements:
+        for single_item in filtered_elements:
             if isinstance(single_item, oe.Element):
                 position_step: int = single_item % ra.Step() % int()
                 if position_step % steps_per_beat == round(steps_per_beat / 2):
@@ -1168,9 +1175,9 @@ class DownBeat(ClipFilter):
     ----------
     None : `DownBeat` doesn't have parameters to be set.
     """
-    def _update_filtered_elements(self, unmasked_elements: list['oe.Element']) -> Self:
+    def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
         down_beat_elements: list[oe.Element] = []
-        for single_item in unmasked_elements:
+        for single_item in filtered_elements:
             if isinstance(single_item, oe.Element):
                 position_step: int = single_item % ra.Step() % int()
                 if position_step == 0:
@@ -1188,10 +1195,10 @@ class UpBeat(ClipFilter):
     ----------
     None : `UpBeat` doesn't have parameters to be set.
     """
-    def _update_filtered_elements(self, unmasked_elements: list['oe.Element']) -> Self:
+    def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
         up_beat_elements: list[oe.Element] = []
         steps_per_beat: int = int(1 / og.settings._quantization)
-        for single_item in unmasked_elements:
+        for single_item in filtered_elements:
             if isinstance(input, oe.Element):
                 steps_per_measure: int = single_item._get_time_signature()._top * steps_per_beat
                 position_step: int = single_item % ra.Step() % int()
@@ -1211,9 +1218,9 @@ class OddStep(ClipFilter):
     ----------
     None : `OddStep` doesn't have parameters to be set.
     """
-    def _update_filtered_elements(self, unmasked_elements: list['oe.Element']) -> Self:
+    def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
         odd_step_elements: list[oe.Element] = []
-        for single_item in unmasked_elements:
+        for single_item in filtered_elements:
             if isinstance(single_item, oe.Element):
                 position_step: int = single_item % ra.Step() % int()
                 if position_step % 2 == 0:
@@ -1233,9 +1240,9 @@ class EvenStep(ClipFilter):
     ----------
     None : `EvenStep` doesn't have parameters to be set.
     """
-    def _update_filtered_elements(self, unmasked_elements: list['oe.Element']) -> Self:
+    def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
         even_step_elements: list[oe.Element] = []
-        for single_item in unmasked_elements:
+        for single_item in filtered_elements:
             if isinstance(single_item, oe.Element):
                 position_step: int = single_item % ra.Step() % int()
                 if position_step % 2 == 1:
@@ -1253,10 +1260,10 @@ class PreviousComparison(ClipFilter):
     ----------
     Any(None) : One or more conditions where **all** need to be met.
     """
-    def _update_filtered_elements(self, unmasked_elements: list['oe.Element']) -> Self:
+    def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
         passed_elements: list[oe.Element] = []
         previous_parameter: Any = None
-        for single_item in unmasked_elements:
+        for single_item in filtered_elements:
             matches: bool = True
             if previous_parameter is not None:
                 parameter: Any = previous_parameter
@@ -1366,9 +1373,9 @@ class Cross(ClipFilter):
         self._named_parameters['position'] = ra.Position(position)
 
 
-    def _update_filtered_elements(self, unmasked_elements: list['oe.Element']) -> Self:
+    def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
         crossing_elements: list[oe.Element] = []
-        for single_item in unmasked_elements:
+        for single_item in filtered_elements:
             if isinstance(single_item, oe.Element):
                 if isinstance(single_item, oe.Element) and single_item.cross(self._named_parameters['position']):
                     crossing_elements.append(single_item)
@@ -1390,9 +1397,9 @@ class Overlap(ClipFilter):
         self._named_parameters['locus'] = og.Locus(locus)
 
 
-    def _update_filtered_elements(self, unmasked_elements: list['oe.Element']) -> Self:
+    def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
         overlapping_elements: list[oe.Element] = []
-        for single_item in unmasked_elements:
+        for single_item in filtered_elements:
             if isinstance(single_item, oe.Element):
                 if isinstance(single_item, oe.Element) and single_item.overlap(self._named_parameters['locus']):
                     overlapping_elements.append(single_item)
