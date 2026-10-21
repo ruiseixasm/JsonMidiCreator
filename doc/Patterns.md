@@ -106,7 +106,7 @@ clip * 4 << Channel(10) >> Plot()
 ```
 
 #### Plot
-![Bossa_Nova](plot/Unexpected_Delete.png)
+![Unexpected Delete](plot/Unexpected_Delete.png)
 
 [♫ Download MIDI File](midi/Unexpected_Delete.mid)
 
