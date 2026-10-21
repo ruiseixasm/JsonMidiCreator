@@ -58,13 +58,31 @@ class Action(o.Operand):
 class Delete(Action):
     """`Action -> Delete`
 
-    Deletes all the unmasked items in the targeted `Container` or elements in it if a `Clip`.
+    Deletes all the given elements in the targeted `Clip` keeping all the remaining ones.
 
     Args:
         None
     """
     def act(self, clip: 'Clip', scoped_elements: list['Element']) -> 'Clip':
         clip.delete(scoped_elements, True)
+        return super().act(clip, scoped_elements)
+
+
+class Keep(Action):
+    """`Action -> Keep`
+
+    Keeps all the given elements in the targeted `Clip` by deleting all the unmasked remaining ones.
+
+    Args:
+        None
+    """
+    def act(self, clip: 'Clip', scoped_elements: list['Element']) -> 'Clip':
+        unmasked_elements: list[oe.Element] = clip.elements_unmasked()
+        deleted_elements: list[oe.Element] = [
+            single_masked for single_masked in unmasked_elements
+            if not any(single_masked is single_scoped for single_scoped in scoped_elements)
+        ]
+        clip.delete(deleted_elements, True)
         return super().act(clip, scoped_elements)
 
 

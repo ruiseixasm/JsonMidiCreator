@@ -104,3 +104,10 @@ def test_retrigger_notes():
 
 # test_retrigger_notes()
 
+
+def test_complementary_notes():
+    sixteen_triggers = Trigger() * 16
+    odd_notes = ~sixteen_triggers << Even()**Delete()
+    even_notes = ~sixteen_triggers << Even()**Keep()
+    assert odd_notes + even_notes == sixteen_triggers
+
