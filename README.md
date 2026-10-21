@@ -88,6 +88,8 @@ jupyter notebook --no-browser
 Then open you favorite browser and copy and paste one of the given URLs as instructed in the output of the previous command.
 
 # Documentation
+## Folder *doc*
+The folder [doc](doc) has many documented examples that include plots and midi files associated with.
 ## Classes docstrings documentation
 All classes are documented with docstrings, you can mouse over the class to get a pop up with the class description.
 ## Classes documentation in Jupyter
