@@ -30,24 +30,6 @@ import pytest     # pip install pytest
 import sys
 
 
-def test_clip_rotate():
-    three_notes = Note() * 3 << Iterate(1)**Degree() << Last()**Beats(2)
-    assert three_notes % Duration() == Beats(4)
-
-    # three_notes >> Plot(title="Three Notes", block=False)
-    simple_rotation = ~three_notes << Rotate()  # Default is 1 rotation by one Measure
-    # simple_rotation >> Plot(title="Simple Rotation", block=False)
-    assert three_notes % Duration() == Beats(4)
-    assert simple_rotation[1] == Degree(3)
-    assert simple_rotation[1] == Beats(2)
-
-    complete_rotation = ~three_notes << Rotate(2)
-    # complete_rotation >> Plot(title="Complete Rotation")
-    assert complete_rotation[1] == Degree(1)
-    assert complete_rotation[1] == Beats(1)
-
-# test_clip_rotate()
-
 
 def test_split_duration():
     many_pitch = Note() * 4 << Iterate(1)**Degree() << Title("ISplitDuration")

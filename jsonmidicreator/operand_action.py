@@ -310,31 +310,80 @@ class AmountedAction(Aggregated):
 class Rotate(AmountedAction):
     """`Action -> Aggregated -> AmountedAction -> Rotate`
 
-    `Rotate` does a left rotation of all elements by a given amount of rotation among a given `Length`.
+    `Rotate` does a left rotation of all elements by a given amount of rotation while keeping their structure.
+
+    Args:
+        Measure(1), TimeUnit : Rotates the duration of the elements too (1 Measure is the default)
+        int(1) : The left rotation amount of the list index, displacement
+    """
+    def act(self, clip: 'Clip', scoped_elements: list['Element']) -> 'Clip':
+        element_loci: list[og.Locus] = [  # Decoupled data
+            single_element % og.Locus() for single_element in scoped_elements
+        ]
+        # Does an implicit copy of `scoped_elements`
+        rotated_elements = o.list_rotate(scoped_elements, self._amount)
+        remainder_duration_beats: Fraction = Fraction(0)
+        for single_element, single_locus in zip(rotated_elements, element_loci):  # Duration doesn't change
+            single_element._position_beats = single_locus._position_beats + remainder_duration_beats
+            remainder_duration_beats += single_element._duration_beats - single_locus._duration_beats
+        return clip._sort_items()
+
+
+class RotateLoci(AmountedAction):
+    """`Action -> Aggregated -> AmountedAction -> RotateLoci`
+
+    `RotateLoci` does a left rotation of all elements loci by a given amount of rotation.
+
+    Args:
+        Measure(1), TimeUnit : Rotates the duration of the elements too (1 Measure is the default)
+        int(1) : The left rotation amount of the list index, displacement
+    """
+    def act(self, clip: 'Clip', scoped_elements: list['Element']) -> 'Clip':
+        element_loci: list[og.Locus] = [  # Decoupled data
+            single_element % og.Locus() for single_element in scoped_elements
+        ]
+        # Does an implicit copy of `scoped_elements`
+        rotated_elements = o.list_rotate(scoped_elements, self._amount)
+        for single_element, single_locus in zip(rotated_elements, element_loci):
+            single_element << single_locus
+        return clip._sort_items()
+
+
+
+class RotateSteps(AmountedAction):
+    """`Action -> Aggregated -> AmountedAction -> RotateSteps`
+
+    `RotateSteps` does a left rotation of all elements by a given amount of rotation among a given `Length`.
 
     Args:
         Measure(1), TimeUnit : Rotates the duration of the elements too (1 Measure is the default)
         int(1) : The left rotation amount of the list index, displacement
     """
     def __init__(self, *parameters):
-        self.time_unit: ra.TimeUnit = ra.Measure(1)
+        self._time_unit: ra.TimeUnit = ra.Measure(1)
         super().__init__(*parameters)
 
 
     def act(self, clip: 'Clip', scoped_elements: list['Element']) -> 'Clip':
-        elements_locus: list[og.Locus] = [  # Decoupled data
-            single_element % og.Locus() for single_element in scoped_elements
-        ]
-        # Does an implicit copy of `scoped_elements`
-        rotated_elements = o.list_rotate(scoped_elements, self._amount)
-        if self.time_unit != Fraction(0):
-            remainder_duration_beats: Fraction = Fraction(0)
-            for single_element, single_locus in zip(rotated_elements, elements_locus):  # Duration doesn't change
-                single_element._position_beats = single_locus._position_beats + remainder_duration_beats
-                remainder_duration_beats += single_element._duration_beats - single_locus._duration_beats
-        else:
-            for single_element, single_locus in zip(rotated_elements, elements_locus):
-                single_element << single_locus
+        if not scoped_elements:
+            return clip
+
+        length_beats: Fraction = self._time_unit % ra.Beats() % Fraction()
+        if length_beats <= 0:
+            return clip
+
+        # Convert the signed rotation amount from steps to beats.
+        shift_beats: Fraction = ra.Step(self._amount)._rational
+
+        # Rotate positions within globally aligned quantization intervals.
+        for single_element in scoped_elements:
+            position = single_element._position_beats
+            origin = (position // length_beats) * length_beats
+
+            single_element._position_beats = (
+                origin + (position - origin - shift_beats) % length_beats
+            )
+
         return clip._sort_items()
 
 
@@ -373,15 +422,15 @@ class Rotate(AmountedAction):
         from . import operand_rational as ra
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case Rotate():
+            case RotateSteps():
                 super().__lshift__(operand)
-                self.time_unit = operand.time_unit.copy()
+                self._time_unit = operand._time_unit.copy()
             case od.Pipe():
                 match operand._data:
-                    case ra.TimeUnit():             self.time_unit = operand._data
+                    case ra.TimeUnit():             self._time_unit = operand._data
                     case _:                         super().__lshift__(operand)
             case ra.TimeUnit():
-                self.time_unit = operand.copy()
+                self._time_unit = operand.copy()
             case ra.Length():
                 self << ra.Beat(operand._rational)
             case _:
