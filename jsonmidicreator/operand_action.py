@@ -111,30 +111,12 @@ class AmountedAction(Aggregated):
         super().__init__(*parameters)
 
 
+    def __str__(self):
+        return f'{self._amount}'
+
     def __neg__(self):
         self._amount *= -1
         return self
-
-
-    def __mod__(self, operand: o.T) -> o.T:
-        from . import operand_rational as ra
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case bool():            return False if self._amount == 0 else True   # bool is a subclass of int !!
-                    case int():             return self._amount           # returns a int()
-                    case Fraction():        return Fraction(self._amount)
-                    case float():           return float(self._amount)
-                    case _:                 return super().__mod__(operand)
-            case bool():            return False if self._amount == 0 else True   # bool is a subclass of int !!
-            case int():             return self._amount
-            case Fraction():        return Fraction(self._amount)
-            case float():           return float(self._amount)
-            case ra.Rational():     return operand.copy() << od.Pipe( self._amount )
-            case ou.Unit():            return operand.copy(self)
-            case str():             return str(self._amount)
-            case _:                 return super().__mod__(operand)
-
 
     def __bool__(self) -> bool:  # For Python 3
         return self._amount != 0
@@ -186,8 +168,25 @@ class AmountedAction(Aggregated):
                 return self._amount > int( other._rational )
         return False
     
-    def __str__(self):
-        return f'{self._amount}'
+
+    def __mod__(self, operand: o.T) -> o.T:
+        from . import operand_rational as ra
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case bool():            return False if self._amount == 0 else True   # bool is a subclass of int !!
+                    case int():             return self._amount           # returns a int()
+                    case Fraction():        return Fraction(self._amount)
+                    case float():           return float(self._amount)
+                    case _:                 return super().__mod__(operand)
+            case bool():            return False if self._amount == 0 else True   # bool is a subclass of int !!
+            case int():             return self._amount
+            case Fraction():        return Fraction(self._amount)
+            case float():           return float(self._amount)
+            case ra.Rational():     return operand.copy() << od.Pipe( self._amount )
+            case ou.Unit():            return operand.copy(self)
+            case str():             return str(self._amount)
+            case _:                 return super().__mod__(operand)
 
 
     def getSerialization(self) -> dict:
@@ -304,6 +303,89 @@ class AmountedAction(Aggregated):
             case ra.Rational():
                 if number._rational != 0:
                     self._amount = int( self._amount / number._rational )
+        return self
+
+
+
+class Rotate(AmountedAction):
+    """`Action -> Aggregated -> AmountedAction -> Rotate`
+
+    `Rotate` does a left rotation of all elements by a given amount of rotation among a given `Length`.
+
+    Args:
+        Measure(1), TimeUnit : Rotates the duration of the elements too (1 Measure is the default)
+        int(1) : The left rotation amount of the list index, displacement
+    """
+    def __init__(self, *parameters):
+        self.time_unit: ra.TimeUnit = ra.Measure(1)
+        super().__init__(*parameters)
+
+
+    def act(self, clip: 'Clip', scoped_elements: list['Element']) -> 'Clip':
+        elements_locus: list[og.Locus] = [  # Decoupled data
+            single_element % og.Locus() for single_element in scoped_elements
+        ]
+        # Does an implicit copy of `scoped_elements`
+        rotated_elements = o.list_rotate(scoped_elements, self._amount)
+        if self.time_unit != Fraction(0):
+            remainder_duration_beats: Fraction = Fraction(0)
+            for single_element, single_locus in zip(rotated_elements, elements_locus):  # Duration doesn't change
+                single_element._position_beats = single_locus._position_beats + remainder_duration_beats
+                remainder_duration_beats += single_element._duration_beats - single_locus._duration_beats
+        else:
+            for single_element, single_locus in zip(rotated_elements, elements_locus):
+                single_element << single_locus
+        return clip._sort_items()
+
+
+    def __mod__(self, operand: o.T) -> o.T:
+        from . import operand_rational as ra
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case ra.TimeUnit():     return self._time_unit
+                    case _:                 return super().__mod__(operand)
+            case ra.TimeUnit():
+                return self._time_unit.copy()
+            case ra.Length():
+                return operand.copy(self._time_unit)
+            case _:
+                return super().__mod__(operand)
+
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["time_unit"] = self._time_unit
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "time_unit" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._time_unit = serialization["parameters"]["time_unit"]
+        return self
+
+
+    def __lshift__(self, operand: any) -> Self:
+        from . import operand_rational as ra
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Rotate():
+                super().__lshift__(operand)
+                self.time_unit = operand.time_unit.copy()
+            case od.Pipe():
+                match operand._data:
+                    case ra.TimeUnit():             self.time_unit = operand._data
+                    case _:                         super().__lshift__(operand)
+            case ra.TimeUnit():
+                self.time_unit = operand.copy()
+            case ra.Length():
+                self << ra.Beat(operand._rational)
+            case _:
+                super().__lshift__(operand)
         return self
 
 

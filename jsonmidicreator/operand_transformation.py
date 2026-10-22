@@ -515,39 +515,6 @@ class Reverse(Transformation):
 
 
 
-class Rotate(Transformation):
-    """`Transformation -> Rotate`
-
-    `Rotate` does a left rotation of all elements by a given amount of rotation
-
-    Args:
-        amount (int): The left rotation amount of the list index, displacement.
-        move_duration (bool): Rotates the duration of the elements too (the default).
-    """
-    def __init__(self, amount: int = 1, rotate_duration = True):
-        self._amount: int = amount
-        self._move_duration: int = rotate_duration
-        super().__init__()
-
-
-    def _single_transform(self, clip: 'Clip') -> 'Clip':
-        rotated_elements: list[oe.Element] = clip.elements_unmasked().copy()
-        elements_locus: list[og.Locus] = [  # Decoupled data
-            single_element % og.Locus() for single_element in rotated_elements
-        ]
-        rotated_elements = o.list_rotate(rotated_elements, self._amount)
-        if self._move_duration:
-            remainder_duration_beats: Fraction = Fraction(0)
-            for single_element, single_locus in zip(rotated_elements, elements_locus):  # Duration doesn't change
-                single_element._position_beats = single_locus._position_beats + remainder_duration_beats
-                remainder_duration_beats += single_element._duration_beats - single_locus._duration_beats
-        else:
-            for single_element, single_locus in zip(rotated_elements, elements_locus):
-                single_element << single_locus
-        return clip._sort_items()
-
-
-
 class Clean(Transformation):
     """`Transformation -> Clean`
 

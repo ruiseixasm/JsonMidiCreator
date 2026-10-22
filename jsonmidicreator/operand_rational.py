@@ -1799,6 +1799,8 @@ class NoteValue(TimeValue):
                 super().__itruediv__(operand)
         return self
 
+
+
 class Dotted(NoteValue):
     """`Rational -> Convertible -> TimeValue -> NoteValue -> Dotted`
 
@@ -1906,6 +1908,7 @@ class Dotted(NoteValue):
         return self
 
 
+
 class TimeUnit(Convertible):
     """`Rational -> Convertible -> TimeUnit`
 
@@ -1931,7 +1934,6 @@ class TimeUnit(Convertible):
 
 
     def __eq__(self, other: any) -> bool:
-        from . import operand_generic as og
         match other:
             case Convertible():
                 return self._get_beats(other._time_signature_reference) \
