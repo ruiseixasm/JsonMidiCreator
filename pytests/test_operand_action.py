@@ -138,10 +138,12 @@ def test_rotate_steps():
     onbeat_steps = Trigger(1/4) * 4 << 1/16
     # onbeat_steps >> Plot(title="Original Pattern", block=False)
     assert onbeat_steps.len() == 4
+    assert onbeat_steps[3] % Steps() == 1
     assert onbeat_steps[3] % Step() == 12
     onbeat_steps << RotateSteps()
     # onbeat_steps >> Plot(title="Rotated Pattern")
     assert onbeat_steps.len() == 4
+    assert onbeat_steps[3] % Steps() == 1
     # assert onbeat_steps[3] % Step() == 15
 
 # test_rotate_steps()
