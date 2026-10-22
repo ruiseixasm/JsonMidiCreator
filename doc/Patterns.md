@@ -92,7 +92,7 @@ clip * 2 << Channel(10) >> Plot()
 
 
 ## Single Patterns
-### Clumsy Delete
+### Unexpected Delete
 #### Code
 ```py
 from jsonmidicreator import *
