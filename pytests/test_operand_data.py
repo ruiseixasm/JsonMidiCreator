@@ -96,8 +96,8 @@ def test_serialization_mod():
 
 
 def test_operand_type():
-    assert OperandType(Note()) != Rest()
-    assert OperandType(Rest()) == Rest()
+    assert OperandType(Note) != Rest()
+    assert OperandType(Rest) == Rest()
 
 
 def test_inline_operations():

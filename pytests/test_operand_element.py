@@ -39,8 +39,8 @@ def test_element_equal():
     assert Note(1/1) != Rest(1/1)
     assert Rest(1/1) != Note(1/1)
 
-    assert Note() == OperandType(Note())
-    assert Rest() != OperandType(Note())
+    assert Note() == OperandType(Note)
+    assert Rest() != OperandType(Note)
 
 
 
@@ -748,14 +748,14 @@ def test_token_string():
             assert element == Measures(1)
 
     single_note = operand_element._get_element_from_token("n:")
-    assert single_note == OperandType(Note())
+    assert single_note == OperandType(Note)
     assert single_note % Duration() == 1/4
     single_note = operand_element._get_element_from_token(":")
-    assert single_note == OperandType(Note())
+    assert single_note == OperandType(Note)
     assert single_note % Duration() == 1/4
     
     single_trigger = operand_element._get_element_from_token("t::wewefs sfsdfwef")
-    assert single_trigger == OperandType(Trigger())
+    assert single_trigger == OperandType(Trigger)
     assert single_trigger % Duration() == 1/16
     assert single_trigger % str() == "wewefs sfsdfwef"
 

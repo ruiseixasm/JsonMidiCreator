@@ -296,12 +296,12 @@ class OperandType(Data):
     
     Parameters
     ----------
-    Any() : Any operand.
+    type(None) : A single or multiple types can be set as accepted ones.
     """
     def __eq__(self, other: o.Operand) -> bool:
         if isinstance(other, OperandType):
             return self._data == other._data
-        return isinstance(other, type(self._data))
+        return isinstance(other, self._data)
 
 
 class AsIs(Data):

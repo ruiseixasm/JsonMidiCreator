@@ -766,11 +766,11 @@ def test_lshift_clip():
 
 
     two_rests = Rest() * 2
-    assert OperandType(two_rests[0]) == Rest()
-    assert OperandType(two_rests[0]) != Note()
+    assert two_rests[0] % OperandType() == Rest()
+    assert two_rests[0] % OperandType() != Note()
     two_rests << Note()
-    assert OperandType(two_rests[0]) != Rest()
-    assert OperandType(two_rests[0]) == Note()
+    assert two_rests[0] % OperandType() != Rest()
+    assert two_rests[0] % OperandType() == Note()
 
 # test_lshift_clip()
 

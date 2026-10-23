@@ -155,6 +155,8 @@ class Operand:
                 return self.__mod__( operand % Operand() )
             case od.Copy():
                 return self.copy(operand._data)
+            case od.OperandType():
+                return od.OperandType(type(self))
             case od.Serialization():
                 return od.Serialization(self)
             case ra.Index():
