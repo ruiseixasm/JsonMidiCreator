@@ -48,6 +48,27 @@ class Tamer(o.Operand):
         super().__init__(*parameters)
 
 
+    def _get_tailed_operand(self) -> o.Operand | None:
+        if isinstance(self._chained_operand, Tamer):
+            return self._chained_operand._get_tailed_operand()
+        return self._chained_operand
+
+
+    def chaoticize(self, iterate: bool = True) -> Any:
+        if iterate:
+            chaotic_number = self % Fraction()
+        else:
+            chaotic_number = self % od.Pipe(Fraction())
+        operand = self._get_tailed_operand()
+        if operand is not None:
+            match operand:
+                case o.Operand():
+                    return operand.copy(chaotic_number) # Operand Decoupled (copy)
+                case int() | float() | Fraction():
+                    return type(operand)(chaotic_number)
+        return chaotic_number
+
+
     def result(self, chaos: 'ch.Chaos') -> tuple[Fraction, bool]:
         result: Fraction = Fraction()
         tamed: bool = False
@@ -94,8 +115,15 @@ class Tamer(o.Operand):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case ch.Chaos():            return self._chaos
-                    case _:                     return super().__mod__(operand)
+                    case ch.Chaos():
+                        return self._chaos
+                    case ra.Result():
+                        return ra.Result(self.tame(self._chaos % od.Pipe(Fraction()))[0])
+                    case int() | float() | Fraction():
+                        result = self % od.Pipe(ra.Result())
+                        return result % operand
+                    case _:
+                        return super().__mod__(operand)
             case ch.Chaos():
                 return self._chaos.copy()
             case int() | float() | Fraction():
