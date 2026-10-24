@@ -79,8 +79,8 @@ class Keep(Action):
     def act(self, clip: 'Clip', scoped_elements: list['Element']) -> 'Clip':
         unmasked_elements: list[oe.Element] = clip.elements_unmasked()
         deleted_elements: list[oe.Element] = [
-            single_masked for single_masked in unmasked_elements
-            if not any(single_masked is single_scoped for single_scoped in scoped_elements)
+            single_unmasked for single_unmasked in unmasked_elements
+            if not any(single_unmasked is single_scoped for single_scoped in scoped_elements)
         ]
         clip.delete(deleted_elements, True)
         return super().act(clip, scoped_elements)
