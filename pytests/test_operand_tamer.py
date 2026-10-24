@@ -30,6 +30,7 @@ import pytest     # pip install pytest
 import sys
 
 
+
 def test_range_int():
     ranged_chaos = Interval([5, 8], SinX(340))  # 8 is excluded
     results: set = set()
@@ -39,6 +40,20 @@ def test_range_int():
     assert len(results) == 3
 
 # test_range_int()
+
+
+def test_tamer_decoupling():
+    untamed = Untamed()
+    assert untamed._index == -1
+    untamed_copy = untamed.copy()
+    assert untamed_copy._index == -1
+    assert untamed._index == -1
+    untamed_copy.iterate()
+    assert untamed_copy._index == 0
+    assert untamed._index == -1
+
+# test_tamer_decoupling()
+
 
 
 def test_probability():

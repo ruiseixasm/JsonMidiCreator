@@ -175,6 +175,14 @@ class Tamer(o.Operand):
         self._index += 1
         return self
 
+    
+    def iterate(self) -> Self:
+        self._chaos.iterate()
+        if isinstance(self._chained_operand, Tamer):   # iterations are done from tail left
+            self._chained_operand.iterate()
+        self._index = self._chaos._index
+        return self
+
 
     def __ipow__(self, operand: Any) -> Self:
         '''The tail is just an attachment, it represents outputted value and not input one
