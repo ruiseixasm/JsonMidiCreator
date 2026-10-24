@@ -2184,19 +2184,20 @@ class Trigger(ChannelElement):
             case ou.Semitone():
                 self += operand._unit
             case ou.Degree():
-                degrees: int = operand._unit
-                sample_id_0: int = self.get_sample_id_0()
-                while degrees > 0:
-
-                    sample_id_0 +=1
-                    degrees -= 1
-
-                while degrees < 0:
-                    
-                    sample_id_0 -=1
-                    degrees += 1
-
-                self += operand._unit
+                if self._owner_clip is not None:
+                    degrees: int = operand._unit
+                    sample_id_0: int = self.get_sample_id_0()
+                    while degrees > 0 and sample_id_0 <= 128:
+                        sample_id_0 +=1
+                        existing_samples: int = (self._owner_clip & sample_id_0 + 1).len()
+                        if existing_samples: degrees -= 1
+                    while degrees < 0 and sample_id_0 >= -1:
+                        sample_id_0 -=1
+                        existing_samples: int = (self._owner_clip & sample_id_0 + 1).len()
+                        if existing_samples: degrees += 1
+                    if 0 <= sample_id_0 < 128:
+                        self.set_sample_id_0(sample_id_0)
+                return self
         return super().__iadd__(operand)
 
 
