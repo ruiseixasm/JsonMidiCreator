@@ -30,18 +30,48 @@ from . import operand_data as od
 from . import operand_unit as ou
 from . import operand_rational as ra
 from . import operand_frame as of
+from . import operand_chaos as ch
 
 
 class Tamer(o.Operand):
     """`Tamer`
 
     Because `Chaos` returns numbers that fit no specific criteria, `Tamer` makes sure a criteria is
-    met with validation or manipulation dependant of the tamer.
+    met with validation or manipulation dependant of the tamer. No chaos can be accessed directly.
 
     Parameters
     ----------
-    None
+    Chaos(SinX()) : The Chaos being tamed.
     """
+    def __init__(self, *parameters):
+        self._chaos: ch.Chaos = ch.SinX()
+        super().__init__(*parameters)
+
+
+    def result(self, chaos: 'ch.Chaos') -> tuple[Fraction, bool]:
+        result: Fraction = Fraction()
+        tamed: bool = False
+        count_down: int = chaos._max_iterations
+        self._tamer_tries = 0
+
+        while not tamed and count_down > 0:
+            result = chaos.result()
+            self._tamer_tries += 1
+
+            rational: Fraction = ra.Rational(result) % Fraction()
+            tamed = self.tame(rational, True)[1]
+
+            count_down -= 1
+
+        if not tamed:
+            print(
+                f"Warning: {chaos.__class__.__name__} "
+                "Chaos couldn't be tamed!"
+            )
+
+        return result, tamed
+
+
     def from_tail(self) -> int:
         if self._chained_operand is None:
             return 1

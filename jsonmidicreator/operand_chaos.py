@@ -28,7 +28,6 @@ from . import operand as o
 from . import operand_unit as ou
 from . import operand_rational as ra
 from . import operand_data as od
-from . import operand_tamer as ot
 
 
 class Chaos(o.Operand):
@@ -45,6 +44,7 @@ class Chaos(o.Operand):
     X0(0) : The first value of the multiple iterations where Chaos can be reset to.
     """
     def __init__(self, *parameters):
+        from . import operand_tamer as ot
         super().__init__()
         self._tamer: ot.Tamer           = ot.Tamer()
         self._max_iterations: int       = 1000
@@ -128,6 +128,7 @@ class Chaos(o.Operand):
         return False
     
     def __mod__(self, operand: o.T) -> o.T:
+        from . import operand_tamer as ot
         match operand:
             case od.Pipe():
                 match operand._data:
@@ -189,6 +190,7 @@ class Chaos(o.Operand):
         return self
         
     def __lshift__(self, operand: any) -> Self:
+        from . import operand_tamer as ot
         # NO tail processing for Chaos
         match operand:
             case Chaos():
@@ -712,32 +714,24 @@ class Bouncer(Chaos):
         return self
 
 
-    def result(self, numeral: Fraction) -> tuple[Fraction, bool]:
-        result: Fraction = numeral
-        tamed: bool = False
-        count_down: int = self._max_iterations
-        self._tamer_tries = 0
-        position_x = self._xn._rational
-        position_y = self._yn._rational
-        while not tamed and count_down > 0:
-            position_x += self._dx._rational
-            position_x %= self._width._rational
-            position_y += self._dy._rational
-            position_y %= self._height._rational
-            result = ra.Result(math.hypot(float(position_x), float(position_y)))._rational
-            self._tamer_tries += 1
-            # Tame part
-            rational: Fraction = ra.Rational(result) % Fraction()
-            tamed = self._tamer.tame(rational, True)[1]
-            count_down -= 1
-        if tamed:
-            self._xn._rational = position_x
-            self._yn._rational = position_y
-            self._initiated = True
-            self._index += 1
-        else:
-            print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
-        return result, tamed
+    def result(self) -> Fraction:
+        position_x = self._xn._rational + self._dx._rational
+        position_x %= self._width._rational
+
+        position_y = self._yn._rational + self._dy._rational
+        position_y %= self._height._rational
+
+        result: Fraction = ra.Result(
+            math.hypot(float(position_x), float(position_y))
+        )._rational
+
+        self._xn._rational = position_x
+        self._yn._rational = position_y
+        self._initiated = True
+        self._index += 1
+
+        return result
+
 
     def __str__(self) -> str:
         return f'{self._index + 1}: {self % tuple()}'
