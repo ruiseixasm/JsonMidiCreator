@@ -111,6 +111,16 @@ class Tamer(o.Operand):
         return numeral, True
 
 
+    def __eq__(self, other: Any) -> bool:
+        match other:
+            case Tamer():
+                return self._chaos == other._chaos
+            case ch.Chaos():
+                return self._chaos == other
+            case _: 
+                return super().__eq__(other)
+
+
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.Pipe():
@@ -181,6 +191,14 @@ class Tamer(o.Operand):
         if isinstance(self._chained_operand, Tamer):   # iterations are done from tail left
             self._chained_operand.iterate()
         self._index += 1
+        return self
+
+
+    def __imul__(self, number: Union['ou.Unit', 'ra.Rational', int, float, Fraction]) -> Self:
+        number = o.number_to_int(number) # Results in a int, like int(float)
+        if number > 0:
+            for _ in range(number):
+                self.iterate()
         return self
 
 

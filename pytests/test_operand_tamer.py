@@ -55,6 +55,29 @@ def test_tamer_decoupling():
 # test_tamer_decoupling()
 
 
+def test_untamed_mod():
+
+    # Perform the operation
+    untamed = Untamed()
+
+    # untamed remains unchangeable
+    untamed_1     = untamed * 1      # Implicit copy
+    untamed_1000  = untamed * 1000   # Implicit copy
+
+    # Index starts at 0, the first iteration, thus the -1
+    assert untamed_1._index == 1 - 1
+    assert untamed_1000._index == 1000 - 1
+
+    assert untamed_1000 != untamed_1
+    assert untamed_1000 == untamed_1 * 999
+    untamed_1.reset()
+    assert untamed_1 == untamed
+    untamed *= 1000   # This changes the original untamed
+    assert untamed_1000 == untamed
+    assert untamed_1000 * 1 == untamed_1 * 1000 * 1
+
+# test_untamed_mod()
+
 
 def test_probability():
     free_chaos = Untamed()

@@ -118,14 +118,16 @@ class Chaos(o.Operand):
 
     def __str__(self) -> str:
         return f'{self._index + 1}: {self._xn % float()}'
-    
+
+
     def __eq__(self, other: 'Chaos') -> bool:
         if type(self) == type(other):
             return self._xn == other._xn    # Only the actual result matters, NOT the x0
         if isinstance(other, od.Conditional):
             return other == self
         return False
-    
+
+
     def __mod__(self, operand: o.T) -> o.T:
         from . import operand_tamer as ot
         match operand:
@@ -217,6 +219,7 @@ class Chaos(o.Operand):
             for _ in range(number):
                 self.iterate()
         return self
+
     
     def __ipow__(self, operand: Any) -> Self:
         '''The tail is just an attachment, it represents outputted value and not input one
@@ -288,6 +291,15 @@ class Sequence(Chaos):
         self._steps: Fraction = Fraction(1)
         super().__init__(*parameters)
 
+
+    def __eq__(self, other: Any) -> bool:
+        match other:
+            case self.__class__():
+                return super().__eq__(other) and self._steps == other._steps
+            case _:
+                return super().__eq__(other)
+
+    
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.Pipe():
@@ -298,13 +310,7 @@ class Sequence(Chaos):
             case ra.Step():             return ra.Step(self._steps)
             case _:                     return super().__mod__(operand)
 
-    def __eq__(self, other: Any) -> bool:
-        match other:
-            case self.__class__():
-                return super().__eq__(other) and self._steps == other._steps
-            case _:
-                return super().__eq__(other)
-    
+
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["steps"]    = o.serialize( self._steps )
