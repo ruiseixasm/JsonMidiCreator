@@ -2210,6 +2210,10 @@ class Trigger(ChannelElement):
                 return self.set_sample_id_0(sample_id_0)
             case ou.Semitone():
                 self -= operand._unit
+            case ou.Degree():
+                negative_degree = operand * -1
+                self += negative_degree
+                return self
         return super().__isub__(operand)
 
 

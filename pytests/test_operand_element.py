@@ -832,6 +832,18 @@ def test_cluster_setting():
     assert pitches[1].get_absolute_pitch() == 60 + 9 + 3
 
 
+def test_trigger_degrees():
+    clip = Clip(DrumKit("808"))
+    clip += Trigger("Kick") * 16 % OnBeat()**Odd()
+    clip += Trigger("Snare") * 16 % OnBeat()**Even()
+    clip += Trigger("Closed") * 16 % Odd()
+    total_snare: int = (clip & "Snare") % int()
+    clip << Channel(10)
+    clip_degree = clip + Equal("Closed")**First()**Degree(1)
+    # clip_degree >> Plot()
+    assert (clip_degree & "Snare") % int() == total_snare + 1
+
+
 def test_element_multi():
     third_degree_1 = Note(Degree(3))
     third_degree_2 = Note(Pitch(3.0))
