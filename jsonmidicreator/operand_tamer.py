@@ -94,13 +94,45 @@ class Tamer(o.Operand):
         match operand:
             case od.Pipe():
                 match operand._data:
+                    case ch.Chaos():            return self._chaos
                     case _:                     return super().__mod__(operand)
-            case Tamer():
-                return operand.copy(self)
+            case ch.Chaos():
+                return self._chaos.copy()
             case _:
                 return super().__mod__(operand)
 
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["chaos"] = o.serialize( self._chaos )
+        return serialization
+
     # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "chaos" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._chaos = o.deserialize( serialization["parameters"]["chaos"] )
+        return self
+
+
+    def __lshift__(self, operand: any) -> Self:
+        match operand:
+            case Tamer():
+                super().__lshift__(operand)
+                self._chaos << operand._chaos
+            case od.Pipe():
+                match operand._data:
+                    case ch.Chaos():    self._chaos = operand._data
+                    case _:             super().__lshift__(operand)
+            case ch.Chaos():
+                self._chaos << operand
+            case _:
+                super().__lshift__(operand)
+        return self
+
 
     def next(self, numeral: o.TypeNumeral) -> Self:
         """Only called by the first link of the chain if all links are validated"""
