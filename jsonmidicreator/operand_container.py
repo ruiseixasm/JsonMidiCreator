@@ -463,6 +463,10 @@ class Container(o.Operand):
         return self
 
 
+    def __ior__(self, operand: Any) -> Self:
+        return self.__iadd__(operand)
+
+
     def __ixor__(self, operand: Any) -> Self:
         unmasked_items: list[Any] = self.items_unmasked()
         match operand:
