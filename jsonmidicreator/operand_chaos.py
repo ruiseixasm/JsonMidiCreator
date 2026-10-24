@@ -268,7 +268,6 @@ class Chaos(o.Operand):
         # RESET THE SELF OPERANDS RECURSIVELY
         if isinstance(self._chained_operand, o.Operand):
             self._chained_operand.reset()
-        self.reset_tamers()
         return self << parameters
 
 
