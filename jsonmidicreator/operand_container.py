@@ -441,15 +441,13 @@ class Container(o.Operand):
                     self_unmasked for self_unmasked in unmasked_items
                     if any(self_unmasked == other_unmasked for other_unmasked in operand.items_unmasked())
                 ]
-                self.delete(unmasked_items)
-                self.extend(equal_items)
+                self.delete(unmasked_items).extend(equal_items)
             case ch.Chaos():
                 chosen_items: list[Any] = []
                 for single_item in unmasked_items:
                     if single_item == operand.chaoticize():
                         chosen_items.append(single_item)
-                self.delete(unmasked_items)
-                self.extend(chosen_items)
+                self.delete(unmasked_items).extend(chosen_items)
             case tuple():
                 for single_item in operand:
                     self &= single_item
@@ -458,8 +456,7 @@ class Container(o.Operand):
                 for single_item in unmasked_items:
                     if single_item == operand:
                         equal_items.append(single_item)
-                self.delete(unmasked_items)
-                self.extend(equal_items)
+                self.delete(unmasked_items).extend(equal_items)
         return self
 
 
@@ -2085,9 +2082,8 @@ class Clip(Composition):  # Just a container of Elements
             case of.Frame():
                 unmasked_items: list[Any] = self.items_unmasked()
                 operand._set_inside_clip(self)
-                equal_items = operand._get_filtered_elements()
-                self.delete(unmasked_items)
-                self.extend(equal_items)
+                filtered_elements = operand._get_filtered_elements()
+                self.delete(unmasked_items).extend(filtered_elements)
             case _:
                 super().__iand__(operand)
         return self
@@ -2096,8 +2092,14 @@ class Clip(Composition):  # Just a container of Elements
     def __ixor__(self, operand: Any) -> Self:
         match operand:
             case of.Frame():
+                unmasked_items: list[Any] = self.items_unmasked()
                 operand._set_inside_clip(self)
-                self._items = operand._get_filtered_elements()
+                filtered_elements = operand._get_filtered_elements()
+                excluded_elements = [
+                    single_unmasked for single_unmasked in unmasked_items
+                    if not any(single_unmasked is single_filtered for single_filtered in filtered_elements)
+                ]
+                self.delete(unmasked_items).extend(excluded_elements)
             case _:
                 super().__ixor__(operand)._set_owner_clip()._sort_items()
         return self
