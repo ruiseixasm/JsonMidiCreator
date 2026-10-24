@@ -1006,19 +1006,19 @@ class IteratedTransformation(Transformation):
     This class allows the transformation of the `Clip` based on chaotic input in an iterative fashion.
 
     Args:
-        chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
         no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
-    def __init__(self, chaos: ch.Chaos = ch.SinX(340),
+    def __init__(self, tamer: ot.Tamer = ot.Untamed(ch.SinX(340)),
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 4, no_repetitions: bool = False, freeze_at: int = -1):
         self._iterations: list[oc.Clip] = []
-        self.chaos: ch.Chaos = chaos
+        self.tamer: ot.Tamer = tamer
         self.pre_filter: Callable[['oc.Clip', 'oc.Clip'], bool] | None = pre_filter
         self.post_process: Callable[['oc.Clip'], 'oc.Clip'] | None = post_process
         self.max_tries: int = max_tries
@@ -1035,9 +1035,15 @@ class IteratedTransformation(Transformation):
         return transform
 
 
+    def restart(self) -> Self:
+        self._iterations = []
+        self.tamer.restart()
+        return super().restart()
+
+    
     def reset(self) -> Self:
         self._iterations = []
-        self.chaos.reset()
+        self.tamer.reset()
         return super().reset()
     
     
@@ -1069,7 +1075,7 @@ class IVariate(IteratedTransformation):
     it only changes continuous space (pitch, timing, velocity), **only** the `Element` parameters.
 
     Args:
-        chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1087,7 +1093,7 @@ class ISplitDuration(IVariate):
 
     Args:
         durations (int) : The amount of durations, or elements, the splitting will result in.
-        chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1095,11 +1101,11 @@ class ISplitDuration(IVariate):
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def __init__(self, durations: int = 8,
-                 chaos: ch.Chaos = ch.SinX(340),
+                 tamer: ot.Tamer = ot.Untamed(ch.SinX(340)),
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+        super().__init__(tamer, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
         self.durations: int = durations
 
 
@@ -1114,7 +1120,7 @@ class ISplitDuration(IVariate):
                 iteration_clip: oc.Clip = clip.copy()  # Decouples from the `clip`
                 try_j: int = 0
                 while iteration_clip.len() < self.durations and try_j < 100 * 2:
-                    continuous_split_step: int = self.chaos % int()
+                    continuous_split_step: int = self.tamer % int()
                     continuous_split_beat: Fraction = quantization_beats * continuous_split_step % total_duration_beats
                     continuous_start_beat = Fraction(0)
                     for single_element in iteration_clip.elements_unmasked():
@@ -1141,7 +1147,7 @@ class IShuffleLocus(IVariate):
     This class shuffles the multiple locus around.
 
     Args:
-        chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1155,7 +1161,7 @@ class IShuffleLocus(IVariate):
         ]
         shuffled_loci: list[og.Locus] = []
         while original_loci:
-            pick_index: int = self.chaos % int() % len(original_loci)
+            pick_index: int = self.tamer % int() % len(original_loci)
             shuffled_loci.append(
                 original_loci.pop(pick_index)
             )
@@ -1171,7 +1177,7 @@ class IShuffleDuration(IVariate):
     Moves the existent durations around while preserving the relative positions to them.
 
     Args:
-        chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1189,7 +1195,7 @@ class IShuffleDuration(IVariate):
         durations_beats: list[Fraction] = []
         pickable_durations_beats: list[Fraction] = self._get_durations_beats(clip)
         while pickable_durations_beats:
-            pick_index: int = self.chaos % int() % len(pickable_durations_beats)
+            pick_index: int = self.tamer % int() % len(pickable_durations_beats)
             durations_beats.append(
                 pickable_durations_beats.pop(pick_index)
             )
@@ -1222,7 +1228,7 @@ class IChooseDuration(IShuffleDuration):
 
     Args:
         durations (list) : A given list of durations to pick from.
-        chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1230,11 +1236,11 @@ class IChooseDuration(IShuffleDuration):
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def __init__(self, durations: list[Any] = [1/2, 1/4, 1/8, 1/16],
-                 chaos: ch.Chaos = ch.SinX(340),
+                 tamer: ot.Tamer = ot.Untamed(ch.SinX(340)),
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+        super().__init__(tamer, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
         self.durations: list[Any] = durations
 
 
@@ -1266,7 +1272,7 @@ class IChooseDuration(IShuffleDuration):
                                 if single_duration_beats < remaining_duration_beats
                             ]
                             if fitting_durations_beats:  # Fitting lengths available
-                                duration_index: int = self.chaos % int() % len(fitting_durations_beats)
+                                duration_index: int = self.tamer % int() % len(fitting_durations_beats)
                                 duration_beats: Fraction = fitting_durations_beats[duration_index]
                                 shuffled_durations_beats.append(duration_beats)
                                 remaining_duration_beats -= duration_beats
@@ -1288,7 +1294,7 @@ class ISwapDuration(IVariate):
     Swaps subsequent elements durations but it doesn't necessarily preserve all relative positions.
 
     Args:
-        chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1304,11 +1310,11 @@ class ISwapDuration(IVariate):
             ]
             index_picks: list[int] = []
             for available_indexes in range(clip_total_elements - 1, 0, -1):
-                index: int = self.chaos % int() % available_indexes
+                index: int = self.tamer % int() % available_indexes
                 index_picks.append(indexes.pop(index))
             for left_element_i in index_picks:
                 if left_element_i + 1 < clip_total_elements:
-                    do_swap: int = self.chaos % int() % 2  # Decides the swapping
+                    do_swap: int = self.tamer % int() % 2  # Decides the swapping
                     if do_swap:
                         left_duration = clip_elements[left_element_i] % ra.Duration()
                         right_duration = clip_elements[left_element_i + 1] % ra.Duration()
@@ -1325,7 +1331,7 @@ class IShuffleParameter(IVariate):
 
     Args:
         parameter (Any) : The given parameter to shuffle around.
-        chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1333,11 +1339,11 @@ class IShuffleParameter(IVariate):
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def __init__(self, parameter: Any = ou.Degree(),
-                 chaos: ch.Chaos = ch.SinX(340, ot.Increase(1)**ot.Modulo(7)),
+                 tamer: ot.Tamer = ot.Modulo(7, ch.SinX(340))**ot.Increase(1),
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+        super().__init__(tamer, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
         self.parameter: Any = parameter
 
 
@@ -1349,7 +1355,7 @@ class IShuffleParameter(IVariate):
         ]
         parameter_picks: list[Any] = []
         for total_indexes in range(unmasked_len, 0, -1):
-            index: int = self.chaos % int() % total_indexes
+            index: int = self.tamer % int() % total_indexes
             parameter_picks.append(parameters.pop(index))
         for element, parameter in zip(unmasked_elements, parameter_picks):
             element << parameter
@@ -1365,7 +1371,7 @@ class ISetParameter(IVariate):
     Args:
         parameter (Any) : The given parameter to shuffle around.
         global_setting (bool) : If True applies the single parameter to all at once.
-        chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1374,23 +1380,23 @@ class ISetParameter(IVariate):
     """
     def __init__(self, parameter: o.Operand = ou.Degree(),
                  global_setting: bool = False,
-                 chaos: ch.Chaos = ch.SinX(340, ot.Increase(1)**ot.Modulo(7)),
+                 tamer: ot.Tamer = ot.Modulo(7, ch.SinX(340))**ot.Increase(1),
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+        super().__init__(tamer, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
         self.parameter: o.Operand = parameter
         self.global_setting: bool = global_setting
 
 
     def _single_transform(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
         if self.global_setting:
-            global_parameter = self.chaos.chaoticize()
+            global_parameter = self.tamer._chaos.chaoticize()
             operand = self.parameter.copy(global_parameter)  # copy guarantees operand decoupling
             clip << operand
         else:
             for element in clip.elements_unmasked():
-                parameter = self.chaos.chaoticize()
+                parameter = self.tamer._chaos.chaoticize()
                 operand = self.parameter.copy(parameter)     # copy guarantees operand decoupling
                 element << operand
         return clip._sort_items()   # The Clip is already decoupled
@@ -1405,7 +1411,7 @@ class IChooseParameter(IVariate):
     Args:
         parameter (Any) : The given parameter to shuffle around.
         global_setting (bool) : If True applies the single parameter to all at once.
-        chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1413,11 +1419,11 @@ class IChooseParameter(IVariate):
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def __init__(self, parameters: list[Any] = o.list_wrap(["1", "3", "5", "6"], ou.Degree()),
-                 chaos: ch.Chaos = ch.SinX(340),
+                 tamer: ot.Tamer = ot.Untamed(ch.SinX(340)),
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(chaos, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+        super().__init__(tamer, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
         self.parameters: list[Any] = parameters
 
 
@@ -1425,7 +1431,7 @@ class IChooseParameter(IVariate):
         if self.parameters:
             total_parameters: int = len(self.parameters)
             for element in clip.elements_unmasked():
-                index_choice: int = self.chaos % int() % total_parameters
+                index_choice: int = self.tamer % int() % total_parameters
                 chosen_parameter = self.parameters[index_choice]
                 element << o.deep_copy(chosen_parameter)    # copy guarantees parameter decoupling
         return clip._sort_items()   # The Clip is already decoupled
@@ -1439,7 +1445,7 @@ class IMutate(IteratedTransformation):
     Type of Element, Note, Rest or ControlChange are possibly changed, and the number of elements too.
 
     Args:
-        chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1457,7 +1463,7 @@ class IYield(IteratedTransformation):
     by a self generated, iterated, new one.
 
     Args:
-        chaos (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
