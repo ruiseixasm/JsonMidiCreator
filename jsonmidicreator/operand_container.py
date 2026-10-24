@@ -476,15 +476,13 @@ class Container(o.Operand):
                     o.deep_copy(other_unmasked) for other_unmasked in operand.items_unmasked()
                     if not any(other_unmasked == self_unmasked for self_unmasked in unmasked_items)
                 ])
-                self.delete(unmasked_items)
-                self.extend(unequal_items)
+                self.delete(unmasked_items).extend(unequal_items)
             case ch.Chaos():
                 unchosen_items: list[Any] = []
                 for single_item in unmasked_items:
                     if single_item != operand.chaoticize():
                         unchosen_items.append(single_item)
-                self.delete(unmasked_items)
-                self.extend(unchosen_items)
+                self.delete(unmasked_items).extend(unchosen_items)
             case tuple():
                 for single_item in operand:
                     self ^= single_item
@@ -493,8 +491,7 @@ class Container(o.Operand):
                 for single_item in unmasked_items:
                     if single_item != operand:
                         unequal_items.append(single_item)
-                self.delete(unmasked_items)
-                self.extend(unequal_items)
+                self.delete(unmasked_items).extend(unequal_items)
         return self
 
 
