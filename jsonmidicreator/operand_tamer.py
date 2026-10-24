@@ -98,6 +98,9 @@ class Tamer(o.Operand):
                     case _:                     return super().__mod__(operand)
             case ch.Chaos():
                 return self._chaos.copy()
+            case int() | float() | Fraction():
+                result = ra.Result(self.tame(self._chaos % Fraction())[0])
+                return result % operand
             case _:
                 return super().__mod__(operand)
 

@@ -46,7 +46,6 @@ class Chaos(o.Operand):
     def __init__(self, *parameters):
         from . import operand_tamer as ot
         super().__init__()
-        self._tamer: ot.Tamer           = ot.Tamer()
         self._max_iterations: int       = 1000
         self._x0: ra.X0                 = ra.X0()
         self._xn: ra.Xn                 = ra.Xn(self._x0)
@@ -152,7 +151,7 @@ class Chaos(o.Operand):
                     self._index = 0
                 else:
                     self.iterate()  # Does a single iteration
-                result = ra.Result(self._tamer.tame(self % od.Pipe(Fraction()))[0])
+                result = ra.Result(self % od.Pipe(Fraction()))
                 return result % operand
             case ou.Unit() | ra.Rational():
                 return operand.copy(self % Fraction())  # Has to trigger an iteration
