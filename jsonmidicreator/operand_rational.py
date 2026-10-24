@@ -883,8 +883,7 @@ class Position(Measurement):
         8.0
         """
         match operand:
-            case int():                 return self % Measure() % int()     # Measure, NOT Measures
-            case float():               return self % Measures() % float()
+            case int() | float():       return self % Measures() % operand
             case str():                 return str(self % Measures() % Fraction())
             case _:                     return super().__mod__(operand)
 
@@ -1015,8 +1014,7 @@ class Length(Measurement):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
-            case int():                 return self % Beat() % int()     # Beat, NOT Beats
-            case float():               return self % Beats() % float()
+            case int() | float():       return self % Beats() % operand
             case str():                 return str(self % Beats() % Fraction())
             case _:                     return super().__mod__(operand)
 
