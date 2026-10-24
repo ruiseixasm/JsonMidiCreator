@@ -77,6 +77,7 @@ class Tamer(o.Operand):
             return 1
         return self._chained_operand.from_tail() + 1
 
+
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         if self._chained_operand is not None:
             numeral, validated = self._chained_operand.tame(numeral)
@@ -87,6 +88,7 @@ class Tamer(o.Operand):
         elif iterate:
             self.next(numeral)
         return numeral, True
+
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -106,12 +108,14 @@ class Tamer(o.Operand):
             self._chained_operand.next(numeral)
         self._index += 1
         return self
+
         
     def __pow__(self, operand: 'o.Operand') -> Self:
         match operand:
             case Tamer():       self._chained_operand = operand
             case _:             super().__pow__(operand)
         return self
+
 
     def reset(self, *parameters) -> Self:
         self._initiated     = False
