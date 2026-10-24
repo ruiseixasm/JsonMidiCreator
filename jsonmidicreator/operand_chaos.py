@@ -132,7 +132,6 @@ class Chaos(o.Operand):
         match operand:
             case od.Pipe():
                 match operand._data:
-                    case ot.Tamer():            return self._tamer
                     case ra.Xn():               return self._xn
                     case ra.X0():               return self._x0
                     case Fraction():
@@ -146,7 +145,6 @@ class Chaos(o.Operand):
                     case od.Parameter():
                         return operand._data << self.chaoticize(False)
                     case _:                     return super().__mod__(operand)
-            case ot.Tamer():            return self._tamer.copy()
             case ra.Xn():               return self._xn.copy()
             case ra.X0():               return self._x0.copy()
             case int() | float() | Fraction():
@@ -172,7 +170,6 @@ class Chaos(o.Operand):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["tamer"] = o.serialize( self._tamer )
         serialization["parameters"]["xn"] = o.serialize( self._xn )
         serialization["parameters"]["x0"] = o.serialize( self._x0 )
         return serialization
@@ -181,10 +178,9 @@ class Chaos(o.Operand):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "tamer" in serialization["parameters"] and "xn" in serialization["parameters"] and "x0" in serialization["parameters"]):
+            "xn" in serialization["parameters"] and "x0" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._tamer = o.deserialize( serialization["parameters"]["tamer"] )
             self._xn = o.deserialize( serialization["parameters"]["xn"] )
             self._x0 = o.deserialize( serialization["parameters"]["x0"] )
         return self
@@ -195,19 +191,16 @@ class Chaos(o.Operand):
         match operand:
             case Chaos():
                 super().__lshift__(operand)
-                self._tamer         = operand._tamer.copy()
                 self._xn            << operand._xn
                 self._x0            << operand._x0
             case od.Pipe():
                 match operand._data:
-                    case ot.Tamer():                self._tamer = operand._data
                     case ra.Xn():                   self._xn = operand._data
                     case ra.X0():                   self._x0 = operand._data
                     case int() | float() | Fraction():
                         self._xn << operand._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ot.Tamer():                self._tamer = operand.copy()
             case ra.Xn():                   self._xn << operand
             case ra.X0():                   self._x0 << operand
             case int() | float() | Fraction():
