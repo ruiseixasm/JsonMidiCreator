@@ -31,11 +31,11 @@ import sys
 
 
 def test_range_int():
-    range_chaos = SinX(340, Interval([5, 8]))  # 8 is excluded
+    ranged_chaos = Interval([5, 8], SinX(340))  # 8 is excluded
     results: set = set()
     for _ in range(10):
-        print(f"Chaotic int: {range_chaos % int()}")
-        results.add(range_chaos % int())
+        print(f"Chaotic int: {ranged_chaos % int()}")
+        results.add(ranged_chaos % int())
     assert len(results) == 3
 
 # test_range_int()
