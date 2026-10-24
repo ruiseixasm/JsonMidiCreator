@@ -1127,13 +1127,13 @@ class Plot(Process):
                     plotting_sample_id: int = round(event.ydata - 1)
                     matching_trigger: oe.Trigger = [
                         single_trigger for single_trigger in at_position_audible
-                        if single_trigger.get_sample_id() == plotting_sample_id
+                        if single_trigger.get_sample_id_0() == plotting_sample_id
                     ]
                     if matching_trigger:
                         matching_trigger[0]._position_beats = Fraction(0)
                         at_position_audible = matching_trigger
                     else:
-                        at_position_audible.sort(key=lambda trigger:trigger.get_sample_id())
+                        at_position_audible.sort(key=lambda trigger:trigger.get_sample_id_0())
                         minimum_position: Fraction = None
                         for single_trigger in at_position_audible:
                             if minimum_position is None:

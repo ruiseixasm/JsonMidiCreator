@@ -1863,7 +1863,7 @@ class Trigger(ChannelElement):
             return og.Pitch(pitch).get_absolute_pitch()
         return -1   # Not found
     
-    def get_sample_id(self) -> int:
+    def get_sample_id_0(self) -> int:
         if self._owner_clip is not None:
             lc_sample: str = self._sample.strip().lower()
             if lc_sample != "":
@@ -1872,19 +1872,19 @@ class Trigger(ChannelElement):
                         return index
         return -1   # Not found
     
-    def set_sample_id(self, sample_id: int) -> Self:
+    def set_sample_id_0(self, sample_id_0: int) -> Self:
         if self._owner_clip is not None:
             for index, sample in enumerate(self._owner_clip._drum_kit.keys()):
-                if index == sample_id:
+                if index == sample_id_0:
                     self._sample = sample
                     break
         return self
 
     
-    def get_pitch_by_sample_id(self, sample_id: int) -> int:
+    def get_pitch_by_sample_id_0(self, sample_id_0: int) -> int:
         if self._owner_clip is not None:
             for index, sample_name in enumerate(self._owner_clip._drum_kit.keys()):
-                if index == sample_id:
+                if index == sample_id_0:
                     return self._owner_clip._drum_kit[sample_name]
         return -1   # Not found
         
@@ -1979,7 +1979,7 @@ class Trigger(ChannelElement):
             case ou.Tied():         return ou.Tied() << od.Pipe( self._tied )
             case od.Sample():       return operand.copy() << self._sample
             case str():             return self._sample
-            case int():             return self.get_sample_id() + 1
+            case int():             return self.get_sample_id_0() + 1
             case ou.PitchCentroid():
                 return ou.PitchCentroid(self.pitch_centroid())
             case _:                 return super().__mod__(operand)
@@ -2010,7 +2010,7 @@ class Trigger(ChannelElement):
             position_off: Fraction = position_on + self._duration_beats
             self_to_plot: Note = self if derived_note is None else derived_note # Info to be represented
 
-            sample_id: int = self.get_sample_id()
+            sample_id: int = self.get_sample_id_0()
 
             if sample_id >= 0:
                 self_plotlist.append(
@@ -2164,8 +2164,8 @@ class Trigger(ChannelElement):
                     self._sample = operand
             case int():
                 if operand > 0:
-                    sample_id = operand - 1
-                    self.set_sample_id(sample_id)
+                    sample_id_0 = operand - 1
+                    self.set_sample_id_0(sample_id_0)
                 else:
                     self._sample = ""
             case _:
@@ -2178,9 +2178,25 @@ class Trigger(ChannelElement):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case int():
-                sample_id: int = self.get_sample_id()
-                sample_id += operand
-                return self.set_sample_id(sample_id)
+                sample_id_0: int = self.get_sample_id_0()
+                sample_id_0 += operand
+                return self.set_sample_id_0(sample_id_0)
+            case ou.Semitone():
+                self += operand._unit
+            case ou.Degree():
+                degrees: int = operand._unit
+                sample_id_0: int = self.get_sample_id_0()
+                while degrees > 0:
+
+                    sample_id_0 +=1
+                    degrees -= 1
+
+                while degrees < 0:
+                    
+                    sample_id_0 -=1
+                    degrees += 1
+
+                self += operand._unit
         return super().__iadd__(operand)
 
 
@@ -2188,9 +2204,11 @@ class Trigger(ChannelElement):
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case int():
-                sample_id: int = self.get_sample_id()
-                sample_id -= operand
-                return self.set_sample_id(sample_id)
+                sample_id_0: int = self.get_sample_id_0()
+                sample_id_0 -= operand
+                return self.set_sample_id_0(sample_id_0)
+            case ou.Semitone():
+                self -= operand._unit
         return super().__isub__(operand)
 
 
