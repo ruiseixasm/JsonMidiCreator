@@ -100,6 +100,9 @@ class Operand:
     def __or__(self, operand: Any) -> Self:
         return self.copy().__ior__(operand)
 
+    def __xor__(self, operand: Any) -> Self:
+        return self.copy().__ixor__(operand)
+
 
     def __eq__(self, other: any) -> bool:
         from . import operand_label as ol
