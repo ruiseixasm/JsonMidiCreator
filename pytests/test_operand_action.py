@@ -134,6 +134,25 @@ def test_clip_rotate():
 # test_clip_rotate()
 
 
+def test_rotate_loci():
+    three_notes = Note() * 3 << Iterate(1)**Degree() << Last()**Beats(2)
+    assert three_notes % Duration() == Beats(4)
+
+    # three_notes >> Plot(title="Three Notes", block=False)
+    simple_rotation = ~three_notes << RotateLoci()  # Default is 1 rotation by one Measure
+    # simple_rotation >> Plot(title="Simple Rotation", block=False)
+    assert three_notes % Duration() == Beats(4)
+    assert simple_rotation[1] == Degree(3)
+    assert simple_rotation[1] == Beats(1)
+
+    complete_rotation = ~three_notes << RotateLoci(2)
+    # complete_rotation >> Plot(title="Complete Rotation")
+    assert complete_rotation[1] == Degree(1)
+    assert complete_rotation[1] == Beats(1)
+
+# test_rotate_loci()
+
+
 def test_rotate_steps():
     onbeat_steps = Trigger(1/4) * 4 << 1/16 << DrumKit("808") << Channel(10)
     # onbeat_steps >> Plot(title="Original Pattern", block=False)
