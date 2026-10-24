@@ -192,6 +192,7 @@ class Untamed(Tamer):
     pass
 
 
+
 class Parallel(Tamer):
     """`Tamer -> Parallel`
 
@@ -294,6 +295,7 @@ class Parallel(Tamer):
         return super().next(numeral)
         
 
+
 class Validator(Tamer):
     """`Tamer -> Validator`
 
@@ -359,6 +361,8 @@ class Validator(Tamer):
                 super().__lshift__(operand)
         return self
 
+
+
 class Check(Validator):
     """`Tamer -> Validator -> Check`
 
@@ -416,6 +420,7 @@ class Check(Validator):
                 else:
                     super().__lshift__(operand)
         return self
+
 
 
 class Boundary(Validator):
@@ -476,6 +481,7 @@ class Boundary(Validator):
         return self
 
 
+
 class Maximum(Boundary):
     """`Tamer -> Validator -> Boundary -> Maximum`
 
@@ -503,6 +509,8 @@ class Maximum(Boundary):
                 self.next(numeral)
         return numeral, validated
 
+
+
 class Minimum(Boundary):
     """`Tamer -> Validator -> Boundary -> Minimum`
 
@@ -529,7 +537,9 @@ class Minimum(Boundary):
             if iterate:
                 self.next(numeral)
         return numeral, validated
-    
+
+
+
 class Prior(Validator):
     """`Tamer -> Validator -> Prior`
 
@@ -579,6 +589,8 @@ class Prior(Validator):
         self._prior_numeral = numeral
         return super().next(numeral)
 
+
+
 class Different(Prior):
     """`Tamer -> Validator -> Prior -> Different`
 
@@ -597,7 +609,9 @@ class Different(Prior):
             if iterate:
                 self.next(numeral)
         return numeral, validated
-    
+
+
+
 class Same(Prior):
     """`Tamer -> Validator -> Prior -> Same`
 
@@ -616,7 +630,9 @@ class Same(Prior):
             if iterate:
                 self.next(numeral)
         return numeral, validated
-    
+
+
+
 class Increasing(Prior):
     """`Tamer -> Validator -> Prior -> Increasing`
 
@@ -635,7 +651,9 @@ class Increasing(Prior):
             if iterate:
                 self.next(numeral)
         return numeral, validated
-    
+
+
+
 class Decreasing(Prior):
     """`Tamer -> Validator -> Prior -> Decreasing`
 
@@ -654,6 +672,7 @@ class Decreasing(Prior):
             if iterate:
                 self.next(numeral)
         return numeral, validated
+
 
 
 class Motion(Validator):
@@ -721,6 +740,7 @@ class Motion(Validator):
         self._last_integer = int(numeral)
         return super().next(numeral)
         
+
 
 class Pattern(Motion):
     """`Tamer -> Validator -> Motion -> Pattern`
@@ -825,6 +845,7 @@ class Pattern(Motion):
         return self
         
 
+
 class Conjunct(Motion):
     """`Tamer -> Validator -> Motion -> Conjunct`
 
@@ -845,6 +866,8 @@ class Conjunct(Motion):
             if iterate:
                 self.next(numeral)
         return numeral, validated
+
+
 
 class Stepwise(Motion):
     """`Tamer -> Validator -> Motion -> Stepwise`
@@ -867,6 +890,8 @@ class Stepwise(Motion):
                 self.next(numeral)
         return numeral, validated
 
+
+
 class Skipwise(Motion):
     """`Tamer -> Validator -> Motion -> Skipwise`
 
@@ -887,6 +912,8 @@ class Skipwise(Motion):
             if iterate:
                 self.next(numeral)
         return numeral, validated
+
+
 
 class Disjunct(Motion):
     """`Tamer -> Validator -> Motion -> Disjunct`
@@ -909,6 +936,8 @@ class Disjunct(Motion):
                 self.next(numeral)
         return numeral, validated
 
+
+
 class Leaping(Motion):
     """`Tamer -> Validator -> Motion -> Leaping`
 
@@ -930,6 +959,8 @@ class Leaping(Motion):
                 self.next(numeral)
         return numeral, validated
 
+
+
 class Ascending(Motion):
     """`Tamer -> Validator -> Motion -> Ascending`
 
@@ -950,6 +981,8 @@ class Ascending(Motion):
             if iterate:
                 self.next(numeral)
         return numeral, validated
+
+
 
 class Descending(Motion):
     """`Tamer -> Validator -> Motion -> Descending`
@@ -973,6 +1006,7 @@ class Descending(Motion):
         return numeral, validated
 
 
+
 class Manipulator(Tamer):
     """`Tamer -> Manipulator`
 
@@ -989,24 +1023,18 @@ class Manipulator(Tamer):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.Pipe():
                 match operand._data:
                     case od.Parameter():        return operand._data << self._parameter
                     case _:                     return super().__mod__(operand)
-            case od.Parameter():        return od.Parameter(self._parameter)
-            case Fraction():
-                if isinstance(self._parameter, Fraction):
-                    return self._parameter
-            case float():
-                if isinstance(self._parameter, float):
-                    return self._parameter
-            case int():
-                if isinstance(self._parameter, int):
-                    return self._parameter
+            case od.Parameter():
+                return od.Parameter(self._parameter)
             case _:                     return super().__mod__(operand)
         return ol.Null()
+
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -1042,6 +1070,8 @@ class Manipulator(Tamer):
                 super().__lshift__(operand)
         return self
 
+
+
 class Modulo(Manipulator):
     """`Tamer -> Manipulator -> Modulo`
 
@@ -1064,7 +1094,8 @@ class Modulo(Manipulator):
             if isinstance(self._parameter, o.Operand):  # Has to be wrapped
                 numeral = self._parameter.copy(numeral)
         return numeral, validated
-    
+
+
 
 class Interval(Manipulator):
     """`Tamer -> Manipulator -> Interval`
@@ -1092,7 +1123,8 @@ class Interval(Manipulator):
                 if isinstance(self._parameter, o.Operand):  # Has to be wrapped
                     numeral = self._parameter[0].copy(numeral)
         return numeral, validated
-    
+
+
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.Pipe():
@@ -1117,6 +1149,7 @@ class Interval(Manipulator):
         return self
 
 
+
 class Increase(Manipulator):
     """`Tamer -> Manipulator -> Increase`
 
@@ -1133,6 +1166,7 @@ class Increase(Manipulator):
         return numeral, validated
     
 
+
 class Decrease(Manipulator):
     """`Tamer -> Manipulator -> Decrease`
 
@@ -1148,6 +1182,8 @@ class Decrease(Manipulator):
         numeral -= self._parameter
         return numeral, validated
 
+
+
 class Expand(Manipulator):
     """`Tamer -> Manipulator -> Expand`
 
@@ -1162,6 +1198,8 @@ class Expand(Manipulator):
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         numeral *= self._parameter
         return numeral, validated
+
+
 
 class Contract(Manipulator):
     """`Tamer -> Manipulator -> Contract`
@@ -1180,6 +1218,7 @@ class Contract(Manipulator):
         return numeral, validated
 
 
+
 class Wrap(Manipulator):
     """`Tamer -> Manipulator -> Wrap`
 
@@ -1194,7 +1233,8 @@ class Wrap(Manipulator):
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         numeral = self._parameter.__class__(numeral)
         return numeral, validated
-    
+
+
 
 class Switch(Manipulator):
     """`Tamer -> Manipulator -> Switch`
@@ -1216,6 +1256,7 @@ class Switch(Manipulator):
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         numeral = Fraction(0) if numeral < self._parameter else Fraction(1)
         return numeral, validated
+
 
 
 class Probability(Manipulator):
