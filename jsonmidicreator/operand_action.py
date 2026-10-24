@@ -368,20 +368,20 @@ class RotateSteps(AmountedAction):
         if not scoped_elements:
             return clip
 
-        length_beats: Fraction = self._time_unit % ra.Beats() % Fraction()
+        length_beats: Fraction = self._time_unit.copy(clip) % ra.Beats() % Fraction()
         if length_beats <= 0:
             return clip
 
         # Convert the signed rotation amount from steps to beats.
-        shift_beats: Fraction = ra.Step(self._amount)._rational
+        shift_beats: Fraction = ra.Step(clip, self._amount) % ra.Beats() % Fraction()
 
         # Rotate positions within globally aligned quantization intervals.
         for single_element in scoped_elements:
-            position = single_element._position_beats
-            origin = (position // length_beats) * length_beats
+            position_beats = single_element._position_beats
+            segment_start_beats = (position_beats // length_beats) * length_beats
 
             single_element._position_beats = (
-                origin + (position - origin - shift_beats) % length_beats
+                segment_start_beats + (position_beats - segment_start_beats - shift_beats) % length_beats
             )
 
         return clip._sort_items()
