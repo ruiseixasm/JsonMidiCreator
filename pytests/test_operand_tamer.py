@@ -66,6 +66,6 @@ def test_counter():
         assert isinstance(number, int)
         assert number == iteration
 
-test_counter()
+# test_counter()
 
 
