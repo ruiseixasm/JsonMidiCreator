@@ -123,6 +123,19 @@ class Tamer(o.Operand):
         return self << parameters
 
 
+
+class Untamed(Tamer):
+    """`Tamer -> Untamed`
+
+    Let's the Chaotic result pass straight through without any manipulation or validation
+
+    Parameters
+    ----------
+    Chaos(SinX()) : The Chaos being tamed.
+    """
+    pass
+
+
 class Parallel(Tamer):
     """`Tamer -> Parallel`
 
