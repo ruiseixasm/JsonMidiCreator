@@ -280,6 +280,7 @@ class Chaos(o.Operand):
         return self << parameters
 
 
+
 class Sequence(Chaos):
     """`Chaos -> Sequence`
 

@@ -162,7 +162,7 @@ class Tamer(o.Operand):
     def reset_chaos(self) -> Self:
         # Reset Tamers recursively
         if isinstance(self._chained_operand, Tamer):
-            self._chained_operand.reset_tamers()
+            self._chained_operand.reset_chaos()
         self._chaos.reset()
         return self
 
