@@ -108,9 +108,9 @@ class Frame(o.Operand):
         return self
 
 
-    def _get_unmasked_elements(self) -> list[Any]:
+    def _get_filtered_elements(self) -> list[Any]:
         if isinstance(self._chained_operand, Frame):    # Recursive call
-            return self._chained_operand._get_unmasked_elements()
+            return self._chained_operand._get_filtered_elements()
         return self._filtered_elements
 
 

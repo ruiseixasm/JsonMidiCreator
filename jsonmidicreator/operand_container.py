@@ -1387,7 +1387,7 @@ class Clip(Composition):  # Just a container of Elements
         match index:
             case of.Frame():
                 index._set_inside_clip(self)
-                framed_items: list[Any] = index._get_unmasked_elements()
+                framed_items: list[Any] = index._get_filtered_elements()
                 if framed_items:
                     return framed_items[0]  # The first occurrence
             case ra.Convertible():
@@ -1987,7 +1987,7 @@ class Clip(Composition):  # Just a container of Elements
 
                     case of.Frame():
                         operand._data._set_inside_clip(self)
-                        framed_elements = operand._data._get_unmasked_elements()
+                        framed_elements = operand._data._get_filtered_elements()
                         for single_item in framed_elements:
                             framed_parameter = operand._data.frame(single_item)
                             single_item << od.Pipe( framed_parameter )
@@ -1996,7 +1996,7 @@ class Clip(Composition):  # Just a container of Elements
 
             case of.Frame():
                 operand._set_inside_clip(self)
-                framed_elements = operand._get_unmasked_elements()
+                framed_elements = operand._get_filtered_elements()
                 framed_operand = operand.get_operand()
                 if isinstance(framed_operand, oa.Action):
                     # `act` always returns self
@@ -2083,10 +2083,23 @@ class Clip(Composition):  # Just a container of Elements
     def __iand__(self, operand: Any) -> Self:
         match operand:
             case of.Frame():
+                unmasked_items: list[Any] = self.items_unmasked()
                 operand._set_inside_clip(self)
-                self._items = operand._get_unmasked_elements()
+                equal_items = operand._get_filtered_elements()
+                self.delete(unmasked_items)
+                self.extend(equal_items)
             case _:
                 super().__iand__(operand)
+        return self
+
+
+    def __ixor__(self, operand: Any) -> Self:
+        match operand:
+            case of.Frame():
+                operand._set_inside_clip(self)
+                self._items = operand._get_filtered_elements()
+            case _:
+                super().__ixor__(operand)._set_owner_clip()._sort_items()
         return self
 
 
@@ -2104,7 +2117,7 @@ class Clip(Composition):  # Just a container of Elements
             
             case of.Frame():
                 operand._set_inside_clip(self)
-                framed_elements = operand._get_unmasked_elements()
+                framed_elements = operand._get_filtered_elements()
                 for single_item in framed_elements:
                     single_item += operand.frame(single_item)
                 framed_elements = None
@@ -2176,7 +2189,7 @@ class Clip(Composition):  # Just a container of Elements
             
             case of.Frame():
                 operand._set_inside_clip(self)
-                framed_elements = operand._get_unmasked_elements()
+                framed_elements = operand._get_filtered_elements()
                 for single_item in framed_elements:
                     single_parameter = operand.frame(single_item)
                     if single_parameter == ol.Full():
@@ -2268,7 +2281,7 @@ class Clip(Composition):  # Just a container of Elements
 
             case of.Frame():
                 operand._set_inside_clip(self)
-                framed_elements = operand._get_unmasked_elements()
+                framed_elements = operand._get_filtered_elements()
                 for single_item in framed_elements:
                     single_item *= operand.frame(single_item)
                 framed_elements = None
@@ -2331,7 +2344,7 @@ class Clip(Composition):  # Just a container of Elements
 
             case of.Frame():
                 operand._set_inside_clip(self)
-                framed_elements = operand._get_unmasked_elements()
+                framed_elements = operand._get_filtered_elements()
                 for single_item in framed_elements:
                     single_item /= operand.frame(single_item)
                 framed_elements = None
@@ -2416,7 +2429,7 @@ class Clip(Composition):  # Just a container of Elements
 
             case of.Frame():
                 operand._set_inside_clip(self)
-                framed_elements = operand._get_unmasked_elements()
+                framed_elements = operand._get_filtered_elements()
                 for single_item in framed_elements:
                     single_item //= operand.frame(single_item)
                 framed_elements = None
