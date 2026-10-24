@@ -255,25 +255,16 @@ class Chaos(o.Operand):
     def _next_result(self, previous_result: Fraction) -> Fraction:
         return previous_result
 
-    def result(self, numeral: Fraction) -> tuple[Fraction, bool]:
-        result: Fraction = numeral
-        tamed: bool = False
-        count_down: int = self._max_iterations
-        self._tamer_tries = 0
-        while not tamed and count_down > 0:
-            result = self._next_result(result)
-            self._tamer_tries += 1
-            # Tame part
-            rational: Fraction = ra.Rational(result) % Fraction()
-            tamed = self._tamer.tame(rational, True)[1]
-            count_down -= 1
-        if tamed:
-            self._xn._rational = result
-            self._initiated = True
-            self._index += 1
-        else:
-            print(f"Warning: {self.__class__.__name__} Chaos couldn't be tamed!")
-        return result, tamed
+
+    def result(self, numeral: Fraction) -> Fraction:
+        result: Fraction = self._next_result(numeral)
+
+        self._xn._rational = result
+        self._initiated = True
+        self._index += 1
+
+        return result
+
 
     def reset(self, *parameters) -> Self:
         self._xn << self._x0
