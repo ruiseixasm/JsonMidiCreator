@@ -42,8 +42,8 @@ def test_range_int():
 
 
 def test_probability():
-    free_chaos = SinX()
-    tamed_chaos = SinX(Probability(1/2))
+    free_chaos = Untamed()
+    tamed_chaos = Probability(1/2)
     free_values: list[Fraction] = []
     tamed_values: list[Fraction] = []
     for _ in range(10):
