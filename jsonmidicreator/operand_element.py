@@ -2187,11 +2187,11 @@ class Trigger(ChannelElement):
                 if self._owner_clip is not None:
                     degrees: int = operand._unit
                     sample_id_0: int = self.get_sample_id_0()
-                    while degrees > 0 and sample_id_0 <= 128:
+                    while degrees > 0 and sample_id_0 < 128:
                         sample_id_0 +=1
                         existing_samples: int = (self._owner_clip & sample_id_0 + 1).len()
                         if existing_samples: degrees -= 1
-                    while degrees < 0 and sample_id_0 >= -1:
+                    while degrees < 0 and sample_id_0 >= 0:
                         sample_id_0 -=1
                         existing_samples: int = (self._owner_clip & sample_id_0 + 1).len()
                         if existing_samples: degrees += 1
