@@ -33,7 +33,6 @@ from . import operand_generic as og
 from . import operand_element as oe
 from . import operand_container as oc
 from . import operand_frame as of
-from . import operand_chaos as ch
 from . import operand_tamer as ot
 
 if TYPE_CHECKING:
@@ -550,13 +549,13 @@ class Arpeggiate(Aggregated):
     Order(1), int : The notes changing order, with 1 being the "Up" order.
     Rate(Steps(1)), float : The Rate note value after which the next note is played following the set `Order`.
     Swing(0.5) : Sets the amount of time the note is effectively pressed relatively to its total duration.
-    Chaos(SinX()) : For the `Order` 5, "Chaotic", it uses the set Chaotic `Operand`.
+    Untamed(SinX()) : For the `Order` 5, "Chaotic", it uses the set Chaotic `Operand`.
     """
     def __init__(self, *parameters):
         self._order: int = 1    # "Up" by default
         self._rate_beats: Fraction = og.settings._quantization  # Quantization is a Beats value already
         self._swing: Fraction = Fraction(1, 2)
-        self._chaos: ch.Chaos = ch.SinX()
+        self._tamer: ot.Tamer = ot.Untamed()
         self._chaotic_sequence: list[oe.Note] = []
         self._processed_element_ids: set[Element] = set()
         super().__init__(*parameters)
@@ -592,7 +591,7 @@ class Arpeggiate(Aggregated):
         target_picks = []
 
         while len(source_picks) > 0:
-            target_picks.append(source_picks.pop(self._chaos % int() % len(source_picks)))
+            target_picks.append(source_picks.pop(self._tamer % int() % len(source_picks)))
 
         shuffled_list = []
         for pick in target_picks:
@@ -667,7 +666,7 @@ class Arpeggiate(Aggregated):
         if isinstance(other, Arpeggiate):
             return  self._order                 == other._order \
                 and self._rate_beats            == other._rate_beats \
-                and self._chaos                 == other._chaos
+                and self._tamer                 == other._tamer
         if isinstance(other, od.Conditional):
             return other == self
         return super().__eq__(other)
@@ -681,7 +680,7 @@ class Arpeggiate(Aggregated):
                     case ou.Direction():        return operand._data << od.Pipe( self._order )
                     case ra.Rate():             return operand._data << od.Pipe( self._rate_beats )
                     case ra.Swing():            return operand._data << od.Pipe( self._swing )
-                    case ch.Chaos():            return self._chaos
+                    case ot.Tamer():            return self._tamer
                     case int():                 return self._order
                     case float():               return float( self._rate_beats )
                     case Fraction():            return self._rate_beats
@@ -690,7 +689,7 @@ class Arpeggiate(Aggregated):
             case str():                 return ou.Direction(self._order) % str()
             case ra.Rate():             return ra.Rate( self._rate_beats )
             case ra.Swing():            return ra.Swing(self._swing)
-            case ch.Chaos():            return self._chaos.copy()
+            case ot.Tamer():            return self._tamer.copy()
             case int():                 return self._order
             case float():               return float( self._rate_beats )
             case Fraction():            return self._rate_beats
@@ -704,7 +703,7 @@ class Arpeggiate(Aggregated):
         serialization["parameters"]["order"]            = o.serialize( self._order )
         serialization["parameters"]["rate"]             = o.serialize( self._rate_beats )
         serialization["parameters"]["swing"]            = o.serialize( self._swing )
-        serialization["parameters"]["chaos"]            = o.serialize( self._chaos )
+        serialization["parameters"]["chaos"]            = o.serialize( self._tamer )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -718,7 +717,7 @@ class Arpeggiate(Aggregated):
             self._order                 = o.deserialize( serialization["parameters"]["order"] )
             self._rate_beats            = o.deserialize( serialization["parameters"]["rate"] )
             self._swing                 = o.deserialize( serialization["parameters"]["swing"] )
-            self._chaos                 = o.deserialize( serialization["parameters"]["chaos"] )
+            self._tamer                 = o.deserialize( serialization["parameters"]["chaos"] )
         return self
     
 
@@ -731,13 +730,13 @@ class Arpeggiate(Aggregated):
                 self._order                 = operand._order
                 self._rate_beats            = operand._rate_beats
                 self._swing                 = operand._swing
-                self._chaos                 = operand._chaos.copy()
+                self._tamer                 = operand._tamer.copy()
             case od.Pipe():
                 match operand._data:
                     case ou.Direction():            self._order = operand._data._unit
                     case ra.Rate():                 self._rate_beats = operand._data._rational
                     case ra.Swing():                self._swing = operand._data._rational
-                    case ch.Chaos():                self._chaos = operand._data
+                    case ot.Tamer():                self._tamer = operand._data
                     case int():                     self._order = operand._data
                     case float():                   self._rate_beats = ra.Rate(operand._data)._rational
                     case Fraction():                self._rate_beats = operand._data
@@ -753,7 +752,7 @@ class Arpeggiate(Aggregated):
                     self._swing = Fraction(1)
                 else:
                     self._swing = operand._rational
-            case ch.Chaos():                self._chaos << operand
+            case ot.Tamer():                self._tamer << operand
             case int():                     self._order = operand
             case float():                   self._rate_beats = ra.Rate(operand)._rational
             case Fraction():                self._rate_beats = operand
