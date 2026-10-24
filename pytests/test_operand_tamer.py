@@ -57,3 +57,15 @@ def test_probability():
 
 # test_probability()
 
+
+def test_counter():
+    counter_int = Untamed(Counter(-7))**int()
+    assert counter_int % Pipe(int()) == -7
+    for iteration in range(-7, 8):
+        number = counter_int.chaoticize()
+        assert isinstance(number, int)
+        assert number == iteration
+
+test_counter()
+
+

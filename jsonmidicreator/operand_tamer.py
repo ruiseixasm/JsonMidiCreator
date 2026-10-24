@@ -100,7 +100,7 @@ class Tamer(o.Operand):
 
 
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        if self._chained_operand is not None:
+        if isinstance(self._chained_operand, Tamer):
             numeral, validated = self._chained_operand.tame(numeral)
             if not validated:
                 return numeral, False    # Breaks the chain
@@ -174,13 +174,14 @@ class Tamer(o.Operand):
         self._index += 1
         return self
 
-        
-    def __pow__(self, operand: 'o.Operand') -> Self:
-        match operand:
-            case Tamer():       self._chained_operand = operand
-            case _:             super().__pow__(operand)
-        return self
 
+    def __ipow__(self, operand: Any) -> Self:
+        '''The tail is just an attachment, it represents outputted value and not input one
+        '''
+        # Makes sure the next_operand is set and remains set
+        self._chained_operand = o.deep_copy(operand)
+        return self
+    
 
     def reset(self, *parameters) -> Self:
         # RESET THE SELF OPERANDS RECURSIVELY
