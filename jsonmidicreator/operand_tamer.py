@@ -153,14 +153,12 @@ class Tamer(o.Operand):
 
 
     def reset(self, *parameters) -> Self:
-        self._initiated     = False
-        self._set           = False
-        self._index         = 0
         # RESET THE SELF OPERANDS RECURSIVELY
         self._chaos.reset()
+        self.restart(*parameters)
         if isinstance(self._chained_operand, o.Operand):
-            self._chained_operand.reset()
-        return self << parameters
+            self._chained_operand.reset(*parameters)
+        return self
 
 
     def restart(self, *parameters) -> Self:
