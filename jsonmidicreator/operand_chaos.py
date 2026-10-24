@@ -241,6 +241,7 @@ class Chaos(o.Operand):
             self << od.Pipe(previous_result)
         return self
 
+
     def iterate(self, root: bool = True) -> Self:
         previous_result: Fraction = self % od.Pipe(Fraction())
         if isinstance(self._chained_operand, Chaos):   # iterations are done from tail left
@@ -251,6 +252,7 @@ class Chaos(o.Operand):
             self << od.Pipe(next_result)
         self.result(previous_result)
         return self
+
     
     def _next_result(self, previous_result: Fraction) -> Fraction:
         return previous_result
@@ -276,13 +278,6 @@ class Chaos(o.Operand):
             self._chained_operand.reset()
         self.reset_tamers()
         return self << parameters
-
-    def reset_tamers(self) -> Self:
-        # Reset Tamers recursively
-        if isinstance(self._chained_operand, Chaos):
-            self._chained_operand.reset_tamers()
-        self._tamer.reset()
-        return self
 
 
 class Sequence(Chaos):

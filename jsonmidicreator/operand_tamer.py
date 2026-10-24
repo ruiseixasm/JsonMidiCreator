@@ -159,6 +159,14 @@ class Tamer(o.Operand):
         return self << parameters
 
 
+    def reset_chaos(self) -> Self:
+        # Reset Tamers recursively
+        if isinstance(self._chained_operand, Tamer):
+            self._chained_operand.reset_tamers()
+        self._chaos.reset()
+        return self
+
+
 
 class Untamed(Tamer):
     """`Tamer -> Untamed`
