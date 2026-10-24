@@ -434,22 +434,32 @@ class Container(o.Operand):
 
 
     def __iand__(self, operand: Any) -> Self:
+        unmasked_items: list[Any] = self.items_unmasked()
         match operand:
+            case Container():
+                equal_items: list[Any] = [
+                    self_unmasked for self_unmasked in unmasked_items
+                    if any(self_unmasked == other_unmasked for other_unmasked in operand.items_unmasked())
+                ]
+                self.delete(unmasked_items)
+                self.extend(equal_items)
             case ch.Chaos():
                 chosen_items: list[Any] = []
-                for single_item in self.items_unmasked():
+                for single_item in unmasked_items:
                     if single_item == operand.chaoticize():
                         chosen_items.append(single_item)
-                self._items = chosen_items
+                self.delete(unmasked_items)
+                self.extend(chosen_items)
             case tuple():
                 for single_item in operand:
                     self &= single_item
             case _:
                 equal_items: list[Any] = []
-                for single_item in self.items_unmasked():
+                for single_item in unmasked_items:
                     if single_item == operand:
                         equal_items.append(single_item)
-                self._items = equal_items
+                self.delete(unmasked_items)
+                self.extend(equal_items)
         return self
 
 
