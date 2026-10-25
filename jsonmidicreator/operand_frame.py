@@ -29,6 +29,7 @@ from . import operand_unit as ou
 from . import operand_rational as ra
 from . import operand_generic as og
 from . import operand_element as oe
+from . import operand_tamer as ot
 
 if TYPE_CHECKING:
     from operand_container import Clip
@@ -1032,6 +1033,30 @@ class Neither(ClipFilter):
             if not any(single_element is item for item in either_elements)
         ]
         return super()._update_filtered_elements(neither_elements)
+
+
+
+class Chance(ClipFilter):
+    """`Frame -> LeftToRight -> ClipFilter -> Chance`
+
+    `Chance` uses a `Probability` based on which Elements are kept.
+
+    Parameters
+    ----------
+    Fraction(1/10), int, float : Sets the probability of 1 as output, with the default probability of one `1` in 10.
+    Chaos(SinX()) : The Chaos being used by the `Probability`.
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._named_parameters['probability'] = ot.Probability(*parameters)
+
+
+    def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
+        kept_elements: list[oe.Element] = [
+            single_filtered for single_filtered in filtered_elements
+            if self._named_parameters['probability'] % int()
+        ]
+        return super()._update_filtered_elements(kept_elements)
 
 
 
