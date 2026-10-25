@@ -1097,8 +1097,8 @@ class Manipulator(Tamer):
                     case _:                     return super().__mod__(operand)
             case od.Parameter():
                 return od.Parameter(self._parameter)
-            case _:                     return super().__mod__(operand)
-        return ol.Null()
+            case _:
+                return super().__mod__(operand)
 
 
     def getSerialization(self) -> dict:
@@ -1147,7 +1147,6 @@ class Modulo(Manipulator):
     Fraction(8), int, float : Sets the respective `Modulus`.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral, iterate)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         modulo: Fraction = ra.Rational(self._parameter)._rational
         if modulo > 0:
@@ -1158,6 +1157,7 @@ class Modulo(Manipulator):
             numeral = self._parameter.__class__(numeral)
             if isinstance(self._parameter, o.Operand):  # Has to be wrapped
                 numeral = self._parameter.copy(numeral)
+        numeral, validated = super().tame(numeral, iterate) # From left to right
         return numeral, validated
 
 
@@ -1225,9 +1225,9 @@ class Increase(Manipulator):
     Fraction(8), int, float : Sets the respective increasing amount.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral, iterate)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         numeral += self._parameter
+        numeral, validated = super().tame(numeral, iterate) # From left to right
         return numeral, validated
     
 
