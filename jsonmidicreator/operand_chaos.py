@@ -453,7 +453,6 @@ class Counter(Sequence):
 
 
 
-
 class Ripple(Sequence):
     """`Chaos -> Sequence -> Ripple`
 
@@ -481,7 +480,6 @@ class Ripple(Sequence):
         self._index += 1
 
         return result
-
 
 
 
@@ -586,6 +584,7 @@ class SinX(Chaos):
         self._index += 1
 
         return result
+
 
 
 class Bouncer(Chaos):
@@ -754,7 +753,8 @@ class Bouncer(Chaos):
 
     def __str__(self) -> str:
         return f'{self._index + 1}: {self % tuple()}'
-    
+
+
     def reset(self, *parameters) -> Self:
         self._yn << self._y0
         return super().reset(*parameters)
