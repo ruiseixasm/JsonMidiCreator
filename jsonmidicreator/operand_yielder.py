@@ -79,7 +79,7 @@ class Sequencer(Yielder):
                     case of.Frame():
                         if isinstance(self._trigger_steps, of.Frame):
                             return self._trigger_steps
-                    case ch.Chaos():
+                    case ot.Tamer():
                         if isinstance(self._trigger_steps, ch.Chaos):
                             return self._trigger_steps
                     case ra.Swing():
@@ -96,7 +96,7 @@ class Sequencer(Yielder):
             case of.Frame():
                 if isinstance(self._trigger_steps, of.Frame):
                     return self._trigger_steps
-            case ch.Chaos():
+            case ot.Tamer():
                 if isinstance(self._trigger_steps, ch.Chaos):
                     return self._trigger_steps
             case ra.Swing():
@@ -139,7 +139,7 @@ class Sequencer(Yielder):
                 self._length_beats  = operand._length_beats
             case od.Pipe():
                 match operand._data:
-                    case str() | of.Frame() | ch.Chaos():
+                    case str() | of.Frame() | ot.Tamer():
                         self._trigger_steps = operand._data
                     case ra.Swing():
                         self._swing = operand._data._rational
@@ -149,7 +149,7 @@ class Sequencer(Yielder):
                         super().__lshift__(operand)
             case str():
                 self._trigger_steps = operand
-            case of.Frame() | ch.Chaos():
+            case of.Frame() | ot.Tamer():
                 self._trigger_steps = operand.copy()
             case ra.Swing():
                 if operand < 0:
@@ -190,7 +190,7 @@ class Sequencer(Yielder):
                         element_copy._position_beats += beats_per_step
                     self._trigger_steps._set_inside_clip(new_clip)
                     new_clip &= self._trigger_steps
-                case ch.Chaos():
+                case ot.Tamer():
                     finish_position_beats: Fraction = element._position_beats + self._length_beats
                     while element_copy._position_beats < finish_position_beats:
                         chaotic_rational: Fraction = self._trigger_steps % Fraction() % 1
