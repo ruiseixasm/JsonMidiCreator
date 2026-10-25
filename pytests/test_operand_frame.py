@@ -304,3 +304,9 @@ def test_cross_element():
     assert not four_notes[Cross(Steps(4))]
 
 
+def test_chance_elements():
+    elements_100 = Trigger() * 100 << DrumKit("808") << Channel(10)
+    assert elements_100 % int() == 100
+    elements_100 << Chance()**Keep()
+    assert elements_100 % int() < 15
+
