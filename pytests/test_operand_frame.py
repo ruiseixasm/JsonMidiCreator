@@ -308,5 +308,7 @@ def test_chance_elements():
     elements_100 = Trigger() * 100 << DrumKit("808") << Channel(10)
     assert elements_100 % int() == 100
     elements_100 << Chance()**Keep()
+    print(f"Total elements: {elements_100 % int()}")
     assert elements_100 % int() < 15
+    assert elements_100 % int() > 3
 
