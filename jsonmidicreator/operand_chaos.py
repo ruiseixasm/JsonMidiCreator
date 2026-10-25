@@ -596,6 +596,7 @@ class Bouncer(Chaos):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.Pipe():
@@ -622,11 +623,13 @@ class Bouncer(Chaos):
             case _:
                 return super().__mod__(operand)
 
+
     def __eq__(self, other: 'Bouncer') -> bool:
         if type(self) != type(other):
             return False
         return  self._xn == other._xn and self._yn == other._yn
-    
+
+
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["width"]    = o.serialize( self._width )
@@ -657,7 +660,8 @@ class Bouncer(Chaos):
             self._yn        = o.deserialize( serialization["parameters"]["yn"] )
             self._y0        = o.deserialize( serialization["parameters"]["y0"] )
         return self
-        
+
+
     def __lshift__(self, operand: any) -> Self:
         match operand:
             case Bouncer():
