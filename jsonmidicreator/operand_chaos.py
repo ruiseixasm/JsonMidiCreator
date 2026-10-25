@@ -242,7 +242,7 @@ class Chaos(o.Operand):
         return self
 
 
-    def iterate(self, root: bool = True) -> Self:
+    def iterate(self) -> Self:
         new_result = self.result( self % od.Pipe(Fraction()) )
         if isinstance(self._chained_operand, Chaos):
             self._chained_operand.result(new_result)
