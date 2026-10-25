@@ -182,8 +182,13 @@ def test_probability():
 
 def test_chained_tamers():
     chained_tamers = ot.Modulo(7, ch.SinX(340))**ot.Increase(1)
+    results: set[int] = set()
     for _ in range(24):
-        print(chained_tamers % int())
+        result: int = chained_tamers % int()
+        print(result)
+        results.add(result)
+    assert 7 in results
+    assert 0 not in results
 
 # test_chained_tamers()
 
