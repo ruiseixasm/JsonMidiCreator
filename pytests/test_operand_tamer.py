@@ -151,6 +151,18 @@ def test_tamer_wrapper():
 # test_tamer_wrapper()
 
 
+def test_reset():
+    chaos = Untamed(Cycle(Modulus(120))**SinX(24))
+    chaos_copy = chaos.copy()
+    assert chaos_copy == chaos
+    chaos_copy *= 10
+    assert chaos_copy != chaos
+    chaos_copy.reset()
+    assert chaos_copy == chaos
+
+# test_reset()
+
+
 def test_probability():
     free_chaos = Untamed()
     tamed_chaos = Probability(1/2)
