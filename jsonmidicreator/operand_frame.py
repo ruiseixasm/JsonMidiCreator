@@ -119,6 +119,7 @@ class Frame(o.Operand):
             return self._chained_operand.get_operand()
         return self._chained_operand
 
+
     def __pow__(self, operand: any) -> 'Frame':
         if isinstance(operand, o.Operand):
             operand._set = False
@@ -126,6 +127,7 @@ class Frame(o.Operand):
                 operand._root_frame = False
         self._chained_operand = operand
         return self
+
 
     def __mod__(self, operand: o.T) -> o.T:
         """
@@ -152,14 +154,16 @@ class Frame(o.Operand):
                         case o.Operand():       return single_operand.copy()
                         case _:                 return single_operand
         return super().__mod__(operand)
-    
+
+
     def __eq__(self, other: 'Frame') -> bool:
         if type(self) == type(other):
             return self._parameters == other._parameters and self._named_parameters == other._named_parameters
         if isinstance(other, od.Conditional):
             return other == self
         return other == self.frame(other)
-    
+
+
     def getSerialization(self) -> dict:
         # serialization = {'class': "some", "parameters": {}}
         serialization = super().getSerialization()
@@ -175,13 +179,15 @@ class Frame(o.Operand):
             super().loadSerialization(serialization)
             self._named_parameters = o.deserialize(serialization["parameters"]["multi_data"])
         return self
-    
+
+
     def __lshift__(self, operand: any) -> Self:
         # << applies to the first non Frame operand in the tail
         self_operand: any = self.get_operand()
         if isinstance(self_operand, o.Operand):
             self_operand << operand
         return self
+
 
     def frame(self, input: Any) -> Any:
         return self._chained_operand
@@ -201,7 +207,8 @@ class Frame(o.Operand):
                     break
             previous_frame = single_frame
         return self
-    
+
+
     def replace(self, frame: 'Frame') -> 'Frame':
         previous_frame: 'Frame' = self
         for single_frame in self:
@@ -217,6 +224,7 @@ class Frame(o.Operand):
                     break
             previous_frame = single_frame
         return self
+
 
 
 class LeftToRight(Frame):  # LEFT TO RIGHT
@@ -268,6 +276,7 @@ class LeftToRight(Frame):  # LEFT TO RIGHT
         return self_operand
 
 
+
 class Input(LeftToRight):
     """`Frame -> LeftToRight -> Input`
 
@@ -296,6 +305,7 @@ class Input(LeftToRight):
             self._named_parameters['input'] *= 1    # In order to not result in a copy of Chaos
             return super().frame(actual_chaos)
         return super().frame(self._named_parameters['input'])
+
 
 
 class Previous(LeftToRight):
@@ -329,6 +339,7 @@ class Previous(LeftToRight):
         return parameter
 
 
+
 class PassThrough(LeftToRight):
     """`Frame -> LeftToRight -> PassThrough`
 
@@ -346,6 +357,8 @@ class PassThrough(LeftToRight):
         if isinstance(self._named_parameters['operand'], o.Operand):
             return super().frame(input >> self._named_parameters['operand'])
         return super().frame(input)
+
+
 
 class SendTo(LeftToRight):
     """`Frame -> LeftToRight -> SendTo`
@@ -365,6 +378,8 @@ class SendTo(LeftToRight):
         if isinstance(self._named_parameters['operand'], o.Operand):
             input >> self._named_parameters['operand']
         return super().frame(input)
+
+
 
 class Choice(LeftToRight):
     """`Frame -> LeftToRight -> Choice`
@@ -388,6 +403,8 @@ class Choice(LeftToRight):
             choice %= len(self._parameters)
             return super().frame(self._parameters[choice])
         return super().frame(ol.Null())
+
+
 
 class Pick(LeftToRight):
     """`Frame -> LeftToRight -> Pick`
@@ -419,6 +436,8 @@ class Pick(LeftToRight):
             return super().frame(self._named_parameters['pick'].pop(choice))
         return super().frame(ol.Null())
 
+
+
 class CountDown(LeftToRight):
     """`Frame -> LeftToRight -> CountDown`
 
@@ -437,6 +456,7 @@ class CountDown(LeftToRight):
                 single_parameter = -1
             self._count_down.append(single_parameter)
         self._named_parameters['count_down'] = tuple(self._count_down)  # tuple will be used as data reset
+
 
     def frame(self, input: o.T) -> o.T:
         pick_choices: any = ol.Null()
@@ -464,6 +484,8 @@ class CountDown(LeftToRight):
             for index, _ in enumerate(self._named_parameters['count_down']):
                 self._count_down[index] -= max(0, closest_place - 1)
         return super().frame(pick_choices)
+
+
 
 class Frequency(CountDown):
     """`Frame -> LeftToRight -> CountDown -> Frequency`
@@ -501,6 +523,8 @@ class Frequency(CountDown):
                 until_list.append(-1)
         super().__init__(*until_list)   # Saves a CountDown as self._multi_data['operand']
 
+
+
 class Formula(LeftToRight):
     """`Frame -> LeftToRight -> Formula`
 
@@ -516,7 +540,9 @@ class Formula(LeftToRight):
 
     def frame(self, input: o.T) -> o.T:
         return super().frame(self._named_parameters['operand'](input))
-    
+
+
+
 class Iterate(LeftToRight):
     """`Frame -> LeftToRight -> Iterate`
 
@@ -553,6 +579,7 @@ class Iterate(LeftToRight):
                 iterator['current'] = iterator['step'].copy() << iterator['current']
         self._named_parameters['iterator'] = iterator
 
+
     def frame(self, input: o.T) -> o.T:
         from . import operand_chaos as ch
         self._index += 1
@@ -569,6 +596,8 @@ class Iterate(LeftToRight):
         self._named_parameters['iterator']['current'] += self._named_parameters['iterator']['step']
         return self_operand
 
+
+
 class Drag(LeftToRight):
     """`Frame -> LeftToRight -> Drag`
 
@@ -583,6 +612,7 @@ class Drag(LeftToRight):
         super().__init__(*parameters)
         self._first_parameter = None
 
+
     def frame(self, input: o.T) -> o.T:
         if isinstance(input, o.Operand):
             if self._first_parameter is None:
@@ -591,6 +621,7 @@ class Drag(LeftToRight):
                     self._first_parameter %= single_parameter
             return super().frame(self._first_parameter)
         return super().frame(input)
+
 
 
 class Mux(LeftToRight):
@@ -618,6 +649,7 @@ class Mux(LeftToRight):
         self._full_range: int = sum(validated_parameters)
         super().__init__(*validated_parameters)
 
+
     def frame(self, input: o.T) -> o.T:
         self._index += 1    # INDEX -1 IN USAGE
         if self._parameters:
@@ -637,6 +669,7 @@ class Mux(LeftToRight):
                     self._last_time = actual_time
                     self._last_parameter = super().frame(input)
         return self._last_parameter
+
 
 
 class Foreach(LeftToRight):
@@ -659,6 +692,7 @@ class Foreach(LeftToRight):
             validated_parameters.append(param)
         super().__init__(*validated_parameters)
 
+
     def frame(self, input: o.T) -> o.T:
         self._index += 1
         operand_len: int = len(self._parameters)
@@ -666,6 +700,8 @@ class Foreach(LeftToRight):
             input = self._parameters[self._index % operand_len] # INDEX -1 IN USAGE
             return super().frame(input)
         return ol.Null()
+
+
 
 class Once(Foreach):
     """`Frame -> LeftToRight -> Foreach -> Once`
