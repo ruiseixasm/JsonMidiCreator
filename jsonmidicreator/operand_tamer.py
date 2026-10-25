@@ -140,8 +140,15 @@ class Tamer(o.Operand):
                 chaotic_result: Fraction = self._chaos % Fraction()
                 result = ra.Result(self.tame(chaotic_result)[0])
                 return result % operand
-            case ra.Rational() | ou.Union():
+            case ou.Unit() | ra.Rational():
                 return operand.copy(self % Fraction())
+            case list():
+                list_out: list = []
+                for number in operand:
+                    list_out.append(self % number)  # Implicit iterations
+                return list_out
+            case od.Parameter():
+                return od.Parameter(self.chaoticize())
             case _:
                 return super().__mod__(operand)
 

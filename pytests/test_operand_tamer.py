@@ -112,7 +112,29 @@ def test_cycle_modulo():
     assert cycle % int() == 3
     assert cycle % int() == 0
 
-# test_modulus()
+# test_cycle_modulo()
+
+
+def test_tamer_list():
+    note_values: list[float] = [1/2, 1/4, 1/8, 1/16]
+    four_indexes_1: list[int] = []
+    sin_x_1 = Untamed()
+    sin_x_2 = Untamed()
+    assert sin_x_2 == sin_x_1
+
+    for _ in range(4):
+        four_indexes_1.append(sin_x_1 % 1)
+    assert sin_x_2 != sin_x_1
+
+    four_indexes_2: list[int] = sin_x_2 % [1, 1, 1, 1]
+    assert sin_x_2 == sin_x_1
+    assert four_indexes_2 == four_indexes_1
+
+    note_values_1 = list_choose(note_values, four_indexes_1)
+    note_values_2 = list_choose(note_values, four_indexes_2)
+    assert note_values_2 == note_values_1
+
+# test_tamer_list()
 
 
 def test_probability():
