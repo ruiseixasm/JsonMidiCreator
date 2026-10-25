@@ -343,6 +343,7 @@ class Sequence(Chaos):
                 super().__lshift__(operand)
         return self
 
+
     def _next_result(self, previous_result: Fraction) -> Fraction:
         result: Fraction = previous_result + self._steps
         return result
@@ -413,6 +414,7 @@ class Cycle(Sequence):
         self._xn << self._xn % od.Pipe(Fraction()) % self._modulus
         return self
 
+
     def _next_result(self, previous_result: Fraction) -> Fraction:
         result: Fraction = previous_result + self._steps
         result %= self._modulus
@@ -439,6 +441,7 @@ class Counter(Sequence):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+
     def _next_result(self, previous_result: Fraction) -> Fraction:
         result: Fraction = Fraction(previous_result + self._steps)
         return result
@@ -458,7 +461,6 @@ class Ripple(Sequence):
     X0(0) : The first value of the multiple iterations where Chaos can be reset to.
     Steps(1), Step() : The increase amount for each iteration.
     """
-
     def _next_result(self, previous_result: Fraction) -> Fraction:
         result: Fraction = -1 * previous_result    # Always alternates (0 means 0)
         actual_index: int = self._index + self._tamer_tries
@@ -483,7 +485,6 @@ class Spiral(Sequence):
     X0(0) : The first value of the multiple iterations where Chaos can be reset to.
     Steps(1), Step() : The increase amount for each iteration.
     """
-    
     def _next_result(self, previous_result: Fraction) -> Fraction:
         result: Fraction = -1 * previous_result    # Always alternates (0 means 0)
         if result < 0:
