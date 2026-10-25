@@ -137,6 +137,20 @@ def test_tamer_list():
 # test_tamer_list()
 
 
+def test_tamer_wrapper():
+    tamer_int = Untamed(Cycle())**int()
+    value: any = tamer_int % Parameter()
+    assert isinstance(value._data, int)
+
+    pitch_octave = Pitch(5)
+    assert pitch_octave == 5
+    pitch_octave << tamer_int
+    print(f"Pitch Octave: {pitch_octave % Octave() % int()}")
+    assert pitch_octave == 1
+
+# test_tamer_wrapper()
+
+
 def test_probability():
     free_chaos = Untamed()
     tamed_chaos = Probability(1/2)

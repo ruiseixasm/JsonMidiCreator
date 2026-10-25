@@ -239,6 +239,7 @@ class Operand:
         from . import operand_label as ol
         from . import operand_data as od
         from . import operand_chaos as ch
+        from . import operand_tamer as ot
         match operand:
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
@@ -252,7 +253,7 @@ class Operand:
                 if not isinstance(self, od.Clear):  # Avoids infinite recursion
                     self.clear(operand._data)
             case Operand():
-                if isinstance(operand, ch.Chaos) and not isinstance(self, ch.Chaos):
+                if isinstance(operand, (ot.Tamer, ch.Chaos)) and not isinstance(self, (ot.Tamer, ch.Chaos)):
                     self << operand.chaoticize()
                 else:
                     self._initiated = operand._initiated
