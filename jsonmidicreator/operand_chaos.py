@@ -169,6 +169,7 @@ class Chaos(o.Operand):
             case _:
                 return super().__mod__(operand)
 
+
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["xn"] = o.serialize( self._xn )
@@ -185,7 +186,8 @@ class Chaos(o.Operand):
             self._xn = o.deserialize( serialization["parameters"]["xn"] )
             self._x0 = o.deserialize( serialization["parameters"]["x0"] )
         return self
-        
+
+
     def __lshift__(self, operand: any) -> Self:
         from . import operand_tamer as ot
         # NO tail processing for Chaos
@@ -346,6 +348,7 @@ class Sequence(Chaos):
         return result
 
 
+
 class Cycle(Sequence):
     """`Chaos -> Sequence -> Cycle`
 
@@ -415,6 +418,8 @@ class Cycle(Sequence):
         result %= self._modulus
         return result
 
+
+
 class Counter(Sequence):
     """`Chaos -> Sequence -> Counter`
 
@@ -437,6 +442,7 @@ class Counter(Sequence):
     def _next_result(self, previous_result: Fraction) -> Fraction:
         result: Fraction = Fraction(previous_result + self._steps)
         return result
+
 
 
 class Ripple(Sequence):
@@ -463,6 +469,8 @@ class Ripple(Sequence):
                 result += self._steps
         return result
 
+
+
 class Spiral(Sequence):
     """`Chaos -> Sequence -> Spiral`
 
@@ -483,6 +491,7 @@ class Spiral(Sequence):
         else:
             result += self._steps
         return result
+
 
 
 class SinX(Chaos):
@@ -553,7 +562,6 @@ class SinX(Chaos):
 
     def _next_result(self, previous_result: Fraction) -> Fraction:
         return ra.Result(float(previous_result) + float(self._lambda._rational) * math.sin(float(previous_result)))._rational
-
 
 
 
