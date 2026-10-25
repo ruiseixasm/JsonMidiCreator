@@ -280,20 +280,21 @@ class Parallel(Tamer):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral)
-        if validated:
-            if not self.slack(numeral) and self._tamers:
-                parallel_validation: bool = False
-                for single_tamer in self._tamers:
-                    numeral, single_validation = single_tamer.tame(numeral)
-                    if single_validation:
-                        parallel_validation = True
-                if not parallel_validation:
-                    return numeral, False    # Breaks the chain
-            if iterate:
-                self.next(numeral)
+        if not self.slack(numeral) and self._tamers:
+            parallel_validation: bool = False
+            for single_tamer in self._tamers:
+                numeral, single_validation = single_tamer.tame(numeral)
+                if single_validation:
+                    parallel_validation = True
+            if not parallel_validation:
+                return numeral, False    # Breaks the chain
+        if iterate:
+            self.next(numeral)
+        numeral, validated = super().tame(numeral) # From left to right
         return numeral, validated
+
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -445,14 +446,15 @@ class Check(Validator):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral)
-        if validated:
-            if not self.slack(numeral) and not self._checker(numeral):
-                return numeral, False  # Breaks the chain
-            if iterate:
-                self.next(numeral)
+        if not self.slack(numeral) and not self._checker(numeral):
+            return numeral, False  # Breaks the chain
+        if iterate:
+            self.next(numeral)
+        numeral, validated = super().tame(numeral) # From left to right
         return numeral, validated
+
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -564,14 +566,14 @@ class Maximum(Boundary):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral)
-        if validated:
-            if not self.slack(numeral):
-                if numeral > self._boundary:
-                    return numeral, False    # Breaks the chain
-            if iterate:
-                self.next(numeral)
+        if not self.slack(numeral):
+            if numeral > self._boundary:
+                return numeral, False    # Breaks the chain
+        if iterate:
+            self.next(numeral)
+        numeral, validated = super().tame(numeral) # From left to right
         return numeral, validated
 
 
@@ -593,14 +595,14 @@ class Minimum(Boundary):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral)
-        if validated:
-            if not self.slack(numeral):
-                if numeral < self._boundary:
-                    return numeral, False    # Breaks the chain
-            if iterate:
-                self.next(numeral)
+        if not self.slack(numeral):
+            if numeral < self._boundary:
+                return numeral, False    # Breaks the chain
+        if iterate:
+            self.next(numeral)
+        numeral, validated = super().tame(numeral) # From left to right
         return numeral, validated
 
 
@@ -667,12 +669,11 @@ class Different(Prior):
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral)
-        if validated:
-            if not self.slack(numeral) and self._prior_numeral is not None and numeral == self._prior_numeral:
-                return numeral, False    # Breaks the chain
-            if iterate:
-                self.next(numeral)
+        if not self.slack(numeral) and self._prior_numeral is not None and numeral == self._prior_numeral:
+            return numeral, False    # Breaks the chain
+        if iterate:
+            self.next(numeral)
+        numeral, validated = super().tame(numeral) # From left to right
         return numeral, validated
 
 
@@ -688,12 +689,11 @@ class Same(Prior):
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral)
-        if validated:
-            if not self.slack(numeral) and self._prior_numeral is not None and numeral != self._prior_numeral:
-                return numeral, False    # Breaks the chain
-            if iterate:
-                self.next(numeral)
+        if not self.slack(numeral) and self._prior_numeral is not None and numeral != self._prior_numeral:
+            return numeral, False    # Breaks the chain
+        if iterate:
+            self.next(numeral)
+        numeral, validated = super().tame(numeral) # From left to right
         return numeral, validated
 
 
@@ -709,12 +709,11 @@ class Increasing(Prior):
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral)
-        if validated:
-            if not self.slack(numeral) and self._prior_numeral is not None and numeral <= self._prior_numeral:
-                return numeral, False    # Breaks the chain
-            if iterate:
-                self.next(numeral)
+        if not self.slack(numeral) and self._prior_numeral is not None and numeral <= self._prior_numeral:
+            return numeral, False    # Breaks the chain
+        if iterate:
+            self.next(numeral)
+        numeral, validated = super().tame(numeral) # From left to right
         return numeral, validated
 
 
@@ -730,12 +729,11 @@ class Decreasing(Prior):
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral)
-        if validated:
-            if not self.slack(numeral) and self._prior_numeral is not None and numeral >= self._prior_numeral:
-                return numeral, False    # Breaks the chain
-            if iterate:
-                self.next(numeral)
+        if not self.slack(numeral) and self._prior_numeral is not None and numeral >= self._prior_numeral:
+            return numeral, False    # Breaks the chain
+        if iterate:
+            self.next(numeral)
+        numeral, validated = super().tame(numeral) # From left to right
         return numeral, validated
 
 
@@ -827,25 +825,26 @@ class Pattern(Motion):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral)
-        if validated:
-            if self._last_integer is not None:
-                if not self.slack(numeral):
-                    expected_motion: int = self._pattern[self._index % len(self._pattern)]
-                    if expected_motion > 0:
-                        if not int(numeral) > 0 \
-                            and (self._limit == 0 or abs(self._last_integer + int(numeral)) <= abs(self._limit)):
-                            return numeral, False   # Breaks the chain
-                    elif expected_motion < 0:
-                        if not int(numeral) < 0 \
-                            and (self._limit == 0 or abs(self._last_integer + int(numeral)) <= abs(self._limit)):
-                            return numeral, False   # Breaks the chain
-                    elif not int(numeral) == 0: # Value 0 means repeat previous
-                        return numeral, False       # Breaks the chain
-            if iterate:
-                self.next(numeral)
+        if self._last_integer is not None:
+            if not self.slack(numeral):
+                expected_motion: int = self._pattern[self._index % len(self._pattern)]
+                if expected_motion > 0:
+                    if not int(numeral) > 0 \
+                        and (self._limit == 0 or abs(self._last_integer + int(numeral)) <= abs(self._limit)):
+                        return numeral, False   # Breaks the chain
+                elif expected_motion < 0:
+                    if not int(numeral) < 0 \
+                        and (self._limit == 0 or abs(self._last_integer + int(numeral)) <= abs(self._limit)):
+                        return numeral, False   # Breaks the chain
+                elif not int(numeral) == 0: # Value 0 means repeat previous
+                    return numeral, False       # Breaks the chain
+        if iterate:
+            self.next(numeral)
+        numeral, validated = super().tame(numeral) # From left to right
         return numeral, validated
+
     
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -922,14 +921,13 @@ class Conjunct(Motion):
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral)
-        if validated:
-            if not self.slack(numeral):
-                if self._last_integer is not None \
-                    and abs(int(numeral) - self._last_integer) > 1:
-                    return numeral, False    # Breaks the chain
-            if iterate:
-                self.next(numeral)
+        if not self.slack(numeral):
+            if self._last_integer is not None \
+                and abs(int(numeral) - self._last_integer) > 1:
+                return numeral, False    # Breaks the chain
+        if iterate:
+            self.next(numeral)
+        numeral, validated = super().tame(numeral) # From left to right
         return numeral, validated
 
 
@@ -945,14 +943,13 @@ class Stepwise(Motion):
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral)
-        if validated:
-            if not self.slack(numeral):
-                if self._last_integer is not None \
-                    and abs(int(numeral) - self._last_integer) != 1:
-                    return numeral, False    # Breaks the chain
-            if iterate:
-                self.next(numeral)
+        if not self.slack(numeral):
+            if self._last_integer is not None \
+                and abs(int(numeral) - self._last_integer) != 1:
+                return numeral, False    # Breaks the chain
+        if iterate:
+            self.next(numeral)
+        numeral, validated = super().tame(numeral) # From left to right
         return numeral, validated
 
 
@@ -968,14 +965,13 @@ class Skipwise(Motion):
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral)
-        if validated:
-            if not self.slack(numeral):
-                if self._last_integer is not None \
-                    and abs(int(numeral) - self._last_integer) != 2:
-                    return numeral, False    # Breaks the chain
-            if iterate:
-                self.next(numeral)
+        if not self.slack(numeral):
+            if self._last_integer is not None \
+                and abs(int(numeral) - self._last_integer) != 2:
+                return numeral, False    # Breaks the chain
+        if iterate:
+            self.next(numeral)
+        numeral, validated = super().tame(numeral) # From left to right
         return numeral, validated
 
 
@@ -991,14 +987,13 @@ class Disjunct(Motion):
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral)
-        if validated:
-            if not self.slack(numeral):
-                if self._last_integer is not None \
-                    and abs(int(numeral) - self._last_integer) < 1:
-                    return numeral, False    # Breaks the chain
-            if iterate:
-                self.next(numeral)
+        if not self.slack(numeral):
+            if self._last_integer is not None \
+                and abs(int(numeral) - self._last_integer) < 1:
+                return numeral, False    # Breaks the chain
+        if iterate:
+            self.next(numeral)
+        numeral, validated = super().tame(numeral) # From left to right
         return numeral, validated
 
 
@@ -1014,14 +1009,13 @@ class Leaping(Motion):
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral)
-        if validated:
-            if not self.slack(numeral):
-                if self._last_integer is not None \
-                    and abs(int(numeral) - self._last_integer) < 3:
-                    return numeral, False    # Breaks the chain
-            if iterate:
-                self.next(numeral)
+        if not self.slack(numeral):
+            if self._last_integer is not None \
+                and abs(int(numeral) - self._last_integer) < 3:
+                return numeral, False    # Breaks the chain
+        if iterate:
+            self.next(numeral)
+        numeral, validated = super().tame(numeral) # From left to right
         return numeral, validated
 
 
@@ -1037,14 +1031,13 @@ class Ascending(Motion):
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral)
-        if validated:
-            if not self.slack(numeral):
-                if self._last_integer is not None \
-                    and not int(numeral) > self._last_integer:
-                    return numeral, False    # Breaks the chain
-            if iterate:
-                self.next(numeral)
+        if not self.slack(numeral):
+            if self._last_integer is not None \
+                and not int(numeral) > self._last_integer:
+                return numeral, False    # Breaks the chain
+        if iterate:
+            self.next(numeral)
+        numeral, validated = super().tame(numeral) # From left to right
         return numeral, validated
 
 
@@ -1060,14 +1053,13 @@ class Descending(Motion):
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral)
-        if validated:
-            if not self.slack(numeral):
-                if self._last_integer is not None \
-                    and not int(numeral) < self._last_integer:
-                    return numeral, False    # Breaks the chain
-            if iterate:
-                self.next(numeral)
+        if not self.slack(numeral):
+            if self._last_integer is not None \
+                and not int(numeral) < self._last_integer:
+                return numeral, False    # Breaks the chain
+        if iterate:
+            self.next(numeral)
+        numeral, validated = super().tame(numeral) # From left to right
         return numeral, validated
 
 
