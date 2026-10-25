@@ -153,7 +153,10 @@ class Chaos(o.Operand):
                     self._index = 0
                 else:
                     self.iterate()  # Does a single iteration
-                result = ra.Result(self % od.Pipe(Fraction()))
+                if isinstance(self._chained_operand, Chaos):
+                    result = ra.Result(self._chained_operand % od.Pipe(Fraction()))
+                else:
+                    result = ra.Result(self % od.Pipe(Fraction()))
                 return result % operand
             case ou.Unit() | ra.Rational():
                 return operand.copy(self % Fraction())  # Has to trigger an iteration
@@ -240,14 +243,9 @@ class Chaos(o.Operand):
 
 
     def iterate(self, root: bool = True) -> Self:
-        previous_result: Fraction = self % od.Pipe(Fraction())
-        if isinstance(self._chained_operand, Chaos):   # iterations are done from tail left
-            if root:
-                self._chained_operand._set_tail_previous_result(previous_result)
-            self._chained_operand.iterate(False)
-            next_result: Fraction = self._chained_operand % od.Pipe(Fraction())
-            self << od.Pipe(next_result)
-        self.result(previous_result)
+        new_result = self.result( self % od.Pipe(Fraction()) )
+        if isinstance(self._chained_operand, Chaos):
+            self._chained_operand.result(new_result)
         return self
 
     
