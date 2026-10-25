@@ -79,6 +79,42 @@ def test_untamed_mod():
 # test_untamed_mod()
 
 
+def test_cycle():
+    cycle = Untamed(Cycle()) # Default modulus is 12
+    for value in range(12):
+        assert cycle % int() == value
+
+# test_cycle()
+
+
+def test_counter():
+    counter_int = Untamed(Counter(-7))**int()
+    assert counter_int % Pipe(int()) == -7
+    for iteration in range(-7, 8):
+        number = counter_int.chaoticize()
+        assert isinstance(number, int)
+        assert number == iteration
+
+# test_counter()
+
+
+def test_cycle_modulo():
+
+    cycle = Modulo(4, Cycle())
+
+    assert cycle % int() == 0
+    assert cycle % int() == 1
+    assert cycle % int() == 2
+    assert cycle % int() == 3
+    assert cycle % int() == 0
+    assert cycle % int() == 1
+    assert cycle % int() == 2
+    assert cycle % int() == 3
+    assert cycle % int() == 0
+
+# test_modulus()
+
+
 def test_probability():
     free_chaos = Untamed()
     tamed_chaos = Probability(1/2)
@@ -95,15 +131,5 @@ def test_probability():
 
 # test_probability()
 
-
-def test_counter():
-    counter_int = Untamed(Counter(-7))**int()
-    assert counter_int % Pipe(int()) == -7
-    for iteration in range(-7, 8):
-        number = counter_int.chaoticize()
-        assert isinstance(number, int)
-        assert number == iteration
-
-# test_counter()
 
 
