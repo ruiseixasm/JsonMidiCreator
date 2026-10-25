@@ -1173,7 +1173,6 @@ class Interval(Manipulator):
     list([0, 12]) : Sets the range from list index 0, inclusive, to the list index 1, exclusive.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral, iterate)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         if isinstance(self._parameter, list) and len(self._parameter) == 2:
             left_value: Fraction = ra.Rational(self._parameter[0])._rational
@@ -1187,6 +1186,7 @@ class Interval(Manipulator):
                 numeral += left_value
                 if isinstance(self._parameter, o.Operand):  # Has to be wrapped
                     numeral = self._parameter[0].copy(numeral)
+        numeral, validated = super().tame(numeral, iterate) # From left to right
         return numeral, validated
 
 
@@ -1242,9 +1242,9 @@ class Decrease(Manipulator):
     Fraction(8), int, float : Sets the respective decrement amount.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral, iterate)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         numeral -= self._parameter
+        numeral, validated = super().tame(numeral, iterate) # From left to right
         return numeral, validated
 
 
@@ -1259,9 +1259,9 @@ class Expand(Manipulator):
     Fraction(8), int, float : Sets the respective decrement amount.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral, iterate)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         numeral *= self._parameter
+        numeral, validated = super().tame(numeral, iterate) # From left to right
         return numeral, validated
 
 
@@ -1276,10 +1276,10 @@ class Contract(Manipulator):
     Fraction(8), int, float : Sets the respective decrement amount.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral, iterate)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         if self._parameter != 0:
             numeral /= self._parameter
+        numeral, validated = super().tame(numeral, iterate) # From left to right
         return numeral, validated
 
 
@@ -1294,9 +1294,9 @@ class Wrap(Manipulator):
     Any() : Sets the type of object to wrap the numeral.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral, iterate)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         numeral = self._parameter.__class__(numeral)
+        numeral, validated = super().tame(numeral, iterate) # From left to right
         return numeral, validated
 
 
@@ -1317,9 +1317,9 @@ class Switch(Manipulator):
             self << single_parameter
 
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral, iterate)
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         numeral = Fraction(0) if numeral < self._parameter else Fraction(1)
+        numeral, validated = super().tame(numeral, iterate) # From left to right
         return numeral, validated
 
 
@@ -1340,10 +1340,10 @@ class Probability(Manipulator):
             self << single_parameter
 
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        numeral, validated = super().tame(numeral, iterate)
         chaotic_rational: Fraction = ra.Result(numeral)._rational % 1
         # `1 - chaotic_rational` in order to preserve result in chained Probabilities or alike, 1 remains 1 and 0 remains 0, no flipping
         numeral = Fraction(1) if 1 - chaotic_rational < self._parameter else Fraction(0)
+        numeral, validated = super().tame(numeral, iterate) # From left to right
         return numeral, validated
 
 
