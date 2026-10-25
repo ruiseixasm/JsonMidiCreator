@@ -238,7 +238,6 @@ class Operand:
     def __lshift__(self, operand: any) -> Self:
         from . import operand_label as ol
         from . import operand_data as od
-        from . import operand_chaos as ch
         from . import operand_tamer as ot
         match operand:
             case od.Serialization():
@@ -253,7 +252,7 @@ class Operand:
                 if not isinstance(self, od.Clear):  # Avoids infinite recursion
                     self.clear(operand._data)
             case Operand():
-                if isinstance(operand, (ot.Tamer, ch.Chaos)) and not isinstance(self, (ot.Tamer, ch.Chaos)):
+                if isinstance(operand, ot.Tamer) and not isinstance(self, ot.Tamer):
                     self << operand.chaoticize()
                 else:
                     self._initiated = operand._initiated
