@@ -251,18 +251,8 @@ class Chaos(o.Operand):
         return self
 
     
-    def _next_result(self, previous_result: Fraction) -> Fraction:
-        return previous_result
-
-
     def result(self, numeral: Fraction) -> Fraction:
-        result: Fraction = self._next_result(numeral)
-
-        self._xn._rational = result
-        self._initiated = True
-        self._index += 1
-
-        return result
+        return numeral
 
 
     def reset(self, *parameters) -> Self:
@@ -344,9 +334,15 @@ class Sequence(Chaos):
         return self
 
 
-    def _next_result(self, previous_result: Fraction) -> Fraction:
+    def result(self, previous_result: Fraction) -> Fraction:
         result: Fraction = previous_result + self._steps
+
+        self._xn._rational = result
+        self._initiated = True
+        self._index += 1
+
         return result
+
 
 
 
@@ -415,10 +411,16 @@ class Cycle(Sequence):
         return self
 
 
-    def _next_result(self, previous_result: Fraction) -> Fraction:
+    def result(self, previous_result: Fraction) -> Fraction:
         result: Fraction = previous_result + self._steps
         result %= self._modulus
+
+        self._xn._rational = result
+        self._initiated = True
+        self._index += 1
+
         return result
+
 
 
 
@@ -442,9 +444,15 @@ class Counter(Sequence):
             self << single_parameter
 
 
-    def _next_result(self, previous_result: Fraction) -> Fraction:
+    def result(self, previous_result: Fraction) -> Fraction:
         result: Fraction = Fraction(previous_result + self._steps)
+
+        self._xn._rational = result
+        self._initiated = True
+        self._index += 1
+
         return result
+
 
 
 
@@ -461,7 +469,7 @@ class Ripple(Sequence):
     X0(0) : The first value of the multiple iterations where Chaos can be reset to.
     Steps(1), Step() : The increase amount for each iteration.
     """
-    def _next_result(self, previous_result: Fraction) -> Fraction:
+    def result(self, previous_result: Fraction) -> Fraction:
         result: Fraction = -1 * previous_result    # Always alternates (0 means 0)
         actual_index: int = self._index + self._tamer_tries
         if actual_index % 2:    # Odd means up (positive)
@@ -469,7 +477,13 @@ class Ripple(Sequence):
                 result -= self._steps
             else:
                 result += self._steps
+                
+        self._xn._rational = result
+        self._initiated = True
+        self._index += 1
+
         return result
+
 
 
 
@@ -485,12 +499,17 @@ class Spiral(Sequence):
     X0(0) : The first value of the multiple iterations where Chaos can be reset to.
     Steps(1), Step() : The increase amount for each iteration.
     """
-    def _next_result(self, previous_result: Fraction) -> Fraction:
+    def result(self, previous_result: Fraction) -> Fraction:
         result: Fraction = -1 * previous_result    # Always alternates (0 means 0)
         if result < 0:
             result -= self._steps
         else:
             result += self._steps
+            
+        self._xn._rational = result
+        self._initiated = True
+        self._index += 1
+
         return result
 
 
@@ -561,9 +580,14 @@ class SinX(Chaos):
         return self
 
 
-    def _next_result(self, previous_result: Fraction) -> Fraction:
-        return ra.Result(float(previous_result) + float(self._lambda._rational) * math.sin(float(previous_result)))._rational
+    def result(self, previous_result: Fraction) -> Fraction:
+        result = ra.Result(float(previous_result) + float(self._lambda._rational) * math.sin(float(previous_result)))._rational
 
+        self._xn._rational = result
+        self._initiated = True
+        self._index += 1
+
+        return result
 
 
 class Bouncer(Chaos):
