@@ -35,6 +35,7 @@ from . import operand_generic as og
 from . import operand_element as oe
 from . import operand_frame as of
 from . import operand_chaos as ch
+from . import operand_tamer as ot
 
 
 TypeContainer = TypeVar('TypeContainer', bound='Container')  # TypeContainer represents any subclass of Operand
@@ -67,14 +68,14 @@ class Container(o.Operand):
     def __getitem__(self, index: Any) -> any:
         items_unmasked = self.items_unmasked()
         match index:
-            case ch.Chaos():
+            case ot.Tamer():
                 for single_item in items_unmasked:
                     chaos_result = index.chaoticize()
                     if single_item == chaos_result:
                         return single_item  # The first occurrence
             case od.Pipe():
                 match index._data:
-                    case ch.Chaos():
+                    case ot.Tamer():
                         pipped_chaos = index._data
                         for single_item in items_unmasked:
                             chaos_result = pipped_chaos.chaoticize()
@@ -289,7 +290,7 @@ class Container(o.Operand):
                 return self._items == other
             case od.Conditional():
                 return other == self
-            case ch.Chaos():
+            case ot.Tamer():
                 for single_item in self.items_unmasked():
                     other_chaoticize = other.chaoticize()
                     if not single_item == other_chaoticize:
@@ -300,7 +301,7 @@ class Container(o.Operand):
 
     def __lt__(self, other: any) -> bool:
         match other:
-            case ch.Chaos():
+            case ot.Tamer():
                 for single_item in self._items:
                     other_item = other.chaoticize()
                     if not single_item < other_item:
@@ -311,7 +312,7 @@ class Container(o.Operand):
 
     def __gt__(self, other: any) -> bool:
         match other:
-            case ch.Chaos():
+            case ot.Tamer():
                 for single_item in self._items:
                     other_item = other.chaoticize()
                     if not single_item > other_item:
@@ -393,7 +394,7 @@ class Container(o.Operand):
                 match operand._data:
                     case list():
                         self._items = operand._data
-                    case ch.Chaos():
+                    case ot.Tamer():
                         for single_item in self.items_unmasked():
                             if isinstance(single_item, o.Operand):
                                 single_parameter = operand._data.chaoticize()
@@ -418,7 +419,7 @@ class Container(o.Operand):
                 for index, item in operand.items():
                     if isinstance(index, int) and index >= 0 and index < len(self.items_unmasked()):
                         self.items_unmasked()[index] = o.deep_copy(item)
-            case ch.Chaos():
+            case ot.Tamer():
                 for single_item in self.items_unmasked():
                     if isinstance (single_item, o.Operand):
                         single_parameter = operand.chaoticize()
@@ -442,7 +443,7 @@ class Container(o.Operand):
                     if any(self_unmasked == other_unmasked for other_unmasked in operand.items_unmasked())
                 ]
                 self.delete(unmasked_items).extend(equal_items)
-            case ch.Chaos():
+            case ot.Tamer():
                 chosen_items: list[Any] = []
                 for single_item in unmasked_items:
                     if single_item == operand.chaoticize():
@@ -477,7 +478,7 @@ class Container(o.Operand):
                     if not any(other_unmasked == self_unmasked for self_unmasked in unmasked_items)
                 ])
                 self.delete(unmasked_items).extend(unequal_items)
-            case ch.Chaos():
+            case ot.Tamer():
                 unchosen_items: list[Any] = []
                 for single_item in unmasked_items:
                     if single_item != operand.chaoticize():
@@ -511,7 +512,7 @@ class Container(o.Operand):
             case tuple():
                 for single_operand in operand:
                     self += single_operand
-            case ch.Chaos():
+            case ot.Tamer():
                 for single_item in self.items_unmasked():
                     single_parameter = operand.chaoticize()
                     single_item += single_parameter
@@ -535,7 +536,7 @@ class Container(o.Operand):
             case tuple():
                 for single_operand in operand:
                     self -= single_operand
-            case ch.Chaos():
+            case ot.Tamer():
                 for single_item in self.items_unmasked():
                     single_parameter = operand.chaoticize()
                     if single_parameter == ol.Full():
@@ -566,7 +567,7 @@ class Container(o.Operand):
                     self.extend(items_copy)  # Propagates upwards in the stack
                 elif operand == 0:
                     self.delete()
-            case ch.Chaos():
+            case ot.Tamer():
                 for single_item in self.items_unmasked():
                     single_parameter = operand.chaoticize()
                     single_item *= single_parameter
@@ -583,7 +584,7 @@ class Container(o.Operand):
         match operand:
             case Container():
                 pass
-            case ch.Chaos():
+            case ot.Tamer():
                 for single_item in self.items_unmasked():
                     single_parameter = operand.chaoticize()
                     single_item /= single_parameter
@@ -599,7 +600,7 @@ class Container(o.Operand):
         match operand:
             case Container():
                 pass
-            case ch.Chaos():
+            case ot.Tamer():
                 for single_item in self.items_unmasked():
                     single_parameter = operand.chaoticize()
                     single_item //= single_parameter
@@ -707,7 +708,7 @@ class Container(o.Operand):
                             id(single_item) for single_item in self._items
                             if not any(single_item == cond_item for cond_item in single_condition)
                         )
-                    case ch.Chaos():
+                    case ot.Tamer():
                         for single_item in self._items:
                             chaotic_result = single_condition.chaoticize()
                             if not single_item == chaotic_result:
@@ -2580,7 +2581,7 @@ class Clip(Composition):  # Just a container of Elements
                             if isinstance(single_element, o.Operand):
                                 framed_result = single_condition.frame(single_element)
                                 new_mask.append(single_element == framed_result)
-                    case ch.Chaos():
+                    case ot.Tamer():
                         for single_element in self._items:
                             if isinstance(single_element, o.Operand):
                                 chaotic_result = single_condition.chaoticize()
