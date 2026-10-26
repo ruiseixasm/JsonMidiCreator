@@ -132,10 +132,14 @@ class Tamer(o.Operand):
                     case int() | float() | Fraction():
                         result = self % od.Pipe(ra.Result())
                         return result % operand
+                    case ra.ChaosParameters():
+                        return self._chaos % operand
                     case _:
                         return super().__mod__(operand)
             case ch.Chaos():
                 return self._chaos.copy()
+            case ra.ChaosParameters():
+                return self._chaos % operand
             case int() | float() | Fraction():
                 chaotic_result: Fraction = self._chaos % Fraction()
                 result = ra.Result(self.tame(chaotic_result)[0])
@@ -176,10 +180,16 @@ class Tamer(o.Operand):
                 self._chaos = operand._chaos.copy()
             case od.Pipe():
                 match operand._data:
-                    case ch.Chaos():    self._chaos = operand._data
-                    case _:             super().__lshift__(operand)
+                    case ch.Chaos():
+                        self._chaos = operand._data
+                    case ra.ChaosParameters():
+                        self._chaos << operand
+                    case _:
+                        super().__lshift__(operand)
             case ch.Chaos():
                 self._chaos = operand.copy()
+            case ra.ChaosParameters():
+                self._chaos << operand
             case int() | float() | Fraction() | ou.Unit() | ra.Rational():
                 self._chaos << operand
             case _:
