@@ -1013,7 +1013,7 @@ class IteratedTransformation(Transformation):
         no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
-    def __init__(self, tamer: ot.Tamer = ot.Untamed(ch.SinX(340)),
+    def __init__(self, tamer: ot.Tamer = ot.Untamed(ra.Seed(340)),
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 4, no_repetitions: bool = False, freeze_at: int = -1):
@@ -1101,7 +1101,7 @@ class ISplitDuration(IVariate):
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def __init__(self, durations: int = 8,
-                 tamer: ot.Tamer = ot.Untamed(ch.SinX(340)),
+                 tamer: ot.Tamer = ot.Untamed(ra.Seed(340)),
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
@@ -1236,7 +1236,7 @@ class IChooseDuration(IShuffleDuration):
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def __init__(self, durations: list[Any] = [1/2, 1/4, 1/8, 1/16],
-                 tamer: ot.Tamer = ot.Untamed(ch.SinX(340)),
+                 tamer: ot.Tamer = ot.Untamed(ra.Seed(340)),
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
@@ -1419,7 +1419,7 @@ class IChooseParameter(IVariate):
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def __init__(self, parameters: list[Any] = o.list_wrap(["1", "3", "5", "6"], ou.Degree()),
-                 tamer: ot.Tamer = ot.Untamed(ch.SinX(340)),
+                 tamer: ot.Tamer = ot.Untamed(ra.Seed(340)),
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
