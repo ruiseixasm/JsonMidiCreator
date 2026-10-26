@@ -1063,13 +1063,35 @@ class IteratedTransformation(Transformation):
 
 
 
-class ITamed(IteratedTransformation):
-    """`Transformation -> IteratedTransformation -> ITamed -> ITamed`
+class IFrame(IteratedTransformation):
+    """`Transformation -> IteratedTransformation -> IFrame`
+
+    This class adds a framed Chaos to the iterated transformation.
+
+    Args:
+        frame (Frame) : A Frame with a chaotic component like `Chance` or `Equal` among others that change per call.
+        pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
+        post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
+        max_tries (int) : The maximum amount of tries to find a `Clip` solution.
+        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
+    """
+    def __init__(self, frame: of.Frame = of.Chance()**ra.Step(),
+                 pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
+                 post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
+                 max_tries: int = 4, no_repetitions: bool = False, freeze_at: int = -1):
+        super().__init__(pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+        self.frame: ot.Tamer = frame
+
+
+
+class ITame(IteratedTransformation):
+    """`Transformation -> IteratedTransformation -> ITame`
 
     This class adds a tamed Chaos to the iterated transformation.
 
     Args:
-        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1095,14 +1117,14 @@ class ITamed(IteratedTransformation):
 
 
 
-class IVariate(ITamed):
-    """`Transformation -> IteratedTransformation -> ITamed -> IVariate`
+class IVariate(ITame):
+    """`Transformation -> IteratedTransformation -> ITame -> IVariate`
 
     This transformation respects the topology. The note count and relationships stay untouched;
     it only changes continuous space (pitch, timing, velocity), **only** the `Element` parameters.
 
     Args:
-        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1114,13 +1136,13 @@ class IVariate(ITamed):
 
 
 class ISplitDuration(IVariate):
-    """`Transformation -> IteratedTransformation -> ITamed -> IVariate -> ISplitDuration`
+    """`Transformation -> IteratedTransformation -> ITame -> IVariate -> ISplitDuration`
 
     Adds splits to the `Clip` elements resulting in the given amount of durations (elements).
 
     Args:
         durations (int) : The amount of durations, or elements, the splitting will result in.
-        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1169,12 +1191,12 @@ class ISplitDuration(IVariate):
 
 
 class IShuffleLocus(IVariate):
-    """`Transformation -> IteratedTransformation -> ITamed -> IVariate -> IShuffleLocus`
+    """`Transformation -> IteratedTransformation -> ITame -> IVariate -> IShuffleLocus`
 
     This class shuffles the multiple locus around.
 
     Args:
-        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1199,12 +1221,12 @@ class IShuffleLocus(IVariate):
 
 
 class IShuffleDuration(IVariate):
-    """`Transformation -> IteratedTransformation -> ITamed -> IVariate -> IShuffleDuration`
+    """`Transformation -> IteratedTransformation -> ITame -> IVariate -> IShuffleDuration`
 
     Moves the existent durations around while preserving the relative positions to them.
 
     Args:
-        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1249,13 +1271,13 @@ class IShuffleDuration(IVariate):
 
 
 class IChooseDuration(IShuffleDuration):
-    """`Transformation -> IteratedTransformation -> ITamed -> IVariate -> IShuffleDuration -> IChooseDuration`
+    """`Transformation -> IteratedTransformation -> ITame -> IVariate -> IShuffleDuration -> IChooseDuration`
 
     Chooses durations from a given list and sets the element durations with it while preserving the relative positions.
 
     Args:
         durations (list) : A given list of durations to pick from.
-        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1316,12 +1338,12 @@ class IChooseDuration(IShuffleDuration):
     
 
 class ISwapDuration(IVariate):
-    """`Transformation -> IteratedTransformation -> ITamed -> IVariate -> ISwapDuration`
+    """`Transformation -> IteratedTransformation -> ITame -> IVariate -> ISwapDuration`
 
     Swaps subsequent elements durations but it doesn't necessarily preserve all relative positions.
 
     Args:
-        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1352,13 +1374,13 @@ class ISwapDuration(IVariate):
     
 
 class IShuffleParameter(IVariate):
-    """`Transformation -> IteratedTransformation -> ITamed -> IVariate -> IShuffleParameter`
+    """`Transformation -> IteratedTransformation -> ITame -> IVariate -> IShuffleParameter`
 
     Shuffles a given parameter among the multiple elements in the clip.
 
     Args:
         parameter (Any) : The given parameter to shuffle around.
-        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1391,14 +1413,14 @@ class IShuffleParameter(IVariate):
 
 
 class ISetParameter(IVariate):
-    """`Transformation -> IteratedTransformation -> ITamed -> IVariate -> ISetParameter`
+    """`Transformation -> IteratedTransformation -> ITame -> IVariate -> ISetParameter`
 
     Applies to each element the *chaotized* parameter or to all elements at once if `global_setting` is `True`.
 
     Args:
         parameter (Any) : The given parameter to shuffle around.
         global_setting (bool) : If True applies the single parameter to all at once.
-        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1431,14 +1453,14 @@ class ISetParameter(IVariate):
 
 
 class IChooseParameter(IVariate):
-    """`Transformation -> IteratedTransformation -> ITamed -> IVariate -> IChooseParameter`
+    """`Transformation -> IteratedTransformation -> ITame -> IVariate -> IChooseParameter`
 
     Choses a parameter from parameters for each `Clip` element.
 
     Args:
         parameter (Any) : The given parameter to shuffle around.
         global_setting (bool) : If True applies the single parameter to all at once.
-        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1465,14 +1487,14 @@ class IChooseParameter(IVariate):
 
 
 
-class IMutate(ITamed):
-    """`Transformation -> IteratedTransformation -> ITamed -> IMutate`
+class IMutate(ITame):
+    """`Transformation -> IteratedTransformation -> ITame -> IMutate`
 
     This transformation changes the topology. The note count and relationships are changed;
     Type of Element, Note, Rest or ControlChange are possibly changed, and the number of elements too.
 
     Args:
-        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1483,14 +1505,14 @@ class IMutate(ITamed):
 
 
 
-class IYield(ITamed):
-    """`Transformation -> IteratedTransformation -> ITamed -> IYield`
+class IYield(ITame):
+    """`Transformation -> IteratedTransformation -> ITame -> IYield`
 
     This transformation overrides the topology with a new one. All the `Clip` content is replaced
     by a self generated, iterated, new one.
 
     Args:
-        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
