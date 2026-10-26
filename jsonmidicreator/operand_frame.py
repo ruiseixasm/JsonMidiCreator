@@ -592,6 +592,31 @@ class Iterate(LeftToRight):
     def frame(self, input: o.T) -> o.T:
         from . import operand_chaos as ch
         self._index += 1
+        self_operand = super().frame(
+            o.deep_copy(self._named_parameters['iterator']['current'])
+        )
+        # iterates whenever called
+        self._named_parameters['iterator']['current'] += self._named_parameters['iterator']['step']
+        return self_operand
+
+
+
+class Generate(LeftToRight):
+    """`Frame -> LeftToRight -> Generate`
+
+    `Generate` uses a `Tamer` to return a result as a `Fraction` in a chaotic manner.
+
+    Args:
+        tamer (Tamer): The tamed generator of fractions.
+    """
+    def __init__(self, tamer: ot.Tamer = ot.Modulo()):
+        super().__init__()
+        self._named_parameters['tamer'] = tamer
+
+
+    def frame(self, input: o.T) -> o.T:
+        from . import operand_chaos as ch
+        self._index += 1
         if isinstance(input, ch.Chaos):
             if self._named_parameters['iterator']['current'] == self._named_parameters['iterator']['start']:
                 input *= self._named_parameters['iterator']['start']
