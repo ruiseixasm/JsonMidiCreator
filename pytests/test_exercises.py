@@ -98,7 +98,7 @@ def test_framed_iteration():
     i_frame = ISet(no_repetitions=True)
     # four_notes >> Plot(transform=i_frame)
     four_notes << Degree(1)
-    i_iterate = IAdd(frame=Each(Modulo())**Degree(), no_repetitions=True)
+    i_iterate = IAdd(frame=Generate(Modulo())**Degree(), no_repetitions=True)
     # four_notes >> Plot(transform=i_iterate)
 
 # test_framed_iteration()

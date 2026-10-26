@@ -1069,7 +1069,7 @@ class IFrame(IteratedTransformation):
     This class uses a framed Chaos to the iterated transformation.
 
     Args:
-        frame (Frame) : A Frame with a chaotic component like `Chance` or `Each` among others that change per call.
+        frame (Frame) : A Frame with a chaotic component like `Chance` or `Generate` among others that change per call.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1091,7 +1091,7 @@ class ISet(IFrame):
     This class *sets* a framed Chaos to the given `Clip` to be transformed.
 
     Args:
-        frame (Frame) : A Frame with a chaotic component like `Chance` or `Each` among others that change per call.
+        frame (Frame) : A Frame with a chaotic component like `Chance` or `Generate` among others that change per call.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1109,7 +1109,7 @@ class IAdd(IFrame):
     This class *adds* a framed Chaos to the given `Clip` to be transformed.
 
     Args:
-        frame (Frame) : A Frame with a chaotic component like `Chance` or `Each` among others that change per call.
+        frame (Frame) : A Frame with a chaotic component like `Chance` or `Generate` among others that change per call.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1127,7 +1127,7 @@ class ISub(IFrame):
     This class *subtracts* a framed Chaos to the given `Clip` to be transformed.
 
     Args:
-        frame (Frame) : A Frame with a chaotic component like `Chance` or `Each` among others that change per call.
+        frame (Frame) : A Frame with a chaotic component like `Chance` or `Generate` among others that change per call.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.

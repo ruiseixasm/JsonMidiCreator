@@ -615,20 +615,8 @@ class Generate(LeftToRight):
 
 
     def frame(self, input: o.T) -> o.T:
-        from . import operand_chaos as ch
-        self._index += 1
-        if isinstance(input, ch.Chaos):
-            if self._named_parameters['iterator']['current'] == self._named_parameters['iterator']['start']:
-                input *= self._named_parameters['iterator']['start']
-            self_operand = super().frame( input )
-            input *= self._named_parameters['iterator']['step']
-        else:
-            self_operand = super().frame(
-                o.deep_copy(self._named_parameters['iterator']['current'])
-            )
-        # iterates whenever called
-        self._named_parameters['iterator']['current'] += self._named_parameters['iterator']['step']
-        return self_operand
+        # `input` is irrelevant, this is a generator
+        return super().frame( self._named_parameters['tamer'] % Fraction() )
 
 
 
