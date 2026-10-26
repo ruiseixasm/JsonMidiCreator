@@ -305,8 +305,7 @@ class Parallel(Tamer):
                 return numeral, False    # Breaks the chain
         if iterate:
             self.next(numeral)
-        numeral, validated = super().tame(numeral) # From left to right
-        return numeral, validated
+        return super().tame(numeral, iterate)   # From left to right
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -467,8 +466,7 @@ class Check(Validator):
             return numeral, False  # Breaks the chain
         if iterate:
             self.next(numeral)
-        numeral, validated = super().tame(numeral) # From left to right
-        return numeral, validated
+        return super().tame(numeral, iterate)   # From left to right
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -593,8 +591,7 @@ class Maximum(Boundary):
                 return numeral, False    # Breaks the chain
         if iterate:
             self.next(numeral)
-        numeral, validated = super().tame(numeral) # From left to right
-        return numeral, validated
+        return super().tame(numeral, iterate)   # From left to right
 
 
 
@@ -623,8 +620,7 @@ class Minimum(Boundary):
                 return numeral, False    # Breaks the chain
         if iterate:
             self.next(numeral)
-        numeral, validated = super().tame(numeral) # From left to right
-        return numeral, validated
+        return super().tame(numeral, iterate)   # From left to right
 
 
 
@@ -696,8 +692,7 @@ class Different(Prior):
             return numeral, False    # Breaks the chain
         if iterate:
             self.next(numeral)
-        numeral, validated = super().tame(numeral) # From left to right
-        return numeral, validated
+        return super().tame(numeral, iterate)   # From left to right
 
 
 
@@ -717,8 +712,7 @@ class Same(Prior):
             return numeral, False    # Breaks the chain
         if iterate:
             self.next(numeral)
-        numeral, validated = super().tame(numeral) # From left to right
-        return numeral, validated
+        return super().tame(numeral, iterate)   # From left to right
 
 
 
@@ -738,8 +732,7 @@ class Increasing(Prior):
             return numeral, False    # Breaks the chain
         if iterate:
             self.next(numeral)
-        numeral, validated = super().tame(numeral) # From left to right
-        return numeral, validated
+        return super().tame(numeral, iterate)   # From left to right
 
 
 
@@ -759,8 +752,7 @@ class Decreasing(Prior):
             return numeral, False    # Breaks the chain
         if iterate:
             self.next(numeral)
-        numeral, validated = super().tame(numeral) # From left to right
-        return numeral, validated
+        return super().tame(numeral, iterate)   # From left to right
 
 
 
@@ -870,8 +862,7 @@ class Pattern(Motion):
                     return numeral, False       # Breaks the chain
         if iterate:
             self.next(numeral)
-        numeral, validated = super().tame(numeral) # From left to right
-        return numeral, validated
+        return super().tame(numeral, iterate)   # From left to right
 
     
     def __mod__(self, operand: o.T) -> o.T:
@@ -956,8 +947,7 @@ class Conjunct(Motion):
                 return numeral, False    # Breaks the chain
         if iterate:
             self.next(numeral)
-        numeral, validated = super().tame(numeral) # From left to right
-        return numeral, validated
+        return super().tame(numeral, iterate)   # From left to right
 
 
 
@@ -979,8 +969,7 @@ class Stepwise(Motion):
                 return numeral, False    # Breaks the chain
         if iterate:
             self.next(numeral)
-        numeral, validated = super().tame(numeral) # From left to right
-        return numeral, validated
+        return super().tame(numeral, iterate)   # From left to right
 
 
 
@@ -1002,8 +991,7 @@ class Skipwise(Motion):
                 return numeral, False    # Breaks the chain
         if iterate:
             self.next(numeral)
-        numeral, validated = super().tame(numeral) # From left to right
-        return numeral, validated
+        return super().tame(numeral, iterate)   # From left to right
 
 
 
@@ -1025,8 +1013,7 @@ class Disjunct(Motion):
                 return numeral, False    # Breaks the chain
         if iterate:
             self.next(numeral)
-        numeral, validated = super().tame(numeral) # From left to right
-        return numeral, validated
+        return super().tame(numeral, iterate)   # From left to right
 
 
 
@@ -1048,8 +1035,7 @@ class Leaping(Motion):
                 return numeral, False    # Breaks the chain
         if iterate:
             self.next(numeral)
-        numeral, validated = super().tame(numeral) # From left to right
-        return numeral, validated
+        return super().tame(numeral, iterate)   # From left to right
 
 
 
@@ -1071,8 +1057,7 @@ class Ascending(Motion):
                 return numeral, False    # Breaks the chain
         if iterate:
             self.next(numeral)
-        numeral, validated = super().tame(numeral) # From left to right
-        return numeral, validated
+        return super().tame(numeral, iterate)   # From left to right
 
 
 
@@ -1094,8 +1079,7 @@ class Descending(Motion):
                 return numeral, False    # Breaks the chain
         if iterate:
             self.next(numeral)
-        numeral, validated = super().tame(numeral) # From left to right
-        return numeral, validated
+        return super().tame(numeral, iterate)   # From left to right
 
 
 
@@ -1184,8 +1168,7 @@ class Modulo(Manipulator):
             numeral = self._parameter.__class__(numeral)
             if isinstance(self._parameter, o.Operand):  # Has to be wrapped
                 numeral = self._parameter.copy(numeral)
-        numeral, validated = super().tame(numeral, iterate) # From left to right
-        return numeral, validated
+        return super().tame(numeral, iterate)   # From left to right
 
 
 
@@ -1214,8 +1197,7 @@ class Interval(Manipulator):
                 numeral += left_value
                 if isinstance(self._parameter, o.Operand):  # Has to be wrapped
                     numeral = self._parameter[0].copy(numeral)
-        numeral, validated = super().tame(numeral, iterate) # From left to right
-        return numeral, validated
+        return super().tame(numeral, iterate)   # From left to right
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -1256,8 +1238,7 @@ class Increase(Manipulator):
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         numeral += self._parameter
-        numeral, validated = super().tame(numeral, iterate) # From left to right
-        return numeral, validated
+        return super().tame(numeral, iterate)   # From left to right
     
 
 
@@ -1274,8 +1255,7 @@ class Decrease(Manipulator):
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         numeral -= self._parameter
-        numeral, validated = super().tame(numeral, iterate) # From left to right
-        return numeral, validated
+        return super().tame(numeral, iterate)   # From left to right
 
 
 
@@ -1292,8 +1272,7 @@ class Expand(Manipulator):
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         numeral *= self._parameter
-        numeral, validated = super().tame(numeral, iterate) # From left to right
-        return numeral, validated
+        return super().tame(numeral, iterate)   # From left to right
 
 
 
@@ -1311,8 +1290,7 @@ class Contract(Manipulator):
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         if self._parameter != 0:
             numeral /= self._parameter
-        numeral, validated = super().tame(numeral, iterate) # From left to right
-        return numeral, validated
+        return super().tame(numeral, iterate)   # From left to right
 
 
 
@@ -1335,8 +1313,7 @@ class Switch(Manipulator):
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         numeral = Fraction(0) if numeral < self._parameter else Fraction(1)
-        numeral, validated = super().tame(numeral, iterate) # From left to right
-        return numeral, validated
+        return super().tame(numeral, iterate)   # From left to right
 
 
 
@@ -1361,8 +1338,7 @@ class Binary(Manipulator):
         chaotic_rational: Fraction = ra.Result(numeral)._rational % 1
         # `1 - chaotic_rational` in order to preserve result in chained Probabilities or alike, 1 remains 1 and 0 remains 0, no flipping
         numeral = Fraction(1) if 1 - chaotic_rational < self._parameter else Fraction(0)
-        numeral, validated = super().tame(numeral, iterate) # From left to right
-        return numeral, validated
+        return super().tame(numeral, iterate)   # From left to right
 
 
 
@@ -1377,7 +1353,6 @@ class Probability(Manipulator):
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         chaotic_rational: Fraction = ra.Result(numeral)._rational % 1
-        numeral, validated = super().tame(chaotic_rational, iterate)    # From left to right
-        return chaotic_rational, validated
+        return super().tame(chaotic_rational, iterate)  # From left to right
 
 
