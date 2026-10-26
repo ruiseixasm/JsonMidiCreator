@@ -310,7 +310,7 @@ def interpolateTempo(left_tempo: dict[str, int], right_tempo: dict[str, int], ti
     return bpm_10 / 10.0
 
 
-def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filename="output.mid"):
+def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filename="output.mid", beats_per_measure: int = 4):
     
     # Define ANSI escape codes for colors
     RED = "\033[91m"
@@ -352,9 +352,10 @@ def renderMidiFile(clocking: list[dict[str, int]], midilist: list[dict], filenam
             # of the common Beat, and TICKS_PER_BEAT defines its internal resolution.
             # TimeSignature is used internally as a musical grid for operations such as
             # measure repeating and beat selection; it does not redefine the timeline.
-            # The exported file uses a fixed 4/4 signature for a constant Beat resolution,
-            # because the program is Beat centered and NOT Quarter-Note centered.
-            MyMIDI.addTimeSignature(0, 0, 4, 2, 24, 8)
+            # The exported file uses a fixed 1/4 note value for time signature for a
+            # constant Beat resolution, because the program is Beat centered and
+            # NOT Quarter-Note centered.
+            MyMIDI.addTimeSignature(0, 0, beats_per_measure, 2, 24, 8)
 
             # Tempo events are conventionally stored in Track 0 in a Type 1 MIDI file.
             midi_tempos: list[dict] = [
