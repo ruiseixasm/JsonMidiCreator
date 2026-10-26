@@ -90,6 +90,8 @@ jupyter notebook --no-browser
 Then open you favorite browser and copy and paste one of the given URLs as instructed in the output of the previous command.
 
 # Documentation
+## README
+Detailed *JsonMidiCreator* usage documentation in the file [README](doc/README.md) in the folder [doc](doc).
 ## Folder *doc*
 The folder [doc](doc) has many documented examples that include plots and midi files associated with.
 ## Classes docstrings documentation
