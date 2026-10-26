@@ -264,77 +264,120 @@ class Rational(o.Operand):
                     self._rational /= value._unit
         return self
 
+
+
 class ChaosParameters(Rational):
     """Sets the precision that avoids `Chaos` returning inconsistent values among distinct OS!"""
     _limit_denominator: int = 1_000_000 # overrides default limit_denominator
+
+
 
 class Index(ChaosParameters):
     """`Rational -> ChaosParameters -> Index`"""
     pass
 
+
+
 class Numeral(ChaosParameters):
     """`Rational -> ChaosParameters -> Numeral`"""
     pass
+
+
+
+class Seed(ChaosParameters):
+    """`Rational -> ChaosParameters -> Seed`"""
+    pass
+
+
 
 class Result(ChaosParameters):
     """`Rational -> ChaosParameters -> Result`"""
     pass
 
+
+
 class Split(ChaosParameters):
     """`Rational -> ChaosParameters -> Split`"""
     pass
+
+
 
 class Width(ChaosParameters):
     """`Rational -> ChaosParameters -> Width`"""
     pass
 
+
+
 class Height(ChaosParameters):
     """`Rational -> ChaosParameters -> Height`"""
     pass
+
+
 
 class dX(ChaosParameters):
     """`Rational -> ChaosParameters -> dX`"""
     pass
 
+
+
 class dY(ChaosParameters):
     """`Rational -> ChaosParameters -> dY`"""
     pass
+
+
 
 class dZ(ChaosParameters):
     """`Rational -> ChaosParameters -> dZ`"""
     pass
 
+
+
 class X0(ChaosParameters):
     """`Rational -> ChaosParameters -> X0`"""
     pass
+
+
 
 class Xn(ChaosParameters):
     """`Rational -> ChaosParameters -> Xn`"""
     pass
 
+
+
 class Y0(ChaosParameters):
     """`Rational -> ChaosParameters -> Y0`"""
     pass
+
+
 
 class Yn(ChaosParameters):
     """`Rational -> ChaosParameters -> Yn`"""
     pass
 
+
+
 class Z0(ChaosParameters):
     """`Rational -> ChaosParameters -> Z0`"""
     pass
+
+
 
 class Zn(ChaosParameters):
     """`Rational -> ChaosParameters -> Zn`"""
     pass
 
+
+
 class Lambda(ChaosParameters):
     """`Rational -> ChaosParameters -> Lambda`"""
     pass
 
+
+
 class Modulus(ChaosParameters):
     """`Rational -> ChaosParameters -> Modulus`"""
     pass
+
 
 
 class Amount(Rational):
