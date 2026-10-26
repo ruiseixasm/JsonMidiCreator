@@ -547,7 +547,7 @@ class Boundary(Validator):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case int() | float() | Fraction():
-                self._boundary = ra.Result(operand)._rational
+                self._boundary = ra.Rational(operand)._rational
             case _:
                 super().__lshift__(operand)
         return self
