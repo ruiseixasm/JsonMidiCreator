@@ -1077,11 +1077,11 @@ class Manipulator(Tamer):
 
     Parameters
     ----------
-    Fraction(8) : Sets the respective numeral.
+    int(8) : Sets the respective numeral.
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._parameter: any = Fraction(8)
+        self._parameter: any = int(8)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -1137,7 +1137,7 @@ class Modulo(Manipulator):
 
     Parameters
     ----------
-    Fraction(8), int, float : Sets the respective `Modulus`.
+    int(8), float : Sets the respective `Modulus`.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
@@ -1157,7 +1157,7 @@ class Modulo(Manipulator):
 
     def __lshift__(self, operand: any) -> Self:
         match operand:
-            case Fraction() | float() | int():
+            case float() | int():
                 self._parameter = ra.Numeral(operand)._rational
             case _:
                 super().__lshift__(operand)
@@ -1225,7 +1225,7 @@ class Increase(Manipulator):
 
     Parameters
     ----------
-    Fraction(8), int, float : Sets the respective increasing amount.
+    int(8), float : Sets the respective increasing amount.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
@@ -1237,7 +1237,7 @@ class Increase(Manipulator):
 
     def __lshift__(self, operand: any) -> Self:
         match operand:
-            case Fraction() | float() | int():
+            case float() | int():
                 self._parameter = ra.Numeral(operand)._rational
             case _:
                 super().__lshift__(operand)
@@ -1252,7 +1252,7 @@ class Decrease(Manipulator):
 
     Parameters
     ----------
-    Fraction(8), int, float : Sets the respective decrement amount.
+    int(8), float : Sets the respective decrement amount.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
@@ -1264,7 +1264,7 @@ class Decrease(Manipulator):
 
     def __lshift__(self, operand: any) -> Self:
         match operand:
-            case Fraction() | float() | int():
+            case float() | int():
                 self._parameter = ra.Numeral(operand)._rational
             case _:
                 super().__lshift__(operand)
@@ -1279,7 +1279,7 @@ class Expand(Manipulator):
 
     Parameters
     ----------
-    Fraction(8), int, float : Sets the respective decrement amount.
+    int(8), float : Sets the respective decrement amount.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
@@ -1291,7 +1291,7 @@ class Expand(Manipulator):
 
     def __lshift__(self, operand: any) -> Self:
         match operand:
-            case Fraction() | float() | int():
+            case float() | int():
                 self._parameter = ra.Numeral(operand)._rational
             case _:
                 super().__lshift__(operand)
@@ -1306,7 +1306,7 @@ class Contract(Manipulator):
 
     Parameters
     ----------
-    Fraction(8), int, float : Sets the respective decrement amount.
+    int(8), float : Sets the respective decrement amount.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
@@ -1319,7 +1319,7 @@ class Contract(Manipulator):
 
     def __lshift__(self, operand: any) -> Self:
         match operand:
-            case Fraction() | float() | int():
+            case float() | int():
                 self._parameter = ra.Numeral(operand)._rational
             case _:
                 super().__lshift__(operand)
@@ -1346,7 +1346,7 @@ class Wrap(Manipulator):
 
     def __lshift__(self, operand: any) -> Self:
         match operand:
-            case Fraction() | float() | int():
+            case float() | int():
                 self._parameter = ra.Numeral(operand)._rational
             case _:
                 super().__lshift__(operand)
@@ -1361,7 +1361,7 @@ class Switch(Manipulator):
 
     Parameters
     ----------
-    Fraction(1), int, float : Sets the respective switch threshold.
+    int(1), float : Sets the respective switch threshold.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -1379,7 +1379,7 @@ class Switch(Manipulator):
 
     def __lshift__(self, operand: any) -> Self:
         match operand:
-            case Fraction() | float() | int():
+            case float() | int():
                 self._parameter = ra.Numeral(operand)._rational
             case _:
                 super().__lshift__(operand)
@@ -1394,7 +1394,7 @@ class Probability(Manipulator):
 
     Parameters
     ----------
-    Fraction(1/10), int, float : Sets the probability of 1 as output, with the default probability of one `1` in 10.
+    Fraction(1/10), float : Sets the probability of 1 as output, with the default probability of one `1` in 10.
     """
     def __init__(self, *parameters):
         super().__init__()
