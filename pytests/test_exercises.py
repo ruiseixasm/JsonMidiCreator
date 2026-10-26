@@ -93,3 +93,9 @@ def test_transform_note():
 # test_transform_note()
 
 
+def test_framed_iteration():
+    four_notes = Note(Degree(3)) * 4
+    i_frame = ISet()
+    # four_notes >> Plot(transform=i_frame)
+
+
