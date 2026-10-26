@@ -534,7 +534,8 @@ class Boundary(Validator):
             super().loadSerialization(serialization)
             self._boundary = o.deserialize( serialization["parameters"]["boundary"] )
         return self
-        
+
+
     def __lshift__(self, operand: any) -> Self:
         match operand:
             case self.__class__():
@@ -547,6 +548,8 @@ class Boundary(Validator):
                 self.loadSerialization( operand.getSerialization() )
             case int() | float() | Fraction():
                 self._boundary = ra.Result(operand)._rational
+            case _:
+                super().__lshift__(operand)
         return self
 
 
@@ -1119,8 +1122,6 @@ class Manipulator(Tamer):
                 match operand._data:
                     case od.Parameter():            self._parameter = operand._data._data
                     case _:                         super().__lshift__(operand)
-            case od.Serialization():
-                self.loadSerialization( operand.getSerialization() )
             case od.Parameter():
                 self._parameter = o.deep_copy(operand._data)
             case Fraction() | float() | int():
