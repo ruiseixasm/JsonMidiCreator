@@ -23,7 +23,7 @@ A line has this tree structure:
 - `"t:1/16_0m_2S:Snare:40, :_6S, :_9S, :_11S, :_15S,"`
     - In this example one can see 5 tokens separated with `,`, the first token as `"t:1/16_0m_2S:Snare:40"`, where *t* stands for `Trigger`, with the second `Field`, representing
     its `Locus`, placement on the "staff", with the first `Parameter` setting its `Duration`.
-    - The following tokens, `":_6S, :_9S, :_11S, :_15S,"`, inherit the previous configurations, so, they are all implicitly triggers ('t'), and they don't set any durations but just positions where 'S' means `Step` and is the default meaning for integer. 
+    - The following tokens, `":_6S, :_9S, :_11S, :_15S,"`, inherit the previous configurations, so, they are all implicitly triggers ('t'), and they don't set any durations but just positions where 'S' means `Step` and is the default meaning for integer, so, the same line could also be written as `":_6, :_9, :_11, :_15,"`. 
 
 
 ## Token
