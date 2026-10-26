@@ -62,9 +62,11 @@ The position of elements, that reside in the 2nd `Field`, by default stacks on t
 This is the reality of most of the cases, but sometimes there is the need to break this chaining sequence, for that reason there are some special chars that change this behavior.
 
 ```py
-linear_triad = Clip("::1n, ::3n, ::5n, ::7n")  # In the pitch field, integers are Octaves, like `3`, but `3n` means natural 3rd degree
+# In the pitch field, integers are Octaves, like `3`, but `3n` means natural 3rd degree
+linear_triad = Clip("::1n, ::3n, ::5n, ::7n")
 linear_triad << Title("Linear Triad") >> Plot(block=False)
-clustered_triad = Clip("::1n, :3b:3n, :|:5n, :|:7n")  # Here the special `|` char at the `Locus` `Field` stacks in a start-to-start fashion
+# Here the special `|` char at the `Locus` `Field` stacks in a start-to-start fashion
+clustered_triad = Clip("::1n, :3b:3n, :|:5n, :|:7n")
 clustered_triad << Title("Clustered Triad") >> Plot()
 ```
 
@@ -75,4 +77,31 @@ Bellow is the resulting plotting of the notes.
 ![Linear Triad](plot/Linear_Triad.png)
 ![Clustered Triad](plot/Clustered_Triad.png)
 
+
+### The Return char (`<`)
+
+One a single and long line is written, at some point the elements change the `Measure` where they are written on, for most cases that
+isn't a problem, however when one is writing a patter of multiple samples, it is useful to restart from the beginning for each sample.
+
+```py
+# Without using the Return char (`<`)
+single_line_1: str = (
+    "t:_2:Snare:40, :_6, :_9, :_11, :_15,"
+    "t:_0:Kick:90, :_3S::70, :_7, :_10, :_13,"
+)   # Add parenthesis in order to concatenate
+different_measures = Clip(single_line_1) << DrumKit("808") << Title("Different Measures") << Channel(10)
+different_measures >> Plot(block=False)
+# Using the Return char (`<`)
+single_line_2: str = (
+    "t:_2:Snare:40, :_6, :_9, :_11, :_15,"
+    "t:<_0:Kick:90, :_3S::70, :_7, :_10, :_13,"
+)   # Add parenthesis in order to concatenate
+same_measure = Clip(single_line_2) << DrumKit("808") << Title("Same Measure") << Channel(10)
+same_measure >> Plot()
+```
+
+The return char (`<`) in the second line made sure the Kick started from the beginning.
+
+![Different Measures](plot/Different_Measures.png)
+![Same Measure](plot/Same_Measure.png)
 
