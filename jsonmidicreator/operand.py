@@ -307,6 +307,17 @@ class Operand:
         self._index         = -1    # negative means no iteration so far
         return self << parameters
 
+
+    def restart(self, *parameters) -> Self:
+        """Resets the `Operand`'s iterative variables"""
+        # RESET THE SELF OPERANDS RECURSIVELY
+        if self._chained_operand is not None:
+            self << self._chained_operand.restart()
+        self._initiated     = False
+        self._set           = False
+        self._index         = -1    # negative means no iteration so far
+        return self << parameters
+
     
     def clear(self, *parameters) -> Self:
         """Clears the Operand to the default state"""
@@ -679,6 +690,19 @@ def deep_reset(data: any):
                 deep_reset(single_data)
         case tuple():
             deep_reset(list(data))
+
+def deep_restart(data: any):
+    match data:
+        case Operand():
+            return data.restart() # Only Operand has restart method
+        case dict():
+            for _, value in data.items():
+                deep_restart(value)
+        case list():
+            for single_data in data:
+                deep_restart(single_data)
+        case tuple():
+            deep_restart(list(data))
 
 def deep_clear(data: any):
     match data:

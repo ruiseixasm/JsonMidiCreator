@@ -1079,7 +1079,7 @@ class IFrame(IteratedTransformation):
     def __init__(self, frame: of.Frame = of.Chance()**ou.Degree(1),
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
-                 max_tries: int = 4, no_repetitions: bool = False, freeze_at: int = -1):
+                 max_tries: int = 50, no_repetitions: bool = False, freeze_at: int = -1):
         super().__init__(pre_filter, post_process, max_tries, no_repetitions, freeze_at)
         self.frame: ot.Tamer = frame
 

@@ -31,8 +31,11 @@ from . import operand_generic as og
 from . import operand_element as oe
 from . import operand_tamer as ot
 
+
 if TYPE_CHECKING:
     from operand_container import Clip
+
+
 
 # Works as a traditional C list (chained)
 class Frame(o.Operand):
@@ -76,6 +79,11 @@ class Frame(o.Operand):
     def reset(self, *parameters) -> Self:
         super().reset()
         o.deep_reset(self._named_parameters)
+        return self << parameters
+    
+    def restart(self, *parameters) -> Self:
+        super().restart()
+        o.deep_restart(self._named_parameters)
         return self << parameters
     
     def clear(self, *parameters) -> Self:
