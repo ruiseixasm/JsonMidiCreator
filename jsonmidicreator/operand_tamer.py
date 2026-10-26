@@ -79,7 +79,7 @@ class Tamer(o.Operand):
             result = chaos.result()
             self._tamer_tries += 1
 
-            rational: Fraction = ra.Rational(result) % Fraction()
+            rational: Fraction = ra.Numeral(result) % Fraction()
             tamed = self.tame(rational, True)[1]
 
             count_down -= 1
@@ -1124,8 +1124,6 @@ class Manipulator(Tamer):
                     case _:                         super().__lshift__(operand)
             case od.Parameter():
                 self._parameter = o.deep_copy(operand._data)
-            case Fraction() | float() | int():
-                self._parameter = ra.Numeral(operand)._rational
             case _:
                 super().__lshift__(operand)
         return self
@@ -1154,6 +1152,16 @@ class Modulo(Manipulator):
                 numeral = self._parameter.copy(numeral)
         numeral, validated = super().tame(numeral, iterate) # From left to right
         return numeral, validated
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        match operand:
+            case Fraction() | float() | int():
+                self._parameter = ra.Numeral(operand)._rational
+            case _:
+                super().__lshift__(operand)
+        return self
 
 
 
@@ -1225,6 +1233,16 @@ class Increase(Manipulator):
         numeral, validated = super().tame(numeral, iterate) # From left to right
         return numeral, validated
     
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        match operand:
+            case Fraction() | float() | int():
+                self._parameter = ra.Numeral(operand)._rational
+            case _:
+                super().__lshift__(operand)
+        return self
+
 
 
 class Decrease(Manipulator):
@@ -1242,6 +1260,16 @@ class Decrease(Manipulator):
         numeral, validated = super().tame(numeral, iterate) # From left to right
         return numeral, validated
 
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        match operand:
+            case Fraction() | float() | int():
+                self._parameter = ra.Numeral(operand)._rational
+            case _:
+                super().__lshift__(operand)
+        return self
+
 
 
 class Expand(Manipulator):
@@ -1258,6 +1286,16 @@ class Expand(Manipulator):
         numeral *= self._parameter
         numeral, validated = super().tame(numeral, iterate) # From left to right
         return numeral, validated
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        match operand:
+            case Fraction() | float() | int():
+                self._parameter = ra.Numeral(operand)._rational
+            case _:
+                super().__lshift__(operand)
+        return self
 
 
 
@@ -1277,6 +1315,16 @@ class Contract(Manipulator):
         numeral, validated = super().tame(numeral, iterate) # From left to right
         return numeral, validated
 
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        match operand:
+            case Fraction() | float() | int():
+                self._parameter = ra.Numeral(operand)._rational
+            case _:
+                super().__lshift__(operand)
+        return self
+
 
 
 class Wrap(Manipulator):
@@ -1293,6 +1341,16 @@ class Wrap(Manipulator):
         numeral = self._parameter.__class__(numeral)
         numeral, validated = super().tame(numeral, iterate) # From left to right
         return numeral, validated
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        match operand:
+            case Fraction() | float() | int():
+                self._parameter = ra.Numeral(operand)._rational
+            case _:
+                super().__lshift__(operand)
+        return self
 
 
 
@@ -1316,6 +1374,16 @@ class Switch(Manipulator):
         numeral = Fraction(0) if numeral < self._parameter else Fraction(1)
         numeral, validated = super().tame(numeral, iterate) # From left to right
         return numeral, validated
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        match operand:
+            case Fraction() | float() | int():
+                self._parameter = ra.Numeral(operand)._rational
+            case _:
+                super().__lshift__(operand)
+        return self
 
 
 
@@ -1341,5 +1409,15 @@ class Probability(Manipulator):
         numeral, validated = super().tame(numeral, iterate) # From left to right
         return numeral, validated
 
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        match operand:
+            case float():
+                self._parameter = ra.Numeral(operand)._rational
+            case _:
+                super().__lshift__(operand)
+        return self
 
 
