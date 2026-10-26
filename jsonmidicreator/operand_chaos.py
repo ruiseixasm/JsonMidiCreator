@@ -213,7 +213,6 @@ class Chaos(o.Operand):
             case ra.Seed():                 self._x0 << operand
             case int() | float() | Fraction():
                 self << od.Pipe(operand)    # Piped, to process it correctly
-                self._x0 << self._xn
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -640,6 +639,9 @@ class Bouncer(Chaos):
             case ra.X0():               return self._x0.copy()
             case ra.Yn():               return self._yn.copy()
             case ra.Y0():               return self._y0.copy()
+            case ra.Seed():
+                hypotenuse_0: Fraction = ra.Result(math.hypot(self._x0 % float(), self._y0 % float()))._rational
+                return ra.Seed(hypotenuse_0)
             case _:
                 return super().__mod__(operand)
 
@@ -721,11 +723,12 @@ class Bouncer(Chaos):
             case ra.Yn():       self._yn << operand
             case ra.Y0():       self._y0 << operand
             case ra.Seed():
-                self._x0 << operand % float() / math.sqrt(2)
-                self._y0 << self._x0
-            case int() | float() | Fraction():
-                super().__lshift__(operand)
-                self._y0 << self._yn
+                operand_rational: Fraction = operand._rational
+                if operand_rational != 0:
+                    hypotenuse_0: Fraction = ra.Result(math.hypot(self._x0 % float(), self._y0 % float()))._rational
+                    ratio: Fraction = hypotenuse_0 / operand_rational
+                    self._x0 *= ratio
+                    self._y0 *= ratio
             case _:
                 super().__lshift__(operand)
         # Final needed modulation
