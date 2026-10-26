@@ -33,7 +33,7 @@ closed_hats = Trigger("Hat") * 16 << Velocity(70) << OnBeat()**Odd()**Velocity(1
 - `All`
   - Lets any, or all, input to pass to the next `Frame`.
 - `Excluding`
-  - Excludes the specified elements and keeps the remaining unmasked elements. Pasted text
+  - Excludes the specified elements and keeps the remaining unmasked elements.
 - `ElementType`
   - Passes only elements matching the specified types.
 - `First`
@@ -69,7 +69,7 @@ closed_hats = Trigger("Hat") * 16 << Velocity(70) << OnBeat()**Odd()**Velocity(1
 - `AboveOrEqual`
   - Passes elements greater than or equal to all specified comparison values.
 - `BellowOrEqual`
-  - Passes elements less than or equal to all specified comparison values. Pasted text
+  - Passes elements less than or equal to all specified comparison values.
 - `OnBeat`
   - Passes elements positioned on a beat.
 - `OffBeat`
@@ -81,7 +81,7 @@ closed_hats = Trigger("Hat") * 16 << Velocity(70) << OnBeat()**Odd()**Velocity(1
 - `OddStep`
   - Passes elements positioned on odd-numbered steps.
 - `EvenStep`
-  - Passes elements positioned on even-numbered steps. Pasted text
+  - Passes elements positioned on even-numbered steps.
 - `PreviousComparison`
   - Base class for comparing each element with the preceding element's specified parameter.
 - `AllMatch`
@@ -93,11 +93,11 @@ closed_hats = Trigger("Hat") * 16 << Velocity(70) << OnBeat()**Odd()**Velocity(1
 - `AllNotIncreasing`
   - Passes successive elements whose compared values do not increase.
 - `AllNotDecreasing`
-  - Passes successive elements whose compared values do not decrease. Pasted text
+  - Passes successive elements whose compared values do not decrease.
 - `Cross`
   - Passes elements whose duration crosses a specified `Position`.
 - `Overlap`
-  - Passes elements that overlap a specified `Locus`. Pasted text
+  - Passes elements that overlap a specified `Locus`.
 
 
 
