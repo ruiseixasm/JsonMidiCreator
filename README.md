@@ -1,7 +1,7 @@
 # JsonMidiCreator
 Program that creates files for the JsonMidiPlayer program: https://github.com/ruiseixasm/JsonMidiPlayer
 
-Detailed *JsonMidiCreator* usage documentation in the folder [doc](doc).
+Detailed *JsonMidiCreator* usage documentation in the file [README](doc/README.md) in the folder [doc](doc).
 
 # Pre requisites and installations
 1. Python version 3.11 or above due to the new `Self` type;
