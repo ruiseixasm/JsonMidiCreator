@@ -54,3 +54,25 @@ In a `Line`, the first `Token` is related to the type of `Element`, these are th
     specified in the same field, which in the given example is the case;
     - The second `Token` has `"n_9"`, this stands for `Note` on the midi `Channel` `9`, while the last one, `"75"`, sets the note `Velocity`.
 
+
+## Position and special chars
+### The Stem char (`|`)
+
+The position of elements, that reside in the 2nd `Field`, by default stacks on the previous element in a finish-to-start relationship.
+This is the reality of most of the cases, but sometimes there is the need to break this chaining sequence, for that reason there are some special chars that change this behavior.
+
+```py
+linear_triad = Clip("::1n, ::3n, ::5n, ::7n")  # In the pitch field, integers are Octaves, like `3`, but `3n` means natural 3rd degree
+linear_triad << Title("Linear Triad") >> Plot(block=False)
+clustered_triad = Clip("::1n, :3b:3n, :|:5n, :|:7n")  # Here the special `|` char at the `Locus` `Field` stacks in a start-to-start fashion
+clustered_triad << Title("Clustered Triad") >> Plot()
+```
+
+Note that the `clustered_triad` has the duration of the second note, in the second `Field`, set with `3b`, meaning a duration of 3 beats.
+
+Bellow is the resulting plotting of the notes.
+
+![Linear Triad](plot/Linear_Triad.png)
+![Clustered Triad](plot/Clustered_Triad.png)
+
+
