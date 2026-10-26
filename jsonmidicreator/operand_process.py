@@ -150,7 +150,12 @@ class Render(Process):
             file_path = file_path
         # Rendering of the midi file
         match operand:
-            case oc.Composition() | oe.Element():
+            case oc.Composition():
+                clocking = og.settings.getMidilistClocking()
+                beats_per_measure: int = operand._get_time_signature()._top
+                c.renderMidiFile(clocking, operand.getMidilist(), file_path, beats_per_measure)
+                return operand
+            case oe.Element():
                 clocking = og.settings.getMidilistClocking()
                 c.renderMidiFile(clocking, operand.getMidilist(), file_path)
                 return operand
