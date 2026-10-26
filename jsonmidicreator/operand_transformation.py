@@ -1066,7 +1066,7 @@ class IteratedTransformation(Transformation):
 class IFrame(IteratedTransformation):
     """`Transformation -> IteratedTransformation -> IFrame`
 
-    This class adds a framed Chaos to the iterated transformation.
+    This class uses a framed Chaos to the iterated transformation.
 
     Args:
         frame (Frame) : A Frame with a chaotic component like `Chance` or `Equal` among others that change per call.
@@ -1076,12 +1076,66 @@ class IFrame(IteratedTransformation):
         no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
-    def __init__(self, frame: of.Frame = of.Chance()**ra.Step(),
+    def __init__(self, frame: of.Frame = of.Chance()**ou.Degree(1),
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 4, no_repetitions: bool = False, freeze_at: int = -1):
         super().__init__(pre_filter, post_process, max_tries, no_repetitions, freeze_at)
         self.frame: ot.Tamer = frame
+
+
+
+class ISet(IFrame):
+    """`Transformation -> IteratedTransformation -> IFrame -> ISet`
+
+    This class *sets* a framed Chaos to the given `Clip` to be transformed.
+
+    Args:
+        frame (Frame) : A Frame with a chaotic component like `Chance` or `Equal` among others that change per call.
+        pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
+        post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
+        max_tries (int) : The maximum amount of tries to find a `Clip` solution.
+        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
+    """
+    def _single_transform(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
+        return clip.__lshift__(self.frame)  # The Clip is already decoupled
+
+
+
+class IAdd(IFrame):
+    """`Transformation -> IteratedTransformation -> IFrame -> IAdd`
+
+    This class *adds* a framed Chaos to the given `Clip` to be transformed.
+
+    Args:
+        frame (Frame) : A Frame with a chaotic component like `Chance` or `Equal` among others that change per call.
+        pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
+        post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
+        max_tries (int) : The maximum amount of tries to find a `Clip` solution.
+        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
+    """
+    def _single_transform(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
+        return clip.__iadd__(self.frame)    # The Clip is already decoupled
+
+
+
+class ISub(IFrame):
+    """`Transformation -> IteratedTransformation -> IFrame -> ISub`
+
+    This class *adds* a framed Chaos to the given `Clip` to be transformed.
+
+    Args:
+        frame (Frame) : A Frame with a chaotic component like `Chance` or `Equal` among others that change per call.
+        pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
+        post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
+        max_tries (int) : The maximum amount of tries to find a `Clip` solution.
+        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
+    """
+    def _single_transform(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
+        return clip.__isub__(self.frame)    # The Clip is already decoupled
 
 
 
