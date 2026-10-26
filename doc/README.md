@@ -3,5 +3,7 @@ Program that creates files for the JsonMidiPlayer program: https://github.com/ru
 
 
 ## Subjects
-* [Patterns](Patterns.md)
+* [Line](LINE.md)
+* [Patterns](PATTERNS.md)
+* [Iterations](ITERATIONS.md)
 
