@@ -148,6 +148,7 @@ class Chaos(o.Operand):
                     case _:                     return super().__mod__(operand)
             case ra.Xn():               return self._xn.copy()
             case ra.X0():               return self._x0.copy()
+            case ra.Seed():             return ra.Seed(self._x0)
             case int() | float() | Fraction():
                 if self._index < 0:
                     self._index = 0
@@ -209,6 +210,7 @@ class Chaos(o.Operand):
                 self.loadSerialization( operand.getSerialization() )
             case ra.Xn():                   self._xn << operand
             case ra.X0():                   self._x0 << operand
+            case ra.Seed():                 self._x0 << operand
             case int() | float() | Fraction():
                 self << od.Pipe(operand)    # Piped, to process it correctly
                 self._x0 << self._xn
@@ -340,7 +342,6 @@ class Sequence(Chaos):
         self._index += 1
 
         return result
-
 
 
 
@@ -569,8 +570,6 @@ class SinX(Chaos):
                     case ra.Lambda():               self._lambda = operand._data
                     case _:                         super().__lshift__(operand)
             case ra.Lambda():               self._lambda << operand
-            case ra.Xn():                   self._xn << operand
-            case ra.X0():                   self._x0 << operand
             case _:
                 super().__lshift__(operand)
         return self
@@ -721,6 +720,9 @@ class Bouncer(Chaos):
             case ra.X0():       self._x0 << operand
             case ra.Yn():       self._yn << operand
             case ra.Y0():       self._y0 << operand
+            case ra.Seed():
+                self._x0 << operand % float() / math.sqrt(2)
+                self._y0 << self._x0
             case int() | float() | Fraction():
                 super().__lshift__(operand)
                 self._y0 << self._yn
