@@ -165,7 +165,7 @@ def test_reset():
 
 def test_probability():
     free_chaos = Untamed()
-    tamed_chaos = Probability(1/2)
+    tamed_chaos = Binary(1/2)
     free_values: list[Fraction] = []
     tamed_values: list[Fraction] = []
     for _ in range(10):

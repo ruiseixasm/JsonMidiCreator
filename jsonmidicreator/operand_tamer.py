@@ -1091,7 +1091,7 @@ class Manipulator(Tamer):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._parameter: any = int(8)
+        self._parameter: any = Fraction(8)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -1289,23 +1289,6 @@ class Contract(Manipulator):
 
 
 
-class Wrap(Manipulator):
-    """`Tamer -> Manipulator -> Wrap`
-
-    `Wrap` wraps the `Numeral` into a different class than `Fraction`.
-
-    Parameters
-    ----------
-    Any() : Sets the type of object to wrap the numeral.
-    """
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        # A `Manipulator` shall always be triggered regardless of being previously validated or not
-        numeral = self._parameter.__class__(numeral)
-        numeral, validated = super().tame(numeral, iterate) # From left to right
-        return numeral, validated
-
-
-
 class Switch(Manipulator):
     """`Tamer -> Manipulator -> Switch`
 
@@ -1317,7 +1300,7 @@ class Switch(Manipulator):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._parameter = 1
+        self._parameter = Fraction(1)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -1329,20 +1312,21 @@ class Switch(Manipulator):
 
 
 
-class Probability(Manipulator):
-    """`Tamer -> Manipulator -> Probability`
+class Binary(Manipulator):
+    """`Tamer -> Manipulator -> Binary`
 
-    A `Probability` returns a `1` at the given probability from 0 to 1, and a `0` at the complementary probability.
+    A `Binary` returns a `1` at the given probability from 0 to 1, and a `0` at the complementary probability.
 
     Parameters
     ----------
-    Fraction(1/10), float : Sets the probability of 1 as output, with the default probability of one `1` in 10.
+    float(1/10) : Sets the probability of 1 as output, with the default probability of one `1` in 10.
     """
     def __init__(self, *parameters):
         super().__init__()
         self._parameter = Fraction(1, 10)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
+
 
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         chaotic_rational: Fraction = ra.Result(numeral)._rational % 1

@@ -29,7 +29,7 @@ def pattern_beats(beats_iterations: list[int] = [0, 0, 0, 0], probability: float
 
     pattern = Clip()
     for beat, iterations in enumerate(beats_iterations):
-        sequencer = Sequencer(SinX(23, Probability(probability)), Beats(1))
+        sequencer = Sequencer(SinX(23, Binary(probability)), Beats(1))
         beat_clip = Note(Steps(1)) * sequencer
         for _ in range(iterations):
             beat_clip = Note(Steps(1)) * sequencer
