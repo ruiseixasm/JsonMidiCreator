@@ -99,8 +99,8 @@ class Frame(o.Operand):
             unmasked_elements = clip.elements_unmasked()
         self._update_unmasked_elements( unmasked_elements )
         self._update_filtered_elements( unmasked_elements )
-        # Finally, does all remaining resets for each operand
-        return self.reset()
+        # Finally, does all remaining restart for each operand
+        return self.restart()
 
 
     def _update_unmasked_elements(self, unmasked_elements: list['oe.Element']) -> Self:
