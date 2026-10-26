@@ -328,6 +328,7 @@ class Rotate(AmountedAction):
         return clip._sort_items()
 
 
+
 class RotateLoci(AmountedAction):
     """`Action -> Aggregated -> AmountedAction -> RotateLoci`
 
