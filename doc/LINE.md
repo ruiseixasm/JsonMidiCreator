@@ -87,14 +87,14 @@ isn't a problem, however when one is writing a patter of multiple samples, it is
 # Without using the Return char (`<`)
 single_line_1: str = (
     "t:_2:Snare:40, :_6, :_9, :_11, :_15,"
-    "t:_0:Kick:90, :_3S::70, :_7, :_10, :_13,"
+    "t:_0:Kick:90, :_3::70, :_7, :_10, :_13,"
 )   # Add parenthesis in order to concatenate
 different_measures = Clip(single_line_1) << DrumKit("808") << Title("Different Measures") << Channel(10)
 different_measures >> Plot(block=False)
 # Using the Return char (`<`)
 single_line_2: str = (
     "t:_2:Snare:40, :_6, :_9, :_11, :_15,"
-    "t:<_0:Kick:90, :_3S::70, :_7, :_10, :_13,"
+    "t:<_0:Kick:90, :_3::70, :_7, :_10, :_13,"
 )   # Add parenthesis in order to concatenate
 same_measure = Clip(single_line_2) << DrumKit("808") << Title("Same Measure") << Channel(10)
 same_measure >> Plot()
