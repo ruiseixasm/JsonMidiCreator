@@ -97,6 +97,8 @@ def test_framed_iteration():
     four_notes = Note(Degree(3)) * 4
     i_frame = ISet(no_repetitions=True)
     # four_notes >> Plot(transform=i_frame)
+    i_iterate = ISet(frame=Each(Modulo())**Degree(), no_repetitions=True)
+    # four_notes >> Plot(transform=i_iterate)
 
 # test_framed_iteration()
 
