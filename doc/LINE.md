@@ -1,5 +1,9 @@
 # Line
-A `Line` is intended to target a `Clip` and set its containing elements.
+A `Line` is intended to target a `Clip` and set its containing elements. It's possible to pass a line without the `Line()` operand, as long as the line string has at least one `","`.
+
+These both code lines set the clip with the same content, a triad rooted in *A*, because the second string has a `","`.
+- `Clip() << Line("c:1m:A")`
+- `Clip() << "c:1m:A,"`
 
 A line has this tree structure:
 - `Line`
