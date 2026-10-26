@@ -1006,19 +1006,16 @@ class IteratedTransformation(Transformation):
     This class allows the transformation of the `Clip` based on chaotic input in an iterative fashion.
 
     Args:
-        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
         no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
-    def __init__(self, tamer: ot.Tamer = ot.Untamed(ra.Seed(340)),
-                 pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
+    def __init__(self, pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 4, no_repetitions: bool = False, freeze_at: int = -1):
         self._iterations: list[oc.Clip] = []
-        self.tamer: ot.Tamer = tamer
         self.pre_filter: Callable[['oc.Clip', 'oc.Clip'], bool] | None = pre_filter
         self.post_process: Callable[['oc.Clip'], 'oc.Clip'] | None = post_process
         self.max_tries: int = max_tries
@@ -1037,13 +1034,11 @@ class IteratedTransformation(Transformation):
 
     def restart(self) -> Self:
         self._iterations = []
-        self.tamer.restart()
         return super().restart()
 
     
     def reset(self) -> Self:
         self._iterations = []
-        self.tamer.reset()
         return super().reset()
     
     
@@ -1068,8 +1063,40 @@ class IteratedTransformation(Transformation):
 
 
 
-class IVariate(IteratedTransformation):
-    """`Transformation -> IteratedTransformation -> IVariate`
+class ITamed(IteratedTransformation):
+    """`Transformation -> IteratedTransformation -> ITamed -> ITamed`
+
+    This class adds a tamed Chaos to the iterated transformation.
+
+    Args:
+        tamer (Chaos) : The chaotic operand that will be the source if information for each iteration.
+        pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
+        post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
+        max_tries (int) : The maximum amount of tries to find a `Clip` solution.
+        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
+    """
+    def __init__(self, tamer: ot.Tamer = ot.Untamed(ra.Seed(340)),
+                 pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
+                 post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
+                 max_tries: int = 4, no_repetitions: bool = False, freeze_at: int = -1):
+        super().__init__(pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+        self.tamer: ot.Tamer = tamer
+
+
+    def restart(self) -> Self:
+        self.tamer.restart()
+        return super().restart()
+
+    
+    def reset(self) -> Self:
+        self.tamer.reset()
+        return super().reset()
+
+
+
+class IVariate(ITamed):
+    """`Transformation -> IteratedTransformation -> ITamed -> IVariate`
 
     This transformation respects the topology. The note count and relationships stay untouched;
     it only changes continuous space (pitch, timing, velocity), **only** the `Element` parameters.
@@ -1087,7 +1114,7 @@ class IVariate(IteratedTransformation):
 
 
 class ISplitDuration(IVariate):
-    """`Transformation -> IteratedTransformation -> IVariate -> ISplitDuration`
+    """`Transformation -> IteratedTransformation -> ITamed -> IVariate -> ISplitDuration`
 
     Adds splits to the `Clip` elements resulting in the given amount of durations (elements).
 
@@ -1142,7 +1169,7 @@ class ISplitDuration(IVariate):
 
 
 class IShuffleLocus(IVariate):
-    """`Transformation -> IteratedTransformation -> IVariate -> IShuffleLocus`
+    """`Transformation -> IteratedTransformation -> ITamed -> IVariate -> IShuffleLocus`
 
     This class shuffles the multiple locus around.
 
@@ -1172,7 +1199,7 @@ class IShuffleLocus(IVariate):
 
 
 class IShuffleDuration(IVariate):
-    """`Transformation -> IteratedTransformation -> IVariate -> IShuffleDuration`
+    """`Transformation -> IteratedTransformation -> ITamed -> IVariate -> IShuffleDuration`
 
     Moves the existent durations around while preserving the relative positions to them.
 
@@ -1222,7 +1249,7 @@ class IShuffleDuration(IVariate):
 
 
 class IChooseDuration(IShuffleDuration):
-    """`Transformation -> IteratedTransformation -> IVariate -> IShuffleDuration -> IChooseDuration`
+    """`Transformation -> IteratedTransformation -> ITamed -> IVariate -> IShuffleDuration -> IChooseDuration`
 
     Chooses durations from a given list and sets the element durations with it while preserving the relative positions.
 
@@ -1289,7 +1316,7 @@ class IChooseDuration(IShuffleDuration):
     
 
 class ISwapDuration(IVariate):
-    """`Transformation -> IteratedTransformation -> IVariate -> ISwapDuration`
+    """`Transformation -> IteratedTransformation -> ITamed -> IVariate -> ISwapDuration`
 
     Swaps subsequent elements durations but it doesn't necessarily preserve all relative positions.
 
@@ -1325,7 +1352,7 @@ class ISwapDuration(IVariate):
     
 
 class IShuffleParameter(IVariate):
-    """`Transformation -> IteratedTransformation -> IVariate -> IShuffleParameter`
+    """`Transformation -> IteratedTransformation -> ITamed -> IVariate -> IShuffleParameter`
 
     Shuffles a given parameter among the multiple elements in the clip.
 
@@ -1364,7 +1391,7 @@ class IShuffleParameter(IVariate):
 
 
 class ISetParameter(IVariate):
-    """`Transformation -> IteratedTransformation -> IVariate -> ISetParameter`
+    """`Transformation -> IteratedTransformation -> ITamed -> IVariate -> ISetParameter`
 
     Applies to each element the *chaotized* parameter or to all elements at once if `global_setting` is `True`.
 
@@ -1404,7 +1431,7 @@ class ISetParameter(IVariate):
 
 
 class IChooseParameter(IVariate):
-    """`Transformation -> IteratedTransformation -> IVariate -> IChooseParameter`
+    """`Transformation -> IteratedTransformation -> ITamed -> IVariate -> IChooseParameter`
 
     Choses a parameter from parameters for each `Clip` element.
 
@@ -1438,8 +1465,8 @@ class IChooseParameter(IVariate):
 
 
 
-class IMutate(IteratedTransformation):
-    """`Transformation -> IteratedTransformation -> IMutate`
+class IMutate(ITamed):
+    """`Transformation -> IteratedTransformation -> ITamed -> IMutate`
 
     This transformation changes the topology. The note count and relationships are changed;
     Type of Element, Note, Rest or ControlChange are possibly changed, and the number of elements too.
@@ -1456,8 +1483,8 @@ class IMutate(IteratedTransformation):
 
 
 
-class IYield(IteratedTransformation):
-    """`Transformation -> IteratedTransformation -> IYield`
+class IYield(ITamed):
+    """`Transformation -> IteratedTransformation -> ITamed -> IYield`
 
     This transformation overrides the topology with a new one. All the `Clip` content is replaced
     by a self generated, iterated, new one.
