@@ -1047,12 +1047,12 @@ class Neither(ClipFilter):
 class Chance(ClipFilter):
     """`Frame -> LeftToRight -> ClipFilter -> Chance`
 
-    `Chance` uses a `Probability` based on which Elements are kept.
+    `Chance` uses a `Binary` tamer based on which Elements are kept.
 
     Parameters
     ----------
     Fraction(1/10), int, float : Sets the probability of 1 as output, with the default probability of one `1` in 10.
-    Chaos(SinX()) : The Chaos being used by the `Probability`.
+    Chaos(SinX()) : The Chaos being used by the `Binary` tamer.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -1493,6 +1493,8 @@ class Get(LeftToRight):
             return super().frame(parameter)
         return super().frame(input)
 
+
+
 class DeepCopy(LeftToRight):
     """`Frame -> LeftToRight -> DeepCopy`
 
@@ -1506,6 +1508,8 @@ class DeepCopy(LeftToRight):
         input_duplication = o.deep_copy(input)
         return super().frame(input_duplication)
 
+
+
 class Inject(LeftToRight):
     """`Frame -> LeftToRight -> Inject`
 
@@ -1516,6 +1520,8 @@ class Inject(LeftToRight):
     None : This `Frame` has no parameters.
     """
     pass
+
+
 
 class Set(Inject):
     """`Frame -> LeftToRight -> Inject -> Set`
@@ -1531,7 +1537,9 @@ class Set(Inject):
             for single_parameter in self._parameters:
                 input << single_parameter
         return super().frame(input)
-        
+
+
+
 class Push(Inject):
     """`Frame -> LeftToRight -> Inject -> Push`
 
@@ -1546,6 +1554,7 @@ class Push(Inject):
             for single_parameter in self._parameters:
                 single_parameter >> input
         return super().frame(input)
+
 
 
 class BasicOperation(LeftToRight):
@@ -1572,6 +1581,8 @@ class BasicOperation(LeftToRight):
                 return 1    # By default processes 1
         return self._named_parameters['parameter']
 
+
+
 class Add(BasicOperation):
     """`Frame -> LeftToRight -> BasicOperation -> Add`
 
@@ -1583,6 +1594,8 @@ class Add(BasicOperation):
     """
     def frame(self, input: o.T) -> o.T:
         return super().frame(input + self._next_parameter())
+
+
 
 class Subtract(BasicOperation):
     """`Frame -> LeftToRight -> BasicOperation -> Subtract`
@@ -1596,6 +1609,8 @@ class Subtract(BasicOperation):
     def frame(self, input: o.T) -> o.T:
         return super().frame(input - self._next_parameter())
 
+
+
 class Multiply(BasicOperation):
     """`Frame -> LeftToRight -> BasicOperation -> Multiply`
 
@@ -1608,6 +1623,8 @@ class Multiply(BasicOperation):
     def frame(self, input: o.T) -> o.T:
         return super().frame(input * self._next_parameter())
 
+
+
 class Divide(BasicOperation):
     """`Frame -> LeftToRight -> BasicOperation -> Divide`
 
@@ -1619,6 +1636,7 @@ class Divide(BasicOperation):
     """
     def frame(self, input: o.T) -> o.T:
         return super().frame(input / self._next_parameter())
+
 
 
 class RightToLeft(Frame):  # RIGHT TO LEFT
