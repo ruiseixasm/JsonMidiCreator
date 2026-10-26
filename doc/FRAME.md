@@ -18,6 +18,17 @@ is targeted to only the On Beat triggers. The effect of it can be seen in the fo
 
 ![Sixteen Closed Hats](plot/Sixteen_Closed_Hats.png)
 
+### Stacking Filters
+Filters, and for that matter any `Frame`, can be stacked in a recursive fashion, so, for the previous example,
+one can specify which On Beat elements one wants to have the velocity increased, so, this changed line would
+result in alternated On Beat being set with higher velocity.
+```py
+closed_hats = Trigger("Hat") * 16 << Velocity(70) << OnBeat()**Odd()**Velocity(110)
+```
+
+![Odd Sixteen Closed Hats](plot/Sixteen_Closed_Hats_Odd.png)
+
+
 ### Other Filters
 - `All`
   - Lets any, or all, input to pass to the next `Frame`.
