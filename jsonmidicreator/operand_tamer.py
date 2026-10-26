@@ -180,6 +180,8 @@ class Tamer(o.Operand):
                     case _:             super().__lshift__(operand)
             case ch.Chaos():
                 self._chaos = operand.copy()
+            case int() | float() | Fraction() | ou.Unit() | ra.Rational():
+                self._chaos << operand
             case _:
                 super().__lshift__(operand)
         return self
