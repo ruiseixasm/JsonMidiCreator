@@ -1091,7 +1091,7 @@ class Manipulator(Tamer):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._parameter: any = Fraction(8)
+        self._parameter: Fraction = Fraction(8)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
