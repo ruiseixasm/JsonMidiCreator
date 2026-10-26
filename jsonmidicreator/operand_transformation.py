@@ -1124,7 +1124,7 @@ class IAdd(IFrame):
 class ISub(IFrame):
     """`Transformation -> IteratedTransformation -> IFrame -> ISub`
 
-    This class *adds* a framed Chaos to the given `Clip` to be transformed.
+    This class *subtracts* a framed Chaos to the given `Clip` to be transformed.
 
     Args:
         frame (Frame) : A Frame with a chaotic component like `Chance` or `Equal` among others that change per call.
