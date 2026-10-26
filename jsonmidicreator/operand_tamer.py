@@ -1356,3 +1356,18 @@ class Probability(Manipulator):
         return super().tame(chaotic_rational, iterate)  # From left to right
 
 
+
+class Integer(Manipulator):
+    """`Tamer -> Manipulator -> Integer`
+
+    A `Integer` returns the integer of the given result.
+
+    Parameters
+    ----------
+    Chaos(SinX()) : The Chaos being tamed.
+    """
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+        integer_rational: Fraction = Fraction(ra.Result(numeral) % int(), 1)
+        return super().tame(integer_rational, iterate)  # From left to right
+
+
