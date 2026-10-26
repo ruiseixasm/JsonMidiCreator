@@ -285,6 +285,7 @@ class Parallel(Tamer):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     list([Tamer()]) : A list of tamers that set the `Tamer` operands in parallel.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -383,6 +384,7 @@ class Validator(Tamer):
     ----------
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -451,6 +453,7 @@ class Check(Validator):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     Fraction(8) : Sets the limit value.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -512,6 +515,7 @@ class Boundary(Validator):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     Fraction(8) : Sets the limit value.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -574,6 +578,7 @@ class Maximum(Boundary):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     Fraction(127) : Sets the boundary value.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -603,6 +608,7 @@ class Minimum(Boundary):
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     Fraction(0) : Sets the boundary value.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -631,6 +637,7 @@ class Prior(Validator):
     ----------
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -682,6 +689,7 @@ class Different(Prior):
     ----------
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         if not self.slack(numeral) and self._prior_numeral is not None and numeral == self._prior_numeral:
@@ -702,6 +710,7 @@ class Same(Prior):
     ----------
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         if not self.slack(numeral) and self._prior_numeral is not None and numeral != self._prior_numeral:
@@ -722,6 +731,7 @@ class Increasing(Prior):
     ----------
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         if not self.slack(numeral) and self._prior_numeral is not None and numeral <= self._prior_numeral:
@@ -742,6 +752,7 @@ class Decreasing(Prior):
     ----------
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         if not self.slack(numeral) and self._prior_numeral is not None and numeral >= self._prior_numeral:
@@ -763,6 +774,7 @@ class Motion(Validator):
     ----------
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -832,6 +844,7 @@ class Pattern(Motion):
         meaning it has no limit.
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -934,6 +947,7 @@ class Conjunct(Motion):
     ----------
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         if not self.slack(numeral):
@@ -956,6 +970,7 @@ class Stepwise(Motion):
     ----------
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         if not self.slack(numeral):
@@ -978,6 +993,7 @@ class Skipwise(Motion):
     ----------
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         if not self.slack(numeral):
@@ -1000,6 +1016,7 @@ class Disjunct(Motion):
     ----------
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         if not self.slack(numeral):
@@ -1022,6 +1039,7 @@ class Leaping(Motion):
     ----------
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         if not self.slack(numeral):
@@ -1044,6 +1062,7 @@ class Ascending(Motion):
     ----------
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         if not self.slack(numeral):
@@ -1066,6 +1085,7 @@ class Descending(Motion):
     ----------
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         if not self.slack(numeral):
@@ -1088,6 +1108,7 @@ class Manipulator(Tamer):
     Parameters
     ----------
     int(8), float : Sets the respective numeral.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -1150,6 +1171,7 @@ class Modulo(Manipulator):
     Parameters
     ----------
     int(8), float : Sets the respective `Modulus`.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
@@ -1176,6 +1198,7 @@ class Interval(Manipulator):
     Parameters
     ----------
     list([0, 12]) : Sets the range from list index 0, inclusive, to the list index 1, exclusive.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
@@ -1228,6 +1251,7 @@ class Increase(Manipulator):
     Parameters
     ----------
     int(8), float : Sets the respective increasing amount.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
@@ -1245,6 +1269,7 @@ class Decrease(Manipulator):
     Parameters
     ----------
     int(8), float : Sets the respective decrement amount.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
@@ -1262,6 +1287,7 @@ class Expand(Manipulator):
     Parameters
     ----------
     int(8), float : Sets the respective decrement amount.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
@@ -1279,6 +1305,7 @@ class Contract(Manipulator):
     Parameters
     ----------
     int(8), float : Sets the respective decrement amount.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
@@ -1297,6 +1324,7 @@ class Switch(Manipulator):
     Parameters
     ----------
     int(1), float : Sets the respective switch threshold.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -1320,6 +1348,7 @@ class Binary(Manipulator):
     Parameters
     ----------
     float(1/10) : Sets the probability of 1 as output, with the default probability of one `1` in 10.
+    Chaos(SinX()) : The Chaos being tamed.
     """
     def __init__(self, *parameters):
         super().__init__()
@@ -1334,5 +1363,21 @@ class Binary(Manipulator):
         numeral = Fraction(1) if 1 - chaotic_rational < self._parameter else Fraction(0)
         numeral, validated = super().tame(numeral, iterate) # From left to right
         return numeral, validated
+
+
+
+class Probability(Manipulator):
+    """`Tamer -> Manipulator -> Probability`
+
+    A `Probability` returns a value between 0 and 1 like [0, 1[.
+
+    Parameters
+    ----------
+    Chaos(SinX()) : The Chaos being tamed.
+    """
+    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+        chaotic_rational: Fraction = ra.Result(numeral)._rational % 1
+        numeral, validated = super().tame(chaotic_rational, iterate)    # From left to right
+        return chaotic_rational, validated
 
 
