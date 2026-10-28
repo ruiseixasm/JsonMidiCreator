@@ -1,3 +1,5 @@
+[← Back to README](README.md)
+
 # Patterns
 For the Chrome browser you can add the following extension
 [Midi Player](https://chromewebstore.google.com/detail/khppfbnjbaampmeeiocjhcodkklkcfjf?utm_source=item-share-cb)

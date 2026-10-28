@@ -1,3 +1,5 @@
+[← Back to README](README.md)
+
 # Line
 A `Line` is intended to target a `Clip` and set its containing elements. It's possible to pass a line without the `Line()` operand, as long as the line string has at least one `","`.
 
