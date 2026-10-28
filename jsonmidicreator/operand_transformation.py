@@ -1087,12 +1087,12 @@ class IFrame(IteratedTransformation):
 
 
     def restart(self, *parameters) -> Self:
-        self.frame.restart()
+        self.frame.restart(*parameters)
         return super().restart(*parameters)
 
     
     def reset(self, *parameters) -> Self:
-        self.frame.reset()
+        self.frame.reset(*parameters)
         return super().reset(*parameters)
 
 
@@ -1174,12 +1174,12 @@ class ITame(IteratedTransformation):
 
 
     def restart(self, *parameters) -> Self:
-        self.tamer.restart()
+        self.tamer.restart(*parameters)
         return super().restart(*parameters)
 
     
     def reset(self, *parameters) -> Self:
-        self.tamer.reset()
+        self.tamer.reset(*parameters)
         return super().reset(*parameters)
 
 
