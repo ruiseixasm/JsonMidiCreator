@@ -1064,6 +1064,47 @@ class IteratedTransformation(Transformation):
 
 
 
+class IMultiFrame(IteratedTransformation):
+    """`Transformation -> IteratedTransformation -> IMultiFrame`
+
+    This class allows the setting of the `Clip` with multiple frames at once.
+
+    Args:
+        frames (list[Frame]) : A list of frames to be applied in one go. These frames should represent chaotic data.
+        pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
+        post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
+        max_tries (int) : The maximum amount of tries to find a `Clip` solution.
+        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
+    """
+    def __init__(self, frames: list[of.Frame] = [of.Chance()**ou.Degree(1)],
+                 no_repetitions: bool = False,
+                 pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
+                 post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
+                 max_tries: int = 100, freeze_at: int = -1):
+        super().__init__(no_repetitions, pre_filter, post_process, max_tries, freeze_at)
+        self.frames: list[ot.Tamer] = frames
+
+
+    def _single_transform(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
+        for single_frame in self.frames:
+            clip << single_frame
+        return clip
+
+
+    def restart(self, *parameters) -> Self:
+        for single_frame in self.frames:
+            single_frame.restart()
+        return super().restart(*parameters)
+
+    
+    def reset(self, *parameters) -> Self:
+        for single_frame in self.frames:
+            single_frame.reset()
+        return super().reset(*parameters)
+
+
+
 class IFrame(IteratedTransformation):
     """`Transformation -> IteratedTransformation -> IFrame`
 
@@ -1087,12 +1128,12 @@ class IFrame(IteratedTransformation):
 
 
     def restart(self, *parameters) -> Self:
-        self.frame.restart(*parameters)
+        self.frame.restart()
         return super().restart(*parameters)
 
     
     def reset(self, *parameters) -> Self:
-        self.frame.reset(*parameters)
+        self.frame.reset()
         return super().reset(*parameters)
 
 
