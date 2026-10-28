@@ -1083,6 +1083,40 @@ class Chance(ClipFilter):
 
 
 
+class Selecting(ClipFilter):
+    """`Frame -> LeftToRight -> ClipFilter -> Selecting`
+
+    `Selecting` uses a `Chaos` to select an amount of Elements.
+
+    Parameters
+    ----------
+    int(1) : The amount of elements to be selected.
+    Chaos(SinX()) : The Chaos being used to select.
+    """
+    def __init__(self, *parameters):
+        super().__init__()
+        self._named_parameters['amount'] = 1
+        self._named_parameters['tamer'] = ot.Untamed()
+        for single_parameter in parameters:
+            match(single_parameter):
+                case int():
+                    self._named_parameters['amount'] = single_parameter
+                case _:
+                    self._named_parameters['tamer'] << single_parameter
+    
+
+    def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
+        selected_elements: list[oe.Element] = []
+        for _ in range(self._named_parameters['amount']):
+            filtered_elements_len : int = len(filtered_elements)
+            filtered_elements_index: int = self._named_parameters['tamer'] % int() % filtered_elements_len
+            selected_elements.append(
+                filtered_elements.pop(filtered_elements_index)
+            )
+        return super()._update_filtered_elements(selected_elements)
+
+
+
 class BasicComparison(ClipFilter):
     """`Frame -> LeftToRight -> ClipFilter -> BasicComparison`
 

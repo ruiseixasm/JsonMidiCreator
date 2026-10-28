@@ -384,6 +384,8 @@ class Amount(Rational):
     """`Rational -> Amount`"""
     pass
 
+
+
 class Negative(Rational):
     """`Rational -> Negative`"""
     def __init__(self, *parameters):
