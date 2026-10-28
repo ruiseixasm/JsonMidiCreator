@@ -1086,6 +1086,16 @@ class IFrame(IteratedTransformation):
         self.frame: ot.Tamer = frame
 
 
+    def restart(self, *parameters) -> Self:
+        self.frame.restart()
+        return super().restart(*parameters)
+
+    
+    def reset(self, *parameters) -> Self:
+        self.frame.reset()
+        return super().reset(*parameters)
+
+
 
 class ISet(IFrame):
     """`Transformation -> IteratedTransformation -> IFrame -> ISet`
@@ -1163,14 +1173,14 @@ class ITame(IteratedTransformation):
         self.tamer: ot.Tamer = tamer
 
 
-    def restart(self) -> Self:
+    def restart(self, *parameters) -> Self:
         self.tamer.restart()
-        return super().restart()
+        return super().restart(*parameters)
 
     
-    def reset(self) -> Self:
+    def reset(self, *parameters) -> Self:
         self.tamer.reset()
-        return super().reset()
+        return super().reset(*parameters)
 
 
 
