@@ -60,6 +60,8 @@ closed_hats = Trigger("Hat") * 16 << Velocity(70) << OnBeat()**Odd()**Velocity(1
   - Passes elements matching none of the specified conditions.
 - `Chance`
   - Randomly (Chaos) selects elements according to a probability, using a `Binary` tamer.
+- `Selecting`
+  - `Selecting` uses a `Chaos` to select an amount of Elements.
 - `Equal`
   - Passes elements equal to all specified comparison values.
 - `NotEqual`
