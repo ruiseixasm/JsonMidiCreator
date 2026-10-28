@@ -206,23 +206,24 @@ class Plot(Process):
         
     Args
     ----
-    by_channel: Allows the visualization in a Drum Machine alike instead of by Pitch.
-    block (bool): Suspends the program until the chart is closed.
-    pause (float): Sets a time in seconds before the chart is closed automatically.
-    iterations (int): Sets the amount of iterations automatically generated on the chart opening, \
-        this is dependent on a n_button being given.
-    n_button (Callable): A function that takes a Composition to be used to generate a new iteration.
-    composition (Composition): A composition to be played together with the plotted one.
+    transformation (Transformation): A Transformation which the 'n' button triggers.
     title (str): A title to give to the chart in order to identify it.
+    block (bool): Suspends the program until the chart is closed.
+    composition (Composition): A composition to be played together with the plotted one.
+    by_channel (bool): Allows the visualization in a Drum Machine alike instead of by Pitch.
     """
-    def __init__(self, by_channel: bool = False, block: bool = True, transformation: tr.Transformation = None,
-                 composition: Optional['oc.Composition'] = None, title: str | None = None):
+    def __init__(self,
+                 transformation: tr.Transformation = None,
+                 title: str | None = None,
+                 block: bool = True,
+                 composition: Optional['oc.Composition'] = None,
+                 by_channel: bool = False):
         super().__init__()
-        self.by_channel = by_channel
-        self.block = block
         self.transformation = transformation
-        self.composition = composition
         self.title = title
+        self.block = block
+        self.composition = composition
+        self.by_channel = by_channel
 
         self._compositions: list[oc.Composition] = []
         self._plot_lists: list[list] = []
