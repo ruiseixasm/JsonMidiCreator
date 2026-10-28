@@ -462,7 +462,26 @@ class Container(o.Operand):
 
 
     def __ior__(self, operand: Any) -> Self:
-        return self.__iadd__(operand)
+        unmasked_items: list[Any] = self.items_unmasked()
+        match operand:
+            case Container():
+                self.extend(o.deep_copy(operand.items_unmasked()))
+            case ot.Tamer():
+                chosen_items: list[Any] = []
+                for single_item in unmasked_items:
+                    if single_item == operand.chaoticize():
+                        chosen_items.append(single_item)
+                self.extend(o.deep_copy(chosen_items))
+            case tuple():
+                for single_item in operand:
+                    self |= single_item
+            case _:
+                equal_items: list[Any] = []
+                for single_item in unmasked_items:
+                    if single_item == operand:
+                        equal_items.append(single_item)
+                self.extend(o.deep_copy(equal_items))
+        return self
 
 
     def __ixor__(self, operand: Any) -> Self:
