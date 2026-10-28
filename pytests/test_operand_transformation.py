@@ -165,5 +165,11 @@ def test_choose_parameter():
 # test_choose_parameter()
 
 
+def test_reset_iteration():
+    framed_trigger = Equal("Kick")**Chance(1/8)**Step(1)
+    i_frame = IAdd(framed_trigger, no_repetitions=True)
+    i_frame << Reset()
+
+# test_reset_iteration()
 
 

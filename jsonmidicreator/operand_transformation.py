@@ -1033,14 +1033,14 @@ class IteratedTransformation(Transformation):
         return transform
 
 
-    def restart(self) -> Self:
+    def restart(self, *parameters) -> Self:
         self._iterations = []
-        return super().restart()
+        return super().restart(*parameters)
 
     
-    def reset(self) -> Self:
+    def reset(self, *parameters) -> Self:
         self._iterations = []
-        return super().reset()
+        return super().reset(*parameters)
     
     
     def transform(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
