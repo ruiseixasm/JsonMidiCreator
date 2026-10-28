@@ -1172,6 +1172,8 @@ class Plot(Process):
         self._plot_checksums    = [ o.checksum_to_string(composition.checksum()) ]
         if not isinstance(self.title, str):
             self.title = composition._name
+        if self.transformation is not None:
+            self.transformation.reset() # No surprises
 
         # Enable interactive mode (doesn't block the execution)
         plt.ion()
