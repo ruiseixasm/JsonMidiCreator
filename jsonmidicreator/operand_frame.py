@@ -1109,10 +1109,13 @@ class Selecting(ClipFilter):
         selected_elements: list[oe.Element] = []
         for _ in range(self._named_parameters['amount']):
             filtered_elements_len : int = len(filtered_elements)
-            filtered_elements_index: int = self._named_parameters['tamer'] % int() % filtered_elements_len
-            selected_elements.append(
-                filtered_elements.pop(filtered_elements_index)
-            )
+            if filtered_elements_len > 0:
+                filtered_elements_index: int = self._named_parameters['tamer'] % int() % filtered_elements_len
+                selected_elements.append(
+                    filtered_elements.pop(filtered_elements_index)
+                )
+            else:
+                break
         return super()._update_filtered_elements(selected_elements)
 
 
