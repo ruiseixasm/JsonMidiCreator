@@ -393,7 +393,7 @@ class SendTo(LeftToRight):
 class Choice(LeftToRight):
     """`Frame -> LeftToRight -> Choice`
 
-    A `Choice` is a group of elements that can be chosen from based on the input as the chooser.
+    A `Choice` is a group of elements that can be chosen from based on the **input** as the chooser.
 
     Parameters
     ----------
@@ -418,7 +418,7 @@ class Choice(LeftToRight):
 class Pick(LeftToRight):
     """`Frame -> LeftToRight -> Pick`
 
-    A `Pick` is a group of elements that can be picketed from based on the input as the picker.
+    A `Pick` is a group of elements that can be picketed from based on the **input** as the picker.
     The difference with `Choice` is that each picked item becomes unavailable until all elements are picked.
 
     Parameters
@@ -427,7 +427,9 @@ class Pick(LeftToRight):
     """
     def __init__(self, *parameters):
         super().__init__(*parameters)
+        # Has to be a list instead a tuple to be able to remove from
         self._named_parameters['pick'] = list(self._parameters)
+
 
     def frame(self, input: o.T) -> o.T:
         if len(self._parameters) > 0:
