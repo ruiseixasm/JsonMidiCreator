@@ -23,7 +23,8 @@ simple_pattern *= 2
 # The iteration
 framed_trigger = Equal("Kick")**Chance(1/8)**Step(1)
 i_frame = IAdd(framed_trigger, no_repetitions=True)
-simple_pattern >> Plot()
+# Finally start iterating
+simple_pattern >> Plot(transformation=i_frame)
 ```
 
 
