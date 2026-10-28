@@ -2103,7 +2103,18 @@ class Clip(Composition):  # Just a container of Elements
                 self.delete(unmasked_items).extend(filtered_elements)
             case _:
                 super().__iand__(operand)
-        return self
+        return self._sort_items()
+
+
+    def __ior__(self, operand: Any) -> Self:
+        match operand:
+            case of.Frame():
+                operand._set_inside_clip(self)
+                filtered_elements = operand._get_filtered_elements()
+                self.extend(o.deep_copy(filtered_elements))
+            case _:
+                super().__ior__(operand)._set_owner_clip()
+        return self._sort_items()
 
 
     def __ixor__(self, operand: Any) -> Self:
@@ -2118,8 +2129,8 @@ class Clip(Composition):  # Just a container of Elements
                 ]
                 self.delete(unmasked_items).extend(excluded_elements)
             case _:
-                super().__ixor__(operand)._set_owner_clip()._sort_items()
-        return self
+                super().__ixor__(operand)._set_owner_clip()
+        return self._sort_items()
 
 
     # Avoids the costly copy of Track self doing +=
