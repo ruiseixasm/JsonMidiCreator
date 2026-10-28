@@ -30,3 +30,18 @@ simple_pattern >> Plot(i_frame)
 
 ![Iterating Steps](plot/Iterating_Steps.png)
 
+
+## Creating Patterns
+The information in a Clip resides in its elements, so, the elements are what defines the range
+of a given Pattern of triggers, so, instead of thinking of adding triggers one should think
+in removing them from a given occupied range filled with them.
+
+If one wants to have a range of triggers say for four samples, the starting point is the following
+```py
+from jsonmidicreator import *
+# Start by setting the Clip parameters
+pattern_clip = DrumKit("808") << Title("Triggers Pattern of 64 steps")
+pattern_clip += Trigger("Kick") * 64 + Trigger("Snare") * 64 + Trigger("Hat") * 64 + Trigger("Shaker") * 64
+# From here one can start tailoring like any other sequencer, where `Keep` works like placing.
+playable_clip = (pattern_clip & Equal("Kick"))
+```
