@@ -1072,6 +1072,16 @@ class Chance(ClipFilter):
         self._named_parameters['probability'] = ot.Binary(*parameters)
 
 
+    def reset(self, *parameters) -> Self:
+        self._named_parameters['probability'].reset()
+        return super().reset(*parameters)
+
+
+    def restart(self, *parameters) -> Self:
+        self._named_parameters['probability'].restart()
+        return super().restart(*parameters)
+    
+
     def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
         kept_elements: list[oe.Element] = [
             single_filtered for single_filtered in filtered_elements
