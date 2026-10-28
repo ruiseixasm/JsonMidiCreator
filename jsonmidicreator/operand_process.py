@@ -215,12 +215,12 @@ class Plot(Process):
     composition (Composition): A composition to be played together with the plotted one.
     title (str): A title to give to the chart in order to identify it.
     """
-    def __init__(self, by_channel: bool = False, block: bool = True, transform: tr.Transformation = None,
+    def __init__(self, by_channel: bool = False, block: bool = True, transformation: tr.Transformation = None,
                  composition: Optional['oc.Composition'] = None, title: str | None = None):
         super().__init__()
         self.by_channel = by_channel
         self.block = block
-        self.transform = transform
+        self.transformation = transformation
         self.composition = composition
         self.title = title
 
@@ -329,7 +329,7 @@ class Plot(Process):
         else:
             chart_title += " - "
         chart_title += f"{"Masked - " if self._compositions[self._iteration_index].is_masked() else ""}"
-        if isinstance(self.transform, tr.Transformation):
+        if isinstance(self.transformation, tr.Transformation):
             chart_title += f"Iteration {self._iteration_index} of {len(self._compositions) - 1} - "
         chart_title += f"({checksum_str})"
         self._ax.set_title(chart_title)
@@ -1272,7 +1272,7 @@ class Plot(Process):
         # Next Button Widget
         self._disable_button(self._next_button)
 
-        if not isinstance(self.transform, tr.Transformation):
+        if not isinstance(self.transformation, tr.Transformation):
             self._disable_button(new_button)
 
         plt.show(block=self.block)
@@ -1318,10 +1318,10 @@ class Plot(Process):
 
 
     def _run_new(self, even = None) -> Self:
-        if isinstance(self.transform, tr.Transformation):
+        if isinstance(self.transformation, tr.Transformation):
             clip: oc.Composition = self._compositions[-1]    # It has always at least one
             if isinstance(clip, oc.Clip):
-                new_iteration = self.transform.new_iteration(self._compositions)
+                new_iteration = self.transformation.new_iteration(self._compositions)
                 if isinstance(new_iteration, oc.Clip):
                     self._iteration_index = len(self._compositions)
                     plotlist: list[dict] = new_iteration.getPlotlist()

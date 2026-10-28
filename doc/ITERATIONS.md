@@ -12,6 +12,18 @@ this operand is split in two types:
 
 The first type is the recommended one, because it's more intuitive and immediate.
 
+## Moving Steps
 
+```py
+# The pattern
+simple_pattern = Trigger("Hat") * 16 << Velocity(70) << OnBeat()**Velocity(110)
+simple_pattern += Trigger("Kick") * 16 & OnBeat()
+simple_pattern << DrumKit("808") << Channel(10)
+simple_pattern *= 2
+# The iteration
+framed_trigger = Equal("Kick")**Chance(1/8)**Step(1)
+i_frame = IAdd(framed_trigger, no_repetitions=True)
+simple_pattern >> Plot()
+```
 
 
