@@ -1012,14 +1012,15 @@ class IteratedTransformation(Transformation):
         no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
-    def __init__(self, pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
+    def __init__(self, no_repetitions: bool = False,
+                 pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
-                 max_tries: int = 4, no_repetitions: bool = False, freeze_at: int = -1):
+                 max_tries: int = 4, freeze_at: int = -1):
         self._iterations: list[oc.Clip] = []
+        self.no_repetitions: bool = no_repetitions
         self.pre_filter: Callable[['oc.Clip', 'oc.Clip'], bool] | None = pre_filter
         self.post_process: Callable[['oc.Clip'], 'oc.Clip'] | None = post_process
         self.max_tries: int = max_tries
-        self.no_repetitions: bool = no_repetitions
         self.freeze_at: int = freeze_at
         super().__init__()
 
@@ -1077,10 +1078,11 @@ class IFrame(IteratedTransformation):
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def __init__(self, frame: of.Frame = of.Chance()**ou.Degree(1),
+                 no_repetitions: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
-                 max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+                 max_tries: int = 100, freeze_at: int = -1):
+        super().__init__(no_repetitions, pre_filter, post_process, max_tries, freeze_at)
         self.frame: ot.Tamer = frame
 
 
@@ -1153,10 +1155,11 @@ class ITame(IteratedTransformation):
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def __init__(self, tamer: ot.Tamer = ot.Untamed(ra.Seed(340)),
+                 no_repetitions: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
-                 max_tries: int = 4, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+                 max_tries: int = 4, freeze_at: int = -1):
+        super().__init__(pre_filter, no_repetitions, post_process, max_tries, freeze_at)
         self.tamer: ot.Tamer = tamer
 
 
@@ -1205,10 +1208,11 @@ class ISplitDuration(IVariate):
     """
     def __init__(self, durations: int = 8,
                  tamer: ot.Tamer = ot.Untamed(ra.Seed(340)),
+                 no_repetitions: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
-                 max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(tamer, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+                 max_tries: int = 100, freeze_at: int = -1):
+        super().__init__(tamer, no_repetitions, pre_filter, post_process, max_tries, freeze_at)
         self.durations: int = durations
 
 
@@ -1340,10 +1344,11 @@ class IChooseDuration(IShuffleDuration):
     """
     def __init__(self, durations: list[Any] = [1/2, 1/4, 1/8, 1/16],
                  tamer: ot.Tamer = ot.Untamed(ra.Seed(340)),
+                 no_repetitions: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
-                 max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(tamer, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+                 max_tries: int = 100, freeze_at: int = -1):
+        super().__init__(tamer, no_repetitions, pre_filter, post_process, max_tries, freeze_at)
         self.durations: list[Any] = durations
 
 
@@ -1443,10 +1448,11 @@ class IShuffleParameter(IVariate):
     """
     def __init__(self, parameter: Any = ou.Degree(),
                  tamer: ot.Tamer = ot.Modulo(7, ch.SinX(340))**ot.Increase(1),
+                 no_repetitions: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
-                 max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(tamer, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+                 max_tries: int = 100, freeze_at: int = -1):
+        super().__init__(tamer, no_repetitions, pre_filter, post_process, max_tries, freeze_at)
         self.parameter: Any = parameter
 
 
@@ -1484,10 +1490,11 @@ class ISetParameter(IVariate):
     def __init__(self, parameter: o.Operand = ou.Degree(),
                  global_setting: bool = False,
                  tamer: ot.Tamer = ot.Modulo(7, ch.SinX(340))**ot.Increase(1),
+                 no_repetitions: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
-                 max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(tamer, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+                 max_tries: int = 100, freeze_at: int = -1):
+        super().__init__(tamer, no_repetitions, pre_filter, post_process, max_tries, freeze_at)
         self.parameter: o.Operand = parameter
         self.global_setting: bool = global_setting
 
@@ -1523,10 +1530,11 @@ class IChooseParameter(IVariate):
     """
     def __init__(self, parameters: list[Any] = o.list_wrap(["1", "3", "5", "6"], ou.Degree()),
                  tamer: ot.Tamer = ot.Untamed(ra.Seed(340)),
+                 no_repetitions: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
-                 max_tries: int = 100, no_repetitions: bool = False, freeze_at: int = -1):
-        super().__init__(tamer, pre_filter, post_process, max_tries, no_repetitions, freeze_at)
+                 max_tries: int = 100, freeze_at: int = -1):
+        super().__init__(tamer, no_repetitions, pre_filter, post_process, max_tries, freeze_at)
         self.parameters: list[Any] = parameters
 
 
