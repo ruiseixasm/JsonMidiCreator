@@ -5,7 +5,7 @@ There is a special `Transformation` sub `Operand` type called `IteratedTransform
 this operand is split in two types:
 - `IMultiFrame`
     - This is intended to generate patterns, when one creates a "grid" of triggers, like 64
-    per sample in order to just some of them be kept by using the `Action` `Keep`.
+    per sample in order to remove the unwanted ones by using the `Action` `Delete`.
 - `IFrame`
     - This is the easier and faster way of iterate a given `Clip`, because the source of
     Chaos is placed in the `Frame` with the process of transformation in it.
@@ -48,10 +48,10 @@ pattern_grid += Trigger("Kick") * 64 + Trigger("Snare") * 64 + Trigger("Hat") * 
 pattern_grid << Channel(10) # Information associated to the Elements and not the Clip need to be set after
 # This is the criteria of triggering, the grid is 64 but the the probabilities bellow are 1 measure based
 i_multi_frame = IMultiFrame([
-    Equal("Kick")**Chance(1/4)**Keep(),
-    Equal("Snare")**Chance(1/2)**Keep(),
-    Equal("Hat")**Chance(0.9)**Keep(),
-    Equal("Shaker")**Chance(0.95)**Keep()
+    Equal("Kick")**Chance(1 - 1/4)**Delete(),
+    Equal("Snare")**Chance(1 - 1/2)**Delete(),
+    Equal("Hat")**Chance(1 - 0.9)**Delete(),
+    Equal("Shaker")**Chance(1 - 0.95)**Delete()
 ], no_repeats=True)
 # The pattern_grid is just the grid source, the `Plot` always does a copy of the input (decoupling guaranteed)
 playable_clip = pattern_grid >> Plot(i_multi_frame)
