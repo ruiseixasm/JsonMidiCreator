@@ -169,3 +169,14 @@ def test_rotate_steps():
 # test_rotate_steps()
 
 
+def test_clip_resize():
+    four_steps = Note(Steps(1)) * 4
+    print(f"four_steps % Duration() % Beats(): {four_steps % Duration() % Beats() % float()}")
+    assert four_steps % Duration() == Beats(1)
+    four_steps << Resize()
+    print(f"four_steps % Duration() % Beats(): {four_steps % Duration() % Beats() % float()}")
+    assert four_steps % Duration() == Measures(1)
+
+# test_clip_resize()
+
+

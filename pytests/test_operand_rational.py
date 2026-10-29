@@ -433,8 +433,13 @@ def test_div_time():
     length = Length(Beats(1/1))
     assert position / (length % Measure()) % float() == 1/4   # Measures
 
+    position_measure = Position(Measures(1))
+    position_beat = Position(Beats(1))
+    assert position_measure / position_beat == 4
+    assert position_measure / position_beat % Fraction() == 4 * 4
 
-# test_div_time()
+
+test_div_time()
 
 
 def test_str_length():

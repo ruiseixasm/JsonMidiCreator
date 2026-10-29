@@ -86,6 +86,97 @@ class Keep(Action):
 
 
 
+class Resize(Action):
+    """`Action -> Resize`
+
+    `Resize` changes the position and the duration of the targeted elements to match the given size (length).
+    
+    Parameters
+    ----------
+    Measures(1), TimeValue : Sets the new size for the elements (default is 1 measures)
+    """
+    def __init__(self, *parameters):
+        self._time_value: ra.TimeValue = ra.Measures(1)
+        super().__init__(*parameters)
+
+
+    def act(self, clip: 'Clip', scoped_elements: list['Element']) -> 'Clip':
+        if scoped_elements:
+            start: ra.Position = scoped_elements[0].start()
+            finish: ra.Position = scoped_elements[0].finish()
+            for single_scoped in scoped_elements:
+                single_start = single_scoped.start()
+                single_finish = single_scoped.finish()
+                if single_start < start:
+                    start = single_start
+                if single_finish > finish:
+                    finish = single_finish
+            start_beats: Fraction = start % Fraction()
+            actual_size_beats: Fraction = (finish - start) % Fraction()
+            new_size_beats: Fraction = (finish << self._time_value) % Fraction()
+            resize_beats: Fraction = new_size_beats / actual_size_beats
+            for single_scoped in scoped_elements:
+                single_position_beats: Fraction = single_scoped._position_beats
+                new_position_beats: Fraction = (single_position_beats - start_beats) * resize_beats
+                single_scoped._position_beats = new_position_beats
+                single_duration_beats: Fraction = single_scoped._duration_beats
+                new_duration_beats: Fraction = single_duration_beats * resize_beats
+                single_scoped._duration_beats = new_duration_beats
+        return clip._sort_items()
+
+
+    def __mod__(self, operand: o.T) -> o.T:
+        from . import operand_rational as ra
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case ra.TimeValue():    return self._time_value
+                    case _:                 return super().__mod__(operand)
+            case ra.TimeValue():
+                return self._time_value.copy()
+            case ra.Length():
+                return operand.copy(self._time_value)
+            case _:
+                return super().__mod__(operand)
+
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["time_value"] = self._time_value
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "time_value" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._time_value = serialization["parameters"]["time_value"]
+        return self
+
+
+    def __lshift__(self, operand: any) -> Self:
+        from . import operand_rational as ra
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case RotateSteps():
+                super().__lshift__(operand)
+                self._time_value = operand._time_value.copy()
+            case od.Pipe():
+                match operand._data:
+                    case ra.TimeValue():            self._time_value = operand._data
+                    case _:                         super().__lshift__(operand)
+            case ra.TimeValue():
+                self._time_value = operand.copy()
+            case ra.Length():
+                self << ra.Beat(operand._rational)
+            case _:
+                super().__lshift__(operand)
+        return self
+
+
+
 class Aggregated(Action):
     """`Action -> Aggregated`
 
@@ -312,7 +403,6 @@ class Rotate(AmountedAction):
     `Rotate` does a left rotation of all elements by a given amount of rotation while keeping their structure.
 
     Args:
-        Measure(1), TimeUnit : Rotates the duration of the elements too (1 Measure is the default)
         int(1) : The left rotation amount of the list index, displacement
     """
     def act(self, clip: 'Clip', scoped_elements: list['Element']) -> 'Clip':
@@ -335,7 +425,6 @@ class RotateLoci(AmountedAction):
     `RotateLoci` does a left rotation of all elements loci by a given amount of rotation.
 
     Args:
-        Measure(1), TimeUnit : Rotates the duration of the elements too (1 Measure is the default)
         int(1) : The left rotation amount of the list index, displacement
     """
     def act(self, clip: 'Clip', scoped_elements: list['Element']) -> 'Clip':
