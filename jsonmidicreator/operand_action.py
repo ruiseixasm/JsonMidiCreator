@@ -102,13 +102,10 @@ class Resize(Action):
 
     def act(self, clip: 'Clip', scoped_elements: list['Element']) -> 'Clip':
         if scoped_elements:
-            start: ra.Position = scoped_elements[0].start()
-            finish: ra.Position = scoped_elements[0].finish()
+            start: ra.Position = scoped_elements[0].start() # `scoped_elements` are sorted by position (`start`)
+            finish: ra.Position = start
             for single_scoped in scoped_elements:
-                single_start = single_scoped.start()
                 single_finish = single_scoped.finish()
-                if single_start < start:
-                    start = single_start
                 if single_finish > finish:
                     finish = single_finish
             start_beats: Fraction = start % Fraction()
