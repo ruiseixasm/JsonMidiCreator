@@ -1009,15 +1009,15 @@ class IteratedTransformation(Transformation):
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
-        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        no_repeats (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
-    def __init__(self, no_repetitions: bool = False,
+    def __init__(self, no_repeats: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 4, freeze_at: int = -1):
         self._iterations: list[oc.Clip] = []
-        self.no_repetitions: bool = no_repetitions
+        self.no_repeats: bool = no_repeats
         self.pre_filter: Callable[['oc.Clip', 'oc.Clip'], bool] | None = pre_filter
         self.post_process: Callable[['oc.Clip'], 'oc.Clip'] | None = post_process
         self.max_tries: int = max_tries
@@ -1052,7 +1052,7 @@ class IteratedTransformation(Transformation):
                 if not callable(self.pre_filter) or self.pre_filter(candidate, clip):
                     if callable(self.post_process):
                         candidate = self.post_process(candidate)
-                    if not self.no_repetitions or not candidate in self._iterations:
+                    if not self.no_repeats or not candidate in self._iterations:
                         if isinstance(self._chained_operand, Transformation):
                             candidate = self._chained_operand.transform(candidate)   # Recursive!
                         if isinstance(candidate, ol.Null):
@@ -1074,15 +1074,15 @@ class IMultiFrame(IteratedTransformation):
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
-        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        no_repeats (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def __init__(self, frames: list[of.Frame] = [of.Chance()**ou.Degree(1)],
-                 no_repetitions: bool = False,
+                 no_repeats: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, freeze_at: int = -1):
-        super().__init__(no_repetitions, pre_filter, post_process, max_tries, freeze_at)
+        super().__init__(no_repeats, pre_filter, post_process, max_tries, freeze_at)
         self.frames: list[ot.Tamer] = frames
 
 
@@ -1115,15 +1115,15 @@ class IFrame(IteratedTransformation):
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
-        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        no_repeats (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def __init__(self, frame: of.Frame = of.Chance()**ou.Degree(1),
-                 no_repetitions: bool = False,
+                 no_repeats: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, freeze_at: int = -1):
-        super().__init__(no_repetitions, pre_filter, post_process, max_tries, freeze_at)
+        super().__init__(no_repeats, pre_filter, post_process, max_tries, freeze_at)
         self.frame: ot.Tamer = frame
 
 
@@ -1148,7 +1148,7 @@ class ISet(IFrame):
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
-        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        no_repeats (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def _single_transform(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
@@ -1166,7 +1166,7 @@ class IAdd(IFrame):
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
-        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        no_repeats (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def _single_transform(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
@@ -1184,7 +1184,7 @@ class ISub(IFrame):
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
-        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        no_repeats (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def _single_transform(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
@@ -1202,15 +1202,15 @@ class ITame(IteratedTransformation):
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
-        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        no_repeats (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def __init__(self, tamer: ot.Tamer = ot.Untamed(ra.Seed(340)),
-                 no_repetitions: bool = False,
+                 no_repeats: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 4, freeze_at: int = -1):
-        super().__init__(pre_filter, no_repetitions, post_process, max_tries, freeze_at)
+        super().__init__(pre_filter, no_repeats, post_process, max_tries, freeze_at)
         self.tamer: ot.Tamer = tamer
 
 
@@ -1236,7 +1236,7 @@ class IVariate(ITame):
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
-        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        no_repeats (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     pass
@@ -1254,16 +1254,16 @@ class ISplitDuration(IVariate):
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
-        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        no_repeats (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def __init__(self, durations: int = 8,
                  tamer: ot.Tamer = ot.Untamed(ra.Seed(340)),
-                 no_repetitions: bool = False,
+                 no_repeats: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, freeze_at: int = -1):
-        super().__init__(tamer, no_repetitions, pre_filter, post_process, max_tries, freeze_at)
+        super().__init__(tamer, no_repeats, pre_filter, post_process, max_tries, freeze_at)
         self.durations: int = durations
 
 
@@ -1309,7 +1309,7 @@ class IShuffleLocus(IVariate):
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
-        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        no_repeats (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def _single_transform(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
@@ -1339,7 +1339,7 @@ class IShuffleDuration(IVariate):
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
-        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        no_repeats (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def _get_durations_beats(self, clip: 'oc.Clip') -> list[Fraction]:
@@ -1390,16 +1390,16 @@ class IChooseDuration(IShuffleDuration):
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
-        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        no_repeats (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def __init__(self, durations: list[Any] = [1/2, 1/4, 1/8, 1/16],
                  tamer: ot.Tamer = ot.Untamed(ra.Seed(340)),
-                 no_repetitions: bool = False,
+                 no_repeats: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, freeze_at: int = -1):
-        super().__init__(tamer, no_repetitions, pre_filter, post_process, max_tries, freeze_at)
+        super().__init__(tamer, no_repeats, pre_filter, post_process, max_tries, freeze_at)
         self.durations: list[Any] = durations
 
 
@@ -1457,7 +1457,7 @@ class ISwapDuration(IVariate):
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
-        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        no_repeats (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def _single_transform(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
@@ -1494,16 +1494,16 @@ class IShuffleParameter(IVariate):
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
-        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        no_repeats (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def __init__(self, parameter: Any = ou.Degree(),
                  tamer: ot.Tamer = ot.Modulo(7, ch.SinX(340))**ot.Increase(1),
-                 no_repetitions: bool = False,
+                 no_repeats: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, freeze_at: int = -1):
-        super().__init__(tamer, no_repetitions, pre_filter, post_process, max_tries, freeze_at)
+        super().__init__(tamer, no_repeats, pre_filter, post_process, max_tries, freeze_at)
         self.parameter: Any = parameter
 
 
@@ -1535,17 +1535,17 @@ class ISetParameter(IVariate):
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
-        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        no_repeats (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def __init__(self, parameter: o.Operand = ou.Degree(),
                  global_setting: bool = False,
                  tamer: ot.Tamer = ot.Modulo(7, ch.SinX(340))**ot.Increase(1),
-                 no_repetitions: bool = False,
+                 no_repeats: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, freeze_at: int = -1):
-        super().__init__(tamer, no_repetitions, pre_filter, post_process, max_tries, freeze_at)
+        super().__init__(tamer, no_repeats, pre_filter, post_process, max_tries, freeze_at)
         self.parameter: o.Operand = parameter
         self.global_setting: bool = global_setting
 
@@ -1576,16 +1576,16 @@ class IChooseParameter(IVariate):
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
-        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        no_repeats (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def __init__(self, parameters: list[Any] = o.list_wrap(["1", "3", "5", "6"], ou.Degree()),
                  tamer: ot.Tamer = ot.Untamed(ra.Seed(340)),
-                 no_repetitions: bool = False,
+                 no_repeats: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, freeze_at: int = -1):
-        super().__init__(tamer, no_repetitions, pre_filter, post_process, max_tries, freeze_at)
+        super().__init__(tamer, no_repeats, pre_filter, post_process, max_tries, freeze_at)
         self.parameters: list[Any] = parameters
 
 
@@ -1611,7 +1611,7 @@ class IMutate(ITame):
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
-        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        no_repeats (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     pass
@@ -1629,7 +1629,7 @@ class IYield(ITame):
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
-        no_repetitions (bool): Doesn't let repetitions of past outputted solutions.
+        no_repeats (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     pass

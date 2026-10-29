@@ -95,10 +95,10 @@ def test_transform_note():
 
 def test_framed_iteration():
     four_notes = Note(Degree(3)) * 4
-    i_frame = ISet(no_repetitions=True)
+    i_frame = ISet(no_repeats=True)
     # four_notes >> Plot(transform=i_frame)
     four_notes << Degree(1)
-    i_iterate = IAdd(frame=Generate(Modulo())**Degree(), no_repetitions=True)
+    i_iterate = IAdd(frame=Generate(Modulo())**Degree(), no_repeats=True)
     # four_notes >> Plot(transform=i_iterate)
 
 # test_framed_iteration()

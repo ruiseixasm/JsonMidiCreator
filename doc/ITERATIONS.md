@@ -25,7 +25,7 @@ simple_pattern << DrumKit("808") << Channel(10) << Title("Iterating Steps")
 simple_pattern *= 2
 # The iteration
 framed_trigger = Equal("Kick")**Chance(1/8)**Step(1)
-i_frame = IAdd(framed_trigger, no_repetitions=True)
+i_frame = IAdd(framed_trigger, no_repeats=True)
 # Finally start iterating
 simple_pattern >> Plot(i_frame)
 # Realization the Iteration 5 is quite usable
@@ -43,8 +43,16 @@ If one wants to have a range of triggers say for four samples, the starting poin
 ```py
 from jsonmidicreator import *
 # Start by setting the Clip parameters
-pattern_clip = DrumKit("808") << Title("Triggers Pattern of 64 steps")
-pattern_clip += Trigger("Kick") * 64 + Trigger("Snare") * 64 + Trigger("Hat") * 64 + Trigger("Shaker") * 64
-# From here one can start tailoring like any other sequencer, where `Keep` works like placing.
-playable_clip = (pattern_clip & Equal("Kick"))
+pattern_grid = Clip() << DrumKit("808") << Title("Triggers Pattern of 64 steps")
+pattern_grid += Trigger("Kick") * 64 + Trigger("Snare") * 64 + Trigger("Hat") * 64 + Trigger("Shaker") * 64
+pattern_grid << Channel(10) # Information associated to the Elements and not the Clip need to be set after
+# This is the criteria of triggering, the grid is 64 but the the probabilities bellow are 1 measure based
+i_multi_frame = IMultiFrame([
+    Equal("Kick")**Chance(1/4)**Keep(),
+    Equal("Snare")**Chance(1/2)**Keep(),
+    Equal("Hat")**Chance(0.9)**Keep(),
+    Equal("Shaker")**Chance(0.95)**Keep()
+], no_repeats=True)
+# The pattern_grid is just the grid source, the `Plot` always does a copy of the input (decoupling guaranteed)
+playable_clip = pattern_grid >> Plot(i_multi_frame)
 ```
