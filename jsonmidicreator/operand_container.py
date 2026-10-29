@@ -2016,6 +2016,15 @@ class Clip(Composition):  # Just a container of Elements
                     case oa.Action():
                         # `act` always returns self
                         return framed_operand.act(self, framed_elements)  # Sorting already included
+                    case tuple():   # Many at once, for filtering frames only
+                        for single_framed in framed_operand:
+                            match single_framed:
+                                case oa.Action():
+                                    # `act` always returns self
+                                    framed_operand.act(self, framed_elements)  # Sorting already included
+                                case _:
+                                    for single_item in framed_elements:
+                                        single_item << single_framed
                     case _:
                         for single_item in framed_elements:
                             framed_parameter = operand.frame(single_item)
