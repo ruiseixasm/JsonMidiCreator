@@ -3,11 +3,14 @@
 # Iterations
 There is a special `Transformation` sub `Operand` type called `IteratedTransformation`,
 this operand is split in two types:
-- IFrame
+- `IMultiFrame`
+    - This is intended to generate patterns, when one creates a "grid" of triggers, like 64
+    per sample in order to just some of them be kept by using the `Action` `Keep`.
+- `IFrame`
     - This is the easier and faster way of iterate a given `Clip`, because the source of
     Chaos is placed in the `Frame` with the process of transformation in it.
-- ITame
-    - This requires more configuration where the source of Chaos (`Tamer`) is in the Operand
+- `ITame`
+    - This requires more configuration where the source of `Chaos` (`Tamer`) is in the `Operand`
     itself together with the process of transformation.
 
 The first type is the recommended one, because it's more intuitive and immediate.
