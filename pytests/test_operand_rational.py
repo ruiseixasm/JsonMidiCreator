@@ -438,8 +438,7 @@ def test_div_time():
     assert position_measure / position_beat == 4
     assert position_measure / position_beat % Fraction() == 4 * 4
 
-
-test_div_time()
+# test_div_time()
 
 
 def test_str_length():

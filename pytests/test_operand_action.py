@@ -177,6 +177,13 @@ def test_clip_resize():
     print(f"four_steps % Duration() % Beats(): {four_steps % Duration() % Beats() % float()}")
     assert four_steps % Duration() == Measures(1)
 
+    four_steps += Measure(1)
+    print(f"four_steps % Duration() % Beats(): {four_steps % Duration() % Beats() % float()}")
+    assert four_steps % Duration() == Measures(1 + 1)
+    four_steps << Resize(Beats(1))
+    print(f"four_steps % Duration() % Beats(): {four_steps % Duration() % Beats() % float()}")
+    assert four_steps % Duration() == Beats(4 + 1)
+
 # test_clip_resize()
 
 

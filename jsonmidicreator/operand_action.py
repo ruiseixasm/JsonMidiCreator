@@ -117,7 +117,7 @@ class Resize(Action):
             resize_beats: Fraction = new_size_beats / actual_size_beats
             for single_scoped in scoped_elements:
                 single_position_beats: Fraction = single_scoped._position_beats
-                new_position_beats: Fraction = (single_position_beats - start_beats) * resize_beats
+                new_position_beats: Fraction = start_beats + (single_position_beats - start_beats) * resize_beats
                 single_scoped._position_beats = new_position_beats
                 single_duration_beats: Fraction = single_scoped._duration_beats
                 new_duration_beats: Fraction = single_duration_beats * resize_beats
