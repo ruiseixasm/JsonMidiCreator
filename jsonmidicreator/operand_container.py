@@ -2012,13 +2012,14 @@ class Clip(Composition):  # Just a container of Elements
                 operand._set_inside_clip(self)
                 framed_elements = operand._get_filtered_elements()
                 framed_operand = operand.get_operand()
-                if isinstance(framed_operand, oa.Action):
-                    # `act` always returns self
-                    return framed_operand.act(self, framed_elements)  # Sorting already included
-                else:
-                    for single_item in framed_elements:
-                        framed_parameter = operand.frame(single_item)
-                        single_item << framed_parameter
+                match framed_operand:
+                    case oa.Action():
+                        # `act` always returns self
+                        return framed_operand.act(self, framed_elements)  # Sorting already included
+                    case _:
+                        for single_item in framed_elements:
+                            framed_parameter = operand.frame(single_item)
+                            single_item << framed_parameter
                 framed_elements = None
 
             case oa.Action():
