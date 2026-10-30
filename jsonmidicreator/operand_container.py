@@ -1045,11 +1045,13 @@ class Composition(Container):
         """
         return None
 
+
     def start(self) -> 'ra.Position':
         net_start = self.net_start()
         if net_start is not None:
             return net_start.roundMeasures()
         return None
+
 
     # Ignores the self Length
     def gross_finish(self) -> 'ra.Position':
@@ -1079,6 +1081,7 @@ class Composition(Container):
         """
         return None
 
+
     def finish(self) -> 'ra.Position':
         net_finish = self.net_finish()
         if net_finish is not None:
@@ -1104,7 +1107,8 @@ class Composition(Container):
                 return finish_length
             return position_length
         return ra.Length(self, 0)
-    
+
+
     def length(self) -> 'ra.Length':
         """
         Returns the rounded `Length` to `Measures` that goes from start to position of the last `Element`.
@@ -1118,7 +1122,8 @@ class Composition(Container):
         if self._items:
             return ra.Length(self.net_finish())
         return ra.Length(self, 0)
-        
+
+    
     def net_length(self) -> 'ra.Length':
         """
         Returns the rounded `Length` to `Measures` that goes from start to position of the last `Element`.
@@ -1147,6 +1152,7 @@ class Composition(Container):
         if self._items:
             return ra.Duration(self.gross_finish())
         return ra.Duration(self, 0)
+
     
     def duration(self) -> 'ra.Duration':
         """
@@ -1161,6 +1167,7 @@ class Composition(Container):
         if self._items:
             return ra.Duration(self.net_finish())
         return ra.Duration(self, 0)
+
             
     def net_duration(self) -> 'ra.Duration':
         """
@@ -1246,6 +1253,9 @@ class Composition(Container):
                 return super().__mod__(operand)
             case og.PitchTransitions():
                 return og.PitchTransitions()
+            case ou.Checksum():
+                checksum: int = self.checksum()
+                return ou.Checksum(checksum)
             case _:
                 return super().__mod__(operand)
 
