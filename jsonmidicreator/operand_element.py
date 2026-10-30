@@ -322,6 +322,7 @@ class Element(o.Operand):
             case float():           return self % ra.NoteValue() % float()
             case Fraction():        return self._duration_beats
             case ou.Enabled():      return ou.Enabled(self._enabled)
+            case ou.Disabled():     return ou.Disabled(not self._enabled)
             case ou.Masked():       return ou.Masked(self._masked)
             case oc.Clip():         return oc.Clip().__iadd__(self)
             case Element():         return operand.copy(self)
@@ -505,6 +506,8 @@ class Element(o.Operand):
                     self._owner_clip.delete_item(self, True)._sort_items()  # Ultimately, replaces it with nothing
             case ou.Enabled():
                 self._enabled               = operand._unit != 0
+            case ou.Disabled():
+                self._enabled               = operand._unit == 0
             case ol.Enable():               self._enabled = True
             case ol.Disable():              self._enabled = False
             case ou.Masked():
@@ -1007,7 +1010,7 @@ class Subclip(Element):
             case oc.Clip():
                 self._subclip = operand.copy()
                 self << ra.Duration(self._subclip.net_finish()) # Updates the Element Duration
-            case ou.Enabled() | ol.Enable() | ol.Disable() | Element() | ra.Convertible() | tuple():
+            case ou.Enabled() | ou.Disabled() | ol.Enable() | ol.Disable() | Element() | ra.Convertible() | tuple():
                 super().__lshift__(operand)
             case _:
                 if isinstance(operand, of.Frame):

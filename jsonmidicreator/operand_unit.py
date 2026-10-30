@@ -457,6 +457,13 @@ class Port(Unit):
 
 
 
+class Checksum(Unit):
+    """`Unit -> Checksum`
+    """
+    pass
+
+
+
 class Metric(Unit):
     """`Unit -> Metric`
 
@@ -1434,6 +1441,18 @@ class Enabled(Boolean):
     """`Unit -> Boolean -> Enabled`
 
     Represents the enabled status of the `Element`.
+
+    Parameters
+    ----------
+    bool(True), int : `True` for masked and `False` for selected (not masked).
+    """
+    pass
+
+
+class Disabled(Boolean):
+    """`Unit -> Boolean -> Disabled`
+
+    Represents the Disabled status of the `Element`.
 
     Parameters
     ----------
