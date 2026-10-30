@@ -655,6 +655,10 @@ def test_checksum():
     assert half_note.checksum() != 0
     assert half_note.checksum() != quarter_note.checksum()
 
+    quarter_note_D = Note("D")
+    assert quarter_note_D.checksum() != 0
+    assert quarter_note_D.checksum() != quarter_note.checksum()
+
 # test_checksum()
 
 
