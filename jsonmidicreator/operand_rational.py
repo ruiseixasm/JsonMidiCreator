@@ -296,12 +296,6 @@ class Result(ChaosParameters):
 
 
 
-class Split(ChaosParameters):
-    """`Rational -> ChaosParameters -> Split`"""
-    pass
-
-
-
 class Width(ChaosParameters):
     """`Rational -> ChaosParameters -> Width`"""
     pass
