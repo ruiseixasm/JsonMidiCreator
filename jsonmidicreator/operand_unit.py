@@ -40,6 +40,7 @@ except ImportError:
     print("Please install it by running 'pip install keyboard'.")
 
 
+
 class Unit(o.Operand):
     """`Unit`
 
@@ -100,6 +101,7 @@ class Unit(o.Operand):
     
     def __not__(self) -> bool:
         return self._unit == 0
+
     
     def __eq__(self, other: any) -> bool:
         from . import operand_rational as ra
@@ -113,6 +115,7 @@ class Unit(o.Operand):
             case od.Conditional():
                 return other == self
         return False
+
     
     def __lt__(self, other: any) -> bool:
         from . import operand_rational as ra
@@ -124,6 +127,7 @@ class Unit(o.Operand):
             case ra.Rational():
                 return self._unit < int( other._rational )
         return False
+
     
     def __gt__(self, other: any) -> bool:
         from . import operand_rational as ra
@@ -138,6 +142,7 @@ class Unit(o.Operand):
     
     def __str__(self):
         return f'{self._unit}'
+
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -153,6 +158,7 @@ class Unit(o.Operand):
             super().loadSerialization(serialization)
             self._unit = serialization["parameters"]["unit"]
         return self
+
 
     def __lshift__(self, operand: any) -> Self:
         from . import operand_rational as ra
@@ -190,6 +196,7 @@ class Unit(o.Operand):
                     self << single_operand
         return self
 
+
     def __iadd__(self, number: any) -> Self:
         from . import operand_rational as ra
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
@@ -201,6 +208,7 @@ class Unit(o.Operand):
             case ra.Rational():
                 self._unit = int( self._unit + number._rational )
         return self
+
     
     def __isub__(self, number: any) -> Self:
         from . import operand_rational as ra
@@ -213,6 +221,7 @@ class Unit(o.Operand):
             case ra.Rational():
                 self._unit = int( self._unit - number._rational )
         return self
+
     
     def __imul__(self, number: any) -> Self:
         from . import operand_rational as ra
@@ -225,6 +234,7 @@ class Unit(o.Operand):
             case ra.Rational():
                 self._unit = int( self._unit * number._rational )
         return self
+
     
     def __itruediv__(self, number: any) -> Self:
         from . import operand_rational as ra
@@ -240,6 +250,7 @@ class Unit(o.Operand):
                 if number._rational != 0:
                     self._unit = int( self._unit / number._rational )
         return self
+
 
 
 class Tempo(Unit):
@@ -282,6 +293,7 @@ class Tempo(Unit):
     
     def __str__(self):
         return f'{str(round(float(self._unit / 10), 1))}'
+
     
     def __mod__(self, operand: o.T) -> o.T:
         from . import operand_rational as ra
@@ -304,6 +316,7 @@ class Tempo(Unit):
             case _:
                 return super().__mod__(operand)
 
+
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["position_beats"] = o.serialize( self._position_beats )
@@ -318,6 +331,7 @@ class Tempo(Unit):
             super().loadSerialization(serialization)
             self._position_beats = o.deserialize( serialization["parameters"]["position_beats"] )
         return self
+
       
     def __lshift__(self, operand: any) -> Self:
         from . import operand_rational as ra
@@ -355,29 +369,34 @@ class Tempo(Unit):
         self._unit = max(1, self._unit)
         return self
 
+
     def __iadd__(self, value: Union['Unit', Fraction, float, int]) -> 'Tempo':
         match value:
             case int() | float() | Fraction():
                 return super().__iadd__(value * 10)
         return super().__iadd__(value)
+
     
     def __isub__(self, value: Union['Unit', Fraction, float, int]) -> 'Tempo':
         match value:
             case int() | float() | Fraction():
                 return super().__isub__(value * 10)
         return super().__isub__(value)
+
     
     def __imul__(self, value: Union['Unit', Fraction, float, int]) -> 'Tempo':
         match value:
             case int() | float() | Fraction():
                 return super().__imul__(value * 10)
         return super().__imul__(value)
+
     
     def __itruediv__(self, value: Union['Unit', Fraction, float, int]) -> 'Tempo':
         match value:
             case int() | float() | Fraction():
                 return super().__itruediv__(value * 10)
         return super().__itruediv__(value)
+
 
     def read(self) -> Self:
         events_site: int = 10
@@ -405,6 +424,7 @@ class Tempo(Unit):
         return self
 
 
+
 class MtcFps(Unit):
     """`Unit -> MtcFps`
     
@@ -429,10 +449,13 @@ class MtcFps(Unit):
     pass
 
 
+
 class Port(Unit):
     """`Unit -> Port`
     """
     pass
+
+
 
 class Metric(Unit):
     """`Unit -> Metric`
@@ -448,6 +471,7 @@ class Metric(Unit):
         self._keys: set[str] = set()
         super().__init__(*parameters)
 
+
     def __mod__(self, operand: o.T) -> o.T:
         from . import operand_container as oc
         match operand:
@@ -457,6 +481,7 @@ class Metric(Unit):
                     case _:                     return super().__mod__(operand)
             case set():                 return self._keys.copy()
             case _:                     return super().__mod__(operand)
+
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -473,6 +498,7 @@ class Metric(Unit):
             self._keys = set(serialization["parameters"]["keys"])   # It's a string already
         return self
 
+
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
@@ -488,6 +514,7 @@ class Metric(Unit):
         return self
 
 
+
 class Total(Metric):
     """`Unit -> Metric -> Total`
 
@@ -500,6 +527,8 @@ class Total(Metric):
     """
     pass
 
+
+
 class Distance(Metric):
     """`Unit -> Metric -> Distance`
 
@@ -511,6 +540,8 @@ class Distance(Metric):
     set() : Any metric keys, no keys given means all keys by default.
     """
     pass
+
+
 
 class Variations(Metric):
     """`Unit -> Metric -> Variations`
@@ -525,16 +556,20 @@ class Variations(Metric):
     pass
 
 
+
 class PitchCentroid(Unit):
     """`Unit -> PitchCentroid`
     """
     pass
 
 
+
 class PitchParameter(Unit):
     """`Unit -> PitchParameter`
     """
     pass
+
+
 
 class AbsolutePitch(PitchParameter):
     """`Unit -> PitchParameter -> AbsolutePitch`
@@ -547,6 +582,8 @@ class AbsolutePitch(PitchParameter):
     """
     def __init__(self, *parameters):
         super().__init__(60, *parameters)
+
+
 
 class Accidentals(PitchParameter):
     """`Unit -> PitchParameter -> Accidentals`
@@ -567,6 +604,8 @@ class Accidentals(PitchParameter):
                 super().__lshift__(operand)
         return self
 
+
+
 class Sharps(Accidentals):  # Sharps (###)
     """`Unit -> PitchParameter -> Accidentals -> Sharps`
 
@@ -577,6 +616,8 @@ class Sharps(Accidentals):  # Sharps (###)
     int(1) : Sets the amount of sharps from 0 to 7 where 3 means "###".
     """
     pass
+
+
 
 class Flats(Accidentals):   # Flats (bbb)
     """`Unit -> Accidentals -> Flats`
@@ -600,6 +641,7 @@ class Flats(Accidentals):   # Flats (bbb)
         return self
 
 
+
 class Tone(PitchParameter):
     """`Unit -> PitchParameter -> Tone`
 
@@ -611,6 +653,8 @@ class Tone(PitchParameter):
     """
     pass
 
+
+
 class Semitone(PitchParameter):
     """`Unit -> PitchParameter -> Semitone`
 
@@ -621,7 +665,6 @@ class Semitone(PitchParameter):
     int(0) : An Integer representing the amount of Chromatic steps, from 0 to 127.
     """
     pass
-
 
 
 
@@ -680,6 +723,7 @@ class KeySignature(PitchParameter):
                 super().__lshift__(operand)
         return self
 
+
     # Circle of fifths (modulations) (fast access)
     _key_signatures: tuple[tuple] = (
     #     C      D      E   F      G      A      B
@@ -701,6 +745,7 @@ class KeySignature(PitchParameter):
         (+1, 0, +1, 0, +1, +1, 0, +1, 0, +1, 0, +0),    # +6
         (+1, 0, +1, 0, +1, +1, 0, +1, 0, +1, 0, +1)     # +7
     )
+
 
     @staticmethod
     def is_enharmonic(key: int, sharps: int) -> bool:
@@ -724,6 +769,17 @@ class Key(PitchParameter):
         self._enharmonic: bool = False
         super().__init__(*parameters)
 
+
+    def __eq__(self, other: o.Operand) -> bool:
+        match other:
+            case self.__class__():
+                return self._unit % 12 == other._unit % 12
+            case str():
+                return self % str() == other
+            case _:
+                return super().__eq__(other)
+
+    
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case bool():
@@ -749,15 +805,7 @@ class Key(PitchParameter):
             case _:
                 return super().__mod__(operand)
 
-    def __eq__(self, other: o.Operand) -> bool:
-        match other:
-            case self.__class__():
-                return self._unit % 12 == other._unit % 12
-            case str():
-                return self % str() == other
-            case _:
-                return super().__eq__(other)
-    
+
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["flattened"]    = o.serialize( self._flattened )
@@ -774,6 +822,7 @@ class Key(PitchParameter):
             self._flattened     = o.deserialize( serialization["parameters"]["flattened"] )
             self._enharmonic    = o.deserialize( serialization["parameters"]["enharmonic"] )
         return self
+
       
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -807,6 +856,7 @@ class Key(PitchParameter):
                 super().__lshift__(operand)
         return self
 
+
     _keys: list[str] = [
         "C",   "C#", "D",   "D#", "E",   "F",   "F#", "G",   "G#", "A",   "A#", "B",    # Black Sharps
         "C",   "Db", "D",   "Eb", "E",   "F",   "Gb", "G",   "Ab", "A",   "Bb", "B",    # Black Flats
@@ -814,9 +864,11 @@ class Key(PitchParameter):
         "Dbb", "Db", "Ebb", "Eb", "Fb",  "Gbb", "Gb", "Abb", "Ab", "Bbb", "Bb", "Cb"    # All Flats
     ]
 
+
     _accidentals: list[int] = [
          0,    +1,    0,    +1,    0,     0,    +1,    0,    +1,    0,    +1,    0
     ]
+
 
     def _get_key_str(self) -> str:
         line: int = 0
@@ -826,6 +878,7 @@ class Key(PitchParameter):
             line += 2
         key: int = line * 12 + self._unit % 12
         return Key._keys[key]
+
 
     def _set_key_str(self, key: str = "C") -> Self:
         # Remove Octave number first (Safe)
@@ -845,6 +898,7 @@ class Key(PitchParameter):
         return self
 
 
+
 class TonicKey(Key):
     """`Unit -> PitchParameter -> Key -> TonicKey`
 
@@ -856,6 +910,8 @@ class TonicKey(Key):
     int(0) : An Integer representing the key offset relative to the key of C.
     """
     pass
+
+
 
 class RootKey(Key):
     """`Unit -> PitchParameter -> Key -> RootKey`
@@ -869,6 +925,8 @@ class RootKey(Key):
     """
     pass
 
+
+
 class TargetKey(Key):
     """`Unit -> PitchParameter -> Key -> TargetKey`
 
@@ -880,6 +938,7 @@ class TargetKey(Key):
     int(0) : An Integer representing the key offset relative to the key of C.
     """
     pass
+
 
 
 class Octave(PitchParameter):
@@ -913,6 +972,7 @@ class Octave(PitchParameter):
             case _:
                 super().__lshift__(operand)
         return self
+
 
 
 class Degree(PitchParameter):
@@ -1000,6 +1060,7 @@ class Degree(PitchParameter):
             case _:
                 return super().__mod__(operand)
 
+
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["accidental"] = o.serialize( self._accidental )
@@ -1014,6 +1075,7 @@ class Degree(PitchParameter):
             super().loadSerialization(serialization)
             self._accidental = o.deserialize( serialization["parameters"]["accidental"] )
         return self
+
       
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -1074,6 +1136,7 @@ class Degree(PitchParameter):
             case _:
                 super().__iadd__(number)
         return self
+
     
     def __isub__(self, number: any) -> Self:
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
@@ -1096,6 +1159,7 @@ class Degree(PitchParameter):
             case _:
                 super().__isub__(number)
         return self
+
     
     def __imul__(self, number: any) -> Self:
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
@@ -1108,6 +1172,7 @@ class Degree(PitchParameter):
             case _:
                 super().__imul__(number)
         return self
+
     
     def __itruediv__(self, number: any) -> Self:
         number = self._tail_wrap(number)      # Processes the tailed self operands if existent
@@ -1166,6 +1231,7 @@ class Degree(PitchParameter):
     }
 
 
+
 class Transposition(PitchParameter):
     """`Unit -> PitchParameter -> Transposition`
 
@@ -1179,6 +1245,8 @@ class Transposition(PitchParameter):
     """
     pass
 
+
+
 class Tones(Transposition):
     """`Unit -> PitchParameter -> Transposition -> Tones`
 
@@ -1191,6 +1259,8 @@ class Tones(Transposition):
     """
     pass
 
+
+
 class Accidental(PitchParameter):
     """`Unit -> PitchParameter -> Accidental`
 
@@ -1202,6 +1272,7 @@ class Accidental(PitchParameter):
     """
     def __init__(self, *parameters):
         super().__init__(1, *parameters)
+
 
 
 class Sharp(Accidental):  # Sharp (#)
@@ -1228,6 +1299,7 @@ class Sharp(Accidental):  # Sharp (#)
             case _:
                 super().__lshift__(operand)
         return self
+
 
 
 class Flat(Accidental):   # Flat (b)
@@ -1298,6 +1370,7 @@ class Direction(Unit):
             case _:                 super().__lshift__(operand)
         return self
 
+
     _name_order: dict = {
         "None":         0,
         "Up":           1,
@@ -1306,6 +1379,7 @@ class Direction(Unit):
         "DownUp":       4,
         "Chaotic":      5
     }
+
 
     _order_name: dict = {
         0:              "None",
@@ -1316,6 +1390,7 @@ class Direction(Unit):
         5:              "Chaotic"
     }
 
+
     def nameToNumber(self, order: str = "Up"):
         # Convert input words to lowercase
         order_split = order.lower().split()
@@ -1325,6 +1400,7 @@ class Direction(Unit):
             if all(word in key.lower() for word in order_split):
                 self._unit = value
                 return
+
 
     @staticmethod
     def numberToName(number: int) -> str:
@@ -1338,6 +1414,7 @@ class Boolean(Unit):
     """`Unit -> Boolean`"""
     def __init__(self, *parameters):
         super().__init__(True, *parameters)
+
 
 
 class MmcAsCC(Boolean):
@@ -1377,6 +1454,8 @@ class Masked(Boolean):
     """
     pass
 
+
+
 class Tied(Boolean):
     """`Unit -> Boolean -> Tied`
 
@@ -1388,9 +1467,13 @@ class Tied(Boolean):
     """
     pass
 
+
+
 class Default(Boolean):
     """`Unit -> Boolean -> Default`"""
     pass
+
+
 
 class Linear(Boolean):
     """`Unit -> Boolean -> Linear`
@@ -1400,9 +1483,12 @@ class Linear(Boolean):
     pass
 
 
+
 class Quality(Boolean):
     """`Unit -> Boolean -> Quality`"""
     pass
+
+
 
 class Major(Quality):
     """`Unit -> Boolean -> Quality -> Major`
@@ -1420,6 +1506,8 @@ class Major(Quality):
             case _:
                 return super().__eq__(other)    # Compares the _unit integer value
 
+
+
 class Minor(Quality):
     """`Unit -> Boolean -> Quality -> Minor`
 
@@ -1435,6 +1523,8 @@ class Minor(Quality):
                 return self._unit != other._unit
             case _:
                 return super().__eq__(other)    # Compares the _unit integer value
+
+
 
 class Natural(Boolean):     # Natural (n)
     """`Unit -> Boolean -> Natural`
@@ -1456,6 +1546,8 @@ class Natural(Boolean):     # Natural (n)
                     self._unit = 1
             case _: super().__lshift__(operand)
         return self
+
+
 
 class Dominant(Boolean):    # Flats the seventh
     """`Unit -> Boolean -> Dominant`
@@ -1479,6 +1571,8 @@ class Dominant(Boolean):    # Flats the seventh
             case _: super().__lshift__(operand)
         return self
 
+
+
 class Diminished(Boolean):  # Flats the third and the fifth
     """`Unit -> Boolean -> Diminished`
 
@@ -1498,6 +1592,8 @@ class Diminished(Boolean):  # Flats the third and the fifth
                     self._unit = 1
             case _: super().__lshift__(operand)
         return self
+
+
 
 class Augmented(Boolean):   # Sharps the fifth
     """`Unit -> Boolean -> Augmented`
@@ -1519,6 +1615,8 @@ class Augmented(Boolean):   # Sharps the fifth
             case _: super().__lshift__(operand)
         return self
 
+
+
 class Sus2(Boolean):        # Second instead of the third
     """`Unit -> Boolean -> Sus2`
 
@@ -1538,6 +1636,8 @@ class Sus2(Boolean):        # Second instead of the third
                     self._unit = 1
             case _: super().__lshift__(operand)
         return self
+
+
 
 class Sus4(Boolean):        # Fourth instead of the third
     """`Unit -> Boolean -> Sus4`
@@ -1559,15 +1659,20 @@ class Sus4(Boolean):        # Fourth instead of the third
             case _: super().__lshift__(operand)
         return self
 
+
+
 class NRPN(Boolean):
     """`Unit -> Boolean -> NRPN`
     """
     pass
 
+
+
 class HighResolution(Boolean):
     """`Unit -> Boolean -> HighResolution`
     """
     pass
+
 
 
 class Mode(Unit):
@@ -1602,12 +1707,14 @@ class Mode(Unit):
         self._unit = max(1, self._unit)
         return self
 
+
         # 1 - First, 2 - Second, 3 - Third, 4 - Fourth, 5 - Fifth, 6 - Sixth, 7 - Seventh,
         # 8 - Eighth, 9 - Ninth, 10 - Tenth, 11 - Eleventh, 12 - Twelfth, 13 - Thirteenth,
         # 14 - Fourteenth, 15 - Fifteenth, 16 - Sixteenth, 17 - Seventeenth, 18 - Eighteenth,
         # 19 - Nineteenth, 20 - Twentieth.
 
     _modes_str = ["None" , "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"]
+
 
     def stringToNumber(self, string: str):
         match string.strip().lower():
@@ -1628,9 +1735,12 @@ class Mode(Unit):
             case '8'  | "8th":
                 self._unit = 8
 
+
     @staticmethod
     def numberToString(number: int) -> str:
         return __class__._modes_str[number % len(__class__._modes_str)]
+
+
 
 class Size(Unit):
     """`Unit -> Size`
@@ -1644,7 +1754,8 @@ class Size(Unit):
     """
     def __init__(self, *parameters):
         super().__init__(3, *parameters)         # Default Size is 3
-            
+
+     
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case str():         return __class__.numberToString(self._unit)
@@ -1663,7 +1774,9 @@ class Size(Unit):
             case _:                 super().__lshift__(operand)
         return self
 
+
     _types_str = ["None" , "1st", "3rd", "5th", "7th", "9th", "11th", "13th"]
+
 
     def stringToNumber(self, string: str):
         match string.strip().lower():
@@ -1678,6 +1791,7 @@ class Size(Unit):
     @staticmethod
     def numberToString(number: int) -> str:
         return __class__._types_str[number % len(__class__._types_str)]
+
 
 
 class Count(Unit):
@@ -1703,6 +1817,7 @@ class Count(Unit):
         return self
 
 
+
 class Inversion(Unit):
     """`Unit -> Inversion`
 
@@ -1716,6 +1831,7 @@ class Inversion(Unit):
         super().__init__(1, *parameters)
 
 
+
 class TrackNumber(Unit):
     """`Unit -> TrackNumber`
     """
@@ -1723,10 +1839,13 @@ class TrackNumber(Unit):
         super().__init__(1, *parameters)         # By default is Track number 1
 
 
+
 class Midi(Unit):
     """`Unit -> Midi`
     """
     pass
+
+
 
 class PPQN(Midi):
     """`Unit -> Midi -> PPQN`
@@ -1741,6 +1860,7 @@ class PPQN(Midi):
         super().__init__(24, *parameters)
 
 
+
 class Channel(Midi):
     """`Unit -> Midi -> Channel`
 
@@ -1752,6 +1872,8 @@ class Channel(Midi):
     """
     def __init__(self, *parameters):
         super().__init__(1, *parameters)         # By default is channel 1
+
+
 
 class Velocity(Midi):
     """`Unit -> Midi -> Velocity`
@@ -1765,6 +1887,8 @@ class Velocity(Midi):
     def __init__(self, *parameters):
         super().__init__(100, *parameters)         # By default is velocity 100
 
+
+
 class Accent(Velocity):
     """`Unit -> Midi -> Velocity -> Accent`
 
@@ -1776,6 +1900,8 @@ class Accent(Velocity):
     """
     def __init__(self, *parameters):
         super().__init__(120, *parameters)
+
+
 
 class Program(Midi):
     """`Unit -> Midi -> Program`
@@ -1819,6 +1945,7 @@ class Program(Midi):
             case _:
                 super().__lshift__(operand)
         return self
+
 
     _instruments: dict[str, int | list[str]] = [
                                                                             # Piano
@@ -1967,6 +2094,7 @@ class Program(Midi):
         {   "instrument": 128,  "names": ["Gunshot"]    }
     ]
 
+
     def nameToNumber(self, name: str = "Piano"):
         # Convert input words to lowercase
         name_split = name.lower().split()
@@ -1977,6 +2105,7 @@ class Program(Midi):
                 if all(word in instrument_name.lower() for word in name_split):
                     self._unit = instrument["instrument"]
                     return
+
 
     @staticmethod
     def numberToName(number: int) -> str:
@@ -1998,6 +2127,8 @@ class Program(Midi):
 # center: The center (no effect) position is achieved with data byte values of 00, 64 (00H, 40H). Value = 8192
 # max : The maximum positive swing is achieved with data byte values of 127, 127 (7FH, 7FH). Value = 16384
 
+
+
 class Value(Midi):
     """`Unit -> Midi -> Value`
 
@@ -2009,6 +2140,8 @@ class Value(Midi):
         accordingly to the range of CC Midi values for 7 and 14 bits respectively
     """
     pass
+
+
 
 class ValueMSB(Value):
     """`Unit -> Midi -> Value -> ValueMSB`
@@ -2022,6 +2155,8 @@ class ValueMSB(Value):
     """
     pass
 
+
+
 class ValueLSB(Midi):
     """`Unit -> Midi -> ValueLSB`
 
@@ -2034,6 +2169,8 @@ class ValueLSB(Midi):
     """
     pass
 
+
+
 class Value14bit(Midi):
     """`Unit -> Midi -> Value14bit`
 
@@ -2044,6 +2181,8 @@ class Value14bit(Midi):
     int(0) : The Value shall be set from 0 to 16383.
     """
     pass
+
+
 
 class Pressure(Value):
     """`Unit -> Midi -> Value -> Pressure`
@@ -2057,6 +2196,8 @@ class Pressure(Value):
     """
     pass
 
+
+
 class Bend(Value):
     """`Unit -> Midi -> Value -> Bend`
 
@@ -2069,11 +2210,15 @@ class Bend(Value):
     """
     pass
 
+
+
 class Bank(Midi):   # Value of 0 means no Bank selected because Banks are 1 based
     """`Unit -> Midi -> Bank`
     """
     def __init__(self, *parameters):
         super().__init__(1, *parameters)        # By default is 1 the Bank "A"
+
+
 
 class Number(Midi):
     """`Unit -> Midi -> Number`
@@ -2103,6 +2248,7 @@ class Number(Midi):
             case _:                 super().__lshift__(operand)
         return self
 
+
     @staticmethod
     def getDefaultValue(number: int | str) -> int:
         if isinstance(number, str):
@@ -2111,6 +2257,7 @@ class Number(Midi):
             if controller["midi_number"] == number:
                 return controller["default_value"]
         return 0
+
 
     @staticmethod
     def nameToNumber(name: str = "Modulation") -> int:
@@ -2121,12 +2268,14 @@ class Number(Midi):
                     return controller["midi_number"]
         return 1    # Default is Modulation
 
+
     @staticmethod
     def numberToName(number: int) -> str:
         for controller in Number._controllers:
             if controller["midi_number"] == number:
                 return controller["names"][0]
         return "Unknown controller!"
+
 
     _controllers: list[dict[str, int | list[str]]] = [
         {   "midi_number": 0,   "default_value": 0,     "names": ["Bank Select"]    },
@@ -2181,10 +2330,13 @@ class Number(Midi):
         {   "midi_number": 127, "default_value": 0,     "names": ["Poly On", "Polyphonic"]    }
     ]
 
+
+
 class MSB(Number):
     """`Unit -> Midi -> Number -> MSB`
     """
     pass
+
 
 
 class LSB(Midi):
