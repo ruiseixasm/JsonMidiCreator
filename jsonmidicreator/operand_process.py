@@ -431,7 +431,7 @@ class Plot(Process):
         
                     if not single_note["enabled"]:
                         edge_color = 'white'
-                        color_alpha = 0.2
+                        color_alpha = 0.25
 
                     self._ax.barh(y = single_note["channel"] + 1, width = float(single_note["position_off"] - single_note["position_on"]), left = float(single_note["position_on"]), 
                             height=0.3, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.0, linestyle=line_style, alpha=color_alpha)
@@ -571,7 +571,7 @@ class Plot(Process):
 
                     if not single_note["enabled"]:
                         edge_color = 'white'
-                        color_alpha = 0.2
+                        color_alpha = 0.25
 
                     self._ax.barh(y=single_note["pitch"], width = float(single_note["position_off"] - single_note["position_on"]), left = float(single_note["position_on"]), 
                             height=bar_height, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.0, linestyle=line_style, alpha=color_alpha)
@@ -765,7 +765,7 @@ class Plot(Process):
 
                 if not single_trigger["enabled"]:
                     edge_color = 'white'
-                    color_alpha = 0.2
+                    color_alpha = 0.25
                     
                 self._ax.barh(y = single_trigger["sample_id"] + 1, width = float(single_trigger["position_off"] - single_trigger["position_on"]), left = float(single_trigger["position_on"]), 
                         height=0.3, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.0, linestyle=line_style, alpha=color_alpha)
@@ -874,7 +874,7 @@ class Plot(Process):
                     edge_color: str = 'black'
                     if not automation["enabled"]:
                         edge_color = 'white'
-                        color_alpha = 0.2
+                        color_alpha = 0.25
                     
                     # Actual data points
                     marker: str = 'o'

@@ -1702,9 +1702,9 @@ class ChannelElement(DeviceElement):
 
     def checksum(self) -> int:
         """16-bit checksum for a `ChannelElement`."""
-        master: int = self._channel_0 << 8
         master ^= (self._position_beats.numerator << 8) | self._position_beats.denominator
         master ^= (self._duration_beats.numerator << 8) | self._duration_beats.denominator
+        master ^= self._channel_0 << 8
         return master & 0xFFFF  # 16-bit
 
     def is_clipped(self) -> bool:
@@ -1957,9 +1957,9 @@ class Trigger(ChannelElement):
 
     def checksum(self) -> int:
         """16-bit checksum for a `Note`."""
-        master: int = self._velocity << 7 + 4 | self.get_absolute_pitch() << 4 | self._channel_0
         master ^= self._position_beats.numerator << 8 | self._position_beats.denominator
         master ^= self._duration_beats.numerator << 8 | self._duration_beats.denominator
+        master ^= self._velocity << 7 + 4 | self.get_absolute_pitch() << 4 | self._channel_0
         return master & 0xFFFF  # 16-bit
 
     def is_clipped(self, pitch: int) -> bool:
@@ -2342,10 +2342,11 @@ class Note(ChannelElement):
 
     def checksum(self) -> int:
         """16-bit checksum for a `Note`."""
-        master: int = self._velocity << 7 + 4 | self.get_absolute_pitch() << 4 | self._channel_0
         master ^= self._position_beats.numerator << 8 | self._position_beats.denominator
         master ^= self._duration_beats.numerator << 8 | self._duration_beats.denominator
+        master ^= self._velocity << 7 + 4 | self.get_absolute_pitch() << 4 | self._channel_0
         return master & 0xFFFF  # 16-bit
+
 
     def is_clipped(self, pitch: int) -> bool:
         return super().is_clipped() \
@@ -3431,12 +3432,14 @@ class Chord(KeyScale):
         self._sus4: bool            = False
         super().__init__(*parameters)
 
+
     def checksum(self) -> int:
         """16-bit checksum for a `Chord`."""
         master: int = 0
         for single_element in self.get_component_elements():
             master += single_element.checksum()
         return master & 0xFFFF  # 16-bit
+
 
     def size(self, size: int = 3) -> Self:
         self._size = size
@@ -3670,12 +3673,14 @@ class Tuplet(Note):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+
     def checksum(self) -> int:
         """16-bit checksum for a `Tuplet`."""
         master: int = 0 # It's just a wrapper
         for single_element in self.get_component_elements():
             master += single_element.checksum()
         return master & 0xFFFF  # 16-bit
+
 
     def count(self, count: int = 8) -> Self:
         self._count = count
@@ -3882,12 +3887,14 @@ class ControlChange(Automatable):
     def get_value(self) -> Fraction:
         return Fraction(self._value)
 
+
     def checksum(self) -> int:
         """16-bit checksum for a `ControlChange`."""
         master: int = super().checksum()
         master ^= (self._value << 8) | self._value
         master ^= (self._number << 8) | self._number
         return master & 0xFFFF  # 16-bit
+
 
     def is_clipped(self) -> bool:
         return super().is_clipped() \
@@ -4238,12 +4245,14 @@ class ControlChangePair(ControlChange):
         return super().is_clipped() \
             or self._number_lsb < 0 or self._number_lsb > 128
 
+
     def checksum(self) -> int:
         """16-bit checksum for a `ControlChangePair`."""
         master: int = super().checksum()
         # In order to be neutral if `_value_lsb == 0`
         master += (self._number_lsb * self._value_lsb) << 8 | self._value_lsb
         return master & 0xFFFF  # 16-bit
+
 
     def __eq__(self, other: Any) -> bool:
         match other:
@@ -4817,6 +4826,7 @@ class Aftertouch(Automatable):
     def get_value(self) -> Fraction:
         return Fraction(self._pressure)
 
+
     def checksum(self) -> int:
         """16-bit checksum for an `Aftertouch`."""
         master: int = super().checksum()
@@ -5186,12 +5196,14 @@ class PitchBend(Automatable):
         msb_value: Fraction = self._msb + Fraction(self._lsb, 128)  # int + Fraction = Fraction
         return Fraction(msb_value)
 
+
     def checksum(self) -> int:
         """16-bit checksum for a `PitchBend`."""
         master: int = super().checksum()
         master ^= (self._msb << 8) | self._msb
         master ^= (self._lsb << 8) | self._lsb
         return master & 0xFFFF  # 16-bit
+
 
     def is_clipped(self) -> bool:
         return super().is_clipped() or \
@@ -5464,6 +5476,7 @@ class Automation(Element):
         for single_element in self.get_component_elements():
             master += single_element.checksum()
         return master & 0xFFFF  # 16-bit
+
 
     _automatable_types: set[str] = {'cc', 'at', 'pb'}
 
