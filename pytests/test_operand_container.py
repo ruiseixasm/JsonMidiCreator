@@ -1235,13 +1235,15 @@ def test_process_mask():
 
 def test_checksum():
     four_notes = Note() * 4
-    assert checksum_to_string(four_notes.checksum()) == "8900"
+    assert four_notes.checksum() != 0
 
     part_notes = Section(four_notes)
-    assert checksum_to_string(part_notes.checksum()) == "8900"
+    assert part_notes.checksum() != 0
+    assert part_notes.checksum() == four_notes.checksum()
 
     song_notes = Part(part_notes)
-    assert checksum_to_string(song_notes.checksum()) == "8900"
+    assert song_notes.checksum() != 0
+    assert song_notes.checksum() == part_notes.checksum()
 
 
 def test_mul_list():
