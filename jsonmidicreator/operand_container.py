@@ -1377,7 +1377,6 @@ class Clip(Composition):  # Just a container of Elements
         self._name                      = "Clip"
         self._devices: list[str]        = og.settings._devices.copy()
         self._track_number: int         = 1 # Only useful to render .midi files
-        self._enabled: bool             = True
         self._items: list[oe.Element]   = []
         self._drum_kit: dict[str, Any]  = {}
         for single_operand in operands:
@@ -1718,10 +1717,6 @@ class Clip(Composition):  # Just a container of Elements
                 match operand._data:
                     case ou.TrackNumber():
                         return operand._data << self._track_number
-                    case ou.Enable():
-                        return operand._data << self._enabled
-                    case ou.Disable():
-                        return operand._data << self._enabled == 0
                     case _:
                         return super().__mod__(operand)
             case of.Frame():    # Works as a Selector, returns the Self container copy but with the Frame applied
@@ -1730,10 +1725,6 @@ class Clip(Composition):  # Just a container of Elements
                 return ou.TrackNumber(self._track_number)
             case Devices():
                 return Devices(self._devices)
-            case ou.Enable():
-                return ou.Enable(self._enabled)
-            case ou.Disable():
-                return ou.Disable(not self._enabled)
             case Section():
                 new_block = Section(self._time_signature)
                 new_block += self   # Implicit copy
@@ -1857,8 +1848,6 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             list[dict]: A list with multiple Play configuration dictionaries.
         """
-        if not self._enabled:
-            return []
         self_playlist: list[dict] = [
             {"devices": self._devices}
         ]
@@ -1883,8 +1872,6 @@ class Clip(Composition):  # Just a container of Elements
         Returns:
             list[dict]: A list with multiple Midi file configuration dictionaries.
         """
-        if not self._enabled:
-            return []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0, 1)
 
@@ -1911,7 +1898,6 @@ class Clip(Composition):  # Just a container of Elements
         if self._time_signature._top != 4 or self._time_signature._bottom != 4:
             serialization["parameters"]["time_signature"]   = o.serialize(self._time_signature)
         serialization["parameters"]["track_number"] = self._track_number
-        serialization["parameters"]["enabled"]      = self._enabled
         # Useful for json interpretation and bottom placement
         serialization["parameters"]["elements"] = serialization["parameters"].pop("items")
         return serialization
@@ -1931,7 +1917,7 @@ class Clip(Composition):  # Just a container of Elements
         if "elements" in serialization["parameters"]:
             serialization["parameters"]['items'] = serialization["parameters"].pop('elements')
             if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-                "track_number" in serialization["parameters"] and "enabled" in serialization["parameters"]):
+                "track_number" in serialization["parameters"]):
 
                 super().loadSerialization(serialization)
                 if "time_signature" in serialization["parameters"]:
@@ -1939,7 +1925,6 @@ class Clip(Composition):  # Just a container of Elements
                 else:
                     self._time_signature << og.TimeSignature()
                 self._track_number  = serialization["parameters"]["track_number"]
-                self._enabled       = serialization["parameters"]["enabled"]
                 self._set_owner_clip()
         return self
 
@@ -1958,7 +1943,6 @@ class Clip(Composition):  # Just a container of Elements
         new_clip._time_signature << self._time_signature
         new_clip._track_number  = self._track_number
         new_clip._devices       = self._devices.copy()
-        new_clip._enabled       = self._enabled
         new_clip._drum_kit      = o.deep_copy(self._drum_kit)
         return new_clip << parameters
 
@@ -1971,7 +1955,6 @@ class Clip(Composition):  # Just a container of Elements
                 super().__lshift__(operand)
                 self._time_signature << operand._time_signature
                 self._track_number  = operand._track_number
-                self._enabled       = operand._enabled
                 self._drum_kit      = o.deep_copy(operand._drum_kit)
                 self._set_owner_clip()
 
@@ -1979,10 +1962,6 @@ class Clip(Composition):  # Just a container of Elements
                 match operand._data:
                     case ou.TrackNumber():
                         self._track_number = operand._data._unit
-                    case ou.Enable():
-                        self._enabled = bool(operand._data._unit)
-                    case ou.Disable():
-                        self._enabled = operand._data._unit == 0
                     case og.DrumKit():
                         self._drum_kit = operand._data._drum_kit
                     case dict():
@@ -2056,10 +2035,6 @@ class Clip(Composition):  # Just a container of Elements
                 self._devices = operand._items.copy()
             case od.Device():
                 self._devices = [operand._data]
-            case ou.Enable():
-                self._enabled = bool(operand._unit)
-            case ou.Disable():
-                self._enabled = operand._unit == 0
             case og.DrumKit():
                 self._drum_kit = operand % dict()
             case dict():

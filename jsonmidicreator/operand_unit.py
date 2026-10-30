@@ -1352,6 +1352,20 @@ class MmcAsCC(Boolean):
     pass
 
 
+
+class Enabled(Boolean):
+    """`Unit -> Boolean -> Enabled`
+
+    Represents the enabled status of the `Element`.
+
+    Parameters
+    ----------
+    bool(True), int : `True` for masked and `False` for selected (not masked).
+    """
+    pass
+
+
+
 class Masked(Boolean):
     """`Unit -> Boolean -> Masked`
 
@@ -1376,14 +1390,6 @@ class Tied(Boolean):
 
 class Default(Boolean):
     """`Unit -> Boolean -> Default`"""
-    pass
-
-class Enable(Boolean):
-    """`Unit -> Boolean -> Enable`"""
-    pass
-
-class Disable(Boolean):
-    """`Unit -> Boolean -> Disable`"""
     pass
 
 class Linear(Boolean):

@@ -152,10 +152,24 @@ class Dummy(Label):
     """`Label -> Dummy`
 
     A `Dummy` label is an `Operand` used just to mimic operations with other `Operands`.
+    """
+    pass
 
-    Parameters
-    ----------
-    None : `Dummy` has no parameters.
+
+
+class Enable(Label):
+    """`Label -> Enable`
+    
+    Enables the `Element`.
+    """
+    pass
+
+
+
+class Disable(Label):
+    """`Label -> Disable`
+
+    Disables the `Element`.
     """
     pass
 

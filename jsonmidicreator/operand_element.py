@@ -80,6 +80,7 @@ class Element(o.Operand):
     def __init__(self, *parameters):
         from . import operand_container as oc
         super().__init__()
+        self._enabled: bool                 = True
         self._masked: bool                  = False
         self._position_beats: Fraction      = Fraction(0)   # in Beats
         self._duration_beats: Fraction      = Fraction(1)
@@ -314,6 +315,7 @@ class Element(o.Operand):
             case int():             return self % ra.Measure() % int()
             case float():           return self % ra.NoteValue() % float()
             case Fraction():        return self._duration_beats
+            case ou.Enabled():      return ou.Enabled(self._enabled)
             case ou.Masked():       return ou.Masked(self._masked)
             case oc.Clip():         return oc.Clip().__iadd__(self)
             case Element():         return operand.copy(self)
@@ -341,6 +343,8 @@ class Element(o.Operand):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
+        if not self._enabled:   # Cleans up the saved json from non musical tags
+            serialization["parameters"]["enabled"]          = o.serialize(self._enabled)
         if self._masked:    # Cleans up the saved json from non musical tags
             serialization["parameters"]["masked"]           = o.serialize(self._masked)
         serialization["parameters"]["position_beats"]   = o.serialize(self._position_beats)
@@ -354,6 +358,10 @@ class Element(o.Operand):
             "position_beats" in serialization["parameters"] and "duration_beats" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
+            if "enabled" in serialization["parameters"]:
+                self._enabled           = o.deserialize(serialization["parameters"]["enabled"])
+            else:
+                self._enabled = True
             if "masked" in serialization["parameters"]:
                 self._masked            = o.deserialize(serialization["parameters"]["masked"])
             else:
@@ -370,6 +378,7 @@ class Element(o.Operand):
         match operand:
             case Element():
                 super().__lshift__(operand)
+                self._enabled               = operand._enabled
                 self._masked                = operand._masked
                 # No conversion is done, beat and note_value values are directly copied (Same for Block)
                 self._position_beats        = operand._position_beats
@@ -483,6 +492,10 @@ class Element(o.Operand):
                         ]
                         self._owner_clip.extend(replacing_elements_list)
                     self._owner_clip.delete_item(self, True)._sort_items()  # Ultimately, replaces it with nothing
+            case ou.Enabled():
+                self._enabled               = operand._unit != 0
+            case ol.Enable():               self._enabled = True
+            case ol.Disable():              self._enabled = False
             case ou.Masked():
                 self._masked                = operand._unit != 0
             case od.Mask():                 self._masked = True
@@ -956,6 +969,7 @@ class Subclip(Element):
             self._subclip = o.deserialize( serialization["parameters"]["subclip"] )
         return self
 
+
     def __lshift__(self, operand: any) -> Self:
         from . import operand_container as oc
         from . import operand_frame as of
@@ -973,7 +987,7 @@ class Subclip(Element):
             case oc.Clip():
                 self._subclip = operand.copy()
                 self << ra.Duration(self._subclip.net_finish()) # Updates the Element Duration
-            case ou.Enable() | ou.Disable() | Element() | ra.Convertible() | tuple():
+            case ou.Enabled() | ol.Enable() | ol.Disable() | Element() | ra.Convertible() | tuple():
                 super().__lshift__(operand)
             case _:
                 if isinstance(operand, of.Frame):
@@ -981,12 +995,13 @@ class Subclip(Element):
                 self._subclip.__lshift__(operand)
         return self
 
+
     def __iadd__(self, operand: any) -> Union[TypeElement, 'Clip']:
         from . import operand_container as oc
         from . import operand_frame as of
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case ou.Enable() | ou.Disable() | Element() | oc.Clip() | ra.Convertible() | tuple():
+            case Element() | oc.Clip() | ra.Convertible() | tuple():
                 return super().__iadd__(operand)
             case _:
                 if isinstance(operand, of.Frame):
@@ -995,12 +1010,13 @@ class Subclip(Element):
                 self._subclip.__iadd__(operand)
         return self
 
+
     def __isub__(self, operand: any) -> Union[TypeElement, 'Clip']:
         from . import operand_container as oc
         from . import operand_frame as of
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case ou.Enable() | ou.Disable() | Element() | oc.Clip() | ra.Convertible() | tuple():
+            case Element() | oc.Clip() | ra.Convertible() | tuple():
                 return super().__isub__(operand)
             case _:
                 if isinstance(operand, of.Frame):
@@ -1009,12 +1025,13 @@ class Subclip(Element):
                 self._subclip.__isub__(operand)
         return self
 
+
     def __imul__(self, operand: any) -> Union[TypeElement, 'Clip']:
         from . import operand_container as oc
         from . import operand_frame as of
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case ou.Enable() | ou.Disable() | Element() | oc.Clip() | ra.Convertible() | tuple():
+            case Element() | oc.Clip() | ra.Convertible() | tuple():
                 return super().__imul__(operand)
             case _:
                 if isinstance(operand, of.Frame):
@@ -1022,6 +1039,7 @@ class Subclip(Element):
                 # Propagate the value to the rest
                 self._subclip.__imul__(operand)
         return self
+
 
     def __itruediv__(self, operand: any) -> Union[TypeElement, 'Clip']:
         from . import operand_container as oc
@@ -1037,12 +1055,13 @@ class Subclip(Element):
                 self._subclip.__itruediv__(operand)
         return self
 
+
     def __ifloordiv__(self, operand: any) -> Union[TypeElement, 'Clip']:
         from . import operand_container as oc
         from . import operand_frame as of
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case ou.Enable() | ou.Disable() | Element() | oc.Clip() | ra.Convertible() | tuple():
+            case Element() | oc.Clip() | ra.Convertible() | tuple():
                 return super().__ifloordiv__(operand)
             case _:
                 if isinstance(operand, of.Frame):
@@ -1050,6 +1069,7 @@ class Subclip(Element):
                 # Propagate the value to the rest
                 self._subclip.__ifloordiv__(operand)
         return self
+
 
 
 class Unison(Element):
@@ -1226,6 +1246,7 @@ class Rest(Element):
                 "rest": {
                     "position_on": position_on,
                     "position_off": position_off,
+                    "enabled": self._enabled,
                     "masked": self._masked,
                     "self": self
                 }
@@ -2018,10 +2039,10 @@ class Trigger(ChannelElement):
                         "trigger": {
                             "position_on": position_on,
                             "position_off": position_off,
-                            "enabled": self._owner_clip._enabled,
                             "sample_id": sample_id,
                             "velocity": self._velocity,
                             "channel": self._channel_0,
+                            "enabled": self._enabled,
                             "masked": self._masked,
                             "self": self_to_plot,
                             "owner_clip": self._owner_clip
@@ -2447,7 +2468,6 @@ class Note(ChannelElement):
                     "note": {
                         "position_on": position_on,
                         "position_off": position_off,
-                        "enabled": True if self._owner_clip is None else self._owner_clip._enabled,
                         "pitch": pitch_int,
                         "tonic_key": single_note._pitch._tonic_key % 12,
                         "sharps": single_note._pitch.get_sharps(),
@@ -2456,6 +2476,7 @@ class Note(ChannelElement):
                         "accidentals": single_note._pitch % ou.Accidental() % int(),
                         "velocity": single_note._velocity,
                         "channel": single_note._channel_0,
+                        "enabled": single_note._enabled,
                         "masked": single_note._masked,
                         "self": self_to_plot
                     }
@@ -3922,9 +3943,9 @@ class ControlChange(Automatable):
                 "automation": {
                     "group_id": self._number,
                     "position": position_on,
-                    "enabled": True if self._owner_clip is None else self._owner_clip._enabled,
                     "value": clamp_value_128(self._value),
                     "channel": self._channel_0,
+                    "enabled": self._enabled,
                     "masked": self._masked,
                     "self": self
                 }
@@ -4782,9 +4803,9 @@ class Aftertouch(Automatable):
                 "automation": {
                     "group_id": 128,    # Above 127 of the Control Change number
                     "position": position_on,
-                    "enabled": True if self._owner_clip is None else self._owner_clip._enabled,
                     "value": clamp_value_128(self._pressure),
                     "channel": self._channel_0,
+                    "enabled": self._enabled,
                     "masked": self._masked,
                     "self": self
                 }
@@ -5165,9 +5186,9 @@ class PitchBend(Automatable):
                 "automation": {
                     "group_id": 129,    # Above 127 of the Control Change number
                     "position": position_on,
-                    "enabled": True if self._owner_clip is None else self._owner_clip._enabled,
                     "value": clamp_value_128(round(self.get_value())),
                     "channel": self._channel_0,
+                    "enabled": self._enabled,
                     "masked": self._masked,
                     "self": self
                 }
