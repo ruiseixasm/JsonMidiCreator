@@ -1702,10 +1702,10 @@ class ChannelElement(DeviceElement):
 
     def checksum(self) -> int:
         """16-bit checksum for a `ChannelElement`."""
-        master ^= (self._position_beats.numerator << 8) | self._position_beats.denominator
-        master ^= (self._duration_beats.numerator << 8) | self._duration_beats.denominator
+        master: int = super().checksum()
         master ^= self._channel_0 << 8
         return master & 0xFFFF  # 16-bit
+
 
     def is_clipped(self) -> bool:
         return super().is_clipped() or \
@@ -1957,10 +1957,10 @@ class Trigger(ChannelElement):
 
     def checksum(self) -> int:
         """16-bit checksum for a `Note`."""
-        master ^= self._position_beats.numerator << 8 | self._position_beats.denominator
-        master ^= self._duration_beats.numerator << 8 | self._duration_beats.denominator
+        master: int = super().checksum()
         master ^= self._velocity << 7 + 4 | self.get_absolute_pitch() << 4 | self._channel_0
         return master & 0xFFFF  # 16-bit
+
 
     def is_clipped(self, pitch: int) -> bool:
         return super().is_clipped() \
@@ -2342,8 +2342,7 @@ class Note(ChannelElement):
 
     def checksum(self) -> int:
         """16-bit checksum for a `Note`."""
-        master ^= self._position_beats.numerator << 8 | self._position_beats.denominator
-        master ^= self._duration_beats.numerator << 8 | self._duration_beats.denominator
+        master: int = super().checksum()
         master ^= self._velocity << 7 + 4 | self.get_absolute_pitch() << 4 | self._channel_0
         return master & 0xFFFF  # 16-bit
 
