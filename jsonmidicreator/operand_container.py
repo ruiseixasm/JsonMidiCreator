@@ -2002,6 +2002,10 @@ class Clip(Composition):  # Just a container of Elements
                     case _:
                         super().__lshift__(operand)
 
+            case oe.Element():  # Element wapping (wrap)
+                for single_element in self.elements_unmasked():
+                    self._replace(single_element, operand.copy()._set_owner_clip(self) << single_element)
+
             case of.Frame():
                 operand._set_inside_clip(self)
                 framed_elements = operand._get_filtered_elements()
@@ -2010,6 +2014,9 @@ class Clip(Composition):  # Just a container of Elements
                     case oa.Action():
                         # `act` always returns self
                         return framed_operand.act(self, framed_elements)  # Sorting already included
+                    case oe.Element():
+                        for single_framed in framed_elements:
+                            self._replace(single_framed, operand.copy()._set_owner_clip(self) << single_framed)
                     case tuple():   # Many at once, for filtering frames only
                         for single_framed in framed_operand:
                             match single_framed:
@@ -2055,10 +2062,6 @@ class Clip(Composition):  # Just a container of Elements
             case dict():
                 self._drum_kit = o.deep_copy(operand)
                 
-            case oe.Element():  # Element wapping (wrap)
-                for single_element in self.elements_unmasked():
-                    self._replace(single_element, operand.copy()._set_owner_clip(self) << single_element)
-
             case od.Select():
                 self.select(operand._data)
             case od.Mask():
@@ -2339,6 +2342,7 @@ class Clip(Composition):  # Just a container of Elements
             case _:
                 super().__imul__(operand)
         return self._sort_items()  # Shall be sorted!
+
 
     def __rmul__(self, operand: any) -> Self:
         return self.__mul__(operand)
