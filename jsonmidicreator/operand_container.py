@@ -1272,11 +1272,14 @@ class Composition(Container):
         """
         return []
 
+
     def getPlaylist(self, position_beats: Fraction | None = None) -> list[dict]:
         return []
 
+
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
         return []
+
 
     def getSerialization(self) -> dict:
         """
@@ -1311,6 +1314,7 @@ class Composition(Container):
             super().loadSerialization(serialization)
             self._name              = serialization["parameters"]["name"]
         return self
+
 
     def empty_copy(self, *parameters) -> Self:
         """
@@ -1347,6 +1351,7 @@ class Composition(Container):
             case _:
                 super().__lshift__(operand)
         return self
+
 
     def __ipow__(self, operand: Any) -> Self:
         if isinstance(operand, int):

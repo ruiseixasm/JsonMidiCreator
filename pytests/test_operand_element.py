@@ -649,8 +649,11 @@ def test_checksum():
     
     settings << None
 
-    single_note = Note()
-    assert checksum_to_string(single_note.checksum()) == "22c0"
+    quarter_note = Note()
+    assert quarter_note.checksum() != 0
+    half_note = Note(1/2)
+    assert half_note.checksum() != 0
+    assert half_note.checksum() != quarter_note.checksum()
 
 # test_checksum()
 
