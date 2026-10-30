@@ -327,6 +327,9 @@ class Element(o.Operand):
             case oc.Clip():         return oc.Clip().__iadd__(self)
             case Element():         return operand.copy(self)
             case om.Vector():       return om.Vector(self.getVectordict())
+            case ou.Checksum():
+                checksum: int = self.checksum()
+                return ou.Checksum(checksum)
             case _:                 return super().__mod__(operand)
 
 
