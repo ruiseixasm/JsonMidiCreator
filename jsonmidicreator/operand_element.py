@@ -232,9 +232,11 @@ class Element(o.Operand):
             self._duration_beats -= self.finish() % Fraction() - other.finish() % Fraction()
         return self
 
+
     def get_component_elements(self) -> list['Element']:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         return [ self ]
+
 
     def __eq__(self, other: Any) -> bool:
         from . import operand_frame as of
@@ -249,6 +251,7 @@ class Element(o.Operand):
             case _:
                 return super().__eq__(other)
 
+
     def __lt__(self, other: Any) -> bool:
         match other:
             case Element():
@@ -257,7 +260,8 @@ class Element(o.Operand):
                 return self._position_beats < other._position_beats
             case _:
                 return super().__lt__(other)
-    
+
+
     def __gt__(self, other: Any) -> bool:
         match other:
             case Element():
@@ -266,7 +270,8 @@ class Element(o.Operand):
                 return self._position_beats > other._position_beats
             case _:
                 return super().__gt__(other)
-    
+
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of an Element,
@@ -329,17 +334,21 @@ class Element(o.Operand):
             "duration": self % ra.Steps() % int()
         }
 
+
     def getPlotlist(self, position_beats: Fraction | None = None,
             derived_element: 'Element' = None) -> list[dict]:
         return []
+
 
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True,
                     derived_element: 'Element' = None) -> list[dict]:
         return []
 
+
     def getMidilist(self, position_beats: Fraction | None = None,
                     derived_element: 'Element' = None) -> list:
         return []
+
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -1155,6 +1164,7 @@ class Unison(Element):
 
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
         if not self._enabled: return []
+
         self_midilist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -1629,6 +1639,8 @@ class DeviceElement(Element):
             ]
 
     def getMidilist(self, position_beats: Fraction | None = None, derived_element: 'Element' = None) -> list:
+        if not self._enabled: return []
+
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
@@ -1769,6 +1781,8 @@ class ChannelElement(DeviceElement):
 
     def getMidilist(self, position_beats: Fraction | None = None,
                     derived_element: 'Element' = None) -> list[dict]:
+        if not self._enabled: return []
+
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
@@ -2125,6 +2139,7 @@ class Trigger(ChannelElement):
 
 
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
+        if not self._enabled: return []
         
         self_midilist: list[dict] = []
 
@@ -2562,6 +2577,7 @@ class Note(ChannelElement):
 
 
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
+        if not self._enabled: return []
         
         self_midilist: list[dict] = []
         component_notes: list[Note] = self.get_component_elements()
@@ -2916,7 +2932,7 @@ class Rhythm(Note):
     
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         if not self._enabled: return []
-        
+
         self_playlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -2927,6 +2943,8 @@ class Rhythm(Note):
         return self_playlist
     
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
+        if not self._enabled: return []
+
         self_midilist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -3306,6 +3324,8 @@ class KeyScale(Note):
 
 
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
+        if not self._enabled: return []
+
         self_midilist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -3735,6 +3755,8 @@ class Tuplet(Note):
 
     
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
+        if not self._enabled: return []
+
         self_midilist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -4028,6 +4050,8 @@ class ControlChange(Automatable):
         return self_playlist
     
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
+        if not self._enabled: return []
+
         if self.is_clipped():
             return []
         if not isinstance(position_beats, Fraction):
@@ -4291,6 +4315,7 @@ class ControlChangePair(ControlChange):
         return self_playlist
     
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
+        if not self._enabled: return []
         
         self_midilist: list[dict]       = super().getMidilist(position_beats)
         if self_midilist:   # The second list to set it as LSB
@@ -4422,6 +4447,8 @@ class BankSelectMSB(ControlChange):
         return self_playlist
     
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
+        if not self._enabled: return []
+
         if self.is_clipped():
             return []
         if not isinstance(position_beats, Fraction):
@@ -4496,6 +4523,8 @@ class BankSelectLSB(ControlChange):
         return self_playlist
     
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
+        if not self._enabled: return []
+
         if self.is_clipped():
             return []
         if not isinstance(position_beats, Fraction):
@@ -4895,6 +4924,8 @@ class Aftertouch(Automatable):
     
 
     def getMidilist(self, position_beats: Fraction | None = None) -> list:
+        if not self._enabled: return []
+
         if self.is_clipped():
             return []
         if not isinstance(position_beats, Fraction):
@@ -5282,6 +5313,8 @@ class PitchBend(Automatable):
         return self_playlist
     
     def getMidilist(self, position_beats: Fraction | None = None) -> list:
+        if not self._enabled: return []
+
         if self.is_clipped():
             return []
         if not isinstance(position_beats, Fraction):
@@ -5609,6 +5642,7 @@ class Automation(Element):
     
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
         if not self._enabled: return []
+
         self_midilist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -5812,8 +5846,11 @@ class ProgramChange(ChannelElement):
                 }
             )
         return self_playlist
-    
+
+
     def getMidilist(self, position_beats: Fraction | None = None) -> list:
+        if not self._enabled: return []
+
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
@@ -5824,6 +5861,7 @@ class ProgramChange(ChannelElement):
         self_midilist[0]["priority"]    = 0x11
         self_midilist[0]["program"]     = self._program_0
         return self_midilist
+
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -5839,7 +5877,8 @@ class ProgramChange(ChannelElement):
             super().loadSerialization(serialization)
             self._program_0 = o.deserialize( serialization["parameters"]["program_0"] )
         return self
-      
+
+    
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
@@ -5861,6 +5900,7 @@ class ProgramChange(ChannelElement):
                 super().__lshift__(operand)
         return self
 
+
     def __iadd__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
@@ -5871,6 +5911,7 @@ class ProgramChange(ChannelElement):
             case _:
                 return super().__iadd__(operand)
         return self
+
 
     def __isub__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
