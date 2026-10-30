@@ -45,13 +45,13 @@ from jsonmidicreator import *
 # Start by setting the Clip parameters
 pattern_grid = Clip() << DrumKit("808") << Title("Triggers Pattern of 64 steps")
 pattern_grid += Trigger("Kick") * 64 + Trigger("Snare") * 64 + Trigger("Hat") * 64 + Trigger("Shaker") * 64
-pattern_grid << Channel(10) # Information associated to the Elements and not the Clip need to be set after
+pattern_grid << Channel(10) << Disable()    # By default they are disabled
 # This is the criteria of triggering, the grid is 64 but the the probabilities bellow are 1 measure based
 i_multi_frame = IMultiFrame([
-    Equal("Kick")**Chance(1 - 1/4)**Delete(),
-    Equal("Snare")**Chance(1 - 1/2)**Delete(),
-    Equal("Hat")**Chance(1 - 0.9)**Delete(),
-    Equal("Shaker")**Chance(1 - 0.95)**Delete()
+    Equal("Kick")**Chance(1/4)**Enable(),
+    Equal("Snare")**Chance(1/2)**Enable(),
+    Equal("Hat")**Chance(0.9)**Enable(),
+    Equal("Shaker")**Chance(0.95)**Enable()
 ], no_repeats=True)
 # The pattern_grid is just the grid source, the `Plot` always does a copy of the input (decoupling guaranteed)
 playable_clip = pattern_grid >> Plot(i_multi_frame)

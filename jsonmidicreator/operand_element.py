@@ -243,7 +243,8 @@ class Element(o.Operand):
         match other:
             case Element() | og.Locus():
                 return self._position_beats == other._position_beats \
-                    and self._duration_beats == other._duration_beats
+                    and self._duration_beats == other._duration_beats \
+                    and self._enabled == other._enabled
             case od.Conditional():
                 return other == self
             case of.Frame():
