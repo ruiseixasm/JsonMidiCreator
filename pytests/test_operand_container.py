@@ -1438,6 +1438,15 @@ def test_frame_masking():
 # test_frame_masking()
 
 
+def test_framed_element():
+    notes = Note() * 4 << Iterate(1)**Degree()
+    assert all(isinstance(element, Note) for element in notes)
+    notes << All()**Rest()
+    assert all(isinstance(element, Rest) for element in notes)
+
+# test_framed_element()
+
+
 def test_clip_track():
     new_track_clip = Clip()
     assert isinstance(new_track_clip % Devices(), Devices)
