@@ -417,9 +417,6 @@ class Plot(Process):
                     elif isinstance(single_note["self"], (oe.Rhythm, oe.Tuplet)):
                         line_style = 'dotted'
                     edge_color: str = 'black'
-                    if not single_note["enabled"]:
-                        edge_color = 'white'
-
                     color_alpha: float = round(0.3 + 0.7 * (single_note["velocity"] / 127) ** 2, 2)
 
                     if single_note["velocity"] > 127:
@@ -431,7 +428,11 @@ class Plot(Process):
 
                     if single_note["masked"]:
                         color_alpha = 0.2
-                        
+        
+                    if not single_note["enabled"]:
+                        edge_color = 'white'
+                        color_alpha = 0.2
+
                     self._ax.barh(y = single_note["channel"] + 1, width = float(single_note["position_off"] - single_note["position_on"]), left = float(single_note["position_on"]), 
                             height=0.3, color=channel_color, hatch=bar_hatch, edgecolor=edge_color, linewidth=1.0, linestyle=line_style, alpha=color_alpha)
 
@@ -556,8 +557,6 @@ class Plot(Process):
                     elif isinstance(single_note["self"], oe.Tuplet):
                         line_style = 'dotted'
                     edge_color: str = 'black'
-                    if not single_note["enabled"]:
-                        edge_color = 'white'
 
                     color_alpha: float = round(0.3 + 0.7 * (single_note["velocity"] / 127) ** 2, 2)
                     if single_note["velocity"] > 127:
@@ -568,6 +567,10 @@ class Plot(Process):
                         color_alpha = 1.0
                     
                     if single_note["masked"]:
+                        color_alpha = 0.2
+
+                    if not single_note["enabled"]:
+                        edge_color = 'white'
                         color_alpha = 0.2
 
                     self._ax.barh(y=single_note["pitch"], width = float(single_note["position_off"] - single_note["position_on"]), left = float(single_note["position_on"]), 
@@ -747,8 +750,6 @@ class Plot(Process):
                 bar_hatch: str = ''
                 line_style: str = 'solid'
                 edge_color: str = 'black'
-                if not single_trigger["enabled"]:
-                    edge_color = 'white'
 
                 color_alpha: float = round(0.3 + 0.7 * (single_trigger["velocity"] / 127) ** 2, 2)
 
@@ -760,6 +761,10 @@ class Plot(Process):
                     color_alpha = 1.0
 
                 if single_trigger["masked"]:
+                    color_alpha = 0.2
+
+                if not single_trigger["enabled"]:
+                    edge_color = 'white'
                     color_alpha = 0.2
                     
                 self._ax.barh(y = single_trigger["sample_id"] + 1, width = float(single_trigger["position_off"] - single_trigger["position_on"]), left = float(single_trigger["position_on"]), 
@@ -869,6 +874,7 @@ class Plot(Process):
                     edge_color: str = 'black'
                     if not automation["enabled"]:
                         edge_color = 'white'
+                        color_alpha = 0.2
                     
                     # Actual data points
                     marker: str = 'o'

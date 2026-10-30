@@ -909,6 +909,7 @@ class Subclip(Element):
         self._subclip: oc.Clip = oc.Clip()
         super().__init__(*parameters)
 
+
     def __mod__(self, operand: o.T) -> o.T:
         from . import operand_container as oc
         match operand:
@@ -923,6 +924,7 @@ class Subclip(Element):
             case _:
                 return super().__mod__(operand)
 
+
     def __eq__(self, other: Any) -> bool:
         from . import operand_container as oc
         match other:
@@ -933,7 +935,8 @@ class Subclip(Element):
                 return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
             case _:
                 return super().__eq__(other)
-    
+
+
     def get_component_elements(self) -> list[Element]:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         return self._subclip.get_component_elements()
