@@ -121,7 +121,9 @@ class Element(o.Operand):
         master: int = 0
         master ^= (self._position_beats.numerator << 8) | self._position_beats.denominator
         master ^= (self._duration_beats.numerator << 8) | self._duration_beats.denominator
+        master ^= int(self._enabled)
         return master & 0xFFFF  # 16-bit
+
 
     def is_clipped(self) -> bool:   # Safe code
         return self._position_beats < 0 or self._duration_beats <= 0
