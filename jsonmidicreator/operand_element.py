@@ -1732,8 +1732,7 @@ class ChannelElement(DeviceElement):
     def __eq__(self, other: Any) -> bool:
         match other:
             case ChannelElement():
-                return self._position_beats == other._position_beats \
-                    and self._duration_beats == other._duration_beats \
+                return super().__eq__(other) \
                     and self._channel_0 == other._channel_0
             case Element():
                 # Makes a playlist comparison
