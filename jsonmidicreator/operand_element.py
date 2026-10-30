@@ -370,6 +370,7 @@ class Element(o.Operand):
             self._duration_beats    = o.deserialize(serialization["parameters"]["duration_beats"])
         return self
 
+
     def __lshift__(self, operand: any) -> Self:
         from . import operand_frame as of
         from . import operand_container as oc
@@ -563,6 +564,7 @@ class Element(o.Operand):
                 self_operand += operand
                 self << self_operand
         return self
+
 
     def __isub__(self, operand: any) -> Union[TypeElement, 'Clip']:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -879,6 +881,7 @@ class Element(o.Operand):
         return new_clip
 
 
+
 class Subclip(Element):
     """`Element -> Subclip`
 
@@ -939,6 +942,8 @@ class Subclip(Element):
     
 
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+        if not self._enabled: return []
+
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
@@ -947,6 +952,8 @@ class Subclip(Element):
     
 
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
+        if not self._enabled: return []
+
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
         elif position_beats < 0:
@@ -1121,6 +1128,7 @@ class Unison(Element):
             single_element << self_locus
         return self._elements
 
+
     def getPlotlist(self, position_beats: Fraction | None = None) -> list[dict]:
         self_playlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
@@ -1130,8 +1138,11 @@ class Unison(Element):
         for single_element in self.get_component_elements():
             self_playlist.extend(single_element.getPlotlist(position_beats))
         return self_playlist
-    
+
+
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+        if not self._enabled: return []
+
         self_playlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -1140,8 +1151,10 @@ class Unison(Element):
         for single_element in self.get_component_elements():
             self_playlist.extend(single_element.getPlaylist(position_beats, devices_header))
         return self_playlist
-    
+
+
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
+        if not self._enabled: return []
         self_midilist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -1150,7 +1163,8 @@ class Unison(Element):
         for single_element in self.get_component_elements():
             self_midilist.extend(single_element.getMidilist(position_beats))    # extends the list with other list
         return self_midilist
-    
+
+
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["elements"] = o.serialize( self._elements )
@@ -1293,6 +1307,7 @@ class Talkie(Element):
 
 
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+        if not self._enabled: return []
         
         absolute_position_beats: Fraction = Fraction(0)
         if position_beats is not None:
@@ -1421,6 +1436,7 @@ class TalkieRun(Talkie):
 
 
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+        if not self._enabled: return []
         
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -1490,6 +1506,7 @@ class TalkieGet(TalkieRun):
         super().__init__("duration", *parameters)
 
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+        if not self._enabled: return []
         
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -1535,6 +1552,7 @@ class TalkieSet(TalkieGet):
             case _:                 return super().__mod__(operand)
 
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+        if not self._enabled: return []
         
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -1596,6 +1614,7 @@ class DeviceElement(Element):
     """
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True,
                     derived_element: 'Element' = None) -> list[dict]:
+        if not self._enabled: return []
         
         absolute_position_beats: Fraction = Fraction(0)
         if position_beats is not None:
@@ -2054,6 +2073,7 @@ class Trigger(ChannelElement):
 
 
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+        if not self._enabled: return []
 
         self_playlist: list[dict] = []
 
@@ -2487,6 +2507,7 @@ class Note(ChannelElement):
 
 
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+        if not self._enabled: return []
 
         self_playlist: list[dict] = []
         component_notes: list[Note] = self.get_component_elements()
@@ -2894,6 +2915,8 @@ class Rhythm(Note):
         return self_plotlist
     
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+        if not self._enabled: return []
+        
         self_playlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -3148,6 +3171,7 @@ class Offset(Rhythm):
         return [left_rest, right_note]
 
 
+
 class KeyScale(Note):
     """`Element -> DeviceElement -> ChannelElement -> Note -> KeyScale`
 
@@ -3266,8 +3290,11 @@ class KeyScale(Note):
         if self_plotlist:
             self_plotlist[-1]["note"]["middle_pitch"] = self.get_absolute_pitch()
         return self_plotlist
-    
+
+
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+        if not self._enabled: return []
+
         self_playlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -3276,7 +3303,8 @@ class KeyScale(Note):
         for single_note in self.get_component_elements():
             self_playlist.extend(single_note.getPlaylist(position_beats, devices_header))
         return self_playlist
-    
+
+
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
         self_midilist: list[dict] = []
         if not isinstance(position_beats, Fraction):
@@ -3286,6 +3314,7 @@ class KeyScale(Note):
         for single_note in self.get_component_elements():
             self_midilist.extend(single_note.getMidilist(position_beats))
         return self_midilist
+
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -3582,6 +3611,7 @@ class Chord(KeyScale):
         self._sus4          = ou.Sus4(od.Pipe( self._sus4 ), data).__mod__(od.Pipe( bool() ))
 
 
+
 class Tuplet(Note):
     """`Element -> DeviceElement -> ChannelElement -> Note -> Tuplet`
 
@@ -3661,6 +3691,7 @@ class Tuplet(Note):
             case ra.Swing():        return ra.Swing() << od.Pipe(self._swing)
             case _:                 return super().__mod__(operand)
 
+
     def get_component_elements(self) -> list[Note]:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         retrigger_notes: list[Note] = []
@@ -3678,6 +3709,7 @@ class Tuplet(Note):
             self_iteration += 1
         return retrigger_notes
 
+
     def getPlotlist(self, position_beats: Fraction | None = None) -> list[dict]:
         self_plotlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
@@ -3687,8 +3719,11 @@ class Tuplet(Note):
         for single_note in self.get_component_elements():
             self_plotlist.extend(single_note.getPlotlist(position_beats, self))
         return self_plotlist
+
     
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+        if not self._enabled: return []
+
         self_playlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -3697,6 +3732,7 @@ class Tuplet(Note):
         for single_note in self.get_component_elements():
             self_playlist.extend(single_note.getPlaylist(position_beats, devices_header))
         return self_playlist
+
     
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
         self_midilist: list[dict] = []
@@ -3707,6 +3743,7 @@ class Tuplet(Note):
         for single_note in self.get_component_elements():
             self_midilist.extend(single_note.getMidilist(position_beats))    # extends the list with other list
         return self_midilist
+
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -3956,6 +3993,8 @@ class ControlChange(Automatable):
 
 
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+        if not self._enabled: return []
+
         if self.is_clipped():
             return []
 
@@ -4240,6 +4279,7 @@ class ControlChangePair(ControlChange):
 
 
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+        if not self._enabled: return []
         
         self_playlist: list[dict] = super().getPlaylist(position_beats)
         if self_playlist:   # The second list to set it as LSB
@@ -4347,6 +4387,8 @@ class BankSelectMSB(ControlChange):
             case _:                     return super().__mod__(operand)
 
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+        if not self._enabled: return []
+
         if self.is_clipped():
             return []
 
@@ -4419,6 +4461,8 @@ class BankSelectLSB(ControlChange):
             case _:                     return super().__mod__(operand)
 
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+        if not self._enabled: return []
+
         if self.is_clipped():
             return []
 
@@ -4815,6 +4859,8 @@ class Aftertouch(Automatable):
 
 
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list:
+        if not self._enabled: return []
+
         if self.is_clipped():
             return []
         
@@ -4988,6 +5034,7 @@ class PolyAftertouch(Aftertouch):
     
 
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+        if not self._enabled: return []
 
         absolute_position_beats: Fraction = Fraction(0)
         if position_beats is not None:
@@ -5199,6 +5246,8 @@ class PitchBend(Automatable):
 
 
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+        if not self._enabled: return []
+
         if self.is_clipped():
             return []
         
@@ -5543,8 +5592,11 @@ class Automation(Element):
         for single_element in self.get_component_elements():
             self_playlist.extend(single_element.getPlotlist(position_beats))
         return self_playlist
+
     
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+        if not self._enabled: return []
+
         self_playlist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -5553,8 +5605,10 @@ class Automation(Element):
         for single_element in self.get_component_elements():
             self_playlist.extend(single_element.getPlaylist(position_beats, devices_header))
         return self_playlist
+
     
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
+        if not self._enabled: return []
         self_midilist: list[dict] = []
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0)
@@ -5726,7 +5780,9 @@ class ProgramChange(ChannelElement):
             case ou.Program():          return ou.Program(self._program_0 + 1)
             case _:                     return super().__mod__(operand)
 
+
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
+        if not self._enabled: return []
         
         absolute_position_beats: Fraction = Fraction(0)
         if position_beats is not None:
@@ -5826,6 +5882,7 @@ class ProgramChange(ChannelElement):
             case _:
                 return super().__isub__(operand)
         return self
+
 
 
 class Panic(DeviceElement):
