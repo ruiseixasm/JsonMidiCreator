@@ -2018,14 +2018,17 @@ class Clip(Composition):  # Just a container of Elements
                         for single_framed in framed_elements:
                             self._replace(single_framed, operand.copy()._set_owner_clip(self) << single_framed)
                     case tuple():   # Many at once, for filtering frames only
-                        for single_framed in framed_operand:
-                            match single_framed:
+                        for single_tuple in framed_operand:
+                            match single_tuple:
                                 case oa.Action():
                                     # `act` always returns self
                                     framed_operand.act(self, framed_elements)  # Sorting already included
+                                case oe.Element():
+                                    for single_framed in framed_elements:
+                                        self._replace(single_framed, single_tuple.copy()._set_owner_clip(self) << single_framed)
                                 case _:
                                     for single_item in framed_elements:
-                                        single_item << single_framed
+                                        single_item << single_tuple
                     case _:
                         for single_item in framed_elements:
                             framed_parameter = operand.frame(single_item)
