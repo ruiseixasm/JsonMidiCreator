@@ -44,12 +44,12 @@ If one wants to have a range of triggers say for four samples, the starting poin
 from jsonmidicreator import *
 # Start by setting the Clip parameters
 pattern_grid = Clip() << DrumKit("808") << Title("Triggers Pattern of 64 steps")
-pattern_grid += Trigger("Kick") * 64 + Trigger("Snare") * 64 + Trigger("Hat") * 64 + Trigger("Shaker") * 64
-pattern_grid << Channel(10) << Disable()    # By default they are disabled
+pattern_grid += Trigger("Kick") * 64 + Trigger("Snare", Velocity(80)) * 64 + Trigger("Hat") * 64 + Trigger("Shaker") * 64
+pattern_grid << Equal("Kick")**OnBeat()**Velocity(120) << Channel(10) << Disable()    # By default they are disabled
 # This is the criteria of triggering, the grid is 64 but the the probabilities bellow are 1 measure based
 i_multi_frame = IMultiFrame([
-    Equal("Kick")**Chance(1/4)**Enable(),
-    Equal("Snare")**Chance(1/2)**Enable(),
+    Equal("Kick")**Odd()**Chance(1/2)**Enable(),
+    Equal("Snare")**Even()**Chance(1/2)**Enable(),
     Equal("Hat")**Chance(0.9)**Enable(),
     Equal("Shaker")**Chance(0.95)**Enable()
 ], no_repeats=True)
