@@ -1498,7 +1498,7 @@ class Cross(ClipFilter):
         crossing_elements: list[oe.Element] = []
         for single_item in filtered_elements:
             if isinstance(single_item, oe.Element):
-                if isinstance(single_item, oe.Element) and single_item.cross(self._named_parameters['position']):
+                if isinstance(single_item, oe.Element) and single_item.crosses(self._named_parameters['position']):
                     crossing_elements.append(single_item)
         return super()._update_filtered_elements(crossing_elements)
 
@@ -1522,7 +1522,7 @@ class Overlap(ClipFilter):
         overlapping_elements: list[oe.Element] = []
         for single_item in filtered_elements:
             if isinstance(single_item, oe.Element):
-                if isinstance(single_item, oe.Element) and single_item.overlap(self._named_parameters['locus']):
+                if isinstance(single_item, oe.Element) and single_item.overlaps(self._named_parameters['locus']):
                     overlapping_elements.append(single_item)
         return super()._update_filtered_elements(overlapping_elements)
 

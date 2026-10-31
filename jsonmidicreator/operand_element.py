@@ -218,11 +218,11 @@ class Element(o.Operand):
         return ra.Position(self, self._position_beats + self._duration_beats)
 
 
-    def cross(self, position: 'ra.Position') -> bool:
+    def crosses(self, position: 'ra.Position') -> bool:
         return position._rational > self._position_beats \
             and position._rational < self._position_beats + self._duration_beats
     
-    def overlap(self, other: Union['Element', 'og.Locus']) -> bool:
+    def overlaps(self, other: Union['Element', 'og.Locus']) -> bool:
         return other._position_beats + other._duration_beats > self._position_beats \
             and other._position_beats < self._position_beats + self._duration_beats
 
