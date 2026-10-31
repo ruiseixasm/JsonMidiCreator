@@ -557,7 +557,7 @@ class Edit(Transformation):
 class Replace(Edit):
     """`Transformation -> Edit -> Replace`
 
-    Allows the substitution on a target `Clip` section by the source `Clip` duration.
+    Allows the substitution on a target `Clip` locus by the source `Clip` duration.
         
     Parameters
     ----------
@@ -574,7 +574,7 @@ class Replace(Edit):
 class Insert(Edit):
     """`Transformation -> Edit -> Insert`
 
-    Allows the insertion on a target `Clip` a section defined by a source `Clip` duration.
+    Allows the insertion on a target `Clip` a locus defined by a source `Clip` duration.
         
     Parameters
     ----------
