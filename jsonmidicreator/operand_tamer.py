@@ -197,10 +197,10 @@ class Tamer(o.Operand):
         return self
 
 
-    def next(self, numeral: o.TypeNumeral) -> Self:
+    def next(self, result: Fraction) -> Self:
         """Only called by the first link of the chain if all links are validated"""
         if isinstance(self._chained_operand, Tamer):
-            self._chained_operand.next(numeral)
+            self._chained_operand.next(result)
         self._index += 1
         return self
 
@@ -369,7 +369,7 @@ class Parallel(Tamer):
         return super().reset(*parameters)
 
     
-    def next(self, result: o.TypeNumeral) -> Self:
+    def next(self, result: Fraction) -> Self:
         """Only called by the first link of the chain if all links are validated"""
         for single_tamer in self._tamers:
             single_tamer.next(result)
@@ -395,7 +395,7 @@ class Validator(Tamer):
             self << single_parameter
 
 
-    def slack(self, result: o.TypeNumeral) -> bool:
+    def slack(self, result: Fraction) -> bool:
         """Returns True to skip the respective tamer, meaning, gives some slack."""
         return result * self.from_tail() % Fraction(1) > self._strictness
 
@@ -411,6 +411,7 @@ class Validator(Tamer):
             case Fraction():            return self._strictness
             case _:                     return super().__mod__(operand)
 
+
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["strictness"] = o.serialize( self._strictness )
@@ -425,7 +426,8 @@ class Validator(Tamer):
             super().loadSerialization(serialization)
             self._strictness = o.deserialize( serialization["parameters"]["strictness"] )
         return self
-        
+
+
     def __lshift__(self, operand: any) -> Self:
         match operand:
             case Validator():
@@ -678,7 +680,7 @@ class Prior(Validator):
         return super().reset(*parameters)
 
     
-    def next(self, result: o.TypeNumeral) -> Self:
+    def next(self, result: Fraction) -> Self:
         """Only called by the first link of the chain if all links are validated"""
         self._prior_numeral = result
         return super().next(result)
@@ -829,7 +831,7 @@ class Motion(Validator):
         return super().reset(*parameters)
 
     
-    def next(self, result: o.TypeNumeral) -> Self:
+    def next(self, result: Fraction) -> Self:
         """Only called by the first link of the chain if all links are validated"""
         self._last_integer = int(result)
         return super().next(result)
@@ -932,7 +934,7 @@ class Pattern(Motion):
         return self
 
 
-    def next(self, result: o.TypeNumeral) -> Self:
+    def next(self, result: Fraction) -> Self:
         """Only called by the first link of the chain if all links are validated"""
         if self._last_integer is None:
             cumulative_number: int = int(result)
