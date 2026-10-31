@@ -35,6 +35,7 @@ from . import operand_container as oc
 from . import operand_frame as of
 from . import operand_chaos as ch
 from . import operand_tamer as ot
+from . import operand_action as oa
 
 if TYPE_CHECKING:
     from operand_element import Element
@@ -767,7 +768,7 @@ class Join(Transformation):
 
 
     def _single_transform(self, clip: 'Clip') -> 'Clip':
-        if self.decompose: clip.decompose()
+        if self.decompose: clip << oa.Decompose()
         clip_notes: list[oe.Note] = [
             single_note for single_note in clip.elements_unmasked() if type(single_note) is oe.Note
         ]

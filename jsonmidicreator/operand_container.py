@@ -2672,29 +2672,6 @@ class Clip(Composition):  # Just a container of Elements
         for single_element in self._items:
             single_element._masked = False
         return self
-    
-
-    def decompose(self) -> Self:
-        """
-        Transform each element in its component elements if it's a composed element,
-        like a chord that is composed of multiple notes, so, it becomes those multiple notes instead.
-
-        Args:
-            None
-
-        Returns:
-            Clip: Equally sounding Clip but with its elements reduced to their components.
-        """
-        decomposed_elements: list[oe.Element] = []
-        for single_element in self.elements_unmasked():
-            component_elements: list[oe.Element] = single_element.get_element_components()
-            for single_component in component_elements:
-                decomposed_elements.append(single_component)
-        # Remove previous Elements from the Container stack
-        self.delete(self.elements_unmasked(), True) # deletes by id, safer
-        # Finally adds the decomposed elements to the Container stack
-        self.extend(decomposed_elements)
-        return self._sort_items()
 
 
 

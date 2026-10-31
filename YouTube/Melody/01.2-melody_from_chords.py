@@ -40,7 +40,7 @@ chord_notes_iv = Chord(Degree("IV")) % Clip()
 chord_notes_v = Chord(Degree("V")) % Clip()
 # chord_notes_i * chord_notes_iv * chord_notes_v * chord_notes_i * 4 >> Play()
 
-decomposed_chords = chords.copy().decompose()
+decomposed_chords = chords.copy() << Decompose()
 # decomposed_chords >> Play()
 
 stacked_notes = decomposed_chords.copy(1/4).stack() # Each single note is now 1/4 note
