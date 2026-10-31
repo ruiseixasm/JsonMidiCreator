@@ -339,7 +339,8 @@ class Parallel(Tamer):
             super().loadSerialization(serialization)
             self._tamers = o.deserialize( serialization["parameters"]["tamers"] )
         return self
-        
+
+    
     def __lshift__(self, operand: any) -> Self:
         match operand:
             case Tamer():
@@ -361,16 +362,18 @@ class Parallel(Tamer):
                 super().__lshift__(operand)
         return self
 
+
     def reset(self, *parameters) -> Self:
         for single_tamer in self._tamers:
             single_tamer.reset()
         return super().reset(*parameters)
+
     
-    def next(self, numeral: o.TypeNumeral) -> Self:
+    def next(self, result: o.TypeNumeral) -> Self:
         """Only called by the first link of the chain if all links are validated"""
         for single_tamer in self._tamers:
-            single_tamer.next(numeral)
-        return super().next(numeral)
+            single_tamer.next(result)
+        return super().next(result)
         
 
 
@@ -391,9 +394,11 @@ class Validator(Tamer):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def slack(self, numeral: o.TypeNumeral) -> bool:
+
+    def slack(self, result: o.TypeNumeral) -> bool:
         """Returns True to skip the respective tamer, meaning, gives some slack."""
-        return numeral * self.from_tail() % Fraction(1) > self._strictness
+        return result * self.from_tail() % Fraction(1) > self._strictness
+
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -627,12 +632,12 @@ class Minimum(Boundary):
 class Prior(Validator):
     """`Tamer -> Validator -> Prior`
 
-    A `Prior` tamer keeps the previous Rational validated.
+    A `Prior` tamer keeps the previous result validated.
 
     Parameters
     ----------
     Strictness(1), Fraction() : A `Fraction` between 0 and 1 where 1 means always applicable and less that 1 \
-    represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
+    represents the probability of being applicable based on the received result. The inverse of a slack.
     Chaos(SinX()) : The Chaos being tamed.
     """
     def __init__(self, *parameters):
@@ -640,6 +645,7 @@ class Prior(Validator):
         self._prior_numeral: o.TypeNumeral = None
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
+
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -655,7 +661,8 @@ class Prior(Validator):
             super().loadSerialization(serialization)
             self._prior_numeral = o.deserialize( serialization["parameters"]["prior"] )
         return self
-        
+
+
     def __lshift__(self, operand: any) -> Self:
         match operand:
             case self.__class__():
@@ -665,14 +672,16 @@ class Prior(Validator):
                 super().__lshift__(operand)
         return self
 
+
     def reset(self, *parameters) -> Self:
         self._prior_numeral = None
         return super().reset(*parameters)
+
     
-    def next(self, numeral: o.TypeNumeral) -> Self:
+    def next(self, result: o.TypeNumeral) -> Self:
         """Only called by the first link of the chain if all links are validated"""
-        self._prior_numeral = numeral
-        return super().next(numeral)
+        self._prior_numeral = result
+        return super().next(result)
 
 
 
@@ -797,7 +806,8 @@ class Motion(Validator):
             super().loadSerialization(serialization)
             self._last_integer = o.deserialize( serialization["parameters"]["last_integer"] )
         return self
-        
+
+
     def __lshift__(self, operand: any) -> Self:
         match operand:
             case Motion():
@@ -813,14 +823,16 @@ class Motion(Validator):
                 super().__lshift__(operand)
         return self
 
+
     def reset(self, *parameters) -> Self:
         self._last_integer = None
         return super().reset(*parameters)
+
     
-    def next(self, numeral: o.TypeNumeral) -> Self:
+    def next(self, result: o.TypeNumeral) -> Self:
         """Only called by the first link of the chain if all links are validated"""
-        self._last_integer = int(numeral)
-        return super().next(numeral)
+        self._last_integer = int(result)
+        return super().next(result)
         
 
 
@@ -876,6 +888,7 @@ class Pattern(Motion):
             case int():                 return self._limit
             case _:                     return super().__mod__(operand)
 
+
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["pattern"]  = o.serialize( self._pattern )
@@ -892,7 +905,8 @@ class Pattern(Motion):
             self._pattern   = o.deserialize( serialization["parameters"]["pattern"] )
             self._limit     = o.deserialize( serialization["parameters"]["limit"] )
         return self
-        
+
+
     def __lshift__(self, operand: any) -> Self:
         match operand:
             case Pattern():
@@ -917,15 +931,15 @@ class Pattern(Motion):
                 super().__lshift__(operand)
         return self
 
-    def next(self, numeral: o.TypeNumeral) -> Self:
+
+    def next(self, result: o.TypeNumeral) -> Self:
         """Only called by the first link of the chain if all links are validated"""
         if self._last_integer is None:
-            cumulative_number: int = int(numeral)
+            cumulative_number: int = int(result)
         else:
-            cumulative_number: int = self._last_integer + int(numeral)
-        super().next(numeral)   # Updates all indexes
+            cumulative_number: int = self._last_integer + int(result)
         self._last_integer = cumulative_number
-        return self
+        return super().next(result)   # Updates all indexes
         
 
 
