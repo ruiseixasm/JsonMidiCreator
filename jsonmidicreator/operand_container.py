@@ -1784,7 +1784,7 @@ class Clip(Composition):  # Just a container of Elements
         return -1
 
 
-    def get_component_elements(self) -> list['oe.Element']:
+    def get_element_components(self) -> list['oe.Element']:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         component_elements: list[oe.Element] = []
         component_notes: list[oe.Note] = []
@@ -1868,7 +1868,7 @@ class Clip(Composition):  # Just a container of Elements
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0, 1)
 
-        component_elements = self.get_component_elements()
+        component_elements = self.get_element_components()
         for single_element in component_elements:
             self_playlist.extend(
                 single_element.getPlaylist(position_beats, False)
@@ -1890,7 +1890,7 @@ class Clip(Composition):  # Just a container of Elements
             position_beats = Fraction(0, 1)
 
         self_midilist: list[dict] = []
-        component_elements = self.get_component_elements()
+        component_elements = self.get_element_components()
         for single_element in component_elements:
             self_midilist.extend(
                 single_element.getMidilist(position_beats)

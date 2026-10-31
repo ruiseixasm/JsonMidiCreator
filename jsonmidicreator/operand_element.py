@@ -915,7 +915,7 @@ class Subclip(Element):
     """
     def __init__(self, *parameters):
         from . import operand_container as oc
-        self._subclip: oc.Clip = oc.Clip()
+        self._clip: oc.Clip = oc.Clip()
         super().__init__(*parameters)
 
 
@@ -938,7 +938,7 @@ class Subclip(Element):
         from . import operand_container as oc
         match other:
             case self.__class__():
-                return super().__eq__(other) and self._subclip == other._subclip
+                return super().__eq__(other) and self._clip == other._clip
             case Element():
                 # Makes a playlist comparison
                 return self.getPlaylist(devices_header=False) == other.getPlaylist(devices_header=False)
@@ -948,7 +948,7 @@ class Subclip(Element):
 
     def get_element_components(self) -> list[Element]:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
-        return self._subclip.get_component_elements()
+        return self._clip.get_element_components()
 
 
     def getPlotlist(self, position_beats: Fraction | None = None) -> list[dict]:
@@ -956,7 +956,7 @@ class Subclip(Element):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        self_plotlist: list[dict] = self._subclip.getPlaylist(position_beats)
+        self_plotlist: list[dict] = self._clip.getPlaylist(position_beats)
         for plot_dict in self_plotlist:
             plot_dict["self"] = self # Makes sure it's identified as `Subclip`
         return self_plotlist
@@ -969,7 +969,7 @@ class Subclip(Element):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        return self._subclip.getPlaylist(position_beats)
+        return self._clip.getPlaylist(position_beats)
     
 
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
@@ -979,12 +979,12 @@ class Subclip(Element):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        return self._subclip.getMidilist(position_beats)
+        return self._clip.getMidilist(position_beats)
     
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["subclip"] = o.serialize( self._subclip )
+        serialization["parameters"]["subclip"] = o.serialize( self._clip )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -994,7 +994,7 @@ class Subclip(Element):
             "subclip" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._subclip = o.deserialize( serialization["parameters"]["subclip"] )
+            self._clip = o.deserialize( serialization["parameters"]["subclip"] )
         return self
 
 
@@ -1005,22 +1005,22 @@ class Subclip(Element):
         match operand:
             case Subclip():
                 super().__lshift__(operand)
-                self._subclip = operand._subclip.copy()
+                self._clip = operand._clip.copy()
             case od.Pipe():
                 match operand._data:
                     case oc.Clip():
-                        self._subclip = operand._data
+                        self._clip = operand._data
                     case _:
                         super().__lshift__(operand)
             case oc.Clip():
-                self._subclip = operand.copy()
-                self << ra.Duration(self._subclip.net_finish()) # Updates the Element Duration
+                self._clip = operand.copy()
+                self << ra.Duration(self._clip.net_finish()) # Updates the Element Duration
             case ou.Enabled() | ou.Disabled() | ol.Enable() | ol.Disable() | Element() | ra.Convertible() | tuple():
                 super().__lshift__(operand)
             case _:
                 if isinstance(operand, of.Frame):
                     operand = operand.frame(self)   # Unwraps the frame
-                self._subclip.__lshift__(operand)
+                self._clip.__lshift__(operand)
         return self
 
 
@@ -1035,7 +1035,7 @@ class Subclip(Element):
                 if isinstance(operand, of.Frame):
                     operand = operand.frame(self)   # Unwraps the frame
                 # Propagate the value to the rest
-                self._subclip.__iadd__(operand)
+                self._clip.__iadd__(operand)
         return self
 
 
@@ -1050,7 +1050,7 @@ class Subclip(Element):
                 if isinstance(operand, of.Frame):
                     operand = operand.frame(self)   # Unwraps the frame
                 # Propagate the value to the rest
-                self._subclip.__isub__(operand)
+                self._clip.__isub__(operand)
         return self
 
 
@@ -1065,7 +1065,7 @@ class Subclip(Element):
                 if isinstance(operand, of.Frame):
                     operand = operand.frame(self)   # Unwraps the frame
                 # Propagate the value to the rest
-                self._subclip.__imul__(operand)
+                self._clip.__imul__(operand)
         return self
 
 
@@ -1080,7 +1080,7 @@ class Subclip(Element):
                 if isinstance(operand, of.Frame):
                     operand = operand.frame(self)   # Unwraps the frame
                 # Propagate the value to the rest
-                self._subclip.__itruediv__(operand)
+                self._clip.__itruediv__(operand)
         return self
 
 
@@ -1095,7 +1095,7 @@ class Subclip(Element):
                 if isinstance(operand, of.Frame):
                     operand = operand.frame(self)   # Unwraps the frame
                 # Propagate the value to the rest
-                self._subclip.__ifloordiv__(operand)
+                self._clip.__ifloordiv__(operand)
         return self
 
 

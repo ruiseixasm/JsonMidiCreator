@@ -221,5 +221,9 @@ def test_decompose_elements():
     four_chords << Decompose()
     assert four_chords % int() == 4 * 3
 
+    subclip = Subclip( Clip("n::A, :|:C, :|:E") )
+    # subclip >> Plot()
+
+
 # test_decompose_elements()
 
