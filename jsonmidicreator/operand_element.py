@@ -1028,6 +1028,18 @@ class Subclip(Element):
             case oc.Clip():
                 self._clip = operand.copy()
                 self << ra.Duration(self._clip.net_finish()) # Updates the Element Duration
+
+            # Allows the setting of the Clip via Line
+            case od.Line(): # Place to set Line processing            
+                line_elements: list[Element] = get_elements_from_line(operand)
+                self._items = line_elements
+                self._set_owner_clip()
+            case str():
+                if operand.find(" ") != -1 or operand.find(",") != -1:  # "," is what defines a line
+                    self.__lshift__(od.Line(operand))
+                else:
+                    super().__lshift__(operand)
+
             case ou.Enabled() | ou.Disabled() | ol.Enable() | ol.Disable() | Element() | ra.Convertible() | tuple():
                 super().__lshift__(operand)
             case _:
