@@ -187,3 +187,12 @@ def test_clip_resize():
 # test_clip_resize()
 
 
+def test_clip_split():
+    single_note = Note(1/1) * 1
+    single_note << Split(1/1)
+    print(f"single_note % int(): {single_note % int()}")
+    # single_note >> Plot()
+    # assert single_note % int() == 16
+
+# test_clip_split()
+
