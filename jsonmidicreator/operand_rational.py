@@ -267,8 +267,8 @@ class Rational(o.Operand):
 
 
 class ChaosParameters(Rational):
-    """Sets the precision that avoids `Chaos` returning inconsistent values among distinct OS!"""
-    _limit_denominator: int = 1_000_000 # overrides default limit_denominator
+    """`Rational -> ChaosParameters`"""
+    pass
 
 
 
