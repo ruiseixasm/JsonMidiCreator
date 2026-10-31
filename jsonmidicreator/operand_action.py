@@ -111,20 +111,14 @@ class Split(Action):
                 single_finish = single_scoped.finish()
                 if single_finish > finish:
                     finish = single_finish
-
-
-
-            start_beats: Fraction = start % Fraction()
-            actual_size_beats: Fraction = (finish - start) % Fraction()
-            new_size_beats: Fraction = (finish << self._binary) % Fraction()
-            resize_beats: Fraction = new_size_beats / actual_size_beats
-            for single_scoped in scoped_elements:
-                single_position_beats: Fraction = single_scoped._position_beats
-                new_position_beats: Fraction = start_beats + (single_position_beats - start_beats) * resize_beats
-                single_scoped._position_beats = new_position_beats
-                single_duration_beats: Fraction = single_scoped._duration_beats
-                new_duration_beats: Fraction = single_duration_beats * resize_beats
-                single_scoped._duration_beats = new_duration_beats
+            split_position: ra.Position = start + ra.Step(1)
+            while split_position < finish:
+                for single_scoped in scoped_elements:
+                    if single_scoped.cross(split_position) and self._binary % int():
+                        left_element = single_scoped.copy() << ra.Finish(split_position)
+                        single_scoped -= left_element % ra.RightDuration()
+                        clip.append(left_element)
+                split_position += ra.Step(1)
         return clip._sort_items()
 
 
