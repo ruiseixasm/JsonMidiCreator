@@ -1340,14 +1340,11 @@ class Binary(Manipulator):
 
 
     def tame(self, result: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        probability: Fraction = self._parameter
-        if probability > 1:
-            probability = Fraction(1)
-        elif probability < 0:
-            probability = Fraction(0)
-        chaotic_rational: Fraction = ra.Result(result)._rational % 1   # Must be [0, 1[
+        probability: Fraction = self._parameter % 2
+        if probability != 1: probability %= 1 # Ranged [0, 1]
+        ranged_result: Fraction = result % 1    # Must be [0, 1[
         # `1 - chaotic_rational` in order to preserve result in chained Probabilities or alike, 1 remains 1 and 0 remains 0, no flipping
-        result = Fraction(1) if chaotic_rational < probability else Fraction(0)
+        result = Fraction(1) if ranged_result < probability else Fraction(0)
         return super().tame(result, iterate)   # From left to right
 
 
