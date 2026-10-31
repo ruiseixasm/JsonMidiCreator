@@ -468,7 +468,7 @@ class Element(o.Operand):
 
             case ra.Duration() | ra.Length():
                 if operand > Fraction(0):   # Allows innocuous non positive setting (neutral)
-                    if isinstance(operand, (ra.RightLength, ra.RightDuration)):
+                    if isinstance(operand, (ra.LeftLength, ra.LeftDuration)):
                         self._position_beats -= operand._rational - self._duration_beats
                     self._duration_beats = operand._rational
             case ra.TimeValue():

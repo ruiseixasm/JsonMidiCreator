@@ -65,10 +65,10 @@ def test_locus_duration():
     # note >> Plot()
     locus << Duration(1/4)
 
-    locus << RightDuration(1/2)  # Can expand negatively
+    locus << LeftDuration(1/2)  # Can expand negatively
     assert locus % Position() == -NoteValue(1/4)
     # note >> Plot()
-    locus -= RightDuration(1/4)
+    locus -= LeftDuration(1/4)
     assert locus % Position() == 0.0
 
     assert locus % Duration() == 1/4

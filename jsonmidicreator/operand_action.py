@@ -116,7 +116,7 @@ class Split(Action):
                 for single_scoped in scoped_elements:
                     if single_scoped.cross(split_position) and self._binary % int():
                         left_element = single_scoped.copy() << ra.Finish(split_position)
-                        single_scoped -= left_element % ra.RightDuration()
+                        single_scoped -= left_element % ra.LeftDuration()
                         clip.append(left_element)
                 split_position += ra.Step(1)
         return clip._sort_items()

@@ -1124,10 +1124,10 @@ class Length(Measurement):
         return self
 
 
-class RightLength(Length):
-    """`Rational -> Convertible -> Measurement -> Length -> RightLength`
+class LeftLength(Length):
+    """`Rational -> Convertible -> Measurement -> Length -> LeftLength`
 
-    `RightLength` sets the length of an element by adjusting the start of it.
+    `LeftLength` sets the length of an element by adjusting the start of it.
 
     Parameters
     ----------
@@ -1315,10 +1315,10 @@ class Duration(Length):
 
 
 
-class RightDuration(Duration):
-    """`Rational -> Convertible -> Measurement -> Duration -> RightDuration`
+class LeftDuration(Duration):
+    """`Rational -> Convertible -> Measurement -> Duration -> LeftDuration`
 
-    `RightDuration` represents the `Duration` but on the right side, meaning,
+    `LeftDuration` represents the `Duration` but on the left side, meaning,
     it changes the `Element` start position instead of the finish (simple duration setting).
 
     It is possible to use 'triplet' note value adding a T to the string version of it, like so:

@@ -462,10 +462,10 @@ def test_note_duration():
     # note >> Plot()
     note << Duration(1/4)
 
-    note << RightDuration(1/2)  # Can expand negatively
+    note << LeftDuration(1/2)  # Can expand negatively
     assert note % Position() == -NoteValue(1/4)
     # note >> Plot()
-    note -= RightDuration(1/4)
+    note -= LeftDuration(1/4)
     assert note % Position() == 0.0
 
 # test_note_duration()
