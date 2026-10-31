@@ -1660,9 +1660,11 @@ class ChannelElement(DeviceElement):
         return super().is_clipped() or \
             self._channel_0 < 0 or self._channel_0 > 16
 
+
     def channel(self, channel: int = None) -> Self:
         self._channel_0 = channel
         return self
+
 
     def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
         super()._set_element_from_token(token, previous_element)
@@ -1677,6 +1679,7 @@ class ChannelElement(DeviceElement):
                 if isinstance(channel, int):
                     self << ou.Channel(channel)
         return self
+
     
     def __eq__(self, other: Any) -> bool:
         match other:
@@ -1689,6 +1692,7 @@ class ChannelElement(DeviceElement):
             case _:
                 return super().__eq__(other)
 
+
     def __lt__(self, other: Any) -> bool:
         match other:
             case ChannelElement():
@@ -1699,6 +1703,7 @@ class ChannelElement(DeviceElement):
                 return self._position_beats < other._position_beats
             case _:
                 return super().__lt__(other)
+
     
     def __gt__(self, other: Any) -> bool:
         match other:
@@ -1752,6 +1757,7 @@ class ChannelElement(DeviceElement):
         self_midilist[0]["channel"] = self._channel_0
         return self_midilist
 
+
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["channel_0"]    = o.serialize(self._channel_0)
@@ -1766,6 +1772,7 @@ class ChannelElement(DeviceElement):
             super().loadSerialization(serialization)
             self._channel_0 = o.deserialize(serialization["parameters"]["channel_0"])
         return self
+
 
     def __lshift__(self, operand: any) -> Self:
         from . import operand_container as oc
