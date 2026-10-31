@@ -956,7 +956,7 @@ class Subclip(Element):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        self_plotlist: list[dict] = self._clip.getPlaylist(position_beats)
+        self_plotlist: list[dict] = self._clip.getPlotlist(position_beats)
         for plot_dict in self_plotlist:
             plot_dict["self"] = self # Makes sure it's identified as `Subclip`
         return self_plotlist
@@ -1061,6 +1061,34 @@ class Subclip(Element):
         match operand:
             case Element() | oc.Clip() | ra.Convertible() | tuple():
                 return super().__imul__(operand)
+            
+            case Element():
+                if self._owner_clip is not None:    # Owner clip is always the base container
+                    self._owner_clip += operand.copy(self.finish())
+                    return self._owner_clip
+                else:
+                    right_element_copy = operand.copy()
+                    right_element_copy << self.finish() # Places the right element at the right
+                    return oc.Clip(self._get_time_signature(), od.Pipe([self.copy(), right_element_copy]))
+            case oc.Clip():
+                add_position = self % ra.Length() % ra.Position()
+                new_clip = operand + add_position
+                new_clip += self
+                return new_clip
+            
+            # Can be applied to owned elements
+            case int():
+                if operand >= 0:
+                    self_elements: list = [
+                        self + self % ra.Length() * i % ra.Position() for i in range(operand)
+                    ]
+                    if self._owner_clip is not None:    # Owner clip is always the base container
+                        self._owner_clip.delete_item(self, True) # Starts by removing the actual element
+                        self._owner_clip += self_elements
+                        return self._owner_clip
+                    else:
+                        return oc.Clip(self._get_time_signature(), self_elements)
+                
             case _:
                 if isinstance(operand, of.Frame):
                     operand = operand.frame(self)   # Unwraps the frame
