@@ -226,7 +226,8 @@ def test_decompose_elements():
     subclip = Subclip( clip ) * 4
     # subclip >> Plot()
     assert subclip % int() == 4
+    subclip << Decompose()
+    assert subclip % int() == 4 * 3
 
-
-test_decompose_elements()
+# test_decompose_elements()
 
