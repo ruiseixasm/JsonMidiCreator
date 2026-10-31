@@ -1161,13 +1161,7 @@ class Modulo(Manipulator):
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         modulo: Fraction = ra.Rational(self._parameter)._rational
         if modulo > 0:
-            if isinstance(numeral, o.Operand):
-                numeral << numeral % Fraction() % modulo
-            else:
-                numeral %= modulo
-            numeral = self._parameter.__class__(numeral)
-            if isinstance(self._parameter, o.Operand):  # Has to be wrapped
-                numeral = self._parameter.copy(numeral)
+            numeral %= modulo
         return super().tame(numeral, iterate)   # From left to right
 
 
@@ -1190,13 +1184,8 @@ class Interval(Manipulator):
             right_value: Fraction = ra.Rational(self._parameter[1])._rational
             range_value: Fraction = right_value - left_value
             if range_value > 0:
-                if isinstance(numeral, o.Operand):
-                    numeral << numeral % Fraction() % range_value
-                else:
-                    numeral %= range_value
+                numeral %= range_value
                 numeral += left_value
-                if isinstance(self._parameter, o.Operand):  # Has to be wrapped
-                    numeral = self._parameter[0].copy(numeral)
         return super().tame(numeral, iterate)   # From left to right
 
 
