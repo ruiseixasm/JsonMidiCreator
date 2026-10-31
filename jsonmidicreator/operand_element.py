@@ -2889,7 +2889,8 @@ class Rhythm(Note):
         for plot_dict in self_plotlist:
             plot_dict["self"] = self # Makes sure it's identified as `Rhythm`
         return self_plotlist
-    
+
+
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         if not self._enabled: return []
 
@@ -2901,7 +2902,8 @@ class Rhythm(Note):
         for single_note in self.get_element_components():
             self_playlist.extend(single_note.getPlaylist(position_beats, devices_header))
         return self_playlist
-    
+
+
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
         if not self._enabled: return []
 
@@ -4289,7 +4291,8 @@ class ControlChangePair(ControlChange):
             self_playlist.extend(self_playlist_lsb)
 
         return self_playlist
-    
+
+
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
         if not self._enabled: return []
         
@@ -4387,6 +4390,7 @@ class BankSelectMSB(ControlChange):
             case ou.Number():           return operand.copy() << 0
             case _:                     return super().__mod__(operand)
 
+
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         if not self._enabled: return []
 
@@ -4421,7 +4425,8 @@ class BankSelectMSB(ControlChange):
                 }
             )
         return self_playlist
-    
+
+
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
         if not self._enabled: return []
 
@@ -4438,6 +4443,7 @@ class BankSelectMSB(ControlChange):
         self_midilist[0]["number"]      = 0,    # Bank Select MSB (CC 0)
         self_midilist[0]["value"]       = clamp_value_128(self._value)
         return self_midilist
+
 
 
 class BankSelectLSB(ControlChange):
@@ -4462,6 +4468,7 @@ class BankSelectLSB(ControlChange):
                     case _:                     return super().__mod__(operand)
             case ou.Number():           return operand.copy() << 32
             case _:                     return super().__mod__(operand)
+
 
     def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True) -> list[dict]:
         if not self._enabled: return []
@@ -4497,7 +4504,8 @@ class BankSelectLSB(ControlChange):
                 }
             )
         return self_playlist
-    
+
+
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
         if not self._enabled: return []
 
@@ -4514,6 +4522,7 @@ class BankSelectLSB(ControlChange):
         self_midilist[0]["number"]      = 32,    # Bank Select LSB (CC 32)
         self_midilist[0]["value"]       = clamp_value_128(self._value)
         return self_midilist
+
 
 
 class ValueZero(ControlChange):
@@ -4544,11 +4553,15 @@ class ValueZero(ControlChange):
         self._value = 0                     # None
         return self
 
+
     def __iadd__(self, operand: any) -> Self:
         return self
 
+
     def __isub__(self, operand: any) -> Self:
         return self
+
+
 
 class ResetAllControllers(ValueZero):
     """`Element -> DeviceElement -> ChannelElement -> ControlChange -> ValueZero -> ResetAllControllers`
@@ -4578,6 +4591,8 @@ class ResetAllControllers(ValueZero):
         self._number << ou.Number(121)  # 0x79
         return self
 
+
+
 class LocalControl(ControlChange):
     """`Element -> DeviceElement -> ChannelElement -> ControlChange -> LocalControl`
 
@@ -4605,6 +4620,8 @@ class LocalControl(ControlChange):
         super().__lshift__(operand)
         self._number << ou.Number(122)  # 0x7A
         return self
+
+
 
 class AllNotesOff(ValueZero):
     """`Element -> DeviceElement -> ChannelElement -> ControlChange -> ValueZero -> AllNotesOff`
@@ -4634,6 +4651,8 @@ class AllNotesOff(ValueZero):
         self._number << ou.Number(123)
         return self
 
+
+
 class OmniModeOff(ValueZero):
     """`Element -> DeviceElement -> ChannelElement -> ControlChange -> ValueZero -> OmniModeOff`
 
@@ -4662,6 +4681,8 @@ class OmniModeOff(ValueZero):
         self._number << ou.Number(124)  # 0x7C
         return self
 
+
+
 class OmniModeOn(ValueZero):
     """`Element -> DeviceElement -> ChannelElement -> ControlChange -> ValueZero -> OmniModeOn`
 
@@ -4689,6 +4710,8 @@ class OmniModeOn(ValueZero):
         super().__lshift__(operand)
         self._number << ou.Number(125)  # 0x7D
         return self
+
+
 
 class MonoMode(ControlChange):
     """`Element -> DeviceElement -> ChannelElement -> ControlChange -> MonoMode`
@@ -4719,6 +4742,8 @@ class MonoMode(ControlChange):
         self._number << ou.Number(126)  # 0x7E
         return self
 
+
+
 class PolyModeOn(ValueZero):
     """`Element -> DeviceElement -> ChannelElement -> ControlChange -> ValueZero -> PolyModeOn`
 
@@ -4748,6 +4773,7 @@ class PolyModeOn(ValueZero):
         return self
 
 
+
 class Aftertouch(Automatable):
     """`Element -> DeviceElement -> ChannelElement -> Automatable -> Aftertouch`
 
@@ -4769,14 +4795,17 @@ class Aftertouch(Automatable):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+
     def pressure(self, pressure: int = 0) -> Self:
         self._pressure = pressure
         return self
+
 
     def set_from_value(self, value: int | float | Fraction) -> Self:
         if isinstance(value, (int, float, Fraction)):
             self._pressure = round(value)
         return self
+
 
     def get_value(self) -> Fraction:
         return Fraction(self._pressure)
@@ -4951,6 +4980,7 @@ class Aftertouch(Automatable):
                 super().__lshift__(operand)
         return self
 
+
     def __iadd__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
@@ -4962,6 +4992,7 @@ class Aftertouch(Automatable):
                 super().__iadd__(operand)
         return self
 
+
     def __isub__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
@@ -4972,6 +5003,7 @@ class Aftertouch(Automatable):
             case _:
                 super().__isub__(operand)
         return self
+
 
 
 class PolyAftertouch(Aftertouch):
@@ -4993,9 +5025,11 @@ class PolyAftertouch(Aftertouch):
         self._pitch: og.Pitch  = og.Pitch()
         super().__init__(*parameters)
 
+
     def pitch(self, key: Optional[int] = 0, octave: Optional[int] = 4) -> Self:
         self._pitch << ou.Key(key) << ou.Octave(octave)
         return self
+
 
     def get_absolute_pitch(self) -> int:
         return self._pitch.get_absolute_pitch()
@@ -5028,6 +5062,7 @@ class PolyAftertouch(Aftertouch):
                 return self._pitch % ou.Octave()
             case _:
                 return super().__mod__(operand)
+
 
     def __eq__(self, other: Any) -> bool:
         match other:
@@ -5075,7 +5110,8 @@ class PolyAftertouch(Aftertouch):
                 }
             )
         return self_playlist
-    
+
+
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["pitch"] = o.serialize( self._pitch )
@@ -5090,7 +5126,8 @@ class PolyAftertouch(Aftertouch):
             super().loadSerialization(serialization)
             self._pitch = o.deserialize( serialization["parameters"]["pitch"] )
         return self
-      
+
+
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
@@ -5112,6 +5149,7 @@ class PolyAftertouch(Aftertouch):
                                 self._pitch << operand
             case _:             super().__lshift__(operand)
         return self
+
 
 
 class PitchBend(Automatable):
@@ -5136,9 +5174,11 @@ class PitchBend(Automatable):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+
     def bend(self, bend: int = 0) -> Self:
         self._msb, self._lsb = self._get_msb_lsb( bend )
         return self
+
 
     def set_from_value(self, value: int | float | Fraction) -> Self:
         if isinstance(value, (int, float, Fraction)):
@@ -5146,6 +5186,7 @@ class PitchBend(Automatable):
             self._msb = math.floor(value)   # The precision is in the lsb where is rounded
             self._lsb = math.floor((value - self._msb) * 128) # Coverts to 128 cycle
         return self
+
 
     def get_value(self) -> Fraction:
         msb_value: Fraction = self._msb + Fraction(self._lsb, 128)  # int + Fraction = Fraction
@@ -5177,6 +5218,7 @@ class PitchBend(Automatable):
             case _:
                 return super().__eq__(other)
 
+
     def _set_element_from_token(self, token: str, previous_element: Union['Element', None] = None) -> Self:
         super()._set_element_from_token(token, previous_element)
         token = od._normalize_dsl(token)
@@ -5188,6 +5230,7 @@ class PitchBend(Automatable):
             if isinstance(number, (int, float, Fraction)):
                 self.set_from_value(number)
         return self
+
 
     def __mod__(self, operand: o.T) -> o.T:
         """
@@ -5225,6 +5268,7 @@ class PitchBend(Automatable):
         vectordict["value"] = self._msb
         return vectordict
 
+
     def getPlotlist(self, position_beats: Fraction | None = None,
             derived_element: 'Element' = None) -> list[dict]:
         
@@ -5251,7 +5295,6 @@ class PitchBend(Automatable):
                 }
             }
         )
-
         return self_plotlist
 
 
@@ -5290,7 +5333,8 @@ class PitchBend(Automatable):
                 }
             )
         return self_playlist
-    
+
+
     def getMidilist(self, position_beats: Fraction | None = None) -> list:
         if not self._enabled: return []
 
@@ -5306,6 +5350,7 @@ class PitchBend(Automatable):
         self_midilist[0]["priority"]    = 0x50
         self_midilist[0]["value"]       = self._get_bend(clamp_value_128(self._msb), clamp_value_128(self._lsb))
         return self_midilist
+
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -5323,7 +5368,8 @@ class PitchBend(Automatable):
             self._msb = o.deserialize( serialization["parameters"]["msb"] )
             self._lsb = o.deserialize( serialization["parameters"]["lsb"] )
         return self
-      
+
+
     def __lshift__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
@@ -5355,6 +5401,7 @@ class PitchBend(Automatable):
                 super().__lshift__(operand)
         return self
 
+
     def __iadd__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
@@ -5367,6 +5414,7 @@ class PitchBend(Automatable):
             case _:
                 super().__iadd__(operand)
         return self
+
 
     def __isub__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -5391,6 +5439,7 @@ class PitchBend(Automatable):
         lsb: int = amount & 0x7F    # LSB - 0x7F = 127, 7 bits with 1s, 2^7 - 1
         return msb, lsb
 
+
     @staticmethod
     def _get_bend(msb: int, lsb: int) -> int:
         amount: int = msb << 7 | lsb & 0x7F
@@ -5398,6 +5447,7 @@ class PitchBend(Automatable):
         # from -8192 to 8191
         bend: int = amount - 8192
         return bend
+
 
 
 class Automation(Element):
@@ -5532,6 +5582,7 @@ class Automation(Element):
         # t²(3-2t) as fractions
         t2: Fraction = t * t
         return t2 * (Fraction(3) - Fraction(2) * t)
+
 
     def get_element_components(self) -> list[ChannelElement]:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
@@ -5695,6 +5746,7 @@ class Automation(Element):
                 super().__lshift__(operand)
         return self
 
+
     def __iadd__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
@@ -5709,6 +5761,7 @@ class Automation(Element):
                 super().__iadd__(operand)
         return self
 
+
     def __isub__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
@@ -5722,6 +5775,7 @@ class Automation(Element):
             case _:
                 super().__isub__(operand)
         return self
+
 
 
 class ProgramChange(ChannelElement):
