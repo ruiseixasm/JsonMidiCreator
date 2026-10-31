@@ -998,6 +998,7 @@ class Subclip(Element):
         return self
 
 
+
     def __lshift__(self, operand: any) -> Self:
         from . import operand_container as oc
         from . import operand_frame as of
@@ -1026,27 +1027,33 @@ class Subclip(Element):
 
     def __iadd__(self, operand: any) -> Union[TypeElement, 'Clip']:
         
-        return super().__iadd__(operand)
+        result = super().__iadd__(operand)
+        return result
 
 
     def __isub__(self, operand: any) -> Union[TypeElement, 'Clip']:
         
-        return super().__isub__(operand)
+        result = super().__isub__(operand)
+        return result
+    
 
 
     def __imul__(self, operand: any) -> Union[TypeElement, 'Clip']:
         
-        return super().__imul__(operand)
+        result = super().__imul__(operand)
+        return result
 
 
     def __itruediv__(self, operand: any) -> Union[TypeElement, 'Clip']:
         
-        return super().__itruediv__(operand)
+        result = super().__itruediv__(operand)
+        return result
 
 
     def __ifloordiv__(self, operand: any) -> Union[TypeElement, 'Clip']:
         
-        return super().__ifloordiv__(operand)
+        result = super().__ifloordiv__(operand)
+        return result
 
 
 
