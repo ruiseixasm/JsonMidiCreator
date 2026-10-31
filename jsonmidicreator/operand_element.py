@@ -1025,106 +1025,28 @@ class Subclip(Element):
 
 
     def __iadd__(self, operand: any) -> Union[TypeElement, 'Clip']:
-        from . import operand_container as oc
-        from . import operand_frame as of
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case Element() | oc.Clip() | ra.Convertible() | tuple():
-                return super().__iadd__(operand)
-            case _:
-                if isinstance(operand, of.Frame):
-                    operand = operand.frame(self)   # Unwraps the frame
-                # Propagate the value to the rest
-                self._clip.__iadd__(operand)
-        return self
+        
+        return super().__iadd__(operand)
 
 
     def __isub__(self, operand: any) -> Union[TypeElement, 'Clip']:
-        from . import operand_container as oc
-        from . import operand_frame as of
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case Element() | oc.Clip() | ra.Convertible() | tuple():
-                return super().__isub__(operand)
-            case _:
-                if isinstance(operand, of.Frame):
-                    operand = operand.frame(self)   # Unwraps the frame
-                # Propagate the value to the rest
-                self._clip.__isub__(operand)
-        return self
+        
+        return super().__isub__(operand)
 
 
     def __imul__(self, operand: any) -> Union[TypeElement, 'Clip']:
-        from . import operand_container as oc
-        from . import operand_frame as of
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case Element() | oc.Clip() | ra.Convertible() | tuple():
-                return super().__imul__(operand)
-            
-            case Element():
-                if self._owner_clip is not None:    # Owner clip is always the base container
-                    self._owner_clip += operand.copy(self.finish())
-                    return self._owner_clip
-                else:
-                    right_element_copy = operand.copy()
-                    right_element_copy << self.finish() # Places the right element at the right
-                    return oc.Clip(self._get_time_signature(), od.Pipe([self.copy(), right_element_copy]))
-            case oc.Clip():
-                add_position = self % ra.Length() % ra.Position()
-                new_clip = operand + add_position
-                new_clip += self
-                return new_clip
-            
-            # Can be applied to owned elements
-            case int():
-                if operand >= 0:
-                    self_elements: list = [
-                        self + self % ra.Length() * i % ra.Position() for i in range(operand)
-                    ]
-                    if self._owner_clip is not None:    # Owner clip is always the base container
-                        self._owner_clip.delete_item(self, True) # Starts by removing the actual element
-                        self._owner_clip += self_elements
-                        return self._owner_clip
-                    else:
-                        return oc.Clip(self._get_time_signature(), self_elements)
-                
-            case _:
-                if isinstance(operand, of.Frame):
-                    operand = operand.frame(self)   # Unwraps the frame
-                # Propagate the value to the rest
-                self._clip.__imul__(operand)
-        return self
+        
+        return super().__imul__(operand)
 
 
     def __itruediv__(self, operand: any) -> Union[TypeElement, 'Clip']:
-        from . import operand_container as oc
-        from . import operand_frame as of
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case ou.Enable() | ou.Disable() | Element() | oc.Clip() | ra.Convertible() | tuple():
-                return super().__itruediv__(operand)
-            case _:
-                if isinstance(operand, of.Frame):
-                    operand = operand.frame(self)   # Unwraps the frame
-                # Propagate the value to the rest
-                self._clip.__itruediv__(operand)
-        return self
+        
+        return super().__itruediv__(operand)
 
 
     def __ifloordiv__(self, operand: any) -> Union[TypeElement, 'Clip']:
-        from . import operand_container as oc
-        from . import operand_frame as of
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case Element() | oc.Clip() | ra.Convertible() | tuple():
-                return super().__ifloordiv__(operand)
-            case _:
-                if isinstance(operand, of.Frame):
-                    operand = operand.frame(self)   # Unwraps the frame
-                # Propagate the value to the rest
-                self._clip.__ifloordiv__(operand)
-        return self
+        
+        return super().__ifloordiv__(operand)
 
 
 
