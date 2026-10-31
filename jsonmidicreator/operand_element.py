@@ -1032,11 +1032,11 @@ class Subclip(Element):
             # Allows the setting of the Clip via Line
             case od.Line(): # Place to set Line processing            
                 line_elements: list[Element] = get_elements_from_line(operand)
-                self._items = line_elements
-                self._set_owner_clip()
+                self._clip._items = line_elements
+                self._clip._set_owner_clip()
             case str():
                 if operand.find(" ") != -1 or operand.find(",") != -1:  # "," is what defines a line
-                    self.__lshift__(od.Line(operand))
+                    self._clip.__lshift__(od.Line(operand))
                 else:
                     super().__lshift__(operand)
 
