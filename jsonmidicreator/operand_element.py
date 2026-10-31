@@ -998,6 +998,15 @@ class Subclip(Element):
         return self
 
 
+    def _update_clip_duration(self) -> Self:
+        clip_duration_beats: Fraction = self._clip.duration() % Fraction()
+        if clip_duration_beats != self._duration_beats and clip_duration_beats > 0:
+            ratio: Fraction = self._duration_beats / clip_duration_beats
+            for single_element in self._clip._items:
+                single_element._position_beats *= ratio
+                single_element._duration_beats *= ratio
+        return self
+
 
     def __lshift__(self, operand: any) -> Self:
         from . import operand_container as oc
@@ -1022,37 +1031,36 @@ class Subclip(Element):
                 if isinstance(operand, of.Frame):
                     operand = operand.frame(self)   # Unwraps the frame
                 self._clip.__lshift__(operand)
-        return self
+        return self._update_clip_duration()
 
 
     def __iadd__(self, operand: any) -> Union[TypeElement, 'Clip']:
-        
         result = super().__iadd__(operand)
+        self._update_clip_duration()
         return result
 
 
     def __isub__(self, operand: any) -> Union[TypeElement, 'Clip']:
-        
         result = super().__isub__(operand)
+        self._update_clip_duration()
         return result
     
 
-
     def __imul__(self, operand: any) -> Union[TypeElement, 'Clip']:
-        
         result = super().__imul__(operand)
+        self._update_clip_duration()
         return result
 
 
     def __itruediv__(self, operand: any) -> Union[TypeElement, 'Clip']:
-        
         result = super().__itruediv__(operand)
+        self._update_clip_duration()
         return result
 
 
     def __ifloordiv__(self, operand: any) -> Union[TypeElement, 'Clip']:
-        
         result = super().__ifloordiv__(operand)
+        self._update_clip_duration()
         return result
 
 
