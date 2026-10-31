@@ -193,3 +193,20 @@ def test_chained_tamers():
 # test_chained_tamers()
 
 
+def test_binary_extremes():
+    binary_1 = Binary(1)
+    binary_0 = Binary(0)
+
+    for _ in range(10):
+        result_1 = binary_1 % int()
+        print(f"result_1: {result_1}")
+        assert result_1 == 1
+
+    for _ in range(10):
+        result_0 = binary_0 % int()
+        print(f"result_0: {result_0}")
+        assert result_0 == 0
+
+# test_binary_extremes()
+
+

@@ -1335,9 +1335,14 @@ class Binary(Manipulator):
 
 
     def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        chaotic_rational: Fraction = ra.Result(numeral)._rational % 1
+        probability: Fraction = self._parameter
+        if probability > 1:
+            probability = Fraction(1)
+        elif probability < 0:
+            probability = Fraction(0)
+        chaotic_rational: Fraction = ra.Result(numeral)._rational % 1   # Must be [0, 1[
         # `1 - chaotic_rational` in order to preserve result in chained Probabilities or alike, 1 remains 1 and 0 remains 0, no flipping
-        numeral = Fraction(1) if 1 - chaotic_rational < self._parameter else Fraction(0)
+        numeral = Fraction(1) if chaotic_rational > 1 - probability else Fraction(0)
         return super().tame(numeral, iterate)   # From left to right
 
 
