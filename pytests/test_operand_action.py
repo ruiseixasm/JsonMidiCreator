@@ -231,3 +231,10 @@ def test_decompose_elements():
 
 # test_decompose_elements()
 
+
+def test_subclip_line():
+    subclip = Subclip( "n::A, :|:C, :|:E" ) * 1
+    assert subclip % int() == 1
+    subclip << Decompose()
+    assert subclip % int() == 1 * 3
+    
