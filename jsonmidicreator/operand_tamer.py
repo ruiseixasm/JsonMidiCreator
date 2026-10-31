@@ -644,14 +644,14 @@ class Prior(Validator):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._prior_numeral: o.TypeNumeral = None
+        self._prior_result: Fraction | None = None
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["prior"] = o.serialize( self._prior_numeral )
+        serialization["parameters"]["prior"] = o.serialize( self._prior_result )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -661,7 +661,7 @@ class Prior(Validator):
             "prior" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._prior_numeral = o.deserialize( serialization["parameters"]["prior"] )
+            self._prior_result = o.deserialize( serialization["parameters"]["prior"] )
         return self
 
 
@@ -669,20 +669,20 @@ class Prior(Validator):
         match operand:
             case self.__class__():
                 super().__lshift__(operand)
-                self._prior_numeral = operand._prior_numeral
+                self._prior_result = operand._prior_result
             case _:
                 super().__lshift__(operand)
         return self
 
 
     def reset(self, *parameters) -> Self:
-        self._prior_numeral = None
+        self._prior_result = None
         return super().reset(*parameters)
 
     
     def next(self, result: Fraction) -> Self:
         """Only called by the first link of the chain if all links are validated"""
-        self._prior_numeral = result
+        self._prior_result = result
         return super().next(result)
 
 
@@ -699,7 +699,7 @@ class Different(Prior):
     Chaos(SinX()) : The Chaos being tamed.
     """
     def tame(self, result: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        if not self.slack(result) and self._prior_numeral is not None and result == self._prior_numeral:
+        if not self.slack(result) and self._prior_result is not None and result == self._prior_result:
             return result, False    # Breaks the chain
         if iterate:
             self.next(result)
@@ -719,7 +719,7 @@ class Same(Prior):
     Chaos(SinX()) : The Chaos being tamed.
     """
     def tame(self, result: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        if not self.slack(result) and self._prior_numeral is not None and result != self._prior_numeral:
+        if not self.slack(result) and self._prior_result is not None and result != self._prior_result:
             return result, False    # Breaks the chain
         if iterate:
             self.next(result)
@@ -739,7 +739,7 @@ class Increasing(Prior):
     Chaos(SinX()) : The Chaos being tamed.
     """
     def tame(self, result: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        if not self.slack(result) and self._prior_numeral is not None and result <= self._prior_numeral:
+        if not self.slack(result) and self._prior_result is not None and result <= self._prior_result:
             return result, False    # Breaks the chain
         if iterate:
             self.next(result)
@@ -759,7 +759,7 @@ class Decreasing(Prior):
     Chaos(SinX()) : The Chaos being tamed.
     """
     def tame(self, result: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        if not self.slack(result) and self._prior_numeral is not None and result >= self._prior_numeral:
+        if not self.slack(result) and self._prior_result is not None and result >= self._prior_result:
             return result, False    # Breaks the chain
         if iterate:
             self.next(result)
