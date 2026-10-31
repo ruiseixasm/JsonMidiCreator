@@ -3096,6 +3096,8 @@ class ReversedGalop(Galop):
     def get_component_elements(self) -> list[Note]:
         return reversed(super().get_component_elements())
 
+
+
 class Shuffle(Rhythm):
     """`Element -> DeviceElement -> ChannelElement -> Note -> Rhythm -> Shuffle`
 
@@ -3124,6 +3126,8 @@ class Shuffle(Rhythm):
         second_note._duration_beats /= 2 # Converts to 1/16 alike
         return [first_note, second_note]
 
+
+
 class ReversedShuffle(Shuffle):
     """`Element -> DeviceElement -> ChannelElement -> Note -> Rhythm -> Shuffle -> ReversedShuffle`
 
@@ -3143,6 +3147,8 @@ class ReversedShuffle(Shuffle):
     """
     def get_component_elements(self) -> list[Note]:
         return reversed(super().get_component_elements())
+
+
 
 class Syncopate(Rhythm):
     """`Element -> DeviceElement -> ChannelElement -> Note -> Rhythm -> Syncopate`
@@ -3172,6 +3178,8 @@ class Syncopate(Rhythm):
         third_note = Note(first_note)
         third_note._position_beats += second_note._duration_beats
         return [first_note, second_note, third_note]
+
+
 
 class Offset(Rhythm):
     """`Element -> DeviceElement -> ChannelElement -> Note -> Rhythm -> Offset`
