@@ -87,6 +87,25 @@ class Keep(Action):
 
 
 
+class Decompose(Action):
+    """`Action -> Decompose`
+
+    Each element is decomposed in its component elements if it's a composed element,
+    like a chord that is composed of multiple notes, so, it becomes those multiple notes instead.
+
+    Args:
+        None.
+    """
+    def act(self, clip: 'Clip', scoped_elements: list['Element']) -> 'Clip':
+        for single_scoped in scoped_elements:
+            element_components: list[oe.Element] = single_scoped.get_element_components()
+            if len(element_components) > 1:
+                clip.delete_item(single_scoped, True)
+                clip.extend(element_components)
+        return clip._sort_items()
+
+
+
 class Split(Action):
     """`Action -> Split`
 

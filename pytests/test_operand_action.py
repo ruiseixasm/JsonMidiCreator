@@ -214,3 +214,12 @@ def test_graft():
 
 # test_graft()
 
+
+def test_decompose_elements():
+    four_chords = Chord() * 4
+    assert four_chords % int() == 4
+    four_chords << Decompose()
+    assert four_chords % int() == 4 * 3
+
+# test_decompose_elements()
+

@@ -1751,8 +1751,8 @@ class Clip(Composition):  # Just a container of Elements
                 pitch_transitions = og.PitchTransitions()
                 for i, single_element in enumerate(self._items):
                     if i > 0:
-                        left_components: list[oe.Element] = self._items[i - 1].get_component_elements()
-                        right_components: list[oe.Element] = single_element.get_component_elements()
+                        left_components: list[oe.Element] = self._items[i - 1].get_element_components()
+                        right_components: list[oe.Element] = single_element.get_element_components()
                         for left, right in zip(left_components, right_components):
                             if isinstance(left, oe.Note) and isinstance(right, oe.Note):
                                 left_pitch: int = left._pitch.get_absolute_pitch()
@@ -1789,7 +1789,7 @@ class Clip(Composition):  # Just a container of Elements
         component_elements: list[oe.Element] = []
         component_notes: list[oe.Note] = []
         for clip_element in self._items:
-            element_components = clip_element.get_component_elements()
+            element_components = clip_element.get_element_components()
             for element_element in element_components:
                 if isinstance(element_element, oe.Note):
                     component_notes.append(element_element)
@@ -2687,7 +2687,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         decomposed_elements: list[oe.Element] = []
         for single_element in self.elements_unmasked():
-            component_elements: list[oe.Element] = single_element.get_component_elements()
+            component_elements: list[oe.Element] = single_element.get_element_components()
             for single_component in component_elements:
                 decomposed_elements.append(single_component)
         # Remove previous Elements from the Container stack

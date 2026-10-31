@@ -221,6 +221,6 @@ class Decomposer(Yielder):
     def __mul__(self, element: 'Element') -> 'Clip':
         new_clip = oc.Clip()
         if isinstance(element, oe.Element):
-            new_clip << element.get_component_elements()    # Decoupled
+            new_clip << element.get_element_components()    # Decoupled
         return new_clip
 

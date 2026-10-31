@@ -229,19 +229,6 @@ class Close(Transformation):
         return clip._sort_items()
 
 
-class Decompose(Transformation):
-    """`Transformation -> Decompose`
-
-    Transformation each element in its component elements if it's a composed element,
-    like a chord that is composed of multiple notes, so, it becomes those multiple notes instead.
-
-    Args:
-        None.
-    """
-    def _single_transform(self, clip: 'Clip') -> 'Clip':
-        clip.decompose()
-        return clip._sort_items()
-
 
 class Tie(Transformation):
     """`Transformation -> Tie`

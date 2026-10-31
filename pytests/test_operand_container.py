@@ -1402,7 +1402,7 @@ def test_clip_line():
     # single_cluster >> Plot()
     print(f"Main pitch: {single_cluster[0]._pitch.get_absolute_pitch()}")
     assert single_cluster[0]._pitch.get_absolute_pitch() == 60    # C
-    components: list[Note] = single_cluster[0].get_component_elements()
+    components: list[Note] = single_cluster[0].get_element_components()
     assert len(components) == 3
     print(f"Pitch 1: {components[0]._pitch.get_absolute_pitch()}")
     print(f"Pitch 2: {components[1]._pitch.get_absolute_pitch()}")

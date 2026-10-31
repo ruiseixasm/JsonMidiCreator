@@ -235,7 +235,7 @@ class Element(o.Operand):
         return self
 
 
-    def get_component_elements(self) -> list['Element']:
+    def get_element_components(self) -> list['Element']:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         return [ self ]
 
@@ -946,7 +946,7 @@ class Subclip(Element):
                 return super().__eq__(other)
 
 
-    def get_component_elements(self) -> list[Element]:
+    def get_element_components(self) -> list[Element]:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         return self._subclip.get_component_elements()
 
@@ -1141,7 +1141,7 @@ class Unison(Element):
             case _:
                 return super().__eq__(other)
     
-    def get_component_elements(self) -> list[Element]:
+    def get_element_components(self) -> list[Element]:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         # Makes sure all elements share the same Locus
         self_locus: og.Locus = self % og.Locus()
@@ -1156,7 +1156,7 @@ class Unison(Element):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        for single_element in self.get_component_elements():
+        for single_element in self.get_element_components():
             self_playlist.extend(single_element.getPlotlist(position_beats))
         return self_playlist
 
@@ -1169,7 +1169,7 @@ class Unison(Element):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        for single_element in self.get_component_elements():
+        for single_element in self.get_element_components():
             self_playlist.extend(single_element.getPlaylist(position_beats, devices_header))
         return self_playlist
 
@@ -1182,7 +1182,7 @@ class Unison(Element):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        for single_element in self.get_component_elements():
+        for single_element in self.get_element_components():
             self_midilist.extend(single_element.getMidilist(position_beats))    # extends the list with other list
         return self_midilist
 
@@ -1914,7 +1914,7 @@ class Trigger(ChannelElement):
         return self
 
 
-    def get_component_elements(self) -> list['Note']:
+    def get_element_components(self) -> list['Note']:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         return [self]
     
@@ -2440,7 +2440,7 @@ class Note(ChannelElement):
             case _:
                 return super().__gt__(other)
     
-    def get_component_elements(self) -> list['Note']:
+    def get_element_components(self) -> list['Note']:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         return [self]
     
@@ -2491,7 +2491,7 @@ class Note(ChannelElement):
             derived_note: 'Note' = None) -> list[dict]:
         
         self_plotlist: list[dict] = []
-        component_notes: list[Note] = self.get_component_elements()
+        component_notes: list[Note] = self.get_element_components()
 
         for single_note in component_notes:
 
@@ -2536,7 +2536,7 @@ class Note(ChannelElement):
         if not self._enabled: return []
 
         self_playlist: list[dict] = []
-        component_notes: list[Note] = self.get_component_elements()
+        component_notes: list[Note] = self.get_element_components()
 
         for single_note in component_notes:
 
@@ -2591,7 +2591,7 @@ class Note(ChannelElement):
         if not self._enabled: return []
         
         self_midilist: list[dict] = []
-        component_notes: list[Note] = self.get_component_elements()
+        component_notes: list[Note] = self.get_element_components()
 
         for single_note in component_notes:
 
@@ -2771,7 +2771,7 @@ class Cluster(Note):
         return self
 
 
-    def get_component_elements(self) -> list[Note]:
+    def get_element_components(self) -> list[Note]:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         cluster_notes: list[Note] = []
         for pitch_parameter in self._pitches:
@@ -2783,7 +2783,7 @@ class Cluster(Note):
     def checksum(self) -> int:
         """16-bit checksum for a `Chord`."""
         master: int = 0
-        for single_element in self.get_component_elements():
+        for single_element in self.get_element_components():
             master += single_element.checksum()
         return master & 0xFFFF  # 16-bit
 
@@ -2935,7 +2935,7 @@ class Rhythm(Note):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        for single_note in self.get_component_elements():
+        for single_note in self.get_element_components():
             self_plotlist.extend(single_note.getPlotlist(position_beats, self))
         for plot_dict in self_plotlist:
             plot_dict["self"] = self # Makes sure it's identified as `Rhythm`
@@ -2949,7 +2949,7 @@ class Rhythm(Note):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        for single_note in self.get_component_elements():
+        for single_note in self.get_element_components():
             self_playlist.extend(single_note.getPlaylist(position_beats, devices_header))
         return self_playlist
     
@@ -2961,7 +2961,7 @@ class Rhythm(Note):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        for single_note in self.get_component_elements():
+        for single_note in self.get_element_components():
             self_midilist.extend(single_note.getMidilist(position_beats))
         return self_midilist
     
@@ -2983,7 +2983,7 @@ class Duple(Rhythm):
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
-    def get_component_elements(self) -> list[Note]:
+    def get_element_components(self) -> list[Note]:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         first_note = Note(self)
         first_note._duration_beats /= 2
@@ -3009,7 +3009,7 @@ class Triplet(Rhythm):
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
-    def get_component_elements(self) -> list[Note]:
+    def get_element_components(self) -> list[Note]:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         first_note = Note(self)
         first_note._duration_beats /= 3
@@ -3036,7 +3036,7 @@ class Quadruplet(Rhythm):
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
-    def get_component_elements(self) -> list[Note]:
+    def get_element_components(self) -> list[Note]:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         first_note = Note(self)
         first_note._duration_beats /= 3
@@ -3065,7 +3065,7 @@ class Galop(Rhythm):
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
-    def get_component_elements(self) -> list[Note]:
+    def get_element_components(self) -> list[Note]:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         first_note = Note(self)
         first_note._duration_beats /= 2 # Converts to 1/8 alike
@@ -3093,8 +3093,8 @@ class ReversedGalop(Galop):
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
-    def get_component_elements(self) -> list[Note]:
-        return reversed(super().get_component_elements())
+    def get_element_components(self) -> list[Note]:
+        return reversed(super().get_element_components())
 
 
 
@@ -3115,7 +3115,7 @@ class Shuffle(Rhythm):
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
-    def get_component_elements(self) -> list[Note]:
+    def get_element_components(self) -> list[Note]:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         first_note = Note(self)
         # Converts to 1/8 dotted alike
@@ -3145,8 +3145,8 @@ class ReversedShuffle(Shuffle):
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
-    def get_component_elements(self) -> list[Note]:
-        return reversed(super().get_component_elements())
+    def get_element_components(self) -> list[Note]:
+        return reversed(super().get_element_components())
 
 
 
@@ -3168,7 +3168,7 @@ class Syncopate(Rhythm):
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
-    def get_component_elements(self) -> list[Note]:
+    def get_element_components(self) -> list[Note]:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         first_note = Note(self)
         first_note._duration_beats /= 4 # Converts to 1/16 alike
@@ -3198,7 +3198,7 @@ class Offset(Rhythm):
     Channel(1) : The Midi channel where the midi message will be sent to.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
-    def get_component_elements(self) -> list[Note]:
+    def get_element_components(self) -> list[Note]:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         left_rest = Rest(self)
         left_rest._duration_beats /= 2 # Converts to 1/8 alike
@@ -3240,7 +3240,7 @@ class KeyScale(Note):
 
     def pitch_centroid(self) -> int:
         pitches: list[int] = [
-            single_note._pitch.get_absolute_pitch() for single_note in self.get_component_elements()
+            single_note._pitch.get_absolute_pitch() for single_note in self.get_element_components()
         ]
         if pitches:
             total = sum(pitches)
@@ -3300,7 +3300,7 @@ class KeyScale(Note):
         return notes
 
 
-    def get_component_elements(self) -> list[Note]:
+    def get_element_components(self) -> list[Note]:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         scale_notes: list[Note] = []
         active_scale: list[int] = self._pitch._scale
@@ -3321,7 +3321,7 @@ class KeyScale(Note):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        for single_note in self.get_component_elements():
+        for single_note in self.get_element_components():
             self_plotlist.extend(single_note.getPlotlist(position_beats, self))
         # Makes sure the self middle pitch os passed once and only once to the last dict to be added on top of it
         if self_plotlist:
@@ -3337,7 +3337,7 @@ class KeyScale(Note):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        for single_note in self.get_component_elements():
+        for single_note in self.get_element_components():
             self_playlist.extend(single_note.getPlaylist(position_beats, devices_header))
         return self_playlist
 
@@ -3350,7 +3350,7 @@ class KeyScale(Note):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        for single_note in self.get_component_elements():
+        for single_note in self.get_element_components():
             self_midilist.extend(single_note.getMidilist(position_beats))
         return self_midilist
 
@@ -3442,7 +3442,7 @@ class Chord(KeyScale):
     def checksum(self) -> int:
         """16-bit checksum for a `Chord`."""
         master: int = 0
-        for single_element in self.get_component_elements():
+        for single_element in self.get_element_components():
             master += single_element.checksum()
         return master & 0xFFFF  # 16-bit
 
@@ -3541,7 +3541,7 @@ class Chord(KeyScale):
             case _:                 return super().__mod__(operand)
 
 
-    def get_component_elements(self) -> list[Note]:
+    def get_element_components(self) -> list[Note]:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         chord_notes: list[Note] = []
         for key_i in range(self._size):        # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...
@@ -3683,7 +3683,7 @@ class Tuplet(Note):
     def checksum(self) -> int:
         """16-bit checksum for a `Tuplet`."""
         master: int = 0 # It's just a wrapper
-        for single_element in self.get_component_elements():
+        for single_element in self.get_element_components():
             master += single_element.checksum()
         return master & 0xFFFF  # 16-bit
 
@@ -3735,7 +3735,7 @@ class Tuplet(Note):
             case _:                 return super().__mod__(operand)
 
 
-    def get_component_elements(self) -> list[Note]:
+    def get_element_components(self) -> list[Note]:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         retrigger_notes: list[Note] = []
         self_iteration: int = 0
@@ -3759,7 +3759,7 @@ class Tuplet(Note):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        for single_note in self.get_component_elements():
+        for single_note in self.get_element_components():
             self_plotlist.extend(single_note.getPlotlist(position_beats, self))
         return self_plotlist
 
@@ -3772,7 +3772,7 @@ class Tuplet(Note):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        for single_note in self.get_component_elements():
+        for single_note in self.get_element_components():
             self_playlist.extend(single_note.getPlaylist(position_beats, devices_header))
         return self_playlist
 
@@ -3785,7 +3785,7 @@ class Tuplet(Note):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        for single_note in self.get_component_elements():
+        for single_note in self.get_element_components():
             self_midilist.extend(single_note.getMidilist(position_beats))    # extends the list with other list
         return self_midilist
 
@@ -5479,7 +5479,7 @@ class Automation(Element):
     def checksum(self) -> int:
         """16-bit checksum for an `Automation`."""
         master: int = 0 # It's just a wrapper
-        for single_element in self.get_component_elements():
+        for single_element in self.get_element_components():
             master += single_element.checksum()
         return master & 0xFFFF  # 16-bit
 
@@ -5556,7 +5556,7 @@ class Automation(Element):
 
 
     def len(self) -> int:
-        component_elements: list[ChannelElement] = self.get_component_elements()
+        component_elements: list[ChannelElement] = self.get_element_components()
         return len(component_elements)
 
 
@@ -5584,7 +5584,7 @@ class Automation(Element):
         t2: Fraction = t * t
         return t2 * (Fraction(3) - Fraction(2) * t)
 
-    def get_component_elements(self) -> list[ChannelElement]:
+    def get_element_components(self) -> list[ChannelElement]:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
         component_elements: list[ChannelElement] = []
         if isinstance(self._parameter, Automatable):
@@ -5653,7 +5653,7 @@ class Automation(Element):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        for single_element in self.get_component_elements():
+        for single_element in self.get_element_components():
             self_playlist.extend(single_element.getPlotlist(position_beats))
         return self_playlist
 
@@ -5666,7 +5666,7 @@ class Automation(Element):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        for single_element in self.get_component_elements():
+        for single_element in self.get_element_components():
             self_playlist.extend(single_element.getPlaylist(position_beats, devices_header))
         return self_playlist
 
@@ -5679,7 +5679,7 @@ class Automation(Element):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        for single_element in self.get_component_elements():
+        for single_element in self.get_element_components():
             self_midilist.extend(single_element.getMidilist(position_beats))    # extends the list with other list
         return self_midilist
     
