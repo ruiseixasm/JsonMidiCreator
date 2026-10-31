@@ -278,12 +278,6 @@ class Index(ChaosParameters):
 
 
 
-class Numeral(ChaosParameters):
-    """`Rational -> ChaosParameters -> Numeral`"""
-    pass
-
-
-
 class Seed(ChaosParameters):
     """`Rational -> ChaosParameters -> Seed`"""
     pass

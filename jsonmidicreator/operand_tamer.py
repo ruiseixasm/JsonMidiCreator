@@ -76,11 +76,10 @@ class Tamer(o.Operand):
         self._tamer_tries = 0
 
         while not tamed and count_down > 0:
-            result = chaos.result()
+            result: Fraction = chaos.result()
             self._tamer_tries += 1
 
-            rational: Fraction = ra.Numeral(result) % Fraction()
-            tamed = self.tame(rational, True)[1]
+            tamed = self.tame(result, True)[1]
 
             count_down -= 1
 
@@ -1156,7 +1155,7 @@ class Manipulator(Tamer):
             case od.Parameter():
                 self._parameter = o.deep_copy(operand._data)
             case float() | int():
-                self._parameter = ra.Numeral(operand)._rational
+                self._parameter = ra.Rational(operand)._rational
             case _:
                 super().__lshift__(operand)
         return self

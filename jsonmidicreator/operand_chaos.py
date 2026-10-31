@@ -707,7 +707,7 @@ class Bouncer(Chaos):
                     case ra.Yn():       self._yn = operand._data
                     case ra.Y0():       self._y0 = operand._data
                     case int() | float() | Fraction():
-                        operand_rational: Fraction = ra.Numeral(operand)._rational
+                        operand_rational: Fraction = ra.Rational(operand)._rational
                         if operand_rational != 0:
                             hypotenuse: Fraction = self % od.Pipe(operand_rational) # Avoid iteration
                             ratio: Fraction = hypotenuse / operand_rational
