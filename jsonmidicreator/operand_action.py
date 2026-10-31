@@ -268,21 +268,12 @@ class Graft(Action):
 
 
     def act(self, clip: 'Clip', scoped_elements: list['Element']) -> 'Clip':
-        if scoped_elements:
-            start: ra.Position = scoped_elements[0].start() # `scoped_elements` are sorted by position (`start`)
-            finish: ra.Position = start
-            for single_scoped in scoped_elements:
-                single_finish = single_scoped.finish()
-                if single_finish > finish:
-                    finish = single_finish
-            split_position: ra.Position = start + ra.Step(1)
-            while split_position < finish:
-                for single_scoped in scoped_elements:
-                    if single_scoped.crosses(split_position) and self._binary % int():
-                        left_element = single_scoped.copy() << ra.Finish(split_position)
-                        single_scoped -= left_element % ra.LeftDuration()
-                        clip.append(left_element)
-                split_position += ra.Step(1)
+        for single_scoped in scoped_elements:
+            total_elements: int = self._clip % int()
+            element_index: int = self._untamed % int() % total_elements
+            grafting_element: oe.Element = self._clip[element_index].copy()
+            grafting_element << single_scoped
+            clip._replace(single_scoped, grafting_element)
         return clip._sort_items()
 
 
