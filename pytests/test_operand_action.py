@@ -200,9 +200,17 @@ def test_clip_split():
 def test_graft():
     chords = Cluster("::C_E_G") * 4 << Octave(3)
     chords += Iterate()**Degree()
-    chords >> Plot()
-    rests = Rest() * 4
-
+    # chords >> Plot()
+    rests = Rest() * 8 << Last(5)**Resize(Beats(1))
+    original_loci = rests % [Locus()]
+    original_type = rests % [OperandType()]
+    # rests >> Plot()
+    rests << Graft(chords)
+    graft_loci = rests % [Locus()]
+    graft_type = rests % [OperandType()]
+    # rests >> Plot()
+    assert graft_loci == original_loci
+    assert graft_type != original_type
 
 # test_graft()
 
