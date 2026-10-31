@@ -33,6 +33,7 @@ from . import operand_generic as og
 from . import operand_element as oe
 from . import operand_container as oc
 from . import operand_frame as of
+from . import operand_chaos as ch
 from . import operand_tamer as ot
 
 if TYPE_CHECKING:
@@ -98,7 +99,7 @@ class Split(Action):
     Chaos(SinX()) : The Chaos being used by the `Binary` tamer.
     """
     def __init__(self, *parameters):
-        self._binary: ra.TimeValue = ra.Measures(1)
+        self._binary: ot.Binary = ot.Binary()
         super().__init__(*parameters)
 
 
@@ -110,6 +111,9 @@ class Split(Action):
                 single_finish = single_scoped.finish()
                 if single_finish > finish:
                     finish = single_finish
+
+
+
             start_beats: Fraction = start % Fraction()
             actual_size_beats: Fraction = (finish - start) % Fraction()
             new_size_beats: Fraction = (finish << self._binary) % Fraction()
@@ -127,31 +131,25 @@ class Split(Action):
     def __mod__(self, operand: o.T) -> o.T:
         from . import operand_rational as ra
         match operand:
-            case od.Pipe():
-                match operand._data:
-                    case ra.TimeValue():    return self._binary
-                    case _:                 return super().__mod__(operand)
-            case ra.TimeValue():
-                return self._binary.copy()
-            case ra.Length():
-                return operand.copy(self._binary)
+            case ch.Chaos() | ra.Xn() | ra.X0() | ra.Seed() | int() | float() | Fraction():
+                return self._binary % operand
             case _:
                 return super().__mod__(operand)
 
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["time_value"] = self._binary
+        serialization["parameters"]["binary"] = self._binary
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "time_value" in serialization["parameters"]):
+            "binary" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._binary = serialization["parameters"]["time_value"]
+            self._binary = serialization["parameters"]["binary"]
         return self
 
 
@@ -159,21 +157,14 @@ class Split(Action):
         from . import operand_rational as ra
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
-            case RotateSteps():
+            case Split():
                 super().__lshift__(operand)
-                self._binary = operand._binary.copy()
-            case od.Pipe():
-                match operand._data:
-                    case ra.TimeValue():            self._binary = operand._data
-                    case _:                         super().__lshift__(operand)
-            case ra.TimeValue():
-                self._binary = operand.copy()
-            case ra.Length():
-                self << ra.Beat(operand._rational)
+                self._binary << operand._binary
+            case ch.Chaos() | ra.Xn() | ra.X0() | ra.Seed() | int() | float() | Fraction():
+                self._binary << operand
             case _:
                 super().__lshift__(operand)
         return self
-
 
 
 
