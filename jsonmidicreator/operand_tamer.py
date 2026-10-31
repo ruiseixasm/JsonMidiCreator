@@ -99,16 +99,16 @@ class Tamer(o.Operand):
         return self._chained_operand.from_tail() + 1
 
 
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         if isinstance(self._chained_operand, Tamer):
-            numeral, validated = self._chained_operand.tame(numeral)
+            result, validated = self._chained_operand.tame(result)
             if not validated:
-                return numeral, False    # Breaks the chain
+                return result, False    # Breaks the chain
             if validated and iterate:
-                self.next(numeral)
+                self.next(result)
         elif iterate:
-            self.next(numeral)
-        return numeral, True
+            self.next(result)
+        return result, True
 
 
     def __eq__(self, other: Any) -> bool:
@@ -294,18 +294,18 @@ class Parallel(Tamer):
             self << single_parameter
 
 
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        if not self.slack(numeral) and self._tamers:
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+        if not self.slack(result) and self._tamers:
             parallel_validation: bool = False
             for single_tamer in self._tamers:
-                numeral, single_validation = single_tamer.tame(numeral)
+                result, single_validation = single_tamer.tame(result)
                 if single_validation:
                     parallel_validation = True
             if not parallel_validation:
-                return numeral, False    # Breaks the chain
+                return result, False    # Breaks the chain
         if iterate:
-            self.next(numeral)
-        return super().tame(numeral, iterate)   # From left to right
+            self.next(result)
+        return super().tame(result, iterate)   # From left to right
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -461,12 +461,12 @@ class Check(Validator):
             self << single_parameter
 
 
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        if not self.slack(numeral) and not self._checker(numeral):
-            return numeral, False  # Breaks the chain
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+        if not self.slack(result) and not self._checker(result):
+            return result, False  # Breaks the chain
         if iterate:
-            self.next(numeral)
-        return super().tame(numeral, iterate)   # From left to right
+            self.next(result)
+        return super().tame(result, iterate)   # From left to right
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -585,13 +585,13 @@ class Maximum(Boundary):
             self << single_parameter
 
 
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        if not self.slack(numeral):
-            if numeral > self._boundary:
-                return numeral, False    # Breaks the chain
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+        if not self.slack(result):
+            if result > self._boundary:
+                return result, False    # Breaks the chain
         if iterate:
-            self.next(numeral)
-        return super().tame(numeral, iterate)   # From left to right
+            self.next(result)
+        return super().tame(result, iterate)   # From left to right
 
 
 
@@ -614,13 +614,13 @@ class Minimum(Boundary):
             self << single_parameter
 
 
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        if not self.slack(numeral):
-            if numeral < self._boundary:
-                return numeral, False    # Breaks the chain
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+        if not self.slack(result):
+            if result < self._boundary:
+                return result, False    # Breaks the chain
         if iterate:
-            self.next(numeral)
-        return super().tame(numeral, iterate)   # From left to right
+            self.next(result)
+        return super().tame(result, iterate)   # From left to right
 
 
 
@@ -687,12 +687,12 @@ class Different(Prior):
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     Chaos(SinX()) : The Chaos being tamed.
     """
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        if not self.slack(numeral) and self._prior_numeral is not None and numeral == self._prior_numeral:
-            return numeral, False    # Breaks the chain
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+        if not self.slack(result) and self._prior_numeral is not None and result == self._prior_numeral:
+            return result, False    # Breaks the chain
         if iterate:
-            self.next(numeral)
-        return super().tame(numeral, iterate)   # From left to right
+            self.next(result)
+        return super().tame(result, iterate)   # From left to right
 
 
 
@@ -707,12 +707,12 @@ class Same(Prior):
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     Chaos(SinX()) : The Chaos being tamed.
     """
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        if not self.slack(numeral) and self._prior_numeral is not None and numeral != self._prior_numeral:
-            return numeral, False    # Breaks the chain
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+        if not self.slack(result) and self._prior_numeral is not None and result != self._prior_numeral:
+            return result, False    # Breaks the chain
         if iterate:
-            self.next(numeral)
-        return super().tame(numeral, iterate)   # From left to right
+            self.next(result)
+        return super().tame(result, iterate)   # From left to right
 
 
 
@@ -727,12 +727,12 @@ class Increasing(Prior):
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     Chaos(SinX()) : The Chaos being tamed.
     """
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        if not self.slack(numeral) and self._prior_numeral is not None and numeral <= self._prior_numeral:
-            return numeral, False    # Breaks the chain
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+        if not self.slack(result) and self._prior_numeral is not None and result <= self._prior_numeral:
+            return result, False    # Breaks the chain
         if iterate:
-            self.next(numeral)
-        return super().tame(numeral, iterate)   # From left to right
+            self.next(result)
+        return super().tame(result, iterate)   # From left to right
 
 
 
@@ -747,12 +747,12 @@ class Decreasing(Prior):
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     Chaos(SinX()) : The Chaos being tamed.
     """
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        if not self.slack(numeral) and self._prior_numeral is not None and numeral >= self._prior_numeral:
-            return numeral, False    # Breaks the chain
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+        if not self.slack(result) and self._prior_numeral is not None and result >= self._prior_numeral:
+            return result, False    # Breaks the chain
         if iterate:
-            self.next(numeral)
-        return super().tame(numeral, iterate)   # From left to right
+            self.next(result)
+        return super().tame(result, iterate)   # From left to right
 
 
 
@@ -846,23 +846,23 @@ class Pattern(Motion):
             self << single_parameter
 
 
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         if self._last_integer is not None:
-            if not self.slack(numeral):
+            if not self.slack(result):
                 expected_motion: int = self._pattern[self._index % len(self._pattern)]
                 if expected_motion > 0:
-                    if not int(numeral) > 0 \
-                        and (self._limit == 0 or abs(self._last_integer + int(numeral)) <= abs(self._limit)):
-                        return numeral, False   # Breaks the chain
+                    if not int(result) > 0 \
+                        and (self._limit == 0 or abs(self._last_integer + int(result)) <= abs(self._limit)):
+                        return result, False   # Breaks the chain
                 elif expected_motion < 0:
-                    if not int(numeral) < 0 \
-                        and (self._limit == 0 or abs(self._last_integer + int(numeral)) <= abs(self._limit)):
-                        return numeral, False   # Breaks the chain
-                elif not int(numeral) == 0: # Value 0 means repeat previous
-                    return numeral, False       # Breaks the chain
+                    if not int(result) < 0 \
+                        and (self._limit == 0 or abs(self._last_integer + int(result)) <= abs(self._limit)):
+                        return result, False   # Breaks the chain
+                elif not int(result) == 0: # Value 0 means repeat previous
+                    return result, False       # Breaks the chain
         if iterate:
-            self.next(numeral)
-        return super().tame(numeral, iterate)   # From left to right
+            self.next(result)
+        return super().tame(result, iterate)   # From left to right
 
     
     def __mod__(self, operand: o.T) -> o.T:
@@ -940,14 +940,14 @@ class Conjunct(Motion):
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     Chaos(SinX()) : The Chaos being tamed.
     """
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        if not self.slack(numeral):
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+        if not self.slack(result):
             if self._last_integer is not None \
-                and abs(int(numeral) - self._last_integer) > 1:
-                return numeral, False    # Breaks the chain
+                and abs(int(result) - self._last_integer) > 1:
+                return result, False    # Breaks the chain
         if iterate:
-            self.next(numeral)
-        return super().tame(numeral, iterate)   # From left to right
+            self.next(result)
+        return super().tame(result, iterate)   # From left to right
 
 
 
@@ -962,14 +962,14 @@ class Stepwise(Motion):
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     Chaos(SinX()) : The Chaos being tamed.
     """
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        if not self.slack(numeral):
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+        if not self.slack(result):
             if self._last_integer is not None \
-                and abs(int(numeral) - self._last_integer) != 1:
-                return numeral, False    # Breaks the chain
+                and abs(int(result) - self._last_integer) != 1:
+                return result, False    # Breaks the chain
         if iterate:
-            self.next(numeral)
-        return super().tame(numeral, iterate)   # From left to right
+            self.next(result)
+        return super().tame(result, iterate)   # From left to right
 
 
 
@@ -984,14 +984,14 @@ class Skipwise(Motion):
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     Chaos(SinX()) : The Chaos being tamed.
     """
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        if not self.slack(numeral):
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+        if not self.slack(result):
             if self._last_integer is not None \
-                and abs(int(numeral) - self._last_integer) != 2:
-                return numeral, False    # Breaks the chain
+                and abs(int(result) - self._last_integer) != 2:
+                return result, False    # Breaks the chain
         if iterate:
-            self.next(numeral)
-        return super().tame(numeral, iterate)   # From left to right
+            self.next(result)
+        return super().tame(result, iterate)   # From left to right
 
 
 
@@ -1006,14 +1006,14 @@ class Disjunct(Motion):
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     Chaos(SinX()) : The Chaos being tamed.
     """
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        if not self.slack(numeral):
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+        if not self.slack(result):
             if self._last_integer is not None \
-                and abs(int(numeral) - self._last_integer) < 1:
-                return numeral, False    # Breaks the chain
+                and abs(int(result) - self._last_integer) < 1:
+                return result, False    # Breaks the chain
         if iterate:
-            self.next(numeral)
-        return super().tame(numeral, iterate)   # From left to right
+            self.next(result)
+        return super().tame(result, iterate)   # From left to right
 
 
 
@@ -1028,14 +1028,14 @@ class Leaping(Motion):
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     Chaos(SinX()) : The Chaos being tamed.
     """
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        if not self.slack(numeral):
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+        if not self.slack(result):
             if self._last_integer is not None \
-                and abs(int(numeral) - self._last_integer) < 3:
-                return numeral, False    # Breaks the chain
+                and abs(int(result) - self._last_integer) < 3:
+                return result, False    # Breaks the chain
         if iterate:
-            self.next(numeral)
-        return super().tame(numeral, iterate)   # From left to right
+            self.next(result)
+        return super().tame(result, iterate)   # From left to right
 
 
 
@@ -1050,14 +1050,14 @@ class Ascending(Motion):
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     Chaos(SinX()) : The Chaos being tamed.
     """
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        if not self.slack(numeral):
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+        if not self.slack(result):
             if self._last_integer is not None \
-                and not int(numeral) > self._last_integer:
-                return numeral, False    # Breaks the chain
+                and not int(result) > self._last_integer:
+                return result, False    # Breaks the chain
         if iterate:
-            self.next(numeral)
-        return super().tame(numeral, iterate)   # From left to right
+            self.next(result)
+        return super().tame(result, iterate)   # From left to right
 
 
 
@@ -1072,14 +1072,14 @@ class Descending(Motion):
     represents the probability of being applicable based on the received `Rational`. The inverse of a slack.
     Chaos(SinX()) : The Chaos being tamed.
     """
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        if not self.slack(numeral):
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+        if not self.slack(result):
             if self._last_integer is not None \
-                and not int(numeral) < self._last_integer:
-                return numeral, False    # Breaks the chain
+                and not int(result) < self._last_integer:
+                return result, False    # Breaks the chain
         if iterate:
-            self.next(numeral)
-        return super().tame(numeral, iterate)   # From left to right
+            self.next(result)
+        return super().tame(result, iterate)   # From left to right
 
 
 
@@ -1157,12 +1157,12 @@ class Modulo(Manipulator):
     int(8), float : Sets the respective `Modulus`.
     Chaos(SinX()) : The Chaos being tamed.
     """
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         modulo: Fraction = ra.Rational(self._parameter)._rational
         if modulo > 0:
-            numeral %= modulo
-        return super().tame(numeral, iterate)   # From left to right
+            result %= modulo
+        return super().tame(result, iterate)   # From left to right
 
 
 
@@ -1177,16 +1177,16 @@ class Interval(Manipulator):
     list([0, 12]) : Sets the range from list index 0, inclusive, to the list index 1, exclusive.
     Chaos(SinX()) : The Chaos being tamed.
     """
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         if isinstance(self._parameter, list) and len(self._parameter) == 2:
             left_value: Fraction = ra.Rational(self._parameter[0])._rational
             right_value: Fraction = ra.Rational(self._parameter[1])._rational
             range_value: Fraction = right_value - left_value
             if range_value > 0:
-                numeral %= range_value
-                numeral += left_value
-        return super().tame(numeral, iterate)   # From left to right
+                result %= range_value
+                result += left_value
+        return super().tame(result, iterate)   # From left to right
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -1224,10 +1224,10 @@ class Increase(Manipulator):
     int(8), float : Sets the respective increasing amount.
     Chaos(SinX()) : The Chaos being tamed.
     """
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
-        numeral += self._parameter
-        return super().tame(numeral, iterate)   # From left to right
+        result += self._parameter
+        return super().tame(result, iterate)   # From left to right
     
 
 
@@ -1241,10 +1241,10 @@ class Decrease(Manipulator):
     int(8), float : Sets the respective decrement amount.
     Chaos(SinX()) : The Chaos being tamed.
     """
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
-        numeral -= self._parameter
-        return super().tame(numeral, iterate)   # From left to right
+        result -= self._parameter
+        return super().tame(result, iterate)   # From left to right
 
 
 
@@ -1258,10 +1258,10 @@ class Expand(Manipulator):
     int(8), float : Sets the respective decrement amount.
     Chaos(SinX()) : The Chaos being tamed.
     """
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
-        numeral *= self._parameter
-        return super().tame(numeral, iterate)   # From left to right
+        result *= self._parameter
+        return super().tame(result, iterate)   # From left to right
 
 
 
@@ -1275,11 +1275,11 @@ class Contract(Manipulator):
     int(8), float : Sets the respective decrement amount.
     Chaos(SinX()) : The Chaos being tamed.
     """
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
         if self._parameter != 0:
-            numeral /= self._parameter
-        return super().tame(numeral, iterate)   # From left to right
+            result /= self._parameter
+        return super().tame(result, iterate)   # From left to right
 
 
 
@@ -1299,10 +1299,11 @@ class Switch(Manipulator):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         # A `Manipulator` shall always be triggered regardless of being previously validated or not
-        numeral = Fraction(0) if numeral < self._parameter else Fraction(1)
-        return super().tame(numeral, iterate)   # From left to right
+        result = Fraction(0) if result < self._parameter else Fraction(1)
+        return super().tame(result, iterate)   # From left to right
 
 
 
@@ -1323,16 +1324,16 @@ class Binary(Manipulator):
             self << single_parameter
 
 
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
         probability: Fraction = self._parameter
         if probability > 1:
             probability = Fraction(1)
         elif probability < 0:
             probability = Fraction(0)
-        chaotic_rational: Fraction = ra.Result(numeral)._rational % 1   # Must be [0, 1[
+        chaotic_rational: Fraction = ra.Result(result)._rational % 1   # Must be [0, 1[
         # `1 - chaotic_rational` in order to preserve result in chained Probabilities or alike, 1 remains 1 and 0 remains 0, no flipping
-        numeral = Fraction(1) if chaotic_rational < probability else Fraction(0)
-        return super().tame(numeral, iterate)   # From left to right
+        result = Fraction(1) if chaotic_rational < probability else Fraction(0)
+        return super().tame(result, iterate)   # From left to right
 
 
 
@@ -1345,8 +1346,8 @@ class Probability(Manipulator):
     ----------
     Chaos(SinX()) : The Chaos being tamed.
     """
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        chaotic_rational: Fraction = ra.Result(numeral)._rational % 1
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+        chaotic_rational: Fraction = ra.Result(result)._rational % 1
         return super().tame(chaotic_rational, iterate)  # From left to right
 
 
@@ -1360,8 +1361,8 @@ class Integer(Manipulator):
     ----------
     Chaos(SinX()) : The Chaos being tamed.
     """
-    def tame(self, numeral: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
-        integer_rational: Fraction = Fraction(ra.Result(numeral) % int(), 1)
+    def tame(self, result: o.TypeNumeral, iterate: bool = False) -> tuple[o.TypeNumeral, bool]:
+        integer_rational: Fraction = Fraction(ra.Result(result) % int(), 1)
         return super().tame(integer_rational, iterate)  # From left to right
 
 
