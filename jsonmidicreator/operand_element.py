@@ -969,7 +969,7 @@ class Subclip(Element):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        return self._clip.getPlaylist(position_beats + self._position_beats)
+        return self._clip.getPlaylist(position_beats + self._position_beats, devices_header)
     
 
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
@@ -1599,22 +1599,6 @@ class DeviceElement(Element):
     Duration(Beats(1)), float, Fraction : The `Duration` is expressed as a Note Value, like, 1/4 or 1/16.
     Enable(True) : Sets if the Element is enabled or not, resulting in messages or not.
     """
-    def getPlaylist(self, position_beats: Fraction | None = None, devices_header = True,
-                    derived_element: 'Element' = None) -> list[dict]:
-        if not self._enabled: return []
-        
-        absolute_position_beats: Fraction = Fraction(0)
-        if position_beats is not None:
-            absolute_position_beats = position_beats + self._position_beats
-
-        if absolute_position_beats < 0:
-            return []
-        return [
-                {
-                    "position_beats": [absolute_position_beats.numerator, absolute_position_beats.denominator]
-                }
-            ]
-
     def getMidilist(self, position_beats: Fraction | None = None, derived_element: 'Element' = None) -> list:
         if not self._enabled: return []
 
