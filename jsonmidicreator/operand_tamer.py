@@ -1362,8 +1362,8 @@ class Probability(Manipulator):
     Chaos(SinX()) : The Chaos being tamed.
     """
     def tame(self, result: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        chaotic_rational: Fraction = ra.Result(result)._rational % 1
-        return super().tame(chaotic_rational, iterate)  # From left to right
+        if result != 1: result %= 1 # Ranged [0, 1]
+        return super().tame(result, iterate)  # From left to right
 
 
 
@@ -1377,7 +1377,7 @@ class Integer(Manipulator):
     Chaos(SinX()) : The Chaos being tamed.
     """
     def tame(self, result: Fraction, iterate: bool = False) -> tuple[Fraction, bool]:
-        integer_rational: Fraction = Fraction(ra.Result(result) % int(), 1)
+        integer_rational: Fraction = Fraction(int(result), 1)
         return super().tame(integer_rational, iterate)  # From left to right
 
 
