@@ -1342,7 +1342,7 @@ class Binary(Manipulator):
             probability = Fraction(0)
         chaotic_rational: Fraction = ra.Result(numeral)._rational % 1   # Must be [0, 1[
         # `1 - chaotic_rational` in order to preserve result in chained Probabilities or alike, 1 remains 1 and 0 remains 0, no flipping
-        numeral = Fraction(1) if 1 - chaotic_rational <= probability else Fraction(0)
+        numeral = Fraction(1) if chaotic_rational < probability else Fraction(0)
         return super().tame(numeral, iterate)   # From left to right
 
 
