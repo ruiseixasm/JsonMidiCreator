@@ -327,6 +327,12 @@ class Graft(Action):
                 super().__lshift__(operand)
                 self._clip      << operand._clip
                 self._untamed   << operand._untamed
+            case od.Pipe():
+                match operand._data:
+                    case oc.Clip():             self._clip = operand._data
+                    case _:                     super().__lshift__(operand)
+            case oc.Clip():
+                return self._clip << operand
             case ch.Chaos() | ra.Xn() | ra.X0() | ra.Seed() | int() | float() | Fraction():
                 self._untamed << operand
             case _:
