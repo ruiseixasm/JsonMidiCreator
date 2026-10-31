@@ -984,17 +984,17 @@ class Subclip(Element):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["subclip"] = o.serialize( self._clip )
+        serialization["parameters"]["clip"] = o.serialize( self._clip )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "subclip" in serialization["parameters"]):
+            "clip" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._clip = o.deserialize( serialization["parameters"]["subclip"] )
+            self._clip = o.deserialize( serialization["parameters"]["clip"] )
         return self
 
 
@@ -1586,6 +1586,7 @@ class TalkieSet(TalkieGet):
             case _:
                 super().__lshift__(operand)
         return self
+
 
 
 class DeviceElement(Element):
