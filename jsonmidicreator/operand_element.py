@@ -956,7 +956,7 @@ class Subclip(Element):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        self_plotlist: list[dict] = self._clip.getPlotlist(position_beats)
+        self_plotlist: list[dict] = self._clip.getPlotlist(position_beats + self._position_beats)
         for plot_dict in self_plotlist:
             plot_dict["self"] = self # Makes sure it's identified as `Subclip`
         return self_plotlist
@@ -969,7 +969,7 @@ class Subclip(Element):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        return self._clip.getPlaylist(position_beats)
+        return self._clip.getPlaylist(position_beats + self._position_beats)
     
 
     def getMidilist(self, position_beats: Fraction | None = None) -> list[dict]:
@@ -979,7 +979,7 @@ class Subclip(Element):
             position_beats = Fraction(0)
         elif position_beats < 0:
             return []
-        return self._clip.getMidilist(position_beats)
+        return self._clip.getMidilist(position_beats + self._position_beats)
     
     
     def getSerialization(self) -> dict:
