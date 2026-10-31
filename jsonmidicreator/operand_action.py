@@ -86,6 +86,97 @@ class Keep(Action):
 
 
 
+class Split(Action):
+    """`Action -> Split`
+
+    `Split` traverses the Element's duration `Step` by `Step`, using its `Binary` `Tamer` to decide whether each eligible
+    quantization boundary becomes a split point.
+
+    Parameters
+    ----------
+    Fraction(1/10), int, float : Sets the probability of 1 as output, with the default probability of one `1` in 10.
+    Chaos(SinX()) : The Chaos being used by the `Binary` tamer.
+    """
+    def __init__(self, *parameters):
+        self._binary: ra.TimeValue = ra.Measures(1)
+        super().__init__(*parameters)
+
+
+    def act(self, clip: 'Clip', scoped_elements: list['Element']) -> 'Clip':
+        if scoped_elements:
+            start: ra.Position = scoped_elements[0].start() # `scoped_elements` are sorted by position (`start`)
+            finish: ra.Position = start
+            for single_scoped in scoped_elements:
+                single_finish = single_scoped.finish()
+                if single_finish > finish:
+                    finish = single_finish
+            start_beats: Fraction = start % Fraction()
+            actual_size_beats: Fraction = (finish - start) % Fraction()
+            new_size_beats: Fraction = (finish << self._binary) % Fraction()
+            resize_beats: Fraction = new_size_beats / actual_size_beats
+            for single_scoped in scoped_elements:
+                single_position_beats: Fraction = single_scoped._position_beats
+                new_position_beats: Fraction = start_beats + (single_position_beats - start_beats) * resize_beats
+                single_scoped._position_beats = new_position_beats
+                single_duration_beats: Fraction = single_scoped._duration_beats
+                new_duration_beats: Fraction = single_duration_beats * resize_beats
+                single_scoped._duration_beats = new_duration_beats
+        return clip._sort_items()
+
+
+    def __mod__(self, operand: o.T) -> o.T:
+        from . import operand_rational as ra
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case ra.TimeValue():    return self._binary
+                    case _:                 return super().__mod__(operand)
+            case ra.TimeValue():
+                return self._binary.copy()
+            case ra.Length():
+                return operand.copy(self._binary)
+            case _:
+                return super().__mod__(operand)
+
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["time_value"] = self._binary
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "time_value" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._binary = serialization["parameters"]["time_value"]
+        return self
+
+
+    def __lshift__(self, operand: any) -> Self:
+        from . import operand_rational as ra
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case RotateSteps():
+                super().__lshift__(operand)
+                self._binary = operand._binary.copy()
+            case od.Pipe():
+                match operand._data:
+                    case ra.TimeValue():            self._binary = operand._data
+                    case _:                         super().__lshift__(operand)
+            case ra.TimeValue():
+                self._binary = operand.copy()
+            case ra.Length():
+                self << ra.Beat(operand._rational)
+            case _:
+                super().__lshift__(operand)
+        return self
+
+
+
+
 class Resize(Action):
     """`Action -> Resize`
 
@@ -213,7 +304,8 @@ class AmountedAction(Aggregated):
     
     def __not__(self) -> bool:
         return self._amount == 0
-    
+
+
     def __eq__(self, other: any) -> bool:
         from . import operand_rational as ra
         match other:
@@ -228,7 +320,8 @@ class AmountedAction(Aggregated):
             case od.Conditional():
                 return other == self
         return False
-    
+
+
     def __lt__(self, other: any) -> bool:
         from . import operand_rational as ra
         match other:
@@ -241,7 +334,8 @@ class AmountedAction(Aggregated):
             case ra.Rational():
                 return self._amount < int( other._rational )
         return False
-    
+
+
     def __gt__(self, other: any) -> bool:
         from . import operand_rational as ra
         match other:

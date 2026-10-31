@@ -1071,13 +1071,13 @@ class Chance(ClipFilter):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._named_parameters['probability'] = ot.Binary(*parameters)
+        self._named_parameters['binary'] = ot.Binary(*parameters)
     
 
     def _update_filtered_elements(self, filtered_elements: list['oe.Element']) -> Self:
         kept_elements: list[oe.Element] = [
             single_filtered for single_filtered in filtered_elements
-            if self._named_parameters['probability'] % int()
+            if self._named_parameters['binary'] % int()
         ]
         return super()._update_filtered_elements(kept_elements)
 
