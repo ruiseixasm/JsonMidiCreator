@@ -192,7 +192,17 @@ def test_clip_split():
     single_note << Split(1/1)
     print(f"single_note % int(): {single_note % int()}")
     # single_note >> Plot()
-    # assert single_note % int() == 16
+    assert single_note % int() == 16
 
 # test_clip_split()
+
+
+def test_graft():
+    chords = Cluster("::C_E_G") * 4 << Octave(3)
+    chords += Iterate()**Degree()
+    chords >> Plot()
+    rests = Rest() * 4
+
+
+# test_graft()
 

@@ -873,7 +873,7 @@ class Composition(Container):
     """
     def __init__(self, *operands):
         # Part sets the TimeSignature, this is just a reference
-        self._name: str = "Composition"
+        self._name: str = "Unnamed"
         super().__init__(*operands)
 
 
@@ -1389,7 +1389,6 @@ class Clip(Composition):  # Just a container of Elements
     def __init__(self, *operands):
         super().__init__()
         self._time_signature: og.TimeSignature  = og.settings._time_signature.copy()
-        self._name                      = "Clip"
         self._devices: list[str]        = og.settings._devices.copy()
         self._track_number: int         = 1 # Only useful to render .midi files
         self._items: list[oe.Element]   = []
@@ -2723,7 +2722,6 @@ class Section(Composition):
         self._position_beats: Fraction  = Fraction(0)   # in Beats
         super().__init__()
         self._items: list[Clip] = []
-        self._name              = "Section"
         # Part sets the TimeSignature, this is just a reference
         self._owner_part: Part  = None
         for single_operand in operands:
@@ -3257,7 +3255,6 @@ class Part(Composition):
     def __init__(self, *operands):
         super().__init__()
         self._items: list[Section]    = []
-        self._name                  = "Part"
         for single_operand in operands:
             self << single_operand
 
