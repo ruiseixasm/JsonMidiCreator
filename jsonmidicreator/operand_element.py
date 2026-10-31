@@ -948,7 +948,10 @@ class Subclip(Element):
 
     def get_element_components(self) -> list[Element]:
         """Returns the elements directly, NO decoupling guaranteed (no copy)"""
-        return self._clip.get_element_components()
+        component_elements: list[Element] = o.deep_copy(self._clip.get_element_components())
+        for single_element in component_elements:
+            single_element._position_beats += self._position_beats
+        return component_elements
 
 
     def getPlotlist(self, position_beats: Fraction | None = None) -> list[dict]:
