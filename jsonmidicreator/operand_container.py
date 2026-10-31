@@ -1806,7 +1806,7 @@ class Clip(Composition):  # Just a container of Elements
             if extended_duration == 0:    # Typical scenario comes first (optimization)
                 component_elements.append(single_note)  # Note as is, no extension, untouched
             elif extended_duration > 0:
-                copied_note = single_note.copy()    # Needs to be decouples
+                copied_note = single_note.copy()    # Needs to be decoupled
                 copied_note._duration_beats += extended_duration
                 component_elements.append(copied_note)
         return sorted(component_elements)
