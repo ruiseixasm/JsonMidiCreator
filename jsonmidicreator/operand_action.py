@@ -250,6 +250,91 @@ class Resize(Action):
 
 
 
+class Graft(Action):
+    """`Action -> Graft`
+
+    Warps each targeted Element with an Element randomly selected from the source `Clip`,
+    preserving the targeted Element's parameters.
+
+    Parameters
+    ----------
+    Clip() : The source `Clip` providing the Elements to graft.
+    Chaos() : The source of randomness used to choose the source `Clip` elements.
+    """
+    def __init__(self, *parameters):
+        self._clip: oc.Clip = oc.Clip()
+        self._untamed: ot.Untamed = ot.Untamed()
+        super().__init__(*parameters)
+
+
+    def act(self, clip: 'Clip', scoped_elements: list['Element']) -> 'Clip':
+        if scoped_elements:
+            start: ra.Position = scoped_elements[0].start() # `scoped_elements` are sorted by position (`start`)
+            finish: ra.Position = start
+            for single_scoped in scoped_elements:
+                single_finish = single_scoped.finish()
+                if single_finish > finish:
+                    finish = single_finish
+            split_position: ra.Position = start + ra.Step(1)
+            while split_position < finish:
+                for single_scoped in scoped_elements:
+                    if single_scoped.crosses(split_position) and self._binary % int():
+                        left_element = single_scoped.copy() << ra.Finish(split_position)
+                        single_scoped -= left_element % ra.LeftDuration()
+                        clip.append(left_element)
+                split_position += ra.Step(1)
+        return clip._sort_items()
+
+
+    def __mod__(self, operand: o.T) -> o.T:
+        from . import operand_rational as ra
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case oc.Clip():                 return self._clip
+                    case _:                         return super().__mod__(operand)
+            case ch.Chaos() | ra.Xn() | ra.X0() | ra.Seed() | int() | float() | Fraction():
+                return self._untamed % operand
+            case oc.Clip():
+                return self._clip.copy()
+            case _:
+                return super().__mod__(operand)
+
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["clip"]     = self._clip
+        serialization["parameters"]["untamed"]  = self._untamed
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "clip" in serialization["parameters"] and "untamed" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._clip      = serialization["parameters"]["clip"]
+            self._untamed   = serialization["parameters"]["untamed"]
+        return self
+
+
+    def __lshift__(self, operand: any) -> Self:
+        from . import operand_rational as ra
+        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
+        match operand:
+            case Graft():
+                super().__lshift__(operand)
+                self._clip      << operand._clip
+                self._untamed   << operand._untamed
+            case ch.Chaos() | ra.Xn() | ra.X0() | ra.Seed() | int() | float() | Fraction():
+                self._untamed << operand
+            case _:
+                super().__lshift__(operand)
+        return self
+
+
+
 class Aggregated(Action):
     """`Action -> Aggregated`
 
