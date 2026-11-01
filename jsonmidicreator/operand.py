@@ -300,7 +300,10 @@ class Operand:
         """Resets the `Operand`'s iterative variables"""
         # RESET THE SELF OPERANDS RECURSIVELY
         if self._chained_operand is not None:
-            self << self._chained_operand.reset()
+            if isinstance(self._chained_operand, Operand):
+                self << self._chained_operand.reset()
+            else:
+                self << self._chained_operand
         self._initiated     = False
         self._set           = False
         self._index         = -1    # negative means no iteration so far
@@ -311,7 +314,10 @@ class Operand:
         """Resets the `Operand`'s iterative variables"""
         # RESET THE SELF OPERANDS RECURSIVELY
         if self._chained_operand is not None:
-            self << self._chained_operand.restart()
+            if isinstance(self._chained_operand, Operand):
+                self << self._chained_operand.restart()
+            else:
+                self << self._chained_operand
         self._initiated     = False
         self._set           = False
         self._index         = -1    # negative means no iteration so far

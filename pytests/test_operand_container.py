@@ -693,6 +693,14 @@ def test_mul_clip():
 # test_mul_clip()
 
 
+def test_mul_frame():
+    chord_notes = Clip("n::A, :|:C, :|:E")
+    chord_notes *= All()**4
+    chord_notes >> Plot()
+
+# test_mul_frame()
+
+
 def test_element_stacking():
 
     settings << Quantization(1/16)   # 1/4 Beats again
