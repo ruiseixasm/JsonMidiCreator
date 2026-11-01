@@ -695,8 +695,10 @@ def test_mul_clip():
 
 def test_mul_frame():
     chord_notes = Clip("n::A, :|:C, :|:E")
+    assert chord_notes % Duration() == Beats(1)
     chord_notes *= All()**4
-    chord_notes >> Plot()
+    # chord_notes >> Plot()
+    assert chord_notes % Duration() == Beats(4)
 
 # test_mul_frame()
 
