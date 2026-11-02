@@ -1985,12 +1985,9 @@ class Clip(Composition):  # Just a container of Elements
                         if all(isinstance(item, oe.Element) for item in operand._data):
                             # Doesn't set the owner_clip
                             super().__lshift__(operand)
-                        elif all(isinstance(item, og.Locus) for item in operand._data):
-                            for single_element, locus in zip(self, operand._data):
-                                single_element << locus
-                        else:   # Not for me
-                            for item in self.elements_unmasked():
-                                item <<= operand._data
+                        else:
+                            for single_element, single_parameter in zip(self._items, operand._data):
+                                single_element << od.Pipe(single_parameter)
 
                     case of.Frame():
                         operand._data._set_inside_clip(self)
