@@ -34,12 +34,12 @@ melody = Note(1/4) / [
     0, 5, 1/2, 0, 3, 1/2, 1, 0, 11, 1/2, 1
 ]
 
-melody << Foreach(
+melody << Foreach([
         1, 1, 2, 3, 1, 3, 2,
         1, 1, 2, 3, 1, 7,
         1, 1, 2, 3, 4, 3, 2, 1,
         7, 5, 6, 7, 1, 1
-    )**Degree() << Octave(4)
+    ])**Degree() << Octave(4)
 
 
 chords = Chord("F", Bars(3)) * Chord("C", Bars(1)) * Chord("F", Bars(1)) * Chord("Bb", Bars(1)) * Chord("C", Bars(1)) * Chord("F", Bars(1)) \

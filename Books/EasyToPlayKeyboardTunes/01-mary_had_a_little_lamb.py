@@ -38,12 +38,12 @@ eight_measures >>= Equal(Measure(3), Step(1))**Merge()
 eight_measures >>= Equal(Measure(7))**Merge()
 settings << Quantization(1/16)   # 1/16 note again
 
-eight_measures << Foreach(
+eight_measures << Foreach([
         3, 2, 1, 2,   3, 3, 3,
         2, 2, 2,      3, 5, 5,
         3, 2, 1, 2,   3, 3, 3, 1,
         2, 2, 3, 2,   1
-    )**""
+    ])**""
 
 
 chords = Chord("C", 2*1.0) * Chord("G") * Chord("C", 3*1.0) * Chord("G") * Chord("C") << Channel(2) << Octave(3) << Velocity(70) >> Smooth(4)
