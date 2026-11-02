@@ -22,8 +22,6 @@ if src_path not in sys.path:
 from jsonmidicreator import *
 
 
-settings << Folder("Books/EasyToPlayKeyboardTunes/")
-
 
 ProgramChange("Electric piano 1", Channel(1)) + ProgramChange("Cello", Channel(2)) >> Play()
 
@@ -34,7 +32,7 @@ melody = Note() / 3 * 8 << Title("Melody")
 melody //= First(2)**Step(1)
 melody //= Either(Bar(1), Bar(5))**Equal(Beat(2))**Beats(1/2)
 melody >>= Last(2)**Merge()
-melody << Foreach(5, 5, 3, 5, 3, 1, 2, 3, 4, 2, 5, 3, 1, 5, 5, 3, 5, 3, 1, 2, 3, 4, 2, 5, 3, 1)**Degree()
+melody << Foreach([5, 5, 3, 5, 3, 1, 2, 3, 4, 2, 5, 3, 1, 5, 5, 3, 5, 3, 1, 2, 3, 4, 2, 5, 3, 1])**Degree()
 
 chords = \
     Chord("C", Bars(2)) * Chord("G", Bars(1)) * Chord("C", Bars(3)) * \
