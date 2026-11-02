@@ -895,6 +895,13 @@ def test_clip_selectors():
 # test_clip_selectors()
 
 
+def test_foreach_parameter():
+    clip_1 = Note(1/8) * 8
+    clip_2 = Note(1/4) * 8
+    assert clip_2 == Duration(1 * 2)
+
+
+
 def test_position_shift():
 
     # Integers set the Pitch
