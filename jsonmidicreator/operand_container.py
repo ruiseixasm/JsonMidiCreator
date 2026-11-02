@@ -2071,11 +2071,8 @@ class Clip(Composition):  # Just a container of Elements
             case od.Unmask():
                 self.unmask()
             case list():
-                if all(isinstance(item, oe.Element) for item in operand):
-                    # Remove previous Elements from the Container stack
-                    self.delete(self.elements_unmasked(), True) # deletes by id, safer
-                    # Finally adds the decomposed elements to the Container stack
-                    self.extend(o.deep_copy(operand))
+                if operand == [] or all(isinstance(item, oe.Element) for item in operand):
+                    self._items = o.deep_copy(operand)
                     self._set_owner_clip()
                 elif all(isinstance(item, og.Locus) for item in operand):
                     for single_element, locus in zip(self, operand):
