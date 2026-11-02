@@ -286,6 +286,21 @@ class Copy(Parameters):
     Returns:
         Operand: Returns a copy of the left side `>>` operand.
     """
+    pass
+
+
+
+class Pitches(Parameters):
+    """`Data -> Parameters -> Pitches`
+
+    A List of pitches to be used by the class `Cluster`.
+
+    Parameters
+    ----------
+    list([]) : The list of Pitches.
+    """
+    def __init__(self, pitches: list = []):
+        super().__init__(pitches)
 
 
 
