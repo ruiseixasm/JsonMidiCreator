@@ -418,7 +418,7 @@ class Element(o.Operand):
             case og.Locus():
                 self._position_beats = operand._position_beats
                 self._duration_beats = operand._duration_beats
-            case list():
+            case list():    # As coordinates
                 self << og.Locus(self, operand)
 
             case ra.LinkedDuration() | ra.LinkedLength():
