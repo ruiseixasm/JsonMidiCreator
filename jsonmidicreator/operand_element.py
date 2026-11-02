@@ -2827,6 +2827,8 @@ class Cluster(Note):
                             self._pitch << self._pitches[0]
                         else:
                             super().__lshift__(operand)
+                    case od.Pitches():
+                        self << od.Pipe(operand._data)
                     case og.Pitch():
                         self._pitch = operand._data
                         self._updated_pitches()
@@ -2845,6 +2847,8 @@ class Cluster(Note):
                         self._pitches.append(new_pitch)
                     if self._pitches:
                         self._pitch << self._pitches[0]
+            case od.Pitches():
+                self << operand._data
             case str():
                 if ":" in operand:  # It's a Token
                     super().__lshift__(operand)
