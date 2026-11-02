@@ -5662,14 +5662,15 @@ class Automation(Element):
             case od.Pipe():
                 match operand._data:
                     case od.Parameter():    return od.Parameter() << od.Pipe(self._parameter)
-                    case list():            return self._list
                     case ou.Linear():       return operand._data << self._linear
+                    case list():            return self._dots
+                    case og.Dots():         return og.Dots(self._dots)
                     case bool():            return self._linear
                     case _:                 return super().__mod__(operand)
             case int():             return self._parameter
             case od.Parameter():    return od.Parameter(self._parameter)
-            case list():            return o.deep_copy(self._list)
-            case og.Dots():         return og.Dots(self._dots) # Read only operand, no need for copies
+            case list():            return o.deep_copy(self._dots)
+            case og.Dots():         return og.Dots(o.deep_copy(self._dots))
             case og.Dot():
                 dots = og.Dots(self._dots)
                 return dots.__mod__(operand)
@@ -5751,6 +5752,8 @@ class Automation(Element):
                     case list():
                         if all(isinstance(d, og.Dot) for d in operand._data):
                             self._dots = operand._data
+                    case og.Dots():
+                        self._dots = operand._data._dots
                     case ou.Linear():
                         self._linear = operand._data % bool()
                     case bool():
