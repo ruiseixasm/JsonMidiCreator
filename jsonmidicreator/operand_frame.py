@@ -707,21 +707,20 @@ class Foreach(LeftToRight):
 
     Examples
     --------
-    >>> chord_progression = Chord("7th") * 4 << Foreach(1, 3, 1, 6)**Degree()
+    >>> chord_progression = Chord("7th") * 4 << Foreach([1, 3, 1, 6])**Degree()
     >>> chord_progression >> Plot(title="Some degrees")
     """
-    def __init__(self, *parameters):
-        validated_parameters: list = []
-        for param in parameters:
-            validated_parameters.append(param)
-        super().__init__(*validated_parameters)
+    def __init__(self, parameters: list[Any] = [], cycle: bool = True):
+        super().__init__()
+        self._named_parameters['parameters'] = parameters
+        self._named_parameters['cycle'] = cycle
 
 
     def frame(self, input: o.T) -> o.T:
         self._index += 1
-        operand_len: int = len(self._parameters)
-        if operand_len > 0:    # In case it its own parameters to iterate trough
-            input = self._parameters[self._index % operand_len] # INDEX -1 IN USAGE
+        parameters_len: int = len(self._named_parameters['parameters'])
+        if parameters_len > 0 and (self._named_parameters['cycle'] or self._index < parameters_len):
+            input = self._named_parameters['parameters'][self._index % parameters_len] # INDEX -1 IN USAGE
             return super().frame(input)
         return ol.Null()
 

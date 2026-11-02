@@ -899,7 +899,7 @@ def test_foreach_parameter():
     clip_1 = Note(1/8) * 8
     clip_2 = Note(1/4) * 8
     assert clip_2 == Duration(1 * 2)
-    clip_2 << Foreach(*(clip_1 % [Locus()]))
+    clip_2 << Foreach(clip_1 % [Locus()])
     assert clip_2 == Duration(1 * 1)
 
 # test_foreach_parameter()
@@ -918,7 +918,7 @@ def test_set_list():
 def test_position_shift():
 
     # Integers set the Pitch
-    chords: Clip = Chord() * 4 << Foreach(1, 5, 6, 4)
+    chords: Clip = Chord() * 4 << Foreach([1, 5, 6, 4])
 
     assert chords % Position() == 0.0
     print(f"Position first [0]: {chords[0] % Position() % float()}")
@@ -1010,10 +1010,10 @@ def test_clip_duration():
 def test_clip_operations():
 
     straight_clip: Clip = Note(Semitone(0)) * 4 + Iterate()**Semitone() \
-        << Foreach(eight, quarter, dotted_quarter, dotted_eight) \
+        << Foreach([eight, quarter, dotted_quarter, dotted_eight]) \
         << Stack() << Name("Straight")
     reversed_clip: Clip = Note(Semitone(3)) * 4 - Iterate()**Semitone() \
-        << Foreach(dotted_eight, dotted_quarter, quarter, eight) \
+        << Foreach([dotted_eight, dotted_quarter, quarter, eight]) \
         << Stack() << Name("Reversed")
     # straight_clip >> Plot(block=False)
     # reversed_clip >> Plot()
