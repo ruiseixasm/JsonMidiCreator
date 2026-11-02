@@ -701,9 +701,9 @@ class Foreach(LeftToRight):
 
     A `Foreach` cycles through a set of elements and returns to the first one whenever reaches the end of it.
 
-    Parameters
-    ----------
-    Any(None) : The set of elements to loop through.
+    Args:
+        parameters (list): A list with the parameters to be looped.
+        cycle (bool): Sets if the list will be cycled in another foreach or not.
 
     Examples
     --------
@@ -721,30 +721,6 @@ class Foreach(LeftToRight):
         parameters_len: int = len(self._named_parameters['parameters'])
         if parameters_len > 0 and (self._named_parameters['cycle'] or self._index < parameters_len):
             input = self._named_parameters['parameters'][self._index % parameters_len] # INDEX -1 IN USAGE
-            return super().frame(input)
-        return ol.Null()
-
-
-
-class Once(Foreach):
-    """`Frame -> LeftToRight -> Foreach -> Once`
-
-    A `Once` is a Foreach that loops through a set of elements only once, not returning to the first one \
-        when it reaches the last one.
-
-    Parameters
-    ----------
-    Any(None) : The set of elements to loop through only once.
-
-    Examples
-    --------
-    >>> chord_progression = Chord("7th") * 4 << Once(1, 3)**Degree()
-    >>> chord_progression >> Plot(title="Some degrees")
-    """
-    def frame(self, input: o.T) -> o.T:
-        operand_len: int = len(self._parameters)
-        # Does only a single loop!
-        if self._index + 1 < operand_len:   # INDEX -1 IN USAGE
             return super().frame(input)
         return ol.Null()
 
