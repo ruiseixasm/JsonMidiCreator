@@ -1341,6 +1341,11 @@ class Composition(Container):
                 match operand._data:
                     case og.TimeSignature():
                         self._set_time_signature(operand._data, True)
+
+                    case list():
+                        for single_operand, single_parameter in zip(self._items, operand._data):
+                            single_operand << od.Pipe(single_parameter)
+
                     case _:                 super().__lshift__(operand)
 
             case od.Name():
@@ -1348,6 +1353,9 @@ class Composition(Container):
             case og.TimeSignature():
                 self._set_time_signature(operand) # Includes time signature setting with `<<`
 
+            case list():
+                for single_operand, single_parameter in zip(self._items, operand):
+                    single_operand << single_parameter
             case _:
                 super().__lshift__(operand)
         return self
@@ -1982,9 +1990,9 @@ class Clip(Composition):  # Just a container of Elements
                         self._drum_kit = operand._data
 
                     case list():
-                        if all(isinstance(item, oe.Element) for item in operand._data):
+                        if operand._data == [] or all(isinstance(item, oe.Element) for item in operand._data):
                             # Doesn't set the owner_clip
-                            super().__lshift__(operand)
+                            self._items = operand._data
                         else:
                             for single_element, single_parameter in zip(self._items, operand._data):
                                 single_element << od.Pipe(single_parameter)
