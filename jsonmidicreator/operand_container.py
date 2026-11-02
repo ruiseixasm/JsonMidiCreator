@@ -2074,12 +2074,9 @@ class Clip(Composition):  # Just a container of Elements
                 if operand == [] or all(isinstance(item, oe.Element) for item in operand):
                     self._items = o.deep_copy(operand)
                     self._set_owner_clip()
-                elif all(isinstance(item, og.Locus) for item in operand):
-                    for single_element, locus in zip(self, operand):
-                        single_element << locus
-                else:   # Not for me
-                    for item in self.elements_unmasked():
-                        item << operand
+                else:
+                    for single_element, single_parameter in zip(self._items, operand):
+                        single_element << single_parameter
             case dict():
                 if all(isinstance(item, oe.Element) for item in operand.values()):
                     for index, item in operand.items():
