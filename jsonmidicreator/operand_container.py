@@ -1994,8 +1994,7 @@ class Clip(Composition):  # Just a container of Elements
                             # Doesn't set the owner_clip
                             self._items = operand._data
                         else:
-                            for single_element, single_parameter in zip(self._items, operand._data):
-                                single_element << od.Pipe(single_parameter)
+                            super().__lshift__(operand)
 
                     case of.Frame():
                         operand._data._set_inside_clip(self)
@@ -2080,8 +2079,7 @@ class Clip(Composition):  # Just a container of Elements
                     self._items = o.deep_copy(operand)
                     self._set_owner_clip()
                 else:
-                    for single_element, single_parameter in zip(self._items, operand):
-                        single_element << single_parameter
+                    super().__lshift__(operand)
             case dict():
                 if all(isinstance(item, oe.Element) for item in operand.values()):
                     for index, item in operand.items():
