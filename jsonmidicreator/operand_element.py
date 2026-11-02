@@ -2778,15 +2778,6 @@ class Cluster(Note):
         return self
 
 
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case od.Pipe():
-                match operand._data:
-                    case list():            return self._pitches
-                    case _:                 return super().__mod__(operand)
-            case list():            return o.deep_copy(self._pitches)
-            case _:                 return super().__mod__(operand)
-
     def __eq__(self, other: Any) -> bool:
         match other:
             case Cluster():
@@ -2797,6 +2788,19 @@ class Cluster(Note):
             case _:
                 return super().__eq__(other)
     
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.Pipe():
+                match operand._data:
+                    case list():            return self._pitches
+                    case od.Pitches():      return od.Pitches(self._pitches)
+                    case _:                 return super().__mod__(operand)
+            case list():            return o.deep_copy(self._pitches)
+            case od.Pitches():      return od.Pitches(o.deep_copy(self._pitches))
+            case _:                 return super().__mod__(operand)
+
+
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["pitches"] = o.serialize( self._pitches )
