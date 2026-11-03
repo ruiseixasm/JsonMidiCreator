@@ -75,6 +75,7 @@ class Transformation(o.Operand):
         return self
 
 
+
 class Operate(Transformation):
     """`Transformation -> Operate`
 
@@ -363,6 +364,7 @@ class Monofy(Transformation):
         return clip._sort_items()
 
 
+
 class Reflect(Transformation):
     """`Transformation -> Reflect`
 
@@ -644,7 +646,6 @@ class Sort(Transformation):
 
 
 
-
 class Smooth(Transformation):
     """`Transformation -> Smooth`
 
@@ -841,7 +842,6 @@ class Oscillate(Transformation):
             else:
                 single_element << value # Most of the time
         return clip._sort_items()
-
 
 
 
