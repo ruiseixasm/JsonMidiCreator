@@ -2278,8 +2278,10 @@ class Clip(Composition):  # Just a container of Elements
                 if operand >= 1:
                     amount: int = int(operand)
                     single_shallow_copy: Clip = self.shallow_copy()
+                    finish: ra.Position = self.finish()
                     for segment_i in range(amount - 1):
-                        self.__imul__(single_shallow_copy)
+                        new_segment = single_shallow_copy + finish * (segment_i + 1)
+                        self.__iadd__(new_segment)
                 else:
                     self._items = []
 

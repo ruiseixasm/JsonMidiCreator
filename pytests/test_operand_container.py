@@ -703,6 +703,12 @@ def test_mul_frame():
 # test_mul_frame()
 
 
+def test_mul_float():
+    beat_notes = Note(Steps(1)) * 4
+    beat_notes % Duration() == Beats(1)
+    beat_notes * 4.0 % Duration() == Beats(4)
+
+
 def test_element_stacking():
 
     settings << Quantization(1/16)   # 1/4 Beats again
