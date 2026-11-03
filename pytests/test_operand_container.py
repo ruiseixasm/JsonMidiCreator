@@ -942,10 +942,11 @@ def test_position_shift():
     fifth_measure_chords = chords.copy()
     # To set ALL Chords into the SAME position, Measures need to be wrapped with Position
     Position(Measures(4)) >> fifth_measure_chords # SETS, doesn't Move, all at Position 4 measure !!
-    print(f"Chords Length: {chords % Length() % float()}")
+    print(f"Chords Position: {chords % Position() % float()}")
     assert chords % Position() == 0.0   # Clip has no Position on its own
     # chords has ALL notes at negative Measure, so, Length ends up being 0.0 !!
-    assert chords % Length() == 0.0 # All Elements became at the same NEGATIVE position, -1.0 position each one
+    print(f"Chords Length: {chords % Length() % float()}")
+    assert chords % Length() == Measures(1.0) # Length is the rounded finish length, above 0 in this case
     print(f"Fifth Length: {fifth_measure_chords % Length() % float()}")
     print(f"Duration: {fifth_measure_chords % Duration() % float()}")
     assert fifth_measure_chords % Position() == 0.0 # Clip has no Position on its own
@@ -960,7 +961,7 @@ def test_position_shift():
     assert aggregated_chords % Length() == 5.0 * 4  # Beats
     assert aggregated_chords % Net(Duration()) == Steps(3) + Measures(4) + Measures(1)   # 5.1875
 
-# test_position_shift()
+test_position_shift()
 
 
 def test_clip_duration():
