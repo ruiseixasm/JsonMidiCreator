@@ -1089,6 +1089,17 @@ class Composition(Container):
         return None
 
 
+    def stackable_length(self) -> 'ra.Position':
+        if self._items:
+            last_position: ra.Position = self._last_position()
+            position_length: ra.Length = ra.Length( last_position.roundMeasures() ) + ra.Measure(1)
+            finish_length: ra.Length = ra.Length( self.net_finish().roundMeasures() )
+            if finish_length > position_length:
+                return finish_length
+            return position_length
+        return ra.Length(self, 0)
+
+
     def gross_length(self) -> 'ra.Length':
         """
         Returns the rounded `Length` to `Measures` that goes from 0 to position of the last `Element`.
@@ -1099,14 +1110,7 @@ class Composition(Container):
         Returns:
             Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
         """
-        if self._items:
-            last_position: ra.Position = self._last_position()
-            position_length: ra.Length = ra.Length( last_position.roundMeasures() ) + ra.Measure(1)
-            finish_length: ra.Length = ra.Length( self.net_finish().roundMeasures() )
-            if finish_length > position_length:
-                return finish_length
-            return position_length
-        return ra.Length(self, 0)
+        return self.length().roundMeasures()
 
 
     def length(self) -> 'ra.Length':
@@ -2259,10 +2263,10 @@ class Clip(Composition):  # Just a container of Elements
                 start_position: ra.Position = operand_copy.net_start()
                 if start_position is not None:
 
-                    self_length: ra.Length = self.gross_length()
+                    stackable_length: ra.Length = self.stackable_length()
 
                     for single_element in operand_copy._items:
-                        single_element._position_beats += self_length._rational   # Does a position offset
+                        single_element._position_beats += stackable_length._rational   # Does a position offset
                     
                     self._items.extend(operand_copy._items)
 
@@ -3117,35 +3121,35 @@ class Section(Composition):
         match operand:
             case Section():
                 new_part = Part()
-                self_length: ra.Length = self.gross_length()
+                stackable_length: ra.Length = self.stackable_length()
                 new_part += self
-                if self_length is not None:
-                    new_part += operand.copy(ra.Position(self_length))
+                if stackable_length is not None:
+                    new_part += operand.copy(ra.Position(stackable_length))
                 else:
                     new_part += operand
                 return new_part
             case Clip():
-                self_length: ra.Length = self.gross_length()
-                if self_length is not None:
-                    self.append(operand + ra.Position(self_length))  # Implicit copy
+                stackable_length: ra.Length = self.stackable_length()
+                if stackable_length is not None:
+                    self.append(operand + ra.Position(stackable_length))  # Implicit copy
                 else:
                     self.append(operand.copy())    # Explicit copy
             case oe.Element():
-                self_length: ra.Length = self.gross_length()
-                if self_length is not None:
-                    self.append(Clip(operand + ra.Position(self_length)))   # Implicit copy
+                stackable_length: ra.Length = self.stackable_length()
+                if stackable_length is not None:
+                    self.append(Clip(operand + ra.Position(stackable_length)))   # Implicit copy
                 else:
                     self.append(Clip(operand))
             case int():
                 new_blocks: list[Section] = []
                 if operand > 0:
-                    single_length: ra.Length = self.gross_length()
-                    if single_length is not None:
+                    stackable_length: ra.Length = self.stackable_length()
+                    if stackable_length is not None:
                         next_position: ra.Position = self % ra.Position()
                         for _ in range(operand):
                             self_copy: Section = self.copy(next_position)
                             new_blocks.append(self_copy)
-                            next_position += single_length
+                            next_position += stackable_length
                 return Part(self._get_time_signature(), od.Pipe(new_blocks))._set_owner_part()._sort_items()
 
             case _:
@@ -3716,8 +3720,8 @@ class Part(Composition):
                 for block_index in operand:
                     new_block: Section = self[block_index].copy(position_measure)
                     base_blocks.append(new_block)
-                    length_measures: ra.Measure = new_block.gross_length() % ra.Measure()
-                    position_measure += length_measures
+                    stackable_length: ra.Measure = new_block.stackable_length() % ra.Measure()
+                    position_measure += stackable_length
 
                 self._items = base_blocks
 

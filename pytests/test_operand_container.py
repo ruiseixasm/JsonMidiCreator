@@ -1177,6 +1177,14 @@ def test_clip_length():
     assert two_notes * 3 % Length() == Beats(4) * 3
     assert two_notes * two_notes * two_notes % Length() == Beats(4) * 3
 
+    long_note = Note(2.5) * 1
+    assert long_note % Duration() == 2.5
+    print(f"long_note % Length(): {long_note % Length() % float()}")
+    # long_note * 2 >> Plot()
+    assert long_note % Length() == Measures(3)
+    print(f"long_note * 2 % Length(): {long_note * 2 % Length() % float()}")
+    assert long_note * 2 % Length() == Measures(5)
+
 # test_clip_length()
 
 
