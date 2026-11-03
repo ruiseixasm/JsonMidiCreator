@@ -705,8 +705,10 @@ def test_mul_frame():
 
 def test_mul_float():
     beat_notes = Note(Steps(1)) * 4
-    beat_notes % Duration() == Beats(1)
-    beat_notes * 4.0 % Duration() == Beats(4)
+    assert beat_notes % Duration() == Beats(1)
+    assert beat_notes * 4.0 % Duration() == Beats(4)
+
+# test_mul_float()
 
 
 def test_element_stacking():
