@@ -174,8 +174,8 @@ def test_note_mul():
     single_note: Note = Note()
     assert single_note * 2 % Net(Duration()) == Beats(2)   # Results in a Clip of 2 Notes
     assert type(single_note * 2) == Clip
-    assert single_note * 2.0 % Net(Duration()) == Beats(2) # Multiplies the Duration instead, still a single Note, NOT a Clip!
-    assert type(single_note * 2.0) == Note
+    assert single_note * Duration(2) % Net(Duration()) == Beats(2) # Multiplies the Duration instead, still a single Note, NOT a Clip!
+    assert type(single_note * Duration(2)) == Note
     assert single_note / Beat(6) % Net(Finish()) == Beats(6)
 
     rest = Rest()

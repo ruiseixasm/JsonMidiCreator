@@ -617,6 +617,8 @@ class Element(o.Operand):
                 return new_clip
             
             # Can be applied to owned elements
+            case float():
+                return self.__imul__(int(operand))
             case int():
                 if operand >= 0:
                     self_elements: list = [
