@@ -1343,7 +1343,7 @@ class Composition(Container):
                         self._set_time_signature(operand._data, True)
 
                     case list():
-                        for single_operand, single_parameter in zip(self._items, operand._data):
+                        for single_operand, single_parameter in zip(self.items_unmasked(), operand._data):
                             single_operand << od.Pipe(single_parameter)
 
                     case _:                 super().__lshift__(operand)
@@ -1354,7 +1354,7 @@ class Composition(Container):
                 self._set_time_signature(operand) # Includes time signature setting with `<<`
 
             case list():
-                for single_operand, single_parameter in zip(self._items, operand):
+                for single_operand, single_parameter in zip(self.items_unmasked(), operand):
                     single_operand << single_parameter
             case _:
                 super().__lshift__(operand)
