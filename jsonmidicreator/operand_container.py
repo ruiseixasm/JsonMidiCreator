@@ -2274,13 +2274,22 @@ class Clip(Composition):  # Just a container of Elements
                 else:
                     self += operand
 
+            case float():
+                if operand >= 1:
+                    amount: int = int(operand)
+                    single_shallow_copy: Clip = self.shallow_copy()
+                    for segment_i in range(amount - 1):
+                        self.__imul__(single_shallow_copy)
+                else:
+                    self._items = []
+
             case int():
-                if operand > 1:
+                if operand >= 1:
                     single_shallow_copy: Clip = self.shallow_copy()
                     for _ in range(operand - 1):
                         self.__imul__(single_shallow_copy)
-                elif operand == 0:
-                    self.delete()
+                else:
+                    self._items = []
 
             case ra.TimeUnit(): # Replicates elements with the TimeUnit offset for each add
                 self_repeating: int = operand % int() - 1
