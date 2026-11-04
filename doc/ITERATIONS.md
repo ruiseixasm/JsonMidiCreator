@@ -64,7 +64,7 @@ playable_clip = pattern_grid >> Plot(i_multi_frame)
 ## Finding a Ringtone
 In this case one can use a `ISweep` to sweep a range of number of notes up to find the right ring repetition.
 
-Here are the steps for it>
+Here are the steps for it:
 ```py
 from jsonmidicreator import *
 
@@ -84,7 +84,7 @@ phone_ring = Clip(Title("Office Phone Ring Sound"), TimeSignature(6), Gate(0.5))
 phone_ring >>= i_sweep
 ```
 
-Final result at iteration 11
+Final result at iteration 11:
 
 ![Sweeping Notes](plot/Office_Phone_Ring_Sound.png)
 
