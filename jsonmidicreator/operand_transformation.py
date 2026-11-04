@@ -69,6 +69,12 @@ class Transformation(o.Operand):
                 return ol.Null()
         return transform._single_transform(iterations[-1].copy()) # Decouples
 
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        # This works as a shortcut to `>> Plot(self)`, the typical use case!
+        from . import operand_process as op
+        return operand >> op.Plot(transformation=self)
+
     
     def copy(self, *parameters) -> Self:
         # Frame class IS a Read-only class
