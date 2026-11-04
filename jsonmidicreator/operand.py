@@ -270,6 +270,7 @@ class Operand:
         """Applies `<<=` on the operand while keeping self"""
         return self.__ilshift__(operand)
 
+
     def __ilshift__(self, operand: any) -> Self:
         from . import operand_data as od
         return self << od.Pipe( operand )
@@ -277,6 +278,11 @@ class Operand:
     # Makes sure no Non Operand has `<< Operand` applied
     def __rlshift__(self, operand: T) -> T:
         return operand
+
+
+    def __irshift__(self, operand: any) -> Self:
+        # This is the default result `Self >> Operand == Self`
+        return self << (self >> operand)
 
 
     def __invert__(self) -> Self:
