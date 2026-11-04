@@ -23,12 +23,13 @@ simple_pattern = Trigger("Hat") * 16 << Velocity(70) << OnBeat()**Velocity(110)
 simple_pattern += Trigger("Kick") * 16 & OnBeat()
 simple_pattern << DrumKit("808") << Channel(10) << Title("Iterating Steps")
 simple_pattern *= 2
+
 # The iteration
 framed_trigger = Equal("Kick")**Chance(1/8)**Step(1)
 i_frame = IAdd(framed_trigger, no_repeats=True)
+
 # Finally start iterating
-simple_pattern >> Plot(i_frame)
-# Realization the Iteration 5 is quite usable
+simple_pattern >> Plot(i_frame)	# Realization the Iteration 5 is quite usable
 ```
 
 ![Iterating Steps](plot/Iterating_Steps.png)
@@ -42,10 +43,12 @@ in removing them from a given occupied range filled with them.
 If one wants to have a range of triggers say for four samples, the starting point is the following
 ```py
 from jsonmidicreator import *
+
 # Start by setting the Clip parameters
 pattern_grid = Clip() << DrumKit("808") << Title("Triggers Pattern of 64 steps")
 pattern_grid += Trigger("Kick") * 64 + Trigger("Snare", Velocity(80)) * 64 + Trigger("Hat") * 64 + Trigger("Shaker") * 64
 pattern_grid << Equal("Kick")**OnBeat()**Velocity(120) << Channel(10) << Disable()    # By default they are disabled
+
 # This is the criteria of triggering, the grid is 64 but the the probabilities bellow are 1 measure based
 i_multi_frame = IMultiFrame([
     Equal("Kick")**Odd()**Chance(1/2)**Enable(),
@@ -53,6 +56,29 @@ i_multi_frame = IMultiFrame([
     Equal("Hat")**Chance(0.9)**Enable(),
     Equal("Shaker")**Chance(0.95)**Enable()
 ], no_repeats=True)
+
 # The pattern_grid is just the grid source, the `Plot` always does a copy of the input (decoupling guaranteed)
 playable_clip = pattern_grid >> Plot(i_multi_frame)
 ```
+
+## Finding a Ringtone
+In this case one can use a `ISweep` to sweep a range of number of notes up to find the right ring repetition.
+
+Here are the steps for it>
+```py
+from jsonmidicreator import *
+
+# Start by defining the sweeper function, where n is the number of notes being sweep
+sweeper = lambda clip, n: (
+	clip << (Note() * n << TimeSignature(6) << Resize(Beats(2))) * 4
+	<< Gate(0.5) << Title("Office Phone Ring Sound")
+)
+
+# Now one creates the Sweep iterator
+i_sweep = ISweep(sweeper)
+
+# As you can see, the operator `>>` on a `Transformation` operand, auto calls the usual `Plot` operand.
+phone_ring = Clip() >> i_sweep
+```
+
+

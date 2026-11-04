@@ -1328,7 +1328,7 @@ class Plot(Process):
 
     def _run_new(self, even = None) -> Self:
         # Guarantees it's a transformation and the list items are of `Clip` type
-        if isinstance(self.transformation, tr.Transformation) and isinstance(self, oc.Clip):
+        if isinstance(self.transformation, tr.Transformation) and isinstance(self._compositions[0], oc.Clip):
             new_iteration = self.transformation.new_iteration(self._compositions)
             if isinstance(new_iteration, oc.Clip):
                 self._iteration_index = len(self._compositions)
