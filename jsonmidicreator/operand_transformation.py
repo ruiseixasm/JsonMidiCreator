@@ -1052,6 +1052,39 @@ class IteratedTransformation(Transformation):
 
 
 
+class ISweep(IteratedTransformation):
+    """`Transformation -> IteratedTransformation -> ISweep`
+    
+    Exhaustively sweeps a function across a sequence of integer indices.
+
+    The current index is passed to the function together with the original
+    Clip, producing a successive variation.
+
+    Args:
+        Callable[[Clip, int], Clip]: Function receiving the original Clip
+            and the current sweep index, returning a varied Clip.
+        pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
+        post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
+        max_tries (int) : The maximum amount of tries to find a `Clip` solution.
+        no_repeats (bool): Doesn't let repetitions of past outputted solutions.
+        freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
+    """
+    def __init__(self, sweeper: Callable[['Clip', int], 'Clip'] = None,
+                 no_repeats: bool = False,
+                 pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
+                 post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
+                 max_tries: int = 20, freeze_at: int = -1):
+        super().__init__(no_repeats, pre_filter, post_process, max_tries, freeze_at)
+        self.sweeper: Callable[[Clip, int], Clip] = sweeper
+
+
+    def _single_transform(self, clip: 'oc.Clip') -> Union['oc.Clip', 'ol.Null']:
+        if self.sweeper is not None:
+            return clip << self.sweeper(clip, self._index)
+        return ol.Null()    # No function no result
+
+
+
 class IMultiFrame(IteratedTransformation):
     """`Transformation -> IteratedTransformation -> IMultiFrame`
 

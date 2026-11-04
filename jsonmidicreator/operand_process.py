@@ -1327,20 +1327,19 @@ class Plot(Process):
 
 
     def _run_new(self, even = None) -> Self:
-        if isinstance(self.transformation, tr.Transformation):
-            clip: oc.Composition = self._compositions[-1]    # It has always at least one
-            if isinstance(clip, oc.Clip):
-                new_iteration = self.transformation.new_iteration(self._compositions)
-                if isinstance(new_iteration, oc.Clip):
-                    self._iteration_index = len(self._compositions)
-                    plotlist: list[dict] = new_iteration.getPlotlist()
-                    new_checksum_str: str = o.checksum_to_string(new_iteration.checksum())
-                    self._compositions.append(new_iteration)
-                    self._plot_lists.append(plotlist)
-                    self._plot_checksums.append(new_checksum_str)
-                    self._plot_elements()
-                    self._enable_button(self._previous_button)
-                    self._disable_button(self._next_button)
+        # Guarantees it's a transformation and the list items are of `Clip` type
+        if isinstance(self.transformation, tr.Transformation) and isinstance(self, oc.Clip):
+            new_iteration = self.transformation.new_iteration(self._compositions)
+            if isinstance(new_iteration, oc.Clip):
+                self._iteration_index = len(self._compositions)
+                plotlist: list[dict] = new_iteration.getPlotlist()
+                new_checksum_str: str = o.checksum_to_string(new_iteration.checksum())
+                self._compositions.append(new_iteration)
+                self._plot_lists.append(plotlist)
+                self._plot_checksums.append(new_checksum_str)
+                self._plot_elements()
+                self._enable_button(self._previous_button)
+                self._disable_button(self._next_button)
         return self
 
 
