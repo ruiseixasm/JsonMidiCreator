@@ -304,6 +304,37 @@ class Plot(Process):
         return y
 
 
+    def _get_chart_title(self, checksum_str: str, beats_per_measure: Fraction) -> str:
+        """Build the chart title for the current composition."""
+
+        composition = self._compositions[self._iteration_index]
+
+        chart_title: str = (
+            f"{self.title} - " if self.title else ""
+        ) + composition.__class__.__name__
+
+        if isinstance(composition, oc.Section):
+            measure_position: int = int(
+                self._position_beats / beats_per_measure
+            )
+            chart_title += f"({measure_position}) - "
+        else:
+            chart_title += " - "
+
+        if composition.is_masked():
+            chart_title += "Masked - "
+
+        if isinstance(self.transformation, tr.Transformation):
+            chart_title += (
+                f"Iteration {self._iteration_index} "
+                f"of {len(self._compositions) - 1} - "
+            )
+
+        chart_title += f"({checksum_str})"
+
+        return chart_title
+
+
     def _plot_elements(self):
         """
         The method that does the heavy work of plotting
@@ -1379,6 +1410,15 @@ class ControlledPlot(Plot):
 
         self._controller_timer = None
         self._controller_parameters: tuple[int, ...] = ()
+
+
+    def _get_chart_title(self, checksum_str: str, beats_per_measure: Fraction) -> str:
+        """Build the chart title for the current composition."""
+
+        chart_title = super()._get_chart_title(checksum_str, beats_per_measure)
+        chart_title += f" - {list(self._controller_parameters)}"
+
+        return chart_title
 
 
     def transform(
