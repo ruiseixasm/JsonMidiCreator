@@ -1343,6 +1343,7 @@ class Plot(Process):
         return self
 
 
+
 class ControlledPlot(Plot):
     """Process -> Plot -> ControlledPlot.
 
