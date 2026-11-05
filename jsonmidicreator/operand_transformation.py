@@ -1663,5 +1663,47 @@ class IYield(ITame):
 
 
 
+class ControlledTransformation(Transformation):
+    """Transformation -> ControlledTransformation.
+
+    The controller is a callable that receives a `Clip` and eight integer
+    parameters, and returns the transformed `Clip`.
+
+    Parameters
+    ----------
+    controller : Callable, optional
+        Function defining the transformation. It receives the input `Clip`
+        followed by eight integer control values. If `None`, the input
+        `Clip` is returned unchanged.
+
+    Notes
+    -----
+    The eight parameters can be supplied by a MIDI controller or any other
+    external control source. The transformation itself remains independent
+    of the mechanism providing those values.
+    """
+
+    def __init__(
+        self,
+        controller: Callable[
+            ['Clip', int, int, int, int, int, int, int, int],
+            'Clip'
+        ] = None
+    ):
+        super().__init__()
+        self.function = controller
+
+
+    def transform(
+        self,
+        clip: 'Clip',
+        parameters: tuple[int, int, int, int, int, int, int, int]
+    ) -> 'Clip':
+
+        if self.function is None:
+            return clip
+
+        return self.function(clip, *parameters)
+
 
 
