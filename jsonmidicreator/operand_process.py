@@ -1343,6 +1343,48 @@ class Plot(Process):
         return self
 
 
+class ControlledPlot(Plot):
+    """Process -> Plot -> ControlledPlot.
+
+    The controller is a callable that receives a `Clip` and eight integer
+    parameters, and returns the transformed `Clip`.
+
+    Args
+    ----
+    controller : Callable : A function for Clip that accepts 8 parameters as integers,
+        given by the controller as CC messages fro 16 to 23.
+    title (str): A title to give to the chart in order to identify it.
+    block (bool): Suspends the program until the chart is closed.
+    composition (Composition): A composition to be played together with the plotted one.
+    by_channel (bool): Allows the visualization in a Drum Machine alike instead of by Pitch.
+    """
+    def __init__(
+        self,
+        controller: Callable[
+            ['oc.Clip', int, int, int, int, int, int, int, int],
+            'oc.Clip'
+        ] = None,
+        title: str | None = None,
+        block: bool = True,
+        composition: Optional['oc.Composition'] = None,
+        by_channel: bool = False
+    ):
+        super().__init__(None, title, block, composition, by_channel)
+        self.controller = controller
+
+
+    def transform(
+        self,
+        clip: 'oc.Clip',
+        parameters: tuple[int, int, int, int, int, int, int, int]
+    ) -> 'oc.Clip':
+
+        if self.controller is None:
+            return clip
+
+        return self.controller(clip, *parameters)
+
+
 
 class Play(Process):
     """`Process -> Play`
