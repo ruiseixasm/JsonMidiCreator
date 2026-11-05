@@ -1529,29 +1529,163 @@ except ImportError:
 
 class MidiController:
 
-    def __init__(self, port: int = 0):
-        self._midi_in = rtmidi.MidiIn()
+    TEST_CONTROLLERS = range(16, 24)
+
+    def __init__(self, device_name: str):
+        self._midi_in = None
         self._lock = Lock()
         self._values = {}
-        self._midi_in.open_port(port)
-        self._midi_in.set_callback(self._receive)
+        self._error = None
+        self._port_name = None
+
+        device_name = device_name.strip()
+
+        if not device_name:
+            self._error = "A MIDI device name must be provided."
+            return
+
+        if rtmidi is None:
+            self._error = "python-rtmidi is not installed."
+            return
+
+        midi_in = None
+        port_open = False
+        callback_set = False
+
+        try:
+            midi_in = rtmidi.MidiIn()
+            ports = midi_in.get_ports()
+
+            matches = [
+                (index, name)
+                for index, name in enumerate(ports)
+                if device_name.casefold() in name.casefold()
+            ]
+
+            if not matches:
+                self._error = (
+                    f"No MIDI input port matches '{device_name}'."
+                )
+                return
+
+            if len(matches) > 1:
+                names = ", ".join(name for _, name in matches)
+                self._error = (
+                    f"Ambiguous MIDI port '{device_name}': {names}"
+                )
+                return
+
+            index, self._port_name = matches[0]
+
+            midi_in.open_port(index)
+            port_open = True
+
+            midi_in.set_callback(self._receive)
+            callback_set = True
+
+            self._midi_in = midi_in
+
+        except Exception as error:
+            self._error = str(error)
+
+            if midi_in is not None:
+                if callback_set:
+                    try:
+                        midi_in.cancel_callback()
+                    except Exception:
+                        pass
+
+                if port_open:
+                    try:
+                        midi_in.close_port()
+                    except Exception:
+                        pass
+
+
+    @property
+    def available(self) -> bool:
+        return self._midi_in is not None
+
+
+    @property
+    def error(self) -> str | None:
+        return self._error
+
+
+    @property
+    def port_name(self) -> str | None:
+        return self._port_name
+
 
     def _receive(self, event, data=None):
         message, _ = event
-        status, controller, value = message
+
+        if len(message) < 3:
+            return
+
+        status, controller, value = message[:3]
 
         if status & 0xF0 == 0xB0:
             with self._lock:
                 self._values[controller] = value
 
+
     def value(self, controller: int) -> int:
         with self._lock:
             return self._values.get(controller, 0)
+
 
     def values(self) -> dict[int, int]:
         with self._lock:
             return self._values.copy()
 
+
     def close(self):
-        self._midi_in.close_port()
+        midi_in = self._midi_in
+        self._midi_in = None
+
+        if midi_in is not None:
+            try:
+                midi_in.cancel_callback()
+            finally:
+                midi_in.close_port()
+
+
+    def test(self, interval: float = 0.1):
+        """Display live MIDI controller values. Stop with Ctrl+C."""
+
+        from time import sleep
+
+        if not self.available:
+            print(self.error or "MIDI input is unavailable.")
+            return
+
+        if interval <= 0:
+            raise ValueError("Interval must be greater than zero.")
+
+        controllers = self.TEST_CONTROLLERS
+        previous = None
+
+        print(f"Listening to: {self.port_name}")
+        print("Move the MIDI knobs (Ctrl+C to stop).\n")
+
+        try:
+            while self.available:
+                current = tuple(
+                    self.value(cc) for cc in controllers
+                )
+
+                if current != previous:
+                    display = " | ".join(
+                        f"CC{cc}: {value:3d}"
+                        for cc, value in zip(controllers, current)
+                    )
+
+                    print(f"\r{display}", end="", flush=True)
+                    previous = current
+
+                sleep(interval)
+
+        except KeyboardInterrupt:
+            print("\nMIDI test stopped.")
 
