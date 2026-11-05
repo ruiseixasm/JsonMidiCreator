@@ -1692,10 +1692,20 @@ class MidiController:
         finally:
             if midi_in is not None:
                 midi_in.close_port()
-    
 
+
+    def read_key(self) -> int | None:
+        """Return and consume the most recently pressed MIDI note."""
+        with self._lock:
+            if not self._key_pressed.is_set():
+                return None
+
+            self._key_pressed.clear()
+            return self._key_number
+
+    
     def test(self, interval: float = 0.1):
-        """Display live MIDI controller values. Stop with Ctrl+C."""
+        """Display live MIDI controller values and MIDI key presses. Stop with Ctrl+C."""
 
         from time import sleep
 
@@ -1710,13 +1720,15 @@ class MidiController:
         previous = None
 
         print(f"Listening to: {self.port_name}")
-        print("Move the MIDI knobs (Ctrl+C to stop).\n")
+        print("Move the MIDI knobs or press MIDI keys (Ctrl+C to stop).\n")
 
         try:
             while self.available:
                 current = tuple(
                     self.value(cc) for cc in controllers
                 )
+
+                key = self.read_key()
 
                 if current != previous:
                     display = " | ".join(
@@ -1726,6 +1738,9 @@ class MidiController:
 
                     print(f"\r{display}", end="", flush=True)
                     previous = current
+
+                if key is not None:
+                    print(f"\nNote On: {key}")
 
                 sleep(interval)
 
