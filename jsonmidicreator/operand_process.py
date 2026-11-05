@@ -1361,17 +1361,20 @@ class ControlledPlot(Plot):
     """
     def __init__(
         self,
-        controller: Callable[
+        generator: Callable[
             ['oc.Clip', int, int, int, int, int, int, int, int],
             'oc.Clip'
         ] = None,
+        device: str | None = None,
         title: str | None = None,
         block: bool = True,
         composition: Optional['oc.Composition'] = None,
         by_channel: bool = False
     ):
         super().__init__(None, title, block, composition, by_channel)
-        self.controller = controller
+        self.generator = generator
+        self.device = device
+        self._controller = MidiController(device)
 
 
     def transform(
@@ -1380,10 +1383,10 @@ class ControlledPlot(Plot):
         parameters: tuple[int, int, int, int, int, int, int, int]
     ) -> 'oc.Clip':
 
-        if self.controller is None:
+        if self.generator is None:
             return clip
 
-        return self.controller(clip, *parameters)
+        return self.generator(clip, *parameters)
 
 
 
