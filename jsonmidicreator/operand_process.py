@@ -352,18 +352,7 @@ class Plot(Process):
         quantization_beats: Fraction = og.settings._quantization    # Quantization is a Beats value already
         steps_per_measure: Fraction = beats_per_measure / quantization_beats
 
-        chart_title: str = f"{self.title + " - " if self.title != "" else ""}" \
-                        + f"{self._compositions[self._iteration_index].__class__.__name__}"
-        # Chart title (TITLE)
-        if isinstance(self, oc.Section):
-            measure_position: int = int(self._position_beats / beats_per_measure)
-            chart_title += f"({measure_position}) - "
-        else:
-            chart_title += " - "
-        chart_title += f"{"Masked - " if self._compositions[self._iteration_index].is_masked() else ""}"
-        if isinstance(self.transformation, tr.Transformation):
-            chart_title += f"Iteration {self._iteration_index} of {len(self._compositions) - 1} - "
-        chart_title += f"({checksum_str})"
+        chart_title: str = self._get_chart_title(checksum_str, beats_per_measure)
         self._ax.set_title(chart_title)
 
         # Horizontal X-Axis, Time related (COMMON)
