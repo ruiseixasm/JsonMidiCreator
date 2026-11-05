@@ -1518,7 +1518,7 @@ class Read(Process):
 
 
 
-from threading import Lock
+from threading import Lock, Event
 
 try:
     import rtmidi
@@ -1537,6 +1537,8 @@ class MidiController:
         self._values = {}
         self._error = None
         self._port_name = None
+        self._key_pressed = Event()
+        self._key_number = None
 
         device_name = device_name.strip()
 
@@ -1623,11 +1625,17 @@ class MidiController:
         if len(message) < 3:
             return
 
-        status, controller, value = message[:3]
+        status, number, value = message[:3]
+        message_type = status & 0xF0
 
-        if status & 0xF0 == 0xB0:
+        if message_type == 0xB0:  # Control Change
             with self._lock:
-                self._values[controller] = value
+                self._values[number] = value
+
+        elif message_type == 0x90 and value > 0:  # Note On
+            with self._lock:
+                self._key_number = number
+                self._key_pressed.set()
 
 
     def value(self, controller: int) -> int:
@@ -1649,6 +1657,20 @@ class MidiController:
                 midi_in.cancel_callback()
             finally:
                 midi_in.close_port()
+
+
+    def key_pressed(self) -> bool:
+        """Read and consume the MIDI key latch."""
+        if self._key_pressed.is_set():
+            self._key_pressed.clear()
+            return True
+        return False
+
+
+    def key_number(self) -> int | None:
+        """Return the most recently pressed MIDI note."""
+        with self._lock:
+            return self._key_number
 
 
     @staticmethod
