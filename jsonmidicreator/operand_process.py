@@ -1518,3 +1518,40 @@ class Read(Process):
 
 
 
+from threading import Lock
+
+try:
+    import rtmidi
+except ImportError:
+    print(f"{RED}Error: The 'python-rtmidi' library is not installed.{RESET}")
+    print("Please install it by running 'python -m pip install python-rtmidi'.")
+
+
+class MidiController:
+
+    def __init__(self, port: int = 0):
+        self._midi_in = rtmidi.MidiIn()
+        self._lock = Lock()
+        self._values = {}
+        self._midi_in.open_port(port)
+        self._midi_in.set_callback(self._receive)
+
+    def _receive(self, event, data=None):
+        message, _ = event
+        status, controller, value = message
+
+        if status & 0xF0 == 0xB0:
+            with self._lock:
+                self._values[controller] = value
+
+    def value(self, controller: int) -> int:
+        with self._lock:
+            return self._values.get(controller, 0)
+
+    def values(self) -> dict[int, int]:
+        with self._lock:
+            return self._values.copy()
+
+    def close(self):
+        self._midi_in.close_port()
+
