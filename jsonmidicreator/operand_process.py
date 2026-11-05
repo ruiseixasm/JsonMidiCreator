@@ -1651,6 +1651,27 @@ class MidiController:
                 midi_in.close_port()
 
 
+    @staticmethod
+    def inputs() -> list[str]:
+        """Return the names of all available MIDI input ports."""
+
+        if rtmidi is None:
+            return []
+
+        midi_in = None
+
+        try:
+            midi_in = rtmidi.MidiIn()
+            return midi_in.get_ports()
+
+        except Exception:
+            return []
+
+        finally:
+            if midi_in is not None:
+                midi_in.close_port()
+    
+
     def test(self, interval: float = 0.1):
         """Display live MIDI controller values. Stop with Ctrl+C."""
 
