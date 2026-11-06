@@ -212,11 +212,14 @@ class Tamer(o.Operand):
         return self
 
 
-    def __imul__(self, number: Union['ou.Unit', 'ra.Rational', int, float, Fraction]) -> Self:
-        number = o.number_to_int(number) # Results in a int, like int(float)
-        if number > 0:
-            for _ in range(number):
-                self.iterate()
+    def __imul__(self, value: Any) -> Self:
+        match value:
+            case int():
+                if value > 0:
+                    for _ in range(value):
+                        self.iterate()
+            case _:
+                super().__imul__(value)
         return self
 
 
