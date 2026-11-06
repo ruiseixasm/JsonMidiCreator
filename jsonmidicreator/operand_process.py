@@ -1372,8 +1372,8 @@ class ControlledPlot(Plot):
 
     Args
     ----
-    controller : Callable : A function for Clip that accepts 8 parameters as integers,
-        given by the controller as CC messages fro 16 to 23.
+    generator : Callable : A function accepting a Clip and a list of 8
+        integers, given by the controller as CC messages from 16 to 23.
     device (str) : Part of the device name that sends the CC messages.
     title (str) : A title to give to the chart in order to identify it.
     block (bool) : Suspends the program until the chart is closed.
@@ -1382,10 +1382,7 @@ class ControlledPlot(Plot):
     """
     def __init__(
         self,
-        generator: Callable[
-            ['oc.Clip', int, int, int, int, int, int, int, int],
-            'oc.Clip'
-        ] = None,
+        generator: Callable[['oc.Clip', list[int]], 'oc.Clip'] = None,
         device: str | None = None,
         title: str | None = None,
         block: bool = True,
@@ -1398,7 +1395,7 @@ class ControlledPlot(Plot):
         self._controller = MidiController(device)
 
         self._controller_timer = None
-        self._controller_parameters: tuple[int, ...] = ()
+        self._controller_parameters: list[int] = []
 
 
     def _get_chart_title(self, checksum_str: str, beats_per_measure: Fraction) -> str:
@@ -1413,21 +1410,21 @@ class ControlledPlot(Plot):
     def transform(
         self,
         clip: 'oc.Clip',
-        parameters: tuple[int, int, int, int, int, int, int, int]
+        parameters: list[int]
     ) -> 'oc.Clip':
         """Generate a transformed Clip from the original Clip and CC values."""
 
         if self.generator is None:
             return clip
 
-        return self.generator(clip, *parameters)
+        return self.generator(clip, parameters)
 
 
     def _update_controller_plot(self) -> bool:
         """Update the generated Clip when MIDI controller values change."""
 
         values = self._controller.values()
-        parameters = tuple(values.get(cc, 0) for cc in range(16, 24))
+        parameters = [values.get(cc, 0) for cc in range(16, 24)]
 
         if parameters == self._controller_parameters:
             return True
