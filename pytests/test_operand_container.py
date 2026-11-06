@@ -961,7 +961,7 @@ def test_position_shift():
     assert aggregated_chords % Length() == 5.0 * 4  # Beats
     assert aggregated_chords % Net(Duration()) == Steps(3) + Measures(4) + Measures(1)   # 5.1875
 
-test_position_shift()
+# test_position_shift()
 
 
 def test_clip_duration():
