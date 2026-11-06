@@ -1402,7 +1402,10 @@ class ControlledPlot(Plot):
         """Build the chart title for the current composition."""
 
         chart_title = super()._get_chart_title(checksum_str, beats_per_measure)
-        chart_title += f" - {list(self._controller_parameters)}"
+        if self._iteration_index == 0:
+            chart_title += f" - {["-"] * 8}"
+        else:
+            chart_title += f" - {self._controller_parameters}"
 
         return chart_title
 
