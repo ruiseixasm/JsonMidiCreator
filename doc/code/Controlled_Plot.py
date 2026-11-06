@@ -9,6 +9,6 @@ def generator(clip: 'Clip', controller_values: list[int]) -> 'Clip':
         clip * 4
     return clip
 
-Clip() >> ControlledPlot(generator, "MPK")
+Clip([Note(1/1)]) >> ControlledPlot(generator, "MPK")
 
 

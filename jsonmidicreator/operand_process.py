@@ -1462,161 +1462,16 @@ class ControlledPlot(Plot):
         self._controller.close()
 
 
-    def plot_composition(self, composition: 'oc.Composition') -> Self:
-        """
-        Plot a Clip and continuously update its generated version from MIDI CC values.
+    def plot_composition(self, composition: 'oc.Composition'):
+        """Plot the original composition and start continuous MIDI controller reading."""
 
-        The original Clip is stored at index 0 and the generated Clip at index 1.
-        Whenever a CC value changes, the generator receives a copy of the original
-        Clip and the current values of CC 16–23.
+        result = super().plot_composition(composition)
 
-        Args
-        ----
-        composition (Composition): The original Clip to be transformed and plotted.
-
-        Returns
-        -------
-        Self
-            The ControlledPlot instance.
-        """
-
-        if not isinstance(composition, oc.Clip):
-            raise TypeError("ControlledPlot requires a Clip.")
-
-        # Read the initial controller values.
-        values = self._controller.values()
-        self._controller_parameters = tuple(
-            values.get(cc, 0) for cc in range(16, 24)
-        )
-
-        # Keep exactly two compositions:
-        # index 0 = original Clip
-        # index 1 = generated Clip
-        original: oc.Clip = composition
-        generated: oc.Clip = self.transform(
-            original.copy(),
-            self._controller_parameters
-        )
-
-        if not isinstance(generated, oc.Clip):
-            raise TypeError("The generator must return a Clip.")
-
-        self._compositions = [original, generated]
-        self._plot_lists = [
-            original.getPlotlist(),
-            generated.getPlotlist()
-        ]
-        self._plot_checksums = [
-            o.checksum_to_string(original.checksum()),
-            o.checksum_to_string(generated.checksum())
-        ]
-
-        self._iteration_index = 1
-
-        if not isinstance(self.title, str):
-            self.title = original._name
-
-        # Enable interactive mode.
-        plt.ion()
-
-        self._fig, self._ax = plt.subplots(
-            num=self.title,
-            figsize=(12, 6)
-        )
-
-        # Replace the default key and mouse handlers.
-        try:
-            current_keymap: list = plt.rcParams['keymap.all_axes']
-            current_keymap.remove('p')
-            current_keymap.remove('s')
-            plt.rcParams['keymap.all_axes'] = current_keymap
-        except Exception:
-            pass
-
-        self._fig.canvas.mpl_connect(
-            'key_press_event',
-            lambda event: self._on_key(event)
-        )
-        self._fig.canvas.mpl_connect(
-            'button_press_event',
-            lambda event: self._onclick(event)
-        )
-        self._fig.canvas.mpl_connect(
-            'close_event',
-            self._close_controller
-        )
-
-        # Plot the initial generated Clip.
-        self._plot_elements()
-
-        # Layout.
-        plt.tight_layout()
-        plt.subplots_adjust(right=0.975)
-        plt.rcParams['hatch.linewidth'] = 3.00
-
-        # Play button.
-        y_position: float = 0.888
-        ax_button = plt.axes([0.979, y_position, 0.015, 0.05])
-        self._play_button = Button(
-            ax_button, 'p', color='white', hovercolor='grey'
-        )
-        self._play_button.on_clicked(self._run_play)
-
-        # Record button.
-        y_position -= 0.060
-        ax_button = plt.axes([0.979, y_position, 0.015, 0.05])
-        self._rec_button = Button(
-            ax_button, 'r', color='white', hovercolor='grey'
-        )
-        self._rec_button.on_clicked(self._run_rec)
-
-        # Composition button.
-        y_position -= 0.060
-        ax_button = plt.axes([0.979, y_position, 0.015, 0.05])
-        self._composition_button = Button(
-            ax_button, 'c', color='white', hovercolor='grey'
-        )
-        self._composition_button.on_clicked(self._run_composition)
-
-        if not isinstance(self.composition, oc.Composition):
-            self._disable_button(self._composition_button)
-
-        # Save button.
-        y_position -= 0.060 * 3
-        ax_button = plt.axes([0.979, y_position, 0.015, 0.05])
-        self._save_button = Button(
-            ax_button, 'S', color='white', hovercolor='grey'
-        )
-        self._save_button.on_clicked(self._run_save)
-
-        # Export button.
-        y_position -= 0.060
-        ax_button = plt.axes([0.979, y_position, 0.015, 0.05])
-        self._export_button = Button(
-            ax_button, 'E', color='white', hovercolor='grey'
-        )
-        self._export_button.on_clicked(self._run_export)
-
-        # Render button.
-        y_position -= 0.060
-        ax_button = plt.axes([0.979, y_position, 0.015, 0.05])
-        self._render_button = Button(
-            ax_button, 'R', color='white', hovercolor='grey'
-        )
-        self._render_button.on_clicked(self._run_render)
-
-        # Poll the MIDI controller on the Matplotlib GUI event loop.
-        self._controller_timer = self._fig.canvas.new_timer(
-            interval=50
-        )
-        self._controller_timer.add_callback(
-            self._update_controller_plot
-        )
+        self._controller_timer = self._fig.canvas.new_timer(interval=50)
+        self._controller_timer.add_callback(self._update_controller_plot)
         self._controller_timer.start()
 
-        plt.show(block=self.block)
-
-        return self
+        return result
 
 
 
