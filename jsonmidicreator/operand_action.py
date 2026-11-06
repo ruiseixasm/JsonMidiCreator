@@ -180,6 +180,15 @@ class Split(Action):
         return self
 
 
+    def __imul__(self, value: Any) -> Self:
+        match value:
+            case int():
+                self._binary.__imul__(value)
+            case _:
+                super().__imul__(value)
+        return self
+
+
 
 class Resize(Action):
     """`Action -> Resize`
