@@ -1057,6 +1057,15 @@ class Chance(ClipFilter):
         return super()._update_filtered_elements(kept_elements)
 
 
+    def __imul__(self, value: Any) -> Self:
+        match value:
+            case int():
+                self._named_parameters['binary'].__imul__(value)
+            case _:
+                super().__imul__(value)
+        return self
+
+
 
 class Selecting(ClipFilter):
     """`Frame -> LeftToRight -> ClipFilter -> Selecting`
@@ -1092,6 +1101,15 @@ class Selecting(ClipFilter):
             else:
                 break
         return super()._update_filtered_elements(selected_elements)
+
+
+    def __imul__(self, value: Any) -> Self:
+        match value:
+            case int():
+                self._named_parameters['tamer'].__imul__(value)
+            case _:
+                super().__imul__(value)
+        return self
 
 
 
