@@ -1222,8 +1222,8 @@ class Plot(Process):
         except Exception as e:
             pass    # No need to print anything
             # print(f"Unable to disable default keys!")
-        self._fig.canvas.mpl_connect('key_press_event', lambda event: self._on_key(event))
-        self._fig.canvas.mpl_connect('button_press_event', lambda event: self._onclick(event))
+
+        self._add_events()
 
         # Plot the Composition
         self._plot_elements()
@@ -1235,6 +1235,19 @@ class Plot(Process):
         # Avoids too thick hatch lines
         plt.rcParams['hatch.linewidth'] = 3.00  # Where the HATCH thickness is set
 
+        self._add_buttons()
+
+        plt.show(block=self.block)
+
+        return composition
+
+
+    def _add_events(self):
+        self._fig.canvas.mpl_connect('key_press_event', lambda event: self._on_key(event))
+        self._fig.canvas.mpl_connect('button_press_event', lambda event: self._onclick(event))
+
+
+    def _add_buttons(self):
         # Buttons are vertically spaced by 0.060
 
         # Play Button Widget
@@ -1303,10 +1316,6 @@ class Plot(Process):
 
         if not isinstance(self.transformation, tr.Transformation):
             self._disable_button(new_button)
-
-        plt.show(block=self.block)
-
-        return composition
     
 
     def _run_first(self, even = None) -> Self:
@@ -1318,6 +1327,7 @@ class Plot(Process):
                 self._disable_button(self._previous_button)
         return self
 
+
     def _run_previous(self, even = None) -> Self:
         if self._iteration_index > 0:
             self._iteration_index -= 1
@@ -1327,6 +1337,7 @@ class Plot(Process):
                 self._disable_button(self._previous_button)
         return self
 
+
     def _run_next(self, even = None) -> Self:
         if self._iteration_index < len(self._plot_lists) - 1:
             self._iteration_index += 1
@@ -1335,6 +1346,7 @@ class Plot(Process):
             if self._iteration_index == len(self._plot_lists) - 1:
                 self._disable_button(self._next_button)
         return self
+
 
     def _run_last(self, even = None) -> Self:
         if self._iteration_index < len(self._plot_lists) - 1:
@@ -1410,6 +1422,13 @@ class ControlledPlot(Plot):
         return chart_title
 
 
+    def _add_events(self):
+        super()._add_events()
+        self._controller_timer = self._fig.canvas.new_timer(interval=50)
+        self._controller_timer.add_callback(self._update_controller_plot)
+        self._controller_timer.start()
+
+
     def transform(
         self,
         clip: 'oc.Clip',
@@ -1460,18 +1479,6 @@ class ControlledPlot(Plot):
             self._controller_timer = None
 
         self._controller.close()
-
-
-    def plot_composition(self, composition: 'oc.Composition'):
-        """Plot the original composition and start continuous MIDI controller reading."""
-
-        result = super().plot_composition(composition)
-
-        self._controller_timer = self._fig.canvas.new_timer(interval=50)
-        self._controller_timer.add_callback(self._update_controller_plot)
-        self._controller_timer.start()
-
-        return result
 
 
 
