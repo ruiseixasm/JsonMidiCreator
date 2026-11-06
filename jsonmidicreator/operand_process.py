@@ -1459,13 +1459,22 @@ class ControlledPlot(Plot):
 
         if not isinstance(generated, oc.Clip):
             raise TypeError("The generator must return a Clip.")
-
+        
         # The generated Clip always occupies index 1.
-        self._compositions[1] = generated
-        self._plot_lists[1] = generated.getPlotlist()
-        self._plot_checksums[1] = o.checksum_to_string(generated.checksum())
+        plotlist = generated.getPlotlist()
+        checksum = o.checksum_to_string(generated.checksum())
+
+        if len(self._compositions) == 1:
+            self._compositions.append(generated)
+            self._plot_lists.append(plotlist)
+            self._plot_checksums.append(checksum)
+        else:
+            self._compositions[1] = generated
+            self._plot_lists[1] = plotlist
+            self._plot_checksums[1] = checksum
 
         self._iteration_index = 1
+        
         self._plot_elements()
 
         return True
