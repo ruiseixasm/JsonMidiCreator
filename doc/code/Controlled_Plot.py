@@ -19,7 +19,7 @@ def generator_2(clip: 'Clip', controller_values: list[int]) -> 'Clip':
     cv1 = controller_values[1]
     if cv1 > 0:
         degrees = [Degree()] * 10
-        untamed = Untamed() * (10 * cv1)
+        untamed = Modulo() * (10 * cv1)
         clip << untamed % degrees
     return clip
 
