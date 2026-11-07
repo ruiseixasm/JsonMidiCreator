@@ -1464,14 +1464,121 @@ class ArticulatedPlot(Plot):
         return self
 
 
+    def _increment_axis(self, axis: int) -> bool:
+        axis_value: int = self._axes[axis]
+        if axis_value < 127:
+            self._axes[axis] += 1
+            self._update_midi_controller_axes()
+            self._update_plot()
+            return True
+        return False
+
+
+    def _decrement_axis(self, axis: int) -> bool:
+        axis_value: int = self._axes[axis]
+        if axis_value > 0:
+            self._axes[axis] -= 1
+            self._update_midi_controller_axes()
+            self._update_plot()
+            return True
+        return False
+
+
+    def _increment_axis_10(self, axis: int) -> bool:
+        axis_value: int = self._axes[axis]
+        if axis_value + 10 < 128:
+            self._axes[axis] += 10
+            self._update_midi_controller_axes()
+            self._update_plot()
+            return True
+        return False
+
+
+    def _decrement_axis_10(self, axis: int) -> bool:
+        axis_value: int = self._axes[axis]
+        if axis_value - 10 >= 0:
+            self._axes[axis] -= 10
+            self._update_midi_controller_axes()
+            self._update_plot()
+            return True
+        return False
+
+
     def _on_key(self, event: MouseEvent) -> Self:
         match event.key:
+
             case '1':
-                self._axes[0] += 1
-                self._update_midi_controller_axes()
-            case 'ctrl+p' | 'ctrl+enter':
-                self._run_play(event, 4)
-                
+                self._increment_axis(0)
+            case 'ctrl+1':
+                self._increment_axis_10(0)
+            case 'q':
+                self._decrement_axis(0)
+            case 'ctrl+q':
+                self._decrement_axis_10(0)
+
+            case '2':
+                self._increment_axis(1)
+            case 'ctrl+2':
+                self._increment_axis_10(1)
+            case 'w':
+                self._decrement_axis(1)
+            case 'ctrl+w':
+                self._decrement_axis_10(1)
+            
+            case '3':
+                self._increment_axis(2)
+            case 'ctrl+3':
+                self._increment_axis_10(2)
+            case 'e':
+                self._decrement_axis(2)
+            case 'ctrl+e':
+                self._decrement_axis_10(2)
+            
+            case '4':
+                self._increment_axis(3)
+            case 'ctrl+4':
+                self._increment_axis_10(3)
+            case 'r':
+                self._decrement_axis(3)
+            case 'ctrl+r':
+                self._decrement_axis_10(3)
+            
+            case '5':
+                self._increment_axis(4)
+            case 'ctrl+5':
+                self._increment_axis_10(4)
+            case 't':
+                self._decrement_axis(4)
+            case 'ctrl+t':
+                self._decrement_axis_10(4)
+            
+            case '6':
+                self._increment_axis(5)
+            case 'ctrl+6':
+                self._increment_axis_10(5)
+            case 'y':
+                self._decrement_axis(5)
+            case 'ctrl+y':
+                self._decrement_axis_10(5)
+            
+            case '7':
+                self._increment_axis(6)
+            case 'ctrl+7':
+                self._increment_axis_10(6)
+            case 'u':
+                self._decrement_axis(6)
+            case 'ctrl+u':
+                self._decrement_axis_10(6)
+            
+            case '8':
+                self._increment_axis(7)
+            case 'ctrl+8':
+                self._increment_axis_10(7)
+            case 'i':
+                self._decrement_axis(7)
+            case 'ctrl+i':
+                self._decrement_axis_10(7)
+            
             case _:
                 super()._on_key(event)
         return self
@@ -1480,7 +1587,6 @@ class ArticulatedPlot(Plot):
     def _add_buttons(self):
         super()._add_buttons()
         self._enable_button(self._previous_button)
-
 
 
     def _start_plot(self, composition: 'oc.Composition') -> Self:
