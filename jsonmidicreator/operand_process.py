@@ -1681,7 +1681,7 @@ class MidiController:
     def __init__(self, device_name: str):
         self._midi_in = None
         self._lock = Lock()
-        self._values = {}
+        self._values = [0] * len(self.CONTROLLERS)
         self._error = None
         self._port_name = None
         self._key_pressed = Event()
@@ -1790,21 +1790,18 @@ class MidiController:
     def value(self, index: int) -> int:
         """Return the current value of a parameter."""
         with self._lock:
-            return self._values.get(index, 0)
+            return self._values[index]
 
 
     def values(self) -> list[int]:
-        """Return a copy of all configured parameter values."""
+        """Return a copy of the current parameter values."""
         with self._lock:
-            return [
-                self._values.get(index, 0)
-                for index in range(len(self.CONTROLLERS))
-            ]
+            return self._values.copy()
 
 
     def set_value(self, index: int, value: int) -> None:
-        """Set a parameter value, clamped to the MIDI range 0–127."""
-        if not 0 <= index < len(self.CONTROLLERS):
+        """Set a parameter value within the MIDI range 0–127."""
+        if not 0 <= index < len(self._values):
             raise IndexError(f"Invalid parameter index: {index}")
 
         if not 0 <= value <= 127:
@@ -1812,16 +1809,6 @@ class MidiController:
 
         with self._lock:
             self._values[index] = value
-
-        def close(self):
-            midi_in = self._midi_in
-            self._midi_in = None
-
-            if midi_in is not None:
-                try:
-                    midi_in.cancel_callback()
-                finally:
-                    midi_in.close_port()
 
 
     def key_pressed(self) -> bool:
@@ -1881,8 +1868,8 @@ class MidiController:
         if interval <= 0:
             raise ValueError("Interval must be greater than zero.")
 
-        controllers = self.CONTROLLERS
         previous = None
+        last_key = None
 
         print(f"Listening to: {self.port_name}")
         print("Move the MIDI knobs or press MIDI keys (Ctrl+C to stop).\n")
@@ -1890,12 +1877,21 @@ class MidiController:
         try:
             while self.available:
                 current = tuple(self.values())
+                key = self.read_key()
 
-                if current != previous:
+                if key is not None:
+                    last_key = key
+
+                if current != previous or key is not None:
                     display = " | ".join(
                         f"CC{cc}: {value:3d}"
-                        for cc, value in zip(controllers, current)
+                        for cc, value in zip(self.CONTROLLERS, current)
                     )
+
+                    if last_key is not None:
+                        display += f" | Note: {last_key}"
+                    else:
+                        display += " | Note: -"
 
                     print(f"\r{display}", end="", flush=True)
                     previous = current
