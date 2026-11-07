@@ -25,6 +25,6 @@ def generator_2(clip: 'Clip', controller_values: list[int]) -> 'Clip':
 
 
 
-Clip([Note(Measures(2))]) >> ControlledPlot(generator_2, "MPK")
+Clip([Note(Measures(2))]) >> ArticulatedPlot(generator_2, "MPK")
 
 

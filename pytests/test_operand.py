@@ -71,6 +71,8 @@ def test_floordiv_sequence():
 #     pytest -m "not heavy"
 # Execute only the heavy testing with:
 #     pytest -m heavy
+# Executing in Ubuntu OS
+#     python -m pytest -m "not heavy"
 
 
 @pytest.mark.heavy

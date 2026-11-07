@@ -1382,8 +1382,8 @@ class Plot(Process):
 
 
 
-class ControlledPlot(Plot):
-    """Process -> Plot -> ControlledPlot.
+class ArticulatedPlot(Plot):
+    """Process -> Plot -> ArticulatedPlot.
 
     The controller is a callable that receives a `Clip` and eight integer
     parameters, and returns the transformed `Clip`.
