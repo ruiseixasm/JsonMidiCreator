@@ -1214,23 +1214,6 @@ class Plot(Process):
 
         # Where the window title is set too
         self._fig, self._ax = plt.subplots(num=self.title, figsize=(12, 6))
-        # Replace handler
-        try:
-            # self._fig.canvas.mpl_disconnect(self._fig.canvas.manager.key_press_handler_id)
-            # mpl.rcParams['keymap.back'].remove('left')
-            # mpl.rcParams['keymap.forward'].remove('right')
-
-            # Get the current keymap
-            current_keymap: list = plt.rcParams['keymap.all_axes']
-            # Remove the 'p' key binding
-            current_keymap.remove('p')
-            current_keymap.remove('s')
-            # Update the rcParams
-            plt.rcParams['keymap.all_axes'] = current_keymap
-        except Exception as e:
-            pass    # No need to print anything
-            # print(f"Unable to disable default keys!")
-
         self._add_events()
 
         # Plot the Composition
@@ -1251,6 +1234,23 @@ class Plot(Process):
 
 
     def _add_events(self):
+        # Replace handler
+        try:
+            # self._fig.canvas.mpl_disconnect(self._fig.canvas.manager.key_press_handler_id)
+            # mpl.rcParams['keymap.back'].remove('left')
+            # mpl.rcParams['keymap.forward'].remove('right')
+
+            # Get the current keymap
+            current_keymap: list = plt.rcParams['keymap.all_axes']
+            # Remove the 'p' key binding
+            current_keymap.remove('p')
+            current_keymap.remove('s')
+            # Update the rcParams
+            plt.rcParams['keymap.all_axes'] = current_keymap
+        except Exception as e:
+            pass    # No need to print anything
+            # print(f"Unable to disable default keys!")
+
         self._fig.canvas.mpl_connect('key_press_event', lambda event: self._on_key(event))
         self._fig.canvas.mpl_connect('button_press_event', lambda event: self._onclick(event))
 
@@ -1439,6 +1439,16 @@ class ArticulatedPlot(Plot):
 
     def _add_events(self):
         super()._add_events()
+        # Replace handler
+        try:
+            # Disable Matplotlib's default quit shortcut
+            plt.rcParams['keymap.quit'] = [
+                key for key in plt.rcParams['keymap.quit']
+                if key != 'q'
+            ]
+        except Exception as e:
+            pass    # No need to print anything
+            # print(f"Unable to disable default keys!")
         if self._controller is not None:
             self._controller_timer = self._fig.canvas.new_timer(interval=50)
             self._controller_timer.add_callback(self._update_controller_plot)
