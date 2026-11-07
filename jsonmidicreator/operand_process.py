@@ -1421,9 +1421,9 @@ class ArticulatedPlot(Plot):
 
         chart_title = super()._get_chart_title(checksum_str, beats_per_measure)
         if self._iteration_index == 0:
-            chart_title += f" - Axes: [-, -, -, -, -, -, -, -]"
+            chart_title += f" - Articulator axes: [-, -, -, -, -, -, -, -]"
         else:
-            chart_title += f" - Axes: {self._axes}"
+            chart_title += f" - Articulator axes: {self._axes}"
 
         return chart_title
 
