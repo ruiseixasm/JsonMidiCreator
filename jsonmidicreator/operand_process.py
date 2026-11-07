@@ -1467,6 +1467,7 @@ class ControlledPlot(Plot):
             self._compositions.append(generated)
             self._plot_lists.append(plotlist)
             self._plot_checksums.append(checksum)
+            self._enable_button(self._previous_button)
         else:
             self._compositions[1] = generated
             self._plot_lists[1] = plotlist
