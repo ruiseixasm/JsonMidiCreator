@@ -1184,7 +1184,7 @@ class Plot(Process):
         return self
 
 
-    def _add_compositions(self, composition: 'oc.Composition') -> Self:
+    def _start_plot(self, composition: 'oc.Composition') -> Self:
         # First composition and its plotting (i = 0) it's always the self copy
         self._compositions      = [ composition ]
         self._plot_lists        = [ composition.getPlotlist() ]
@@ -1204,7 +1204,7 @@ class Plot(Process):
         Returns:
             Composition: Returns the presently plotted composition.
         """
-        self._add_compositions(composition)
+        self._start_plot(composition)
 
         if self.transformation is not None:
             self.transformation.reset() # No surprises
@@ -1458,14 +1458,34 @@ class ArticulatedPlot(Plot):
         return self.articulator(clip, parameters)
 
 
+    def _update_midi_controller_axes(self) -> Self:
+        if self._controller is not None:
+            self._controller.set_values(self._axes)
+        return self
+
+
+    def _on_key(self, event: MouseEvent) -> Self:
+        match event.key:
+            case '1':
+                self._axes[0] += 1
+                self._update_midi_controller_axes()
+            case 'ctrl+p' | 'ctrl+enter':
+                self._run_play(event, 4)
+                
+            case _:
+                super()._on_key(event)
+        return self
+
+
     def _add_buttons(self):
         super()._add_buttons()
         self._enable_button(self._previous_button)
 
 
-    def _add_compositions(self, composition: 'oc.Composition') -> Self:
 
-        super()._add_compositions(composition)
+    def _start_plot(self, composition: 'oc.Composition') -> Self:
+
+        super()._start_plot(composition)
         axes = self._controller.values()
         self._axes = axes
 
@@ -1489,19 +1509,10 @@ class ArticulatedPlot(Plot):
         return self
 
 
-    def _update_controller_plot(self) -> bool:
-        """Update the generated Clip when MIDI controller values change."""
-
-        parameters = self._controller.values()
-
-        if parameters == self._axes:
-            return True
-
-        self._axes = parameters
-
+    def _update_plot(self) -> Self:
         # Always generate from the original Clip, never from index 1.
         original: oc.Clip = self._compositions[0]
-        generated: oc.Clip = self.transform(original.copy(), parameters)
+        generated: oc.Clip = self.transform(original.copy(), self._axes)
 
         if not isinstance(generated, oc.Clip):
             raise TypeError("The generator must return a Clip.")
@@ -1515,6 +1526,17 @@ class ArticulatedPlot(Plot):
         self._plot_checksums[1] = checksum
 
         self._plot_elements()
+
+
+    def _update_controller_plot(self) -> bool:
+        """Update the generated Clip when MIDI controller values change."""
+
+        axes = self._controller.values()
+        if axes == self._axes:
+            return True
+
+        self._axes = axes
+        self._update_plot()
 
         return True
 
