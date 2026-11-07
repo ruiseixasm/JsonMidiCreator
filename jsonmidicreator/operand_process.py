@@ -1676,7 +1676,7 @@ except ImportError:
 
 class MidiController:
 
-    TEST_CONTROLLERS = range(16, 24)
+    CONTROLLERS = range(16, 24)
 
     def __init__(self, device_name: str):
         self._midi_in = None
@@ -1776,8 +1776,10 @@ class MidiController:
         message_type = status & 0xF0
 
         if message_type == 0xB0:  # Control Change
-            with self._lock:
-                self._values[number] = value
+            if number in self.CONTROLLERS:
+                index = number - self.CONTROLLERS.start
+                with self._lock:
+                    self._values[index] = value
 
         elif message_type == 0x90 and value > 0:  # Note On
             with self._lock:
@@ -1785,25 +1787,41 @@ class MidiController:
                 self._key_pressed.set()
 
 
-    def value(self, controller: int) -> int:
+    def value(self, index: int) -> int:
+        """Return the current value of a parameter."""
         with self._lock:
-            return self._values.get(controller, 0)
+            return self._values.get(index, 0)
 
 
-    def values(self) -> dict[int, int]:
+    def values(self) -> list[int]:
+        """Return a copy of all configured parameter values."""
         with self._lock:
-            return self._values.copy()
+            return [
+                self._values.get(index, 0)
+                for index in range(len(self.CONTROLLERS))
+            ]
 
 
-    def close(self):
-        midi_in = self._midi_in
-        self._midi_in = None
+    def set_value(self, index: int, value: int) -> None:
+        """Set a parameter value, clamped to the MIDI range 0–127."""
+        if not 0 <= index < len(self.CONTROLLERS):
+            raise IndexError(f"Invalid parameter index: {index}")
 
-        if midi_in is not None:
-            try:
-                midi_in.cancel_callback()
-            finally:
-                midi_in.close_port()
+        if not 0 <= value <= 127:
+            raise ValueError("Parameter value must be between 0 and 127.")
+
+        with self._lock:
+            self._values[index] = value
+
+        def close(self):
+            midi_in = self._midi_in
+            self._midi_in = None
+
+            if midi_in is not None:
+                try:
+                    midi_in.cancel_callback()
+                finally:
+                    midi_in.close_port()
 
 
     def key_pressed(self) -> bool:
@@ -1863,7 +1881,7 @@ class MidiController:
         if interval <= 0:
             raise ValueError("Interval must be greater than zero.")
 
-        controllers = self.TEST_CONTROLLERS
+        controllers = self.CONTROLLERS
         previous = None
 
         print(f"Listening to: {self.port_name}")
@@ -1871,11 +1889,7 @@ class MidiController:
 
         try:
             while self.available:
-                current = tuple(
-                    self.value(cc) for cc in controllers
-                )
-
-                key = self.read_key()
+                current = tuple(self.values())
 
                 if current != previous:
                     display = " | ".join(
@@ -1885,9 +1899,6 @@ class MidiController:
 
                     print(f"\r{display}", end="", flush=True)
                     previous = current
-
-                if key is not None:
-                    print(f"\nNote On: {key}")
 
                 sleep(interval)
 
