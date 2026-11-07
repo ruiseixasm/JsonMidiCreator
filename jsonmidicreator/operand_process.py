@@ -1093,7 +1093,7 @@ class Plot(Process):
                 self._run_play(event, 4)
             case 'p' | 'enter':
                 self._run_play(event)
-            case 'r':
+            case 'o':
                 self._run_rec(event)
             case 'ctrl+c' | 'ctrl+space' | 'ctrl+ ':
                 self._run_composition(event, 4)
@@ -1267,8 +1267,8 @@ class Plot(Process):
         # Rec Button Widget
         y_position -= 0.060
         ax_button = plt.axes([0.979, y_position, 0.015, 0.05])
-        rec_button = Button(ax_button, 'r', color='white', hovercolor='grey')
-        rec_button.on_clicked(self._run_play)
+        rec_button = Button(ax_button, 'o', color='white', hovercolor='grey')
+        rec_button.on_clicked(self._run_rec)
 
         # Composition Button Widget
         y_position -= 0.060
