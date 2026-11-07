@@ -1445,8 +1445,7 @@ class ControlledPlot(Plot):
     def _update_controller_plot(self) -> bool:
         """Update the generated Clip when MIDI controller values change."""
 
-        values = self._controller.values()
-        parameters = [values.get(cc, 0) for cc in range(16, 24)]
+        parameters = self._controller.values()
 
         if parameters == self._controller_parameters:
             return True
