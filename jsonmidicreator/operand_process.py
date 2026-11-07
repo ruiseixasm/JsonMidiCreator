@@ -1817,27 +1817,33 @@ class MidiController:
 
 
     def value(self, index: int) -> int:
-        """Return the current value of a parameter."""
+        """Return the current value of a axis."""
         with self._lock:
             return self._values[index]
 
 
     def values(self) -> list[int]:
-        """Return a copy of the current parameter values."""
+        """Return a copy of the current axes values."""
         with self._lock:
             return self._values.copy()
 
 
     def set_value(self, index: int, value: int) -> None:
-        """Set a parameter value within the MIDI range 0–127."""
+        """Set a axis value within the MIDI range 0–127."""
         if not 0 <= index < len(self._values):
-            raise IndexError(f"Invalid parameter index: {index}")
+            raise IndexError(f"Invalid axis index: {index}")
 
         if not 0 <= value <= 127:
-            raise ValueError("Parameter value must be between 0 and 127.")
+            raise ValueError("axis value must be between 0 and 127.")
 
         with self._lock:
             self._values[index] = value
+
+
+    def set_values(self, values: list[int]) -> None:
+        """Sets the current axes values."""
+        with self._lock:
+            self._values = values.copy()
 
 
     def key_pressed(self) -> bool:
