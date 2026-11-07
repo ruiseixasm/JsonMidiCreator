@@ -1931,7 +1931,7 @@ class Trigger(ChannelElement):
     def checksum(self) -> int:
         """16-bit checksum for a `Note`."""
         master: int = super().checksum()
-        master ^= self._velocity << 7 + 4 | self.get_absolute_pitch() << 4 | self._channel_0
+        master ^= self._velocity << 7 + 4 | self.get_absolute_pitch() << 4
         return master & 0xFFFF  # 16-bit
 
 
@@ -2316,7 +2316,7 @@ class Note(ChannelElement):
     def checksum(self) -> int:
         """16-bit checksum for a `Note`."""
         master: int = super().checksum()
-        master ^= self._velocity << 7 + 4 | self.get_absolute_pitch() << 4 | self._channel_0
+        master ^= self._velocity << 7 + 4 | self.get_absolute_pitch() << 4
         return master & 0xFFFF  # 16-bit
 
 
