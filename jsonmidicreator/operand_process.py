@@ -1115,6 +1115,8 @@ class Plot(Process):
                 self._run_first(event)
             case '/' | "-" | ";":
                 self._run_last(event)
+            case 'escape':
+                self._run_close(event)
         return self
 
 
@@ -1322,7 +1324,12 @@ class Plot(Process):
 
         if not isinstance(self.transformation, tr.Transformation):
             self._disable_button(new_button)
-    
+
+
+    def _run_close(self, event=None) -> Self:
+        plt.close(self._fig)
+        return self
+
 
     def _run_first(self, even = None) -> Self:
         if self._iteration_index > 0:
