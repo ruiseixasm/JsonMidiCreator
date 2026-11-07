@@ -1413,7 +1413,7 @@ class ArticulatedPlot(Plot):
         self._controller = MidiController(device)
 
         self._controller_timer = None
-        self._controller_parameters: list[int] = []
+        self._axes: list[int] = []
 
 
     def _get_chart_title(self, checksum_str: str, beats_per_measure: Fraction) -> str:
@@ -1421,9 +1421,9 @@ class ArticulatedPlot(Plot):
 
         chart_title = super()._get_chart_title(checksum_str, beats_per_measure)
         if self._iteration_index == 0:
-            chart_title += f" - [-, -, -, -, -, -, -, -]"
+            chart_title += f" - Axes: [-, -, -, -, -, -, -, -]"
         else:
-            chart_title += f" - {self._controller_parameters}"
+            chart_title += f" - Axes: {self._axes}"
 
         return chart_title
 
@@ -1456,12 +1456,12 @@ class ArticulatedPlot(Plot):
     def _add_compositions(self, composition: 'oc.Composition') -> Self:
 
         super()._add_compositions(composition)
-        parameters = self._controller.values()
-        self._controller_parameters = parameters
+        axes = self._controller.values()
+        self._axes = axes
 
         # Always generate from the original Clip, never from index 1.
         original: oc.Clip = self._compositions[0]
-        generated: oc.Clip = self.transform(original.copy(), parameters)
+        generated: oc.Clip = self.transform(original.copy(), axes)
 
         if not isinstance(generated, oc.Clip):
             raise TypeError("The generator must return a Clip.")
@@ -1484,10 +1484,10 @@ class ArticulatedPlot(Plot):
 
         parameters = self._controller.values()
 
-        if parameters == self._controller_parameters:
+        if parameters == self._axes:
             return True
 
-        self._controller_parameters = parameters
+        self._axes = parameters
 
         # Always generate from the original Clip, never from index 1.
         original: oc.Clip = self._compositions[0]
