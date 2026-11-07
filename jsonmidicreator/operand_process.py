@@ -1182,6 +1182,16 @@ class Plot(Process):
         return self
 
 
+    def _add_compositions(self, composition: 'oc.Composition') -> Self:
+        # First composition and its plotting (i = 0) it's always the self copy
+        self._compositions      = [ composition ]
+        self._plot_lists        = [ composition.getPlotlist() ]
+        self._plot_checksums    = [ o.checksum_to_string(composition.checksum()) ]
+        if not isinstance(self.title, str):
+            self.title = composition._name
+        return self
+
+
     def plot_composition(self, composition: 'oc.Composition') -> Self:
         """
         Plots the `Note`s in a `Composition`, if it has no Notes it plots the existing `Automation` instead.
@@ -1192,12 +1202,8 @@ class Plot(Process):
         Returns:
             Composition: Returns the presently plotted composition.
         """
-        # First composition and its plotting (i = 0) it's always the self copy
-        self._compositions      = [ composition ]
-        self._plot_lists        = [ composition.getPlotlist() ]
-        self._plot_checksums    = [ o.checksum_to_string(composition.checksum()) ]
-        if not isinstance(self.title, str):
-            self.title = composition._name
+        self._add_compositions(composition)
+
         if self.transformation is not None:
             self.transformation.reset() # No surprises
 
@@ -1442,6 +1448,37 @@ class ControlledPlot(Plot):
         return self.generator(clip, parameters)
 
 
+    def _add_buttons(self):
+        super()._add_buttons()
+        self._enable_button(self._previous_button)
+
+
+    def _add_compositions(self, composition: 'oc.Composition') -> Self:
+
+        super()._add_compositions(composition)
+        parameters = self._controller.values()
+        self._controller_parameters = parameters
+
+        # Always generate from the original Clip, never from index 1.
+        original: oc.Clip = self._compositions[0]
+        generated: oc.Clip = self.transform(original.copy(), parameters)
+
+        if not isinstance(generated, oc.Clip):
+            raise TypeError("The generator must return a Clip.")
+        
+        # The generated Clip always occupies index 1.
+        plotlist = generated.getPlotlist()
+        checksum = o.checksum_to_string(generated.checksum())
+
+        self._compositions.append(generated)
+        self._plot_lists.append(plotlist)
+        self._plot_checksums.append(checksum)
+        
+        self._iteration_index = 1
+        
+        return self
+
+
     def _update_controller_plot(self) -> bool:
         """Update the generated Clip when MIDI controller values change."""
 
@@ -1462,19 +1499,11 @@ class ControlledPlot(Plot):
         # The generated Clip always occupies index 1.
         plotlist = generated.getPlotlist()
         checksum = o.checksum_to_string(generated.checksum())
-
-        if len(self._compositions) == 1:
-            self._compositions.append(generated)
-            self._plot_lists.append(plotlist)
-            self._plot_checksums.append(checksum)
-            self._enable_button(self._previous_button)
-        else:
-            self._compositions[1] = generated
-            self._plot_lists[1] = plotlist
-            self._plot_checksums[1] = checksum
-
-        self._iteration_index = 1
         
+        self._compositions[1] = generated
+        self._plot_lists[1] = plotlist
+        self._plot_checksums[1] = checksum
+
         self._plot_elements()
 
         return True
