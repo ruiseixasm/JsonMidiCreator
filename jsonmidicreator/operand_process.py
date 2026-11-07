@@ -1409,8 +1409,10 @@ class ArticulatedPlot(Plot):
     ):
         super().__init__(None, title, block, composition, by_channel)
         self.articulator = articulator
-        self.device = device
-        self._controller = MidiController(device)
+
+        self._controller = None
+        if device is not None:
+            self._controller = MidiController(device)
 
         self._controller_timer = None
         self._axes: list[int] = []
@@ -1430,9 +1432,10 @@ class ArticulatedPlot(Plot):
 
     def _add_events(self):
         super()._add_events()
-        self._controller_timer = self._fig.canvas.new_timer(interval=50)
-        self._controller_timer.add_callback(self._update_controller_plot)
-        self._controller_timer.start()
+        if self._controller is not None:
+            self._controller_timer = self._fig.canvas.new_timer(interval=50)
+            self._controller_timer.add_callback(self._update_controller_plot)
+            self._controller_timer.start()
 
 
     def transform(
