@@ -1249,6 +1249,15 @@ class ITame(IteratedTransformation):
     def reset(self, *parameters) -> Self:
         self.tamer.reset(*parameters)
         return super().reset(*parameters)
+    
+
+    def __imul__(self, value: Any) -> Self:
+        match value:
+            case int():
+                self.tamer.__imul__(value)
+            case _:
+                super().__imul__(value)
+        return self
 
 
 

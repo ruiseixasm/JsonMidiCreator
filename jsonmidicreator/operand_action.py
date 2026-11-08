@@ -1038,6 +1038,15 @@ class Arpeggiate(Aggregated):
         return self
 
 
+    def __imul__(self, value: Any) -> Self:
+        match value:
+            case int():
+                self._tamer.__imul__(value)
+            case _:
+                super().__imul__(value)
+        return self
+
+
 
 class Retrigger(Aggregated):
     """`Action -> Aggregated -> Retrigger`
