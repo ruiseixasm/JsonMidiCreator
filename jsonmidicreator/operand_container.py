@@ -282,10 +282,15 @@ class Container(o.Operand):
             return self._items[-1]
         return None
 
+
     def __eq__(self, other: any) -> bool:
         match other:
             case Container():
-                return self._items == other._items
+                self_len: int = len(self._items)
+                other_len: int = len(other._items)
+                if self_len == other_len:
+                    return self._items == other._items
+                return False
             case list():
                 return self._items == other
             case od.Conditional():
@@ -299,6 +304,7 @@ class Container(o.Operand):
             case _:
                 return super().__eq__(other)
 
+
     def __lt__(self, other: any) -> bool:
         match other:
             case ot.Tamer():
@@ -310,6 +316,7 @@ class Container(o.Operand):
             case _:
                 return super().__lt__(other)
 
+
     def __gt__(self, other: any) -> bool:
         match other:
             case ot.Tamer():
@@ -320,6 +327,7 @@ class Container(o.Operand):
                 return True
             case _:
                 return super().__gt__(other)
+
 
     def __mod__(self, operand: o.T) -> o.T:
         """
@@ -2809,13 +2817,15 @@ class Section(Composition):
             case _:
                 return super().__eq__(other)
 
+
     def __lt__(self, other: 'o.Operand') -> bool:
         match other:
             case Section():
                 return self._position_beats < other._position_beats
             case _:
                 return self % other < other
-    
+
+
     def __gt__(self, other: 'o.Operand') -> bool:
         match other:
             case Section():
