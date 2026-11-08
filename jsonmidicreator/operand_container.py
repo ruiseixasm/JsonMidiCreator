@@ -286,11 +286,7 @@ class Container(o.Operand):
     def __eq__(self, other: any) -> bool:
         match other:
             case Container():
-                self_len: int = len(self._items)
-                other_len: int = len(other._items)
-                if self_len == other_len:
-                    return self._items == other._items
-                return False
+                return self._items == other._items  # Already optimized
             case list():
                 return self._items == other
             case od.Conditional():
