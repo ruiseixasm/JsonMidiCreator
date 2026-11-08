@@ -37,7 +37,7 @@ def test_split_duration():
     original_elements_duration = many_pitch.all_elements_duration()
     
     split_duration = ISplitDuration(no_repeats=True)
-    # many_pitch >> Plot(transform=split_duration)
+    # many_pitch >> Plot(transformation=split_duration)
 
     many_pitch << split_duration
     # many_pitch >> Plot()
@@ -53,7 +53,7 @@ def test_shuffle_locus():
     original_elements_duration = many_pitch.all_elements_duration()
     
     shuffle_locus = IShuffleLocus(no_repeats=True)
-    # many_pitch >> Plot(transform=shuffle_locus)
+    # many_pitch >> Plot(transformation=shuffle_locus)
 
     many_pitch << shuffle_locus << shuffle_locus << shuffle_locus
     # many_pitch >> Plot()
@@ -70,7 +70,7 @@ def test_shuffle_durations():
     original_elements_duration = many_durations.all_elements_duration()
     
     shuffle_durations = IShuffleDuration(no_repeats=True)
-    # many_durations >> Plot(transform=shuffle_durations)
+    # many_durations >> Plot(transformation=shuffle_durations)
 
     many_durations << shuffle_durations << shuffle_durations << shuffle_durations
     # many_durations >> Plot()
@@ -87,7 +87,7 @@ def test_choose_durations():
     original_elements_duration = many_durations.all_elements_duration()
     
     choose_durations = IChooseDuration(no_repeats=True)
-    # many_durations >> Plot(transform=choose_durations)
+    # many_durations >> Plot(transformation=choose_durations)
 
     many_durations << choose_durations << choose_durations << choose_durations
     # many_durations >> Plot()
@@ -104,7 +104,7 @@ def test_swap_durations():
     original_elements_duration = many_durations.all_elements_duration()
     
     swap_durations = ISwapDuration(no_repeats=True)
-    # many_durations >> Plot(transform=swap_durations)
+    # many_durations >> Plot(transformation=swap_durations)
 
     many_durations << swap_durations << swap_durations << swap_durations
     # many_durations >> Plot()
@@ -121,7 +121,7 @@ def test_shuffle_parameter():
     original_elements_duration = many_degrees.all_elements_duration()
     
     shuffle_parameter = IShuffleParameter(no_repeats=True)
-    # many_degrees >> Plot(transform=shuffle_parameter)
+    # many_degrees >> Plot(transformation=shuffle_parameter)
 
     many_degrees << shuffle_parameter << shuffle_parameter << shuffle_parameter
     # many_degrees >> Plot()
@@ -138,7 +138,7 @@ def test_set_parameter():
     original_elements_duration = many_degrees.all_elements_duration()
     
     set_parameter = ISetParameter(no_repeats=True)
-    # many_degrees >> Plot(transform=set_parameter)
+    # many_degrees >> Plot(transformation=set_parameter)
 
     many_degrees << set_parameter << set_parameter << set_parameter
     # many_degrees >> Plot()
@@ -155,7 +155,7 @@ def test_choose_parameter():
     original_elements_duration = many_degrees.all_elements_duration()
     
     choose_parameter = IChooseParameter(no_repeats=True)
-    # many_degrees >> Plot(transform=choose_parameter)
+    # many_degrees >> Plot(transformation=choose_parameter)
 
     many_degrees << choose_parameter << choose_parameter << choose_parameter
     # many_degrees >> Plot()

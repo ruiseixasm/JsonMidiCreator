@@ -1053,7 +1053,7 @@ class IteratedTransformation(Transformation):
                             continue
                         self._iterations.append(candidate)
                         return clip << candidate
-        self._index -= 1    # Reverses increment
+        self._iterations.append(clip.empty_copy())  # Adds empty Clip
         return ol.Null()
 
 
