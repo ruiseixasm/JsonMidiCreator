@@ -1261,20 +1261,20 @@ class Plot(Process):
         # Play Button Widget
         y_position: float = 0.888
         ax_button = plt.axes([0.979, y_position, 0.015, 0.05])
-        play_button = Button(ax_button, 'p', color='white', hovercolor='grey')
-        play_button.on_clicked(self._run_play)
+        self._play_button = Button(ax_button, 'p', color='white', hovercolor='grey')
+        self._play_button.on_clicked(self._run_play)
 
         # Rec Button Widget
         y_position -= 0.060
         ax_button = plt.axes([0.979, y_position, 0.015, 0.05])
-        rec_button = Button(ax_button, 'o', color='white', hovercolor='grey')
-        rec_button.on_clicked(self._run_rec)
+        self._rec_button = Button(ax_button, 'o', color='white', hovercolor='grey')
+        self._rec_button.on_clicked(self._run_rec)
 
         # Composition Button Widget
         y_position -= 0.060
         ax_button = plt.axes([0.979, y_position, 0.015, 0.05])
-        composition_button = Button(ax_button, 'c', color='white', hovercolor='grey')
-        composition_button.on_clicked(self._run_composition)
+        self._composition_button = Button(ax_button, 'c', color='white', hovercolor='grey')
+        self._composition_button.on_clicked(self._run_composition)
 
         # Previous Button Widget
         y_position -= 0.060
@@ -1291,30 +1291,30 @@ class Plot(Process):
         # New Button Widget
         y_position -= 0.060
         ax_button = plt.axes([0.979, y_position, 0.015, 0.05])
-        new_button = Button(ax_button, 'n', color='white', hovercolor='grey')
-        new_button.on_clicked(self._run_new)
+        self._new_button = Button(ax_button, 'n', color='white', hovercolor='grey')
+        self._new_button.on_clicked(self._run_new)
 
         # Save Button Widget
         y_position -= 0.060 * 3
         ax_button = plt.axes([0.979, y_position, 0.015, 0.05])
-        save_button = Button(ax_button, 'S', color='white', hovercolor='grey')
-        save_button.on_clicked(self._run_save)
+        self._save_button = Button(ax_button, 'S', color='white', hovercolor='grey')
+        self._save_button.on_clicked(self._run_save)
 
         # Execution Button Widget
         y_position -= 0.060
         ax_button = plt.axes([0.979, y_position, 0.015, 0.05])
-        export_button = Button(ax_button, 'E', color='white', hovercolor='grey')
-        export_button.on_clicked(self._run_export)
+        self._export_button = Button(ax_button, 'E', color='white', hovercolor='grey')
+        self._export_button.on_clicked(self._run_export)
 
         # Render Button Widget
         y_position -= 0.060
         ax_button = plt.axes([0.979, y_position, 0.015, 0.05])
-        render_button = Button(ax_button, 'R', color='white', hovercolor='grey')
-        render_button.on_clicked(self._run_render)
+        self._render_button = Button(ax_button, 'R', color='white', hovercolor='grey')
+        self._render_button.on_clicked(self._run_render)
 
         if not isinstance(self.composition, oc.Composition):
             # Composition Button Widget
-            self._disable_button(composition_button)
+            self._disable_button(self._composition_button)
 
         # Previous Button Widget
         if self._iteration_index == 0:
@@ -1323,7 +1323,7 @@ class Plot(Process):
         self._disable_button(self._next_button)
 
         if not isinstance(self.transformation, tr.Transformation):
-            self._disable_button(new_button)
+            self._disable_button(self._new_button)
 
 
     def _run_close(self, event=None) -> Self:
