@@ -391,8 +391,9 @@ class Container(o.Operand):
     def __lshift__(self, operand: any) -> Self:
         match operand:
             case Container():
-                super().__lshift__(operand)
-                self._items = o.deep_copy(operand._items)
+                if operand is not self: # Optimization
+                    super().__lshift__(operand)
+                    self._items = o.deep_copy(operand._items)
 
             case od.Pipe():
                 match operand._data:
@@ -1982,11 +1983,12 @@ class Clip(Composition):  # Just a container of Elements
         from . import operand_transformation as tr
         match operand:
             case Clip():
-                super().__lshift__(operand)
-                self._time_signature << operand._time_signature
-                self._track_number  = operand._track_number
-                self._drum_kit      = o.deep_copy(operand._drum_kit)
-                self._set_owner_clip()
+                if operand is not self: # Optimization
+                    super().__lshift__(operand)
+                    self._time_signature << operand._time_signature
+                    self._track_number  = operand._track_number
+                    self._drum_kit      = o.deep_copy(operand._drum_kit)
+                    self._set_owner_clip()
 
             case od.Pipe():
                 match operand._data:
