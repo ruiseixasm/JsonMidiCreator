@@ -42,21 +42,21 @@ def articulator_3(clip: 'Clip', axes: list[int]) -> 'Clip':
 # Note() * 4 >> ArticulatedPlot(articulator_3)
 
 
-first_stage_clip = Clip()
+root_clip = Clip()
 previous_axis = 0
 
 def optimized_articulator_3(clip: 'Clip', axes: list[int]) -> 'Clip':
-    global first_stage_clip, previous_axis
-    
+    global root_clip, previous_axis
+
     axis_0 = axes[0]
     if all(axis == 0 for axis in axes) or axis_0 != previous_axis:
         setting_durations = IChooseDuration(no_repeats=True)
         for _ in range(axis_0):
             clip << setting_durations
-        first_stage_clip = clip.copy()
+        root_clip = clip.copy()
         previous_axis = axis_0
     else:
-        clip << first_stage_clip
+        clip << root_clip
     return clip
 
 
