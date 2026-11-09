@@ -25,6 +25,11 @@ def articulator_2(clip: 'Clip', axes: list[int]) -> 'Clip':
 
 
 
+# Clip([Note(Measures(2))]) >> ArticulatedPlot(articulator_2, "MPK")
+
+
+
+
 def articulator_3(clip: 'Clip', axes: list[int]) -> 'Clip':
     cv0 = axes[0]
     setting_durations = IChooseDuration()
@@ -34,6 +39,6 @@ def articulator_3(clip: 'Clip', axes: list[int]) -> 'Clip':
 
 
 
-Clip([Note(Measures(2))]) >> ArticulatedPlot(articulator_3, "MPK")
+Note() * 4 >> ArticulatedPlot(articulator_3, "MPK")
 
 

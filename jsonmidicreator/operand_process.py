@@ -1253,6 +1253,7 @@ class Plot(Process):
 
         self._fig.canvas.mpl_connect('key_press_event', lambda event: self._on_key(event))
         self._fig.canvas.mpl_connect('button_press_event', lambda event: self._onclick(event))
+        self._fig.canvas.mpl_connect('close_event', self._run_close)
 
 
     def _add_buttons(self):
@@ -1664,7 +1665,14 @@ class ArticulatedPlot(Plot):
             self._controller_timer.stop()
             self._controller_timer = None
 
-        self._controller.close()
+        if self._controller is not None:
+            self._controller.close()
+
+
+    def _run_close(self, event=None) -> Self:
+        self._close_controller()
+        plt.close(self._fig)
+        return self
 
 
 
@@ -1941,6 +1949,19 @@ class MidiController:
     @property
     def port_name(self) -> str | None:
         return self._port_name
+
+    
+    def close(self) -> None:
+        """Close the MIDI input port and release its resources."""
+
+        midi_in = self._midi_in
+        self._midi_in = None
+
+        if midi_in is not None:
+            try:
+                midi_in.cancel_callback()
+            finally:
+                midi_in.close_port()
 
 
     def _receive(self, event, data=None):
