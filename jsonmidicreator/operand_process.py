@@ -1417,6 +1417,7 @@ class ArticulatedPlot(Plot):
     ):
         super().__init__(None, title, block, composition, by_channel)
         self.articulator = articulator
+        self.state: dict = {}
 
         self._controller = None
         if device is not None:
