@@ -2047,12 +2047,12 @@ class Clip(Composition):  # Just a container of Elements
                 framed_elements = None
 
             case oa.Action():
-                # `act` always returns self
-                return operand.act(self, self.elements_unmasked())  # Sorting already included
+                operand.act(self, self.elements_unmasked())  # Sorting already included
+                return self # Makes sure self is returned
 
             case tr.Transformation():
-                # `transform` always returns self
-                return operand.transform(self)  # Sorting already included
+                operand.transform(self)  # Sorting already included
+                return self # Makes sure self is returned
 
             case str():
                 if operand.find(" ") != -1 or operand.find(",") != -1:  # "," is what defines a line
