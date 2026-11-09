@@ -42,6 +42,7 @@ if TYPE_CHECKING:
     from operand_container import Clip
 
 
+
 class Transformation(o.Operand):
     """`Transformation`
 
@@ -1225,20 +1226,24 @@ class ITame(IteratedTransformation):
     This class adds a tamed Chaos to the iterated transformation.
 
     Args:
-        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration,
+            its default value is `ot.Untamed(ra.Seed(340))`
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
         no_repeats (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
-    def __init__(self, tamer: ot.Tamer = ot.Untamed(ra.Seed(340)),
+    def __init__(self,
+                 tamer: ot.Tamer | None = None,
                  no_repeats: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 4, freeze_at: int = -1):
         super().__init__(pre_filter, no_repeats, post_process, max_tries, freeze_at)
         self.tamer: ot.Tamer = tamer
+        if self.tamer is None:
+            self.tamer = ot.Untamed(ra.Seed(340))
 
 
     def restart(self, *parameters) -> Self:
@@ -1268,7 +1273,8 @@ class IVariate(ITame):
     it only changes continuous space (pitch, timing, velocity), **only** the `Element` parameters.
 
     Args:
-        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration,
+            its default value is `ot.Untamed(ra.Seed(340))`
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1286,7 +1292,8 @@ class ISplitDuration(IVariate):
 
     Args:
         durations (int) : The amount of durations, or elements, the splitting will result in.
-        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration,
+            its default value is `ot.Untamed(ra.Seed(340))`
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1294,7 +1301,7 @@ class ISplitDuration(IVariate):
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def __init__(self, durations: int = 8,
-                 tamer: ot.Tamer = ot.Untamed(ra.Seed(340)),
+                 tamer: ot.Tamer | None = None,
                  no_repeats: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
@@ -1341,7 +1348,8 @@ class IShuffleLocus(IVariate):
     This class shuffles the multiple locus around.
 
     Args:
-        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration,
+            its default value is `ot.Untamed(ra.Seed(340))`
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1371,7 +1379,8 @@ class IShuffleDuration(IVariate):
     Moves the existent durations around while preserving the relative positions to them.
 
     Args:
-        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration,
+            its default value is `ot.Untamed(ra.Seed(340))`
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1422,7 +1431,8 @@ class IChooseDuration(IShuffleDuration):
 
     Args:
         durations (list) : A given list of durations to pick from.
-        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration,
+            its default value is `ot.Untamed(ra.Seed(340))`
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1430,7 +1440,7 @@ class IChooseDuration(IShuffleDuration):
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def __init__(self, durations: list[Any] = [1/2, 1/4, 1/8, 1/16],
-                 tamer: ot.Tamer = ot.Untamed(ra.Seed(340)),
+                 tamer: ot.Tamer | None = None,
                  no_repeats: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
@@ -1489,7 +1499,8 @@ class ISwapDuration(IVariate):
     Swaps subsequent elements durations but it doesn't necessarily preserve all relative positions.
 
     Args:
-        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration,
+            its default value is `ot.Untamed(ra.Seed(340))`
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1526,7 +1537,8 @@ class IShuffleParameter(IVariate):
 
     Args:
         parameter (Any) : The given parameter to shuffle around.
-        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration,
+            its default value is `ot.Untamed(ra.Seed(340))`
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1567,7 +1579,8 @@ class ISetParameter(IVariate):
     Args:
         parameter (Any) : The given parameter to shuffle around.
         global_setting (bool) : If True applies the single parameter to all at once.
-        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration,
+            its default value is `ot.Untamed(ra.Seed(340))`
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1608,7 +1621,8 @@ class IChooseParameter(IVariate):
     Args:
         parameter (Any) : The given parameter to shuffle around.
         global_setting (bool) : If True applies the single parameter to all at once.
-        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration,
+            its default value is `ot.Untamed(ra.Seed(340))`
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1616,7 +1630,7 @@ class IChooseParameter(IVariate):
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def __init__(self, parameters: list[Any] = o.list_wrap(["1", "3", "5", "6"], ou.Degree()),
-                 tamer: ot.Tamer = ot.Untamed(ra.Seed(340)),
+                 tamer: ot.Tamer | None = None,
                  no_repeats: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
@@ -1643,7 +1657,8 @@ class IMutate(ITame):
     Type of Element, Note, Rest or ControlChange are possibly changed, and the number of elements too.
 
     Args:
-        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration,
+            its default value is `ot.Untamed(ra.Seed(340))`
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1661,7 +1676,8 @@ class IYield(ITame):
     by a self generated, iterated, new one.
 
     Args:
-        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration.
+        tamer (Tamer) : The chaotic operand that will be the source if information for each iteration,
+            its default value is `ot.Untamed(ra.Seed(340))`
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
