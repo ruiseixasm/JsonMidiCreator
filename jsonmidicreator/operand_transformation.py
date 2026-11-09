@@ -1242,7 +1242,7 @@ class ITame(IteratedTransformation):
                  max_tries: int = 4, freeze_at: int = -1):
         super().__init__(pre_filter, no_repeats, post_process, max_tries, freeze_at)
         self.tamer: ot.Tamer = tamer
-        if self.tamer is None:
+        if tamer is None:
             self.tamer = ot.Untamed(ra.Seed(340))
 
 
@@ -1538,7 +1538,7 @@ class IShuffleParameter(IVariate):
     Args:
         parameter (Any) : The given parameter to shuffle around.
         tamer (Tamer) : The chaotic operand that will be the source if information for each iteration,
-            its default value is `ot.Untamed(ra.Seed(340))`
+            its default value is `ot.Modulo(7, ch.SinX(340))**ot.Increase(1)`
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1546,12 +1546,14 @@ class IShuffleParameter(IVariate):
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
     def __init__(self, parameter: Any = ou.Degree(),
-                 tamer: ot.Tamer = ot.Modulo(7, ch.SinX(340))**ot.Increase(1),
+                 tamer: ot.Tamer | None = None,
                  no_repeats: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, freeze_at: int = -1):
         super().__init__(tamer, no_repeats, pre_filter, post_process, max_tries, freeze_at)
+        if tamer is None:
+            self.tamer = ot.Modulo(7, ch.SinX(340))**ot.Increase(1)
         self.parameter: Any = parameter
 
 
@@ -1580,7 +1582,7 @@ class ISetParameter(IVariate):
         parameter (Any) : The given parameter to shuffle around.
         global_setting (bool) : If True applies the single parameter to all at once.
         tamer (Tamer) : The chaotic operand that will be the source if information for each iteration,
-            its default value is `ot.Untamed(ra.Seed(340))`
+            its default value is `ot.Modulo(7, ch.SinX(340))**ot.Increase(1)`
         pre_filter (Callable[['oc.Clip', 'oc.Clip'], bool]) : Function that selects the input clips.
         post_process (Callable[['oc.Clip'], 'oc.Clip']) : Function that manipulates the output solution.
         max_tries (int) : The maximum amount of tries to find a `Clip` solution.
@@ -1589,12 +1591,14 @@ class ISetParameter(IVariate):
     """
     def __init__(self, parameter: o.Operand = ou.Degree(),
                  global_setting: bool = False,
-                 tamer: ot.Tamer = ot.Modulo(7, ch.SinX(340))**ot.Increase(1),
+                 tamer: ot.Tamer | None = None,
                  no_repeats: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 100, freeze_at: int = -1):
         super().__init__(tamer, no_repeats, pre_filter, post_process, max_tries, freeze_at)
+        if tamer is None:
+            self.tamer = ot.Modulo(7, ch.SinX(340))**ot.Increase(1)
         self.parameter: o.Operand = parameter
         self.global_setting: bool = global_setting
 
