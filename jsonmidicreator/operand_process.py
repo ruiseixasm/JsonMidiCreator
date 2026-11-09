@@ -1424,6 +1424,27 @@ class ArticulatedPlot(Plot):
 
         self._controller_timer = None
         self._axes: list[int] = [0] * 8
+        self._increments: list[int] = [0] * 8
+
+
+    @property
+    def axes(self) -> list[int]:
+        return self._axes.copy()
+
+
+    @property
+    def increments(self) -> list[int]:
+        return self._increments.copy()
+
+    
+    @property
+    def original(self) -> 'oc.Clip':
+        return self._compositions[0].copy()
+
+    
+    @property
+    def current(self) -> 'oc.Clip':
+        return self._compositions[1].copy()
 
 
     def _get_chart_title(self, checksum_str: str, beats_per_measure: Fraction) -> str:
@@ -1478,6 +1499,8 @@ class ArticulatedPlot(Plot):
     def _increment_axis(self, axis: int) -> bool:
         axis_value: int = self._axes[axis]
         if axis_value < 127:
+            self._increments = [0] * 8
+            self._increments[axis] += 1
             self._axes[axis] += 1
             self._update_midi_controller_axes()._update_plot_list()._plot_elements()
             return True
@@ -1487,6 +1510,8 @@ class ArticulatedPlot(Plot):
     def _decrement_axis(self, axis: int) -> bool:
         axis_value: int = self._axes[axis]
         if axis_value > 0:
+            self._increments = [0] * 8
+            self._increments[axis] -= 1
             self._axes[axis] -= 1
             self._update_midi_controller_axes()._update_plot_list()._plot_elements()
             return True
@@ -1496,6 +1521,8 @@ class ArticulatedPlot(Plot):
     def _increment_axis_10(self, axis: int) -> bool:
         axis_value: int = self._axes[axis]
         if axis_value + 10 < 128:
+            self._increments = [0] * 8
+            self._increments[axis] += 10
             self._axes[axis] += 10
             self._update_midi_controller_axes()._update_plot_list()._plot_elements()
             return True
@@ -1505,6 +1532,8 @@ class ArticulatedPlot(Plot):
     def _decrement_axis_10(self, axis: int) -> bool:
         axis_value: int = self._axes[axis]
         if axis_value - 10 >= 0:
+            self._increments = [0] * 8
+            self._increments[axis] -= 10
             self._axes[axis] -= 10
             self._update_midi_controller_axes()._update_plot_list()._plot_elements()
             return True
@@ -1636,6 +1665,8 @@ class ArticulatedPlot(Plot):
         if axes == self._axes:
             return True
 
+        for axis in range(8):
+            self._increments[axis] = axes[axis] - self._axes[axis]
         self._axes = axes
         self._update_plot_list()._plot_elements()
 
