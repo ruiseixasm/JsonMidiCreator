@@ -1480,7 +1480,7 @@ class ArticulatedPlot(Plot):
         if axis_value < 127:
             self._axes[axis] += 1
             self._update_midi_controller_axes()
-            self._update_plot()
+            self._update_plot_list()._plot_elements()
             return True
         return False
 
@@ -1490,7 +1490,7 @@ class ArticulatedPlot(Plot):
         if axis_value > 0:
             self._axes[axis] -= 1
             self._update_midi_controller_axes()
-            self._update_plot()
+            self._update_plot_list()._plot_elements()
             return True
         return False
 
@@ -1500,7 +1500,7 @@ class ArticulatedPlot(Plot):
         if axis_value + 10 < 128:
             self._axes[axis] += 10
             self._update_midi_controller_axes()
-            self._update_plot()
+            self._update_plot_list()._plot_elements()
             return True
         return False
 
@@ -1510,7 +1510,7 @@ class ArticulatedPlot(Plot):
         if axis_value - 10 >= 0:
             self._axes[axis] -= 10
             self._update_midi_controller_axes()
-            self._update_plot()
+            self._update_plot_list()._plot_elements()
             return True
         return False
 
@@ -1604,27 +1604,15 @@ class ArticulatedPlot(Plot):
 
         super()._start_plot(composition)
 
-        # Always generate from the original Clip, never from index 1.
-        original: oc.Clip = self._compositions[0]
-        generated: oc.Clip = self.articulate(original.copy(), self._axes)
+        # Extend compositions list to len 2
+        self._compositions.append(oc.Clip())
+        self._plot_lists.append([])
+        self._plot_checksums.append("0000")
 
-        if not isinstance(generated, oc.Clip):
-            raise TypeError("The generator must return a Clip.")
-        
-        # The generated Clip always occupies index 1.
-        plotlist = generated.getPlotlist()
-        checksum = o.checksum_to_string(generated.checksum())
-
-        self._compositions.append(generated)
-        self._plot_lists.append(plotlist)
-        self._plot_checksums.append(checksum)
-        
-        self._iteration_index = 1
-        
-        return self
+        return self._update_plot_list()
 
 
-    def _update_plot(self) -> Self:
+    def _update_plot_list(self) -> Self:
         # Always generate from the original Clip, never from index 1.
         original: oc.Clip = self._compositions[0]
         generated: oc.Clip = self.articulate(original.copy(), self._axes)
@@ -1640,7 +1628,9 @@ class ArticulatedPlot(Plot):
         self._plot_lists[1] = plotlist
         self._plot_checksums[1] = checksum
 
-        self._plot_elements()
+        self._iteration_index = 1
+
+        return self
 
 
     def _update_controller_plot(self) -> bool:
@@ -1651,7 +1641,7 @@ class ArticulatedPlot(Plot):
             return True
 
         self._axes = axes
-        self._update_plot()
+        self._update_plot_list()._plot_elements()
 
         return True
 
