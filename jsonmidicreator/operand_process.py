@@ -1479,8 +1479,7 @@ class ArticulatedPlot(Plot):
         axis_value: int = self._axes[axis]
         if axis_value < 127:
             self._axes[axis] += 1
-            self._update_midi_controller_axes()
-            self._update_plot_list()._plot_elements()
+            self._update_midi_controller_axes()._update_plot_list()._plot_elements()
             return True
         return False
 
@@ -1489,8 +1488,7 @@ class ArticulatedPlot(Plot):
         axis_value: int = self._axes[axis]
         if axis_value > 0:
             self._axes[axis] -= 1
-            self._update_midi_controller_axes()
-            self._update_plot_list()._plot_elements()
+            self._update_midi_controller_axes()._update_plot_list()._plot_elements()
             return True
         return False
 
@@ -1499,8 +1497,7 @@ class ArticulatedPlot(Plot):
         axis_value: int = self._axes[axis]
         if axis_value + 10 < 128:
             self._axes[axis] += 10
-            self._update_midi_controller_axes()
-            self._update_plot_list()._plot_elements()
+            self._update_midi_controller_axes()._update_plot_list()._plot_elements()
             return True
         return False
 
@@ -1509,8 +1506,7 @@ class ArticulatedPlot(Plot):
         axis_value: int = self._axes[axis]
         if axis_value - 10 >= 0:
             self._axes[axis] -= 10
-            self._update_midi_controller_axes()
-            self._update_plot_list()._plot_elements()
+            self._update_midi_controller_axes()._update_plot_list()._plot_elements()
             return True
         return False
 
