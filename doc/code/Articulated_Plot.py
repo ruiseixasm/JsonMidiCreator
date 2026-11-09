@@ -35,10 +35,11 @@ def articulator_3(clip: 'Clip', axes: list[int]) -> 'Clip':
     setting_durations = IChooseDuration()
     for _ in range(cv0):
         clip << setting_durations
+    print(setting_durations._index)
     return clip
 
 
 
-Note() * 4 >> ArticulatedPlot(articulator_3, "MPK")
+Note() * 4 >> ArticulatedPlot(articulator_3)
 
 

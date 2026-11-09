@@ -1423,7 +1423,7 @@ class ArticulatedPlot(Plot):
             self._controller = MidiController(device)
 
         self._controller_timer = None
-        self._axes: list[int] = []
+        self._axes: list[int] = [0] * 8
 
 
     def _get_chart_title(self, checksum_str: str, beats_per_measure: Fraction) -> str:
@@ -1456,7 +1456,7 @@ class ArticulatedPlot(Plot):
             self._controller_timer.start()
 
 
-    def transform(
+    def articulate(
         self,
         clip: 'oc.Clip',
         parameters: list[int]
@@ -1603,12 +1603,10 @@ class ArticulatedPlot(Plot):
     def _start_plot(self, composition: 'oc.Composition') -> Self:
 
         super()._start_plot(composition)
-        axes = self._controller.values()
-        self._axes = axes
 
         # Always generate from the original Clip, never from index 1.
         original: oc.Clip = self._compositions[0]
-        generated: oc.Clip = self.transform(original.copy(), axes)
+        generated: oc.Clip = self.articulate(original.copy(), self._axes)
 
         if not isinstance(generated, oc.Clip):
             raise TypeError("The generator must return a Clip.")
@@ -1629,7 +1627,7 @@ class ArticulatedPlot(Plot):
     def _update_plot(self) -> Self:
         # Always generate from the original Clip, never from index 1.
         original: oc.Clip = self._compositions[0]
-        generated: oc.Clip = self.transform(original.copy(), self._axes)
+        generated: oc.Clip = self.articulate(original.copy(), self._axes)
 
         if not isinstance(generated, oc.Clip):
             raise TypeError("The generator must return a Clip.")
