@@ -123,9 +123,15 @@ class Frame(o.Operand):
         return self._filtered_elements
 
 
-    def get_operand(self) -> Any:
+    def get_non_frame(self) -> Any:
         if isinstance(self._chained_operand, Frame):
-            return self._chained_operand.get_operand()
+            return self._chained_operand.get_non_frame()
+        return self._chained_operand
+
+
+    def get_non_filter(self) -> Any:
+        if isinstance(self._chained_operand, Frame):
+            return self._chained_operand.get_non_filter()
         return self._chained_operand
 
 
@@ -192,7 +198,7 @@ class Frame(o.Operand):
 
     def __lshift__(self, operand: any) -> Self:
         # << applies to the first non Frame operand in the tail
-        self_operand: any = self.get_operand()
+        self_operand: any = self.get_non_frame()
         if isinstance(self_operand, o.Operand):
             self_operand << operand
         return self
@@ -752,8 +758,8 @@ class All(InputFilter):
 
 
 
-class ClipFilter(LeftToRight):
-    """`Frame -> LeftToRight -> ClipFilter`
+class ClipFilter(InputFilter):
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter`
 
     A `ClipFilter` takes into consideration the input data in order to pass it to the next `Frame`.
 
@@ -771,7 +777,7 @@ class ClipFilter(LeftToRight):
 
 
 class Excluding(ClipFilter):
-    """`Frame -> LeftToRight -> ClipFilter -> Excluding`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> Excluding`
 
     `Excluding` excludes the given filtered elements and keeps the complementary unmasked ones.
 
@@ -789,7 +795,7 @@ class Excluding(ClipFilter):
 
 
 class ElementType(ClipFilter):
-    """`Frame -> LeftToRight -> ClipFilter -> ElementType`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> ElementType`
 
     An `ElementType` only lets specified types of inputs to be passed to the next `Frame`.
 
@@ -809,7 +815,7 @@ class ElementType(ClipFilter):
 
 
 class First(ClipFilter):
-    """`Frame -> LeftToRight -> ClipFilter -> First`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> First`
 
     A `First` only lets the first `amount` of elements in a `Clip` to pass to the next `Frame`.
 
@@ -833,7 +839,7 @@ class First(ClipFilter):
 
 
 class Last(ClipFilter):
-    """`Frame -> LeftToRight -> ClipFilter -> Last`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> Last`
 
     A `Last` only lets the last `amount` of elements in a `Clip` to pass to the next `Frame`.
 
@@ -858,7 +864,7 @@ class Last(ClipFilter):
 
 
 class Nth(ClipFilter):
-    """`Frame -> LeftToRight -> ClipFilter -> Nth`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> Nth`
 
     A `Nth` only lets the nth inputs to be passed to the next `Frame`.
     In `Nth(1, 6)**Duration(1/1)` sets the 1st and 6th `Clip` elements to 1 as note value.
@@ -882,7 +888,7 @@ class Nth(ClipFilter):
 
 
 class At(ClipFilter):
-    """`Frame -> LeftToRight -> ClipFilter -> At`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> At`
 
     A `At` only lets the indexed inputs to be passed to the next `Frame`.
     In `At(1, 6)**Duration(1/1)` sets the 2nd and 7th `Clip` elements to 1 as note value.
@@ -906,7 +912,7 @@ class At(ClipFilter):
 
 
 class Odd(ClipFilter):
-    """`Frame -> LeftToRight -> ClipFilter -> Odd`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> Odd`
 
     An `Odd` only lets odd nth inputs to be passed to the next `Frame`.
 
@@ -924,7 +930,7 @@ class Odd(ClipFilter):
 
 
 class Even(ClipFilter):
-    """`Frame -> LeftToRight -> ClipFilter -> Even`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> Even`
 
     An `Even` only lets even nth inputs to be passed to the next `Frame`.
 
@@ -942,7 +948,7 @@ class Even(ClipFilter):
 
 
 class Every(ClipFilter):
-    """`Frame -> LeftToRight -> ClipFilter -> Every`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> Every`
 
     An `Every` only lets every other nth inputs to be passed to the next `Frame`
     for each given `Measure`.
@@ -976,7 +982,7 @@ class Every(ClipFilter):
 
 
 class Each(Every):
-    """`Frame -> LeftToRight -> ClipFilter -> Every -> Each`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> Every -> Each`
 
     An `Each` only lets every index value inputs to be passed to the next `Frame`
     for each given `Measure`. This is 0-based while `Every` is 1-based.
@@ -991,7 +997,7 @@ class Each(Every):
 
 
 class Either(ClipFilter):
-    """`Frame -> LeftToRight -> ClipFilter -> Either`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> Either`
 
     An `Either` only requires one verified condition to pass to the next `Frame`.
 
@@ -1011,7 +1017,7 @@ class Either(ClipFilter):
 
 
 class Neither(ClipFilter):
-    """`Frame -> LeftToRight -> ClipFilter -> Neither`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> Neither`
 
     A `Neither` requires that no given condition is verified to pass to the next `Frame`.
 
@@ -1035,7 +1041,7 @@ class Neither(ClipFilter):
 
 
 class Chance(ClipFilter):
-    """`Frame -> LeftToRight -> ClipFilter -> Chance`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> Chance`
 
     `Chance` uses a `Binary` tamer based on which Elements are kept.
 
@@ -1068,7 +1074,7 @@ class Chance(ClipFilter):
 
 
 class Selecting(ClipFilter):
-    """`Frame -> LeftToRight -> ClipFilter -> Selecting`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> Selecting`
 
     `Selecting` uses a `Chaos` to select an amount of Elements.
 
@@ -1114,7 +1120,7 @@ class Selecting(ClipFilter):
 
 
 class BasicComparison(ClipFilter):
-    """`Frame -> LeftToRight -> ClipFilter -> BasicComparison`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> BasicComparison`
 
     A `BasicComparison` checks if the input verifies the comparison wit `other` before being passed to the next `Frame`.
 
@@ -1149,7 +1155,7 @@ class BasicComparison(ClipFilter):
 
 
 class Equal(BasicComparison):
-    """`Frame -> LeftToRight -> ClipFilter -> BasicComparison -> Equal`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> BasicComparison -> Equal`
 
     An `Equal` checks if the input is equal to **all** the `other` before being passed to the next `Frame`.
 
@@ -1164,7 +1170,7 @@ class Equal(BasicComparison):
 
 
 class NotEqual(BasicComparison):
-    """`Frame -> LeftToRight -> ClipFilter -> BasicComparison -> NotEqual`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> BasicComparison -> NotEqual`
 
     A `NotEqual` checks if the input is NOT equal to **all** the `other` before being passed to the next `Frame`.
 
@@ -1179,7 +1185,7 @@ class NotEqual(BasicComparison):
 
 
 class Above(BasicComparison):
-    """`Frame -> LeftToRight -> ClipFilter -> BasicComparison -> Above`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> BasicComparison -> Above`
 
     The `Above` checks if the input is greater to **all** the `other` before being passed to the next `Frame`.
 
@@ -1194,7 +1200,7 @@ class Above(BasicComparison):
 
 
 class Bellow(BasicComparison):
-    """`Frame -> LeftToRight -> ClipFilter -> BasicComparison -> Bellow`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> BasicComparison -> Bellow`
 
     A `Bellow` checks if the input is less to **all** the `other` before being passed to the next `Frame`.
 
@@ -1209,7 +1215,7 @@ class Bellow(BasicComparison):
 
 
 class AboveOrEqual(BasicComparison):
-    """`Frame -> LeftToRight -> ClipFilter -> BasicComparison -> AboveOrEqual`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> BasicComparison -> AboveOrEqual`
 
     An `AboveOrEqual` checks if the input is greater or equal to **all** the `other` before being passed to the next `Frame`.
 
@@ -1224,7 +1230,7 @@ class AboveOrEqual(BasicComparison):
 
 
 class BellowOrEqual(BasicComparison):
-    """`Frame -> LeftToRight -> ClipFilter -> BasicComparison -> BellowOrEqual`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> BasicComparison -> BellowOrEqual`
 
     A `BellowOrEqual` checks if the input is less or equal to **all** the `other` before being passed to the next `Frame`.
 
@@ -1239,7 +1245,7 @@ class BellowOrEqual(BasicComparison):
 
 
 class OnBeat(ClipFilter):
-    """`Frame -> LeftToRight -> ClipFilter -> OnBeat`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> OnBeat`
 
     An `OnBeat` selects only elements with their `Position` on the `Beat`.
 
@@ -1260,7 +1266,7 @@ class OnBeat(ClipFilter):
 
 
 class OffBeat(ClipFilter):
-    """`Frame -> LeftToRight -> ClipFilter -> OffBeat`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> OffBeat`
 
     An `OffBeat` selects only elements with their `Position` off the `Beat`.
 
@@ -1281,7 +1287,7 @@ class OffBeat(ClipFilter):
 
 
 class DownBeat(ClipFilter):
-    """`Frame -> LeftToRight -> ClipFilter -> DownBeat`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> DownBeat`
 
     An `DownBeat` selects only elements with their `Position` on the `Step` 0.
 
@@ -1301,7 +1307,7 @@ class DownBeat(ClipFilter):
 
 
 class UpBeat(ClipFilter):
-    """`Frame -> LeftToRight -> ClipFilter -> UpBeat`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> UpBeat`
 
     An `UpBeat` selects only elements with their `Position` at the last off beat `Step`.
 
@@ -1324,7 +1330,7 @@ class UpBeat(ClipFilter):
 
 
 class OddStep(ClipFilter):
-    """`Frame -> LeftToRight -> ClipFilter -> OddStep`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> OddStep`
 
     An `OddStep` selects only elements with their `Position` on the Odd `Step` in a nth numbering.
 
@@ -1344,7 +1350,7 @@ class OddStep(ClipFilter):
 
 
 class EvenStep(ClipFilter):
-    """`Frame -> LeftToRight -> ClipFilter -> EvenStep`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> EvenStep`
 
     An `EvenStep` selects only elements with their `Position` on the Even `Step` in a nth numbering.
 
@@ -1366,7 +1372,7 @@ class EvenStep(ClipFilter):
 
 
 class PreviousComparison(ClipFilter):
-    """`Frame -> LeftToRight -> ClipFilter -> PreviousComparison`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> PreviousComparison`
 
     A `PreviousComparison` checks if the input meets a basic comparison condition with the previous Item.
 
@@ -1399,7 +1405,7 @@ class PreviousComparison(ClipFilter):
 
 
 class AllMatch(PreviousComparison):
-    """`Frame -> LeftToRight -> ClipFilter -> PreviousComparison -> AllMatch`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> PreviousComparison -> AllMatch`
 
     An `AllMatch` checks if the successive elements share a matching parameter.
 
@@ -1414,7 +1420,7 @@ class AllMatch(PreviousComparison):
 
 
 class AllIncreasing(PreviousComparison):
-    """`Frame -> LeftToRight -> ClipFilter -> PreviousComparison -> AllIncreasing`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> PreviousComparison -> AllIncreasing`
 
     An `AllIncreasing` checks if the successive elements have an increasing parameter.
 
@@ -1429,7 +1435,7 @@ class AllIncreasing(PreviousComparison):
 
 
 class AllDecreasing(PreviousComparison):
-    """`Frame -> LeftToRight -> ClipFilter -> PreviousComparison -> AllDecreasing`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> PreviousComparison -> AllDecreasing`
 
     An `AllDecreasing` checks if the successive elements have a decreasing parameter.
 
@@ -1444,7 +1450,7 @@ class AllDecreasing(PreviousComparison):
 
 
 class AllNotIncreasing(PreviousComparison):
-    """`Frame -> LeftToRight -> ClipFilter -> PreviousComparison -> AllNotIncreasing`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> PreviousComparison -> AllNotIncreasing`
 
     An `AllNotIncreasing` checks if the successive elements have NOT an increasing parameter.
 
@@ -1459,7 +1465,7 @@ class AllNotIncreasing(PreviousComparison):
 
 
 class AllNotDecreasing(PreviousComparison):
-    """`Frame -> LeftToRight -> ClipFilter -> PreviousComparison -> AllNotDecreasing`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> PreviousComparison -> AllNotDecreasing`
 
     An `AllNotDecreasing` checks if the successive elements have NOT a decreasing parameter.
 
@@ -1474,7 +1480,7 @@ class AllNotDecreasing(PreviousComparison):
 
 
 class Cross(ClipFilter):
-    """`Frame -> LeftToRight -> ClipFilter -> Cross`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> Cross`
 
     A `Cross` selects all elements that passthrough a given `Position`.
 
@@ -1498,7 +1504,7 @@ class Cross(ClipFilter):
 
 
 class Overlap(ClipFilter):
-    """`Frame -> LeftToRight -> ClipFilter -> Overlap`
+    """`Frame -> LeftToRight -> InputFilter -> ClipFilter -> Overlap`
 
     A `Overlap` selects all elements that overlap a given `Locus`.
 

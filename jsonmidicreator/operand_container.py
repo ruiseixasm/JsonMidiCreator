@@ -2022,7 +2022,7 @@ class Clip(Composition):  # Just a container of Elements
             case of.Frame():
                 operand._set_inside_clip(self)
                 framed_elements = operand._get_filtered_elements()
-                framed_operand = operand.get_operand()
+                framed_operand = operand.get_non_frame()
                 match framed_operand:
                     case oa.Action():
                         # `act` always returns self
