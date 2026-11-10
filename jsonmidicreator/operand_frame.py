@@ -130,9 +130,11 @@ class Frame(o.Operand):
 
 
     def get_non_input_filter(self) -> Any:
-        if isinstance(self._chained_operand, InputFilter):
-            return self._chained_operand.get_non_input_filter()
-        return self._chained_operand
+        if not isinstance(self, InputFilter):
+            return self
+        if not isinstance(self._chained_operand, InputFilter):
+            return self._chained_operand
+        return self._chained_operand.get_non_input_filter()
 
 
     def __pow__(self, operand: any) -> 'Frame':
