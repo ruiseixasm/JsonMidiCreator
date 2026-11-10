@@ -185,5 +185,5 @@ def test_no_repeats():
     # Should't be repeated
     assert ~four_notes << non_repeatable_transformation != Note() * 4
 
-test_no_repeats()
+# test_no_repeats()
 

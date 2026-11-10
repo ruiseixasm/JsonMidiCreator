@@ -1241,7 +1241,7 @@ class ITame(IteratedTransformation):
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 4, freeze_at: int = -1):
-        super().__init__(pre_filter, no_repeats, post_process, max_tries, freeze_at)
+        super().__init__(no_repeats, pre_filter, post_process, max_tries, freeze_at)
         self.tamer: ot.Tamer = tamer
         if tamer is None:
             self.tamer = ot.Untamed(ra.Seed(340))
@@ -1440,7 +1440,8 @@ class IChooseDuration(IShuffleDuration):
         no_repeats (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
-    def __init__(self, durations: list[Any] = [1/2, 1/4, 1/8, 1/16],
+    def __init__(self,
+                 durations: list[Any] = [1/2, 1/4, 1/8, 1/16],
                  tamer: ot.Tamer | None = None,
                  no_repeats: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
@@ -1530,6 +1531,7 @@ class ISwapDuration(IVariate):
                         clip_elements[left_element_i + 1] << ra.LeftDuration(left_duration)
         return clip._sort_items()
     
+
 
 class IShuffleParameter(IVariate):
     """`Transformation -> IteratedTransformation -> ITame -> IVariate -> IShuffleParameter`
