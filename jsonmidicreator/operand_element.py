@@ -611,8 +611,10 @@ class Element(o.Operand):
                     right_element_copy << self.finish() # Places the right element at the right
                     return oc.Clip(self._get_time_signature(), od.Pipe([self.copy(), right_element_copy]))
             case oc.Clip():
-                add_position = self % ra.Length() % ra.Position()
-                new_clip = operand + add_position
+                finish_position = self.finish()
+                new_clip = operand + finish_position
+                if self._owner_clip is not None:
+                    return self._owner_clip.extend(new_clip._items)._set_owner_clip()._sort_items()
                 new_clip += self
                 return new_clip
             

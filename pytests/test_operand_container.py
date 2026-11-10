@@ -711,6 +711,13 @@ def test_mul_float():
 # test_mul_float()
 
 
+def test_mul_element():
+    four_notes = Note(1/8) * 2
+    four_notes[-1] *= Note(Dotted(1/4)) * 2
+    # four_notes >> Plot()
+    assert four_notes.net_duration() == Measures(1)
+
+
 def test_element_stacking():
 
     settings << Quantization(1/16)   # 1/4 Beats again
