@@ -129,9 +129,9 @@ class Frame(o.Operand):
         return self._chained_operand
 
 
-    def get_non_filter(self) -> Any:
-        if isinstance(self._chained_operand, Frame):
-            return self._chained_operand.get_non_filter()
+    def get_non_input_filter(self) -> Any:
+        if isinstance(self._chained_operand, InputFilter):
+            return self._chained_operand.get_non_input_filter()
         return self._chained_operand
 
 
