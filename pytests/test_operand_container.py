@@ -716,6 +716,9 @@ def test_mul_element():
     four_notes[-1] *= Note(Dotted(1/4)) * 2
     # four_notes >> Plot()
     assert four_notes.net_duration() == Measures(1)
+    # Single line
+    four_notes_single_line = (Note(1/8) * 2)[-1] * (Note(Dotted(1/4)) * 2)
+    assert four_notes_single_line.net_duration() == Measures(1)
 
 
 def test_element_stacking():
