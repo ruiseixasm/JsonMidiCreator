@@ -2022,20 +2022,21 @@ class Clip(Composition):  # Just a container of Elements
             case of.Frame():
                 operand._set_inside_clip(self)
                 framed_elements = operand._get_filtered_elements()
-                framed_operand = operand.get_non_frame()
-                match framed_operand:
+                non_input_filter_operand = operand.get_non_input_filter()
+                non_frame_operand = operand.get_non_frame()
+                match non_frame_operand:
                     case oa.Action():
                         # `act` always returns self
-                        return framed_operand.act(self, framed_elements)  # Sorting already included
+                        return non_frame_operand.act(self, framed_elements)  # Sorting already included
                     case oe.Element():
                         for single_framed in framed_elements:
-                            self._replace(single_framed, framed_operand.copy()._set_owner_clip(self) << single_framed)
+                            self._replace(single_framed, non_frame_operand.copy()._set_owner_clip(self) << single_framed)
                     case tuple():   # Many at once, for filtering frames only
-                        for single_tuple in framed_operand:
+                        for single_tuple in non_frame_operand:
                             match single_tuple:
                                 case oa.Action():
                                     # `act` always returns self
-                                    framed_operand.act(self, framed_elements)  # Sorting already included
+                                    non_frame_operand.act(self, framed_elements)  # Sorting already included
                                 case oe.Element():
                                     for single_framed in framed_elements:
                                         self._replace(single_framed, single_tuple.copy()._set_owner_clip(self) << single_framed)
