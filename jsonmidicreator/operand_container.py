@@ -2023,7 +2023,6 @@ class Clip(Composition):  # Just a container of Elements
                 operand._set_inside_clip(self)
                 framed_elements = operand._get_filtered_elements()
                 non_input_filter_operand = operand.get_non_input_filter()
-                non_frame_operand = operand.get_non_frame()
                 match non_input_filter_operand:
                     case oa.Action():
                         # `act` always returns self
