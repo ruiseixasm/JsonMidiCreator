@@ -173,3 +173,17 @@ def test_reset_iteration():
 # test_reset_iteration()
 
 
+def test_no_repeats():
+    repeatable_transformation = IChooseDuration(durations=[1/4])
+    four_notes = Clip("n:1/8, :, :1/4d, :")
+    # four_notes >> Plot()
+    assert ~four_notes << repeatable_transformation == Note() * 4
+    assert ~four_notes << repeatable_transformation == Note() * 4
+
+    non_repeatable_transformation = IChooseDuration(durations=[1/4], no_repeats=True)
+    assert ~four_notes << non_repeatable_transformation == Note() * 4
+    # Should't be repeated
+    assert ~four_notes << non_repeatable_transformation != Note() * 4
+
+# test_no_repeats()
+
