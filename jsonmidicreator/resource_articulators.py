@@ -36,7 +36,7 @@ from . import operand_chaos as ch
 from . import operand_tamer as ot
 from . import operand_process as op
 from . import operand_action as oa
-from . import operand_transformation as ot
+from . import operand_transformation as tr
 
 
 
@@ -59,7 +59,7 @@ def four_measures_durations_and_degrees(clip: 'oc.Clip', axes: list[int]) -> 'oc
     for measure_i in range(4):
         if all(axis == 0 for axis in axes) or axes[measure_i * 2] != root_axes[measure_i]:
             measure_clip = clip & ra.Measure(measure_i)
-            setting_durations = ot.IChooseDuration(no_repeats=True)
+            setting_durations = tr.IChooseDuration(no_repeats=True)
             for _ in range(axes[measure_i * 2]):
                 measure_clip << setting_durations
             root_clips[measure_i] = measure_clip
@@ -69,7 +69,12 @@ def four_measures_durations_and_degrees(clip: 'oc.Clip', axes: list[int]) -> 'oc
         clip += root_clips[measure_i]
 
     # 2nd stage for degrees
-
+    for measure_i in range(4):
+        if axes[measure_i * 2 + 1] > 0:
+            degrees = [ou.Degree()] * 10
+            untamed = ot.Modulo() * (10 * axes[measure_i * 2 + 1])
+            setting_degrees = untamed % degrees
+            clip << of.Equal(ra.Measure(measure_i))**setting_degrees
     return clip
 
 
