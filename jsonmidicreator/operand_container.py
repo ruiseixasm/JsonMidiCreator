@@ -2030,6 +2030,9 @@ class Clip(Composition):  # Just a container of Elements
                     case oe.Element():
                         for single_framed in framed_elements:
                             self._replace(single_framed, non_input_filter_operand.copy()._set_owner_clip(self) << single_framed)
+                    case list():
+                        for single_element, single_parameter in zip(framed_elements, non_input_filter_operand):
+                            single_element << single_parameter
                     case tuple():   # Many at once, for filtering frames only
                         for single_tuple in non_input_filter_operand:
                             match single_tuple:
