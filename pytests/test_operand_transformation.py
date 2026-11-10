@@ -184,6 +184,8 @@ def test_no_repeats():
     assert ~four_notes << non_repeatable_transformation == Note() * 4
     # Should't be repeated
     assert ~four_notes << non_repeatable_transformation != Note() * 4
+    # Whenever a solution isn't found, the original clip must be returned
+    assert ~four_notes << non_repeatable_transformation == four_notes
 
 # test_no_repeats()
 
