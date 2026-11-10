@@ -1007,7 +1007,8 @@ class IteratedTransformation(Transformation):
         no_repeats (bool): Doesn't let repetitions of past outputted solutions.
         freeze_at (int): Keeps a given solution at `i` as the only outputted solution.
     """
-    def __init__(self, no_repeats: bool = False,
+    def __init__(self,
+                 no_repeats: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
                  max_tries: int = 4, freeze_at: int = -1):
@@ -1054,7 +1055,7 @@ class IteratedTransformation(Transformation):
                             continue
                         self._iterations.append(candidate)
                         return clip << candidate
-        self._iterations.append(clip.empty_copy())  # Adds empty Clip
+        self._iterations.append(clip.copy()) # Adds the original clip
         return ol.Null()
 
 
