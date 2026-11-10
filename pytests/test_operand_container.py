@@ -930,6 +930,12 @@ def test_set_list():
     clip_2 << clip_1 % [Locus()]
     assert clip_2 == Duration(1 * 1)
 
+    four_notes = Note() * 4
+    degrees = [Degree()] * 10
+    setting_degrees = Modulo() % degrees
+    four_notes_pitched = ~four_notes << Equal(Measure(0))**setting_degrees
+    assert four_notes_pitched != four_notes
+
 # test_set_list()
 
 

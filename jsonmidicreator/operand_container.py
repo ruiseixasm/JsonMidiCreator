@@ -2043,6 +2043,10 @@ class Clip(Composition):  # Just a container of Elements
                                 case _:
                                     for single_item in framed_elements:
                                         single_item << single_tuple
+                    case of.Frame():
+                        for single_item in framed_elements:
+                            framed_parameter = non_frame_operand.frame(single_item)
+                            single_item << framed_parameter
                     case _:
                         if isinstance(non_input_filter_operand, of.Frame):
                             for single_item in framed_elements:
