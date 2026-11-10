@@ -1446,7 +1446,7 @@ class IChooseDuration(IShuffleDuration):
                  no_repeats: bool = False,
                  pre_filter: Optional[Callable[['oc.Clip', 'oc.Clip'], bool]] = None,
                  post_process: Optional[Callable[['oc.Clip'], 'oc.Clip']] = None,
-                 max_tries: int = 100, freeze_at: int = -1):
+                 max_tries: int = 20, freeze_at: int = -1):
         super().__init__(tamer, no_repeats, pre_filter, post_process, max_tries, freeze_at)
         self.durations: list[Any] = durations
 
