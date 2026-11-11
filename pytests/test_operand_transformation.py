@@ -189,3 +189,18 @@ def test_no_repeats():
 
 # test_no_repeats()
 
+
+def test_framed_reverse():
+    clip_straight = Note() * 4 + Iterate()**Degree()
+    clip_reversed = Note() * 4 + Iterate(3, -1)**Degree()
+    assert clip_straight != clip_reversed
+    transformed_clip = ~clip_straight << Reverse()
+    assert transformed_clip == clip_reversed
+    repeated_clip = clip_straight * 2
+    combined_clip = clip_straight * clip_reversed
+    assert repeated_clip != combined_clip
+    framed_clip = ~repeated_clip << Equal(Measure(0))**Reverse()
+    assert framed_clip == combined_clip
+
+# test_framed_reverse()
+

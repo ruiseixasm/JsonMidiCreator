@@ -2027,6 +2027,16 @@ class Clip(Composition):  # Just a container of Elements
                     case oa.Action():
                         # `act` always returns self
                         return non_input_filter_operand.act(self, framed_elements)  # Sorting already included
+                    case tr.Transformation():   # Tricky buy still possible
+                        # Start by removing the framed elements from the current Clip
+                        self.delete(framed_elements, True)
+                        # Create a new clone Clip with those same elements
+                        framed_clip = self.empty_copy()
+                        framed_clip._items = framed_elements
+                        framed_clip._set_owner_clip()
+                        non_input_filter_operand.transform(framed_clip) # Sorting already included
+                        # Finally, add the transformed elements
+                        self.extend(framed_clip._items)._set_owner_clip()
                     case oe.Element():
                         for single_framed in framed_elements:
                             self._replace(single_framed, non_input_filter_operand.copy()._set_owner_clip(self) << single_framed)
