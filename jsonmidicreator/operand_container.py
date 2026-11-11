@@ -2042,8 +2042,14 @@ class Clip(Composition):  # Just a container of Elements
                         for single_framed in framed_elements:
                             self._replace(single_framed, non_input_filter_operand.copy()._set_owner_clip(self) << single_framed)
                     case list():
-                        for single_element, single_parameter in zip(framed_elements, non_input_filter_operand):
-                            single_element << single_parameter
+                        if non_input_filter_operand == [] or all(isinstance(item, oe.Element) for item in non_input_filter_operand):
+                            # Replace framed elements with the new ones
+                            self.delete(framed_elements, True)
+                            elements_copy = o.deep_copy(non_input_filter_operand)
+                            self.extend(elements_copy)._set_owner_clip()
+                        else:
+                            for single_element, single_parameter in zip(framed_elements, non_input_filter_operand):
+                                single_element << single_parameter
                     case tuple():   # Many at once, for filtering frames only
                         for single_operand in non_input_filter_operand:
                             # Replace the Operand on the frame

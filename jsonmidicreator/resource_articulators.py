@@ -40,7 +40,7 @@ from . import operand_transformation as tr
 
 
 
-root_clips = [oc.Clip()] * 4
+root_clip = oc.Clip()
 root_axes = [0] * 4
 
 def four_measures_durations_and_degrees(clip: 'oc.Clip', axes: list[int]) -> 'oc.Clip':
@@ -53,20 +53,21 @@ def four_measures_durations_and_degrees(clip: 'oc.Clip', axes: list[int]) -> 'oc
     Odd axes : Durations per Measure
     Even axes : Degrees per Measure
     """
-    global root_clips, root_axes
+    global root_clip, root_axes
 
     # Root stage for durations
+    changed: bool = False
     for measure_i in range(4):
         if all(axis == 0 for axis in axes) or axes[measure_i * 2] != root_axes[measure_i]:
-            measure_clip = clip & ra.Measure(measure_i)
             setting_durations = tr.IChooseDuration(no_repeats=True)
             for _ in range(axes[measure_i * 2]):
-                measure_clip << setting_durations
-            root_clips[measure_i] = measure_clip
+                clip << of.Equal(ra.Measure(measure_i))**setting_durations
             root_axes[measure_i] = axes[measure_i * 2]
-    clip << []
-    for measure_i in range(4):
-        clip += root_clips[measure_i]
+            changed = True
+    if changed:
+        root_clip = clip.copy()
+    else:
+        clip << root_clip
 
     # 2nd stage for degrees
     for measure_i in range(4):

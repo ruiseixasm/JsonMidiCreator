@@ -1506,6 +1506,14 @@ def test_framed_element():
     assert all(isinstance(element, Note) for element in notes)
     notes << All()**Rest()
     assert all(isinstance(element, Rest) for element in notes)
+    eight_notes = Note() * 8
+    assert all(note % Degree() == 1 for note in eight_notes)
+    four_notes = Note(Degree(3)) * 4 << Measure(1)
+    assert all(note % Degree() == 3 for note in four_notes)
+    # Framed setting
+    eight_notes << Equal(Measure(1))**(four_notes % list())
+    assert all(note % Degree() == 1 for note in eight_notes & Measure(0))
+    assert all(note % Degree() == 3 for note in eight_notes & Measure(1))
 
 # test_framed_element()
 
