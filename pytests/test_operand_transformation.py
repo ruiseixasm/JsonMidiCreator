@@ -199,7 +199,7 @@ def test_framed_reverse():
     repeated_clip = clip_straight * 2
     combined_clip = clip_straight * clip_reversed
     assert repeated_clip != combined_clip
-    framed_clip = ~repeated_clip << Equal(Measure(0))**Reverse()
+    framed_clip = ~repeated_clip << Equal(Measure(1))**Reverse()
     assert framed_clip == combined_clip
 
 # test_framed_reverse()
