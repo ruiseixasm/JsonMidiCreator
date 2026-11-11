@@ -2047,8 +2047,7 @@ class Clip(Composition):  # Just a container of Elements
                     case tuple():   # Many at once, for filtering frames only
                         for single_operand in non_input_filter_operand:
                             # Replace the Operand on the frame
-                            frame.set_non_frame(single_operand)
-                            self << frame
+                            self << frame.set_non_frame(single_operand)
                     case of.Frame():
                         for single_item in framed_elements:
                             framed_parameter = non_input_filter_operand.frame(single_item)

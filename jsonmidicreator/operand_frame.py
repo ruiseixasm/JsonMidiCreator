@@ -125,8 +125,9 @@ class Frame(o.Operand):
 
     def set_non_frame(self, operand: Any) -> Self:
         if isinstance(self._chained_operand, Frame):
-            return self._chained_operand.set_non_frame(operand)
-        self._chained_operand = operand
+            self._chained_operand.set_non_frame(operand)
+        else:
+            self._chained_operand = operand
         return self
 
 
