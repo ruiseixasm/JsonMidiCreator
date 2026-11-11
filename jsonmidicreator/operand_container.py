@@ -2020,9 +2020,10 @@ class Clip(Composition):  # Just a container of Elements
                     self._replace(single_element, operand.copy()._set_owner_clip(self) << single_element)
 
             case of.Frame():
-                operand._set_inside_clip(self)
-                framed_elements = operand._get_filtered_elements()
-                non_input_filter_operand = operand.get_non_input_filter()
+                frame: of.Frame = operand
+                frame._set_inside_clip(self)
+                framed_elements = frame._get_filtered_elements()
+                non_input_filter_operand = frame.get_non_input_filter()
                 match non_input_filter_operand:
                     case oa.Action():
                         # `act` always returns self
@@ -2044,17 +2045,10 @@ class Clip(Composition):  # Just a container of Elements
                         for single_element, single_parameter in zip(framed_elements, non_input_filter_operand):
                             single_element << single_parameter
                     case tuple():   # Many at once, for filtering frames only
-                        for single_tuple in non_input_filter_operand:
-                            match single_tuple:
-                                case oa.Action():
-                                    # `act` always returns self
-                                    non_input_filter_operand.act(self, framed_elements)  # Sorting already included
-                                case oe.Element():
-                                    for single_framed in framed_elements:
-                                        self._replace(single_framed, single_tuple.copy()._set_owner_clip(self) << single_framed)
-                                case _:
-                                    for single_item in framed_elements:
-                                        single_item << single_tuple
+                        for single_operand in non_input_filter_operand:
+                            # Replace the Operand on the frame
+                            frame.set_non_frame(single_operand)
+                            self << frame
                     case of.Frame():
                         for single_item in framed_elements:
                             framed_parameter = non_input_filter_operand.frame(single_item)

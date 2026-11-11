@@ -1510,6 +1510,12 @@ def test_framed_element():
 # test_framed_element()
 
 
+def test_framed_tuple():
+    notes = Note() * 4 << All()**(Velocity(50), Degree(3))
+    assert all(note % Velocity() == 50 for note in notes)
+    assert all(note % Degree() == 3 for note in notes)
+
+
 def test_clip_track():
     new_track_clip = Clip()
     assert isinstance(new_track_clip % Devices(), Devices)
