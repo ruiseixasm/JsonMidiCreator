@@ -123,6 +123,13 @@ class Frame(o.Operand):
         return self._filtered_elements
 
 
+    def set_non_frame(self, operand: Any) -> Self:
+        if isinstance(self._chained_operand, Frame):
+            return self._chained_operand.set_non_frame(operand)
+        self._chained_operand = operand
+        return self
+
+
     def get_non_frame(self) -> Any:
         if isinstance(self._chained_operand, Frame):
             return self._chained_operand.get_non_frame()
