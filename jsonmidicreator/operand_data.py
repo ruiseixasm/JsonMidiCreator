@@ -1110,3 +1110,12 @@ class Device(Data):
         super().__init__( device if isinstance(device, str) else "Synth" )
 
 
+
+class Axes(Data):
+    """`Data -> Axes`
+
+    The axes set by the `ArticulatedPlot` class on the `Clip` made of 8 integers as `list[int]`.
+    """
+    pass
+
+

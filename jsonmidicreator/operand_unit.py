@@ -2363,3 +2363,13 @@ class LSB(Midi):
     """
     pass
 
+
+
+class Iteration(Unit):
+    """`Unit -> Iteration`
+
+    Represents the `Plot` iteration if applicable set on the `Clip`
+    """
+    pass
+
+
