@@ -57,15 +57,20 @@ def four_measures_durations_and_degrees(clip: 'oc.Clip', axes: list[int]) -> 'oc
 
     # Root stage for durations
     changed: bool = False
+    new_clip = clip.empty_copy()
     for measure_i in range(4):
         if all(axis == 0 for axis in axes) or axes[measure_i * 2] != root_axes[measure_i]:
             setting_durations = tr.IChooseDuration(no_repeats=True)
+            clip_measure = clip & ra.Measure(measure_i)
             for _ in range(axes[measure_i * 2]):
-                clip << of.Equal(ra.Measure(measure_i))**setting_durations
-            root_axes[measure_i] = axes[measure_i * 2]
-            root_clip << of.Equal(ra.Measure(measure_i))**(clip & ra.Measure(measure_i))
+                clip_measure << setting_durations
+            new_clip += clip_measure
+            root_axes[measure_i] = axes[measure_i * 2]  # Updates the axis
         else:
-            clip << of.Equal(ra.Measure(measure_i))**(root_clip & ra.Measure(measure_i))
+            clip_measure = root_clip & ra.Measure(measure_i)
+            new_clip += clip_measure
+    root_clip = new_clip
+    clip << new_clip
 
     # 2nd stage for degrees
     for measure_i in range(4):
