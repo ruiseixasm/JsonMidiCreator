@@ -56,7 +56,6 @@ def four_measures_durations_and_degrees(clip: 'oc.Clip', axes: list[int]) -> 'oc
     global root_clip, root_axes
 
     # Root stage for durations
-    changed: bool = False
     new_clip = clip.empty_copy()
     for measure_i in range(4):
         if all(axis == 0 for axis in axes) or axes[measure_i * 2] != root_axes[measure_i]:
