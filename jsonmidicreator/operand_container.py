@@ -2050,6 +2050,9 @@ class Clip(Composition):  # Just a container of Elements
                         else:
                             for single_element, single_parameter in zip(framed_elements, non_input_filter_operand):
                                 single_element << single_parameter
+                    case Clip():
+                        clip_list = non_input_filter_operand.elements_unmasked()
+                        self << frame.set_non_frame(clip_list)
                     case tuple():   # Many at once, for filtering frames only
                         for single_operand in non_input_filter_operand:
                             # Replace the Operand on the frame

@@ -181,10 +181,10 @@ def test_element_replacement():
     four_notes = Note(1/4) * 4
     assert four_notes.net_duration() == Beats(4)
 
-    four_notes << Odd()**triplet
+    four_notes << Odd()**Triplet()
     print(f"four_notes.len(): {four_notes.len()}")
-    assert four_notes.len() == 2 + 2*3
-    # four_notes >> Plot(block=False)
+    assert four_notes.len() == 4
+    # four_notes >> Plot()
 
 # test_element_replacement()
 
