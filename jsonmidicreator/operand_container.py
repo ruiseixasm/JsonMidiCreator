@@ -1410,6 +1410,8 @@ class Clip(Composition):  # Just a container of Elements
         self._track_number: int         = 1 # Only useful to render .midi files
         self._items: list[oe.Element]   = []
         self._drum_kit: dict[str, Any]  = {}
+        self._plot_iteration: int = 0
+        self._plot_axes: list[int] = [0] * 8
         for single_operand in operands:
             self << single_operand
 

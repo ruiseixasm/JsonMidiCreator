@@ -1378,6 +1378,7 @@ class Plot(Process):
             new_iteration = self.transformation.new_iteration(self._compositions)
             if isinstance(new_iteration, oc.Clip):
                 self._iteration_index = len(self._compositions)
+                new_iteration._plot_iteration = self._iteration_index
                 plotlist: list[dict] = new_iteration.getPlotlist()
                 new_checksum_str: str = o.checksum_to_string(new_iteration.checksum())
                 self._compositions.append(new_iteration)
@@ -1641,11 +1642,13 @@ class ArticulatedPlot(Plot):
     def _update_plot_list(self) -> Self:
         # Always generate from the original Clip, never from index 1.
         original: oc.Clip = self._compositions[0]
-        generated: oc.Clip = self.articulate(original.copy(), self._axes)
+        generated: oc.Clip = self.articulate(original.copy(), self._axes.copy())
 
         if not isinstance(generated, oc.Clip):
             raise TypeError("The generator must return a Clip.")
         
+        generated._plot_axes = self._axes.copy()
+
         # The generated Clip always occupies index 1.
         plotlist = generated.getPlotlist()
         checksum = o.checksum_to_string(generated.checksum())
