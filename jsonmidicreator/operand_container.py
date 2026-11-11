@@ -1415,8 +1415,10 @@ class Clip(Composition):  # Just a container of Elements
         for single_operand in operands:
             self << single_operand
 
+
     def _get_time_signature(self) -> 'og.TimeSignature':
         return self._time_signature
+
 
     def _set_time_signature(self, time_signature: 'og.TimeSignature', pipe_it: bool = False) -> Self:
         if not pipe_it:
@@ -1472,7 +1474,8 @@ class Clip(Composition):  # Just a container of Elements
                 self._replace(target_element, value)    # Makes sure it propagates
                 value._set_owner_clip(self) # Makes sure `value` is owned by the Clip
         return self._sort_items()
-    
+
+
     def __next__(self) -> 'oe.Element':
         return super().__next__()
 
@@ -1485,6 +1488,7 @@ class Clip(Composition):  # Just a container of Elements
             Element: The first Element of all Elements.
         """
         return super().first()
+
 
     def _last_element(self) -> 'oe.Element':
         """
@@ -1510,6 +1514,7 @@ class Clip(Composition):  # Just a container of Elements
             return elements_unmasked[0]
         return None
 
+
     def _last_element_unmasked(self) -> 'oe.Element':
         """
         Gets the last Element accordingly to it's Position on the TimeSignature.
@@ -1521,21 +1526,25 @@ class Clip(Composition):  # Just a container of Elements
         if elements_unmasked:
             return elements_unmasked[-1]
         return None
-    
+
+
     def is_masked(self) -> bool:
         for single_element in self._items:
             if single_element._masked:
                 return True
         return False
-    
+
+
     def elements(self) -> list['oe.Element']:
         return self._items
+
 
     def elements_unmasked(self) -> list['oe.Element']:
         return [
             single_element for single_element in self._items
             if not single_element._masked
         ]
+
 
     def len_unmasked(self) -> int:
         """
@@ -1546,6 +1555,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         return len(self.elements_unmasked())
 
+
     def first_unmasked(self) -> Any:
         """
         Gets the first Item accordingly to it's Position on the TimeSignature.
@@ -1554,6 +1564,7 @@ class Clip(Composition):  # Just a container of Elements
             Item: The first Item of all Items.
         """
         return self._first_element_unmasked()
+
 
     def last_unmasked(self) -> Any:
         """
@@ -1602,6 +1613,7 @@ class Clip(Composition):  # Just a container of Elements
                 return False
         return True
 
+
     def checksum(self) -> int:
         """16-bit checksum for a `Clip`, combining Element checksums."""
         master: int = 0
@@ -1627,6 +1639,7 @@ class Clip(Composition):  # Just a container of Elements
             return first_element % ra.Position(self)
         return None
 
+
     # Ignores the self Length
     def net_finish(self) -> 'ra.Position':
         """
@@ -1650,6 +1663,7 @@ class Clip(Composition):  # Just a container of Elements
                         finish_beats = element_finish
             return ra.Position(self, finish_beats)
         return None
+
 
     def net_finish_unmasked(self) -> 'ra.Position':
         """
@@ -1688,6 +1702,7 @@ class Clip(Composition):  # Just a container of Elements
     def all_elements(self) -> list['oe.Element']:
         return self._items
 
+
     def at_position_elements(self, position: 'ra.Position') -> list['oe.Element']:
         position_beats: Fraction = position._rational
         return [
@@ -1708,6 +1723,7 @@ class Clip(Composition):  # Just a container of Elements
             case _:
                 return super().__eq__(other)
 
+
     def __lt__(self, other: any) -> bool:
         match other:
             case of.Frame():
@@ -1719,6 +1735,7 @@ class Clip(Composition):  # Just a container of Elements
                 return True
             case _:
                 return super().__lt__(other)
+
 
     def __gt__(self, other: any) -> bool:
         match other:
@@ -1758,10 +1775,14 @@ class Clip(Composition):  # Just a container of Elements
                 return ou.TrackNumber(self._track_number)
             case Devices():
                 return Devices(self._devices)
+            case ou.Iteration():
+                return ou.Iteration(self._plot_iteration)
+            case od.Axes():
+                return od.Axes(self._plot_axes)
             case Section():
-                new_block = Section(self._time_signature)
-                new_block += self   # Implicit copy
-                return new_block
+                new_section = Section(self._time_signature)
+                new_section += self   # Implicit copy
+                return new_section
             case Part():
                 new_part = Part(self._time_signature)
                 new_part += self
@@ -1915,6 +1936,7 @@ class Clip(Composition):  # Just a container of Elements
                 single_element.getMidilist(position_beats)
             )
         return self_midilist
+
 
     def getSerialization(self) -> dict:
         """
@@ -3169,16 +3191,16 @@ class Section(Composition):
                 else:
                     self.append(Clip(operand))
             case int():
-                new_blocks: list[Section] = []
+                new_sections: list[Section] = []
                 if operand > 0:
                     stackable_length: ra.Length = self.stackable_length()
                     if stackable_length is not None:
                         next_position: ra.Position = self % ra.Position()
                         for _ in range(operand):
                             self_copy: Section = self.copy(next_position)
-                            new_blocks.append(self_copy)
+                            new_sections.append(self_copy)
                             next_position += stackable_length
-                return Part(self._get_time_signature(), od.Pipe(new_blocks))._set_owner_part()._sort_items()
+                return Part(self._get_time_signature(), od.Pipe(new_sections))._set_owner_part()._sort_items()
 
             case _:
                 super().__imul__(operand)
@@ -3746,9 +3768,9 @@ class Part(Composition):
                 
                 position_measure: ra.Position = ra.Position(0)
                 for block_index in operand:
-                    new_block: Section = self[block_index].copy(position_measure)
-                    base_blocks.append(new_block)
-                    stackable_length: ra.Measure = new_block.stackable_length() % ra.Measure()
+                    new_section: Section = self[block_index].copy(position_measure)
+                    base_blocks.append(new_section)
+                    stackable_length: ra.Measure = new_section.stackable_length() % ra.Measure()
                     position_measure += stackable_length
 
                 self._items = base_blocks
