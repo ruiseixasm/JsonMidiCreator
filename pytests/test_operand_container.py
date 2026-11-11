@@ -1514,6 +1514,10 @@ def test_framed_element():
     eight_notes << Equal(Measure(1))**(four_notes % list())
     assert all(note % Degree() == 1 for note in eight_notes & Measure(0))
     assert all(note % Degree() == 3 for note in eight_notes & Measure(1))
+    eight_notes = Note() * 8
+    eight_notes << Equal(Measure(1))**four_notes
+    assert all(note % Degree() == 1 for note in eight_notes & Measure(0))
+    assert all(note % Degree() == 3 for note in eight_notes & Measure(1))
 
 # test_framed_element()
 
