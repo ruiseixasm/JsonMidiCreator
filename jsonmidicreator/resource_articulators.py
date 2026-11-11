@@ -63,9 +63,9 @@ def four_measures_durations_and_degrees(clip: 'oc.Clip', axes: list[int]) -> 'oc
             for _ in range(axes[measure_i * 2]):
                 clip << of.Equal(ra.Measure(measure_i))**setting_durations
             root_axes[measure_i] = axes[measure_i * 2]
-            root_clip << of.Equal(ra.Measure(measure_i))**clip
+            root_clip << of.Equal(ra.Measure(measure_i))**(clip & ra.Measure(measure_i))
         else:
-            clip << of.Equal(ra.Measure(measure_i))**root_clip
+            clip << of.Equal(ra.Measure(measure_i))**(root_clip & ra.Measure(measure_i))
 
     # 2nd stage for degrees
     for measure_i in range(4):
