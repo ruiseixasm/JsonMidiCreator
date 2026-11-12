@@ -2009,9 +2009,11 @@ class Clip(Composition):  # Just a container of Elements
             case Clip():
                 if operand is not self: # Optimization
                     super().__lshift__(operand)
-                    self._time_signature << operand._time_signature
-                    self._track_number  = operand._track_number
-                    self._drum_kit      = o.deep_copy(operand._drum_kit)
+                    self._time_signature    << operand._time_signature
+                    self._track_number      = operand._track_number
+                    self._drum_kit          = o.deep_copy(operand._drum_kit)
+                    self._plot_iteration    = operand._plot_iteration
+                    self._plot_axes         = operand._plot_axes.copy()
                     self._set_owner_clip()
 
             case od.Pipe():
