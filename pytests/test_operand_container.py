@@ -730,7 +730,12 @@ def test_mul_section():
     assert stacked_section % Length() == Beats(4) * 2
     stacked_part = first_section * second_section
     assert stacked_part % Length() == Beats(4) * 2
-
+    third_clip = ~first_clip << TimeSignature(6)
+    assert first_section % Length() == Beats(4)
+    assert third_clip % Length() == Beats(6)
+    stacked_section = first_section * third_clip
+    # stacked_section >> Plot()
+    assert stacked_section % Length() == Beats(4) + Beats(6)
 
 # test_mul_section()
 

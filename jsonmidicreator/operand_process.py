@@ -315,13 +315,13 @@ class Plot(Process):
 
         if isinstance(composition, oc.Section):
             measure_position: int = int(
-                self._position_beats / beats_per_measure
+                composition._position_beats / beats_per_measure
             )
             chart_title += f"({measure_position}) - "
         else:
             chart_title += " - "
 
-        if composition.is_masked():
+        if isinstance(composition, oc.Clip) and composition.is_masked():
             chart_title += "Masked - "
 
         if isinstance(self.transformation, tr.Transformation):
