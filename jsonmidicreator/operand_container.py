@@ -3536,6 +3536,15 @@ class Part(Composition):
         return finish_position
 
 
+    def stackable_length(self) -> 'ra.Length':
+        self_stackable_length: ra.Length = ra.Length(self, 0)
+        for single_section in self._items:
+            clip_stackable_length: ra.Length = single_section.stackable_length()
+            if clip_stackable_length._rational > self_stackable_length._rational:
+                self_stackable_length._rational = clip_stackable_length._rational
+        return self_stackable_length
+
+
     def all_elements(self) -> list['oe.Element']:
         elements: list[oe.Element] = []
         for single_section in self._items:
