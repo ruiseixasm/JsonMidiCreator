@@ -1094,7 +1094,7 @@ class Composition(Container):
         return None
 
 
-    def stackable_length(self) -> 'ra.Position':
+    def stackable_length(self) -> 'ra.Length':
         if self._items:
             last_position: ra.Position = self._last_position()
             position_length: ra.Length = ra.Length( last_position.roundMeasures() ) + ra.Measure(1)
@@ -2924,6 +2924,15 @@ class Section(Composition):
                 else:
                     finish_position = clip_finish
         return finish_position
+
+
+    def stackable_length(self) -> 'ra.Length':
+        self_stackable_length: ra.Length = ra.Length(self, 0)
+        for single_clip in self._items:
+            clip_stackable_length: ra.Length = single_clip.stackable_length()
+            if clip_stackable_length > self_stackable_length:
+                self_stackable_length._rational = clip_stackable_length._rational
+        return self_stackable_length
 
 
     def all_elements(self) -> list['oe.Element']:
