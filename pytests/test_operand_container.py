@@ -721,6 +721,20 @@ def test_mul_element():
     assert four_notes_single_line.net_duration() == Measures(1)
 
 
+def test_mul_section():
+    first_clip = Note() * 1
+    second_clip = ~first_clip
+    first_section = Section(first_clip)
+    second_section = ~first_section
+    stacked_section = first_section * second_clip
+    assert stacked_section % Length() == Beats(4) * 2
+    stacked_part = first_section * second_section
+    assert stacked_part % Length() == Beats(4) * 2
+
+
+# test_mul_section()
+
+
 def test_element_stacking():
 
     settings << Quantization(1/16)   # 1/4 Beats again

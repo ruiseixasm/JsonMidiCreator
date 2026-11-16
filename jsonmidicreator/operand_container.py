@@ -3080,6 +3080,7 @@ class Section(Composition):
                 self._position_beats    = o.deserialize(serialization["parameters"]["position_beats"])
         return self
 
+
     def __lshift__(self, operand: any) -> Self:
         # A `Block` is Homologous to an Element, and thus, it processes Frames too
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -3162,6 +3163,7 @@ class Section(Composition):
                 super().__iadd__(operand)
         return self
 
+
     def __isub__(self, operand: any) -> Self:
         # A `Block` is Homologous to an Element, and thus, it processes Frames too
         # Do `Frame**(Frame,)` to do a Frame of a frame, by wrapping a frame in a tuple
@@ -3175,15 +3177,15 @@ class Section(Composition):
                 super().__isub__(operand)
         return self
 
+
     def __imul__(self, operand: any) -> Self:
         # A `Block` is Homologous to an Element, and thus, it processes Frames too
         # Do `Frame**(Frame,)` to do a Frame of a frame, by wrapping a frame in a tuple
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
             case Section():
-                new_part = Part()
+                new_part = Part([self])   # Works akin to `Element` class
                 stackable_length: ra.Length = self.stackable_length()
-                new_part += self
                 if stackable_length is not None:
                     new_part += operand.copy(ra.Position(stackable_length))
                 else:
@@ -3216,6 +3218,7 @@ class Section(Composition):
             case _:
                 super().__imul__(operand)
         return self
+
 
     def __itruediv__(self, operand: any) -> Self:
         # A `Block` is Homologous to an Element, and thus, it processes Frames too
@@ -3252,6 +3255,7 @@ class Section(Composition):
             case _:
                 super().__itruediv__(operand)
         return self
+
 
     def __ifloordiv__(self, operand: any) -> Self:
         match operand:
