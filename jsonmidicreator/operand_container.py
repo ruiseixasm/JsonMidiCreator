@@ -2930,7 +2930,7 @@ class Section(Composition):
         self_stackable_length: ra.Length = ra.Length(self, 0)
         for single_clip in self._items:
             clip_stackable_length: ra.Length = single_clip.stackable_length()
-            if clip_stackable_length > self_stackable_length:
+            if clip_stackable_length._rational > self_stackable_length._rational:
                 self_stackable_length._rational = clip_stackable_length._rational
         return self_stackable_length
 
