@@ -3029,8 +3029,7 @@ class Section(Composition):
         if from_part:   # Block by itself is played right away, so, no position considered
             section_position_beats = self._position_beats
         for single_clip in self._items:
-            clip_position_beats: Fraction = single_clip._position_beats
-            clip_plotlist: list[dict] = single_clip.getPlotlist(clip_position_beats + section_position_beats)
+            clip_plotlist: list[dict] = single_clip.getPlotlist(section_position_beats)
             plot_list.extend( clip_plotlist )
         return plot_list
 
@@ -3052,8 +3051,7 @@ class Section(Composition):
         if from_part:   # Block by itself is played right away, so, no position considered
             section_position_beats = self._position_beats
         for single_clip in self._items:
-            clip_position_beats: Fraction = single_clip._position_beats
-            play_list.extend(single_clip.getPlaylist(clip_position_beats + section_position_beats))
+            play_list.extend(single_clip.getPlaylist(section_position_beats))
         return play_list
 
 
@@ -3074,8 +3072,7 @@ class Section(Composition):
         if from_part:   # Block by itself is played right away, so, no position considered
             section_position_beats = self._position_beats
         for single_clip in self:
-            clip_position_beats: Fraction = single_clip._position_beats
-            midi_list.extend(single_clip.getMidilist(clip_position_beats + section_position_beats))
+            midi_list.extend(single_clip.getMidilist(section_position_beats))
         return midi_list
 
 
