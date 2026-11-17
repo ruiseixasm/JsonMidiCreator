@@ -2027,6 +2027,7 @@ class Clip(Composition):  # Just a container of Elements
                 if operand is not self: # Optimization
                     super().__lshift__(operand)
                     self._time_signature    << operand._time_signature
+                    self._position_beats    = operand._position_beats
                     self._track_number      = operand._track_number
                     self._drum_kit          = o.deep_copy(operand._drum_kit)
                     self._plot_iteration    = operand._plot_iteration
