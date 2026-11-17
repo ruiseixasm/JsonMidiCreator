@@ -1130,7 +1130,7 @@ class Composition(Container):
             Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
         """
         if self._items:
-            return ra.Length(self.net_finish())
+            return ra.Length(self.net_finish() - self.gross_start())
         return ra.Length(self, 0)
 
     
