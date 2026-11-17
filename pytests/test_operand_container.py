@@ -722,7 +722,7 @@ def test_mul_element():
 
 
 def test_mul_section():
-    first_clip = Note() * 1
+    first_clip = Note() * 1 << Measures(1)
     second_clip = ~first_clip
     first_section = Section(first_clip)
     second_section = ~first_section
@@ -730,7 +730,7 @@ def test_mul_section():
     assert stacked_section % Length() == Beats(4) * 2
     stacked_part = first_section * second_section
     assert stacked_part % Length() == Beats(4) * 2
-    third_clip = ~first_clip << TimeSignature(6)
+    third_clip = ~first_clip << TimeSignature(6) << Measures(1)
     assert first_section % Length() == Beats(4)
     assert third_clip % Length() == Beats(6)
     stacked_section = first_section * third_clip
