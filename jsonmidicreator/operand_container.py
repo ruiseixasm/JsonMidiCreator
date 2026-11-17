@@ -3233,7 +3233,8 @@ class Section(Composition):
                 stackable_length: ra.Length = self.stackable_length()
                 if stackable_length is not None:
                     stack_position: ra.Position = ra.Position(stackable_length)
-                    positioned_clip: Clip = operand.copy(stack_position)
+                    positioned_clip: Clip = operand.copy()
+                    positioned_clip._position_beats += stack_position._rational
                     self.append(positioned_clip)    # Implicit copy
                 else:
                     self.append(operand.copy())     # Explicit copy
@@ -3257,73 +3258,6 @@ class Section(Composition):
 
             case _:
                 super().__imul__(operand)
-        return self
-
-
-    def __itruediv__(self, operand: any) -> Self:
-        # A `Block` is Homologous to an Element, and thus, it processes Frames too
-        # Do `Frame**(Frame,)` to do a Frame of a frame, by wrapping a frame in a tuple
-        operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
-        match operand:
-            case Section():
-                new_part = Part()
-                new_part += self
-                finish_position: ra.Position = self.net_finish_unmasked()
-                if finish_position is not None:
-                    new_part += operand.copy(finish_position)
-                else:
-                    new_part += operand
-                return new_part
-            case Clip():
-                finish_position: ra.Position = self.net_finish_unmasked()
-                repositioned_clip: Clip = operand + finish_position # Implicit copy
-                self.append(repositioned_clip) # No implicit copy
-            case oe.Element():
-                finish_position: ra.Position = self.net_finish_unmasked()
-                repositioned_clip: Clip = Clip()
-                repositioned_clip += operand
-                repositioned_clip += finish_position
-                self.append(repositioned_clip) # No implicit copy
-            case int():
-                if operand > 1:
-                    single_shallow_copy: Section = self.shallow_copy()
-                    for _ in range(operand - 1):
-                        self.__itruediv__(single_shallow_copy)
-                elif operand == 0:
-                    self.delete()
-                    
-            case _:
-                super().__itruediv__(operand)
-        return self
-
-
-    def __ifloordiv__(self, operand: any) -> Self:
-        match operand:
-            case Section():
-                new_part = Part()
-                new_part += self
-                start_position: ra.Position = self.start()
-                if start_position is not None:
-                    new_part += operand.copy(start_position)
-                else:
-                    new_part += operand
-                return new_part
-            case Clip():
-                self.append(operand.copy())
-            case oe.Element():
-                new_clip = Clip()
-                new_clip += operand
-                self.append(new_clip)
-            case int():
-                if operand > 1:
-                    single_shallow_copy: Section = self.shallow_copy()
-                    for _ in range(operand - 1):
-                        self += single_shallow_copy
-                elif operand == 0:
-                    self.delete()
-
-            case _:
-                super().__ifloordiv__(operand)
         return self
 
 
