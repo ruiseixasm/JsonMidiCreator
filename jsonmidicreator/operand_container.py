@@ -1095,13 +1095,6 @@ class Composition(Container):
 
 
     def stackable_length(self) -> 'ra.Length':
-        if self._items:
-            last_position: ra.Position = self._last_position()
-            position_length: ra.Length = ra.Length( last_position.roundMeasures() ) + ra.Measure(1)
-            finish_length: ra.Length = ra.Length( self.net_finish().roundMeasures() )
-            if finish_length > position_length:
-                return finish_length
-            return position_length
         return ra.Length(self, 0)
 
 
@@ -1697,6 +1690,17 @@ class Clip(Composition):  # Just a container of Elements
         if last_element is not None:
             return last_element % ra.Position()
         return None
+
+
+    def stackable_length(self) -> 'ra.Length':
+        if self._items:
+            last_position: ra.Position = self._last_position()
+            position_length: ra.Length = ra.Length( last_position.roundMeasures() ) + ra.Measure(1)
+            finish_length: ra.Length = ra.Length( self.net_finish().roundMeasures() )
+            if finish_length > position_length:
+                return finish_length
+            return position_length
+        return ra.Length(self, 0)
 
 
     def all_elements(self) -> list['oe.Element']:
