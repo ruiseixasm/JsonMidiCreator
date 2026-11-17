@@ -3023,7 +3023,7 @@ class Section(Composition):
             list[dict]: A list with multiple Plot configuration dictionaries.
         """
         plot_list: list = []
-        # AS A BLOCK THE PLAYING IS DONE RIGHT AWAY, WITHOUT ANY CONSIDERATION TO POSITION
+        # AS A SECTION THE PLAYING IS DONE RIGHT AWAY, WITHOUT ANY CONSIDERATION TO POSITION
         # ONLY WHEN from_part, IS THE Section POSITION SET
         section_position_beats = Fraction(0)
         if from_part:   # Section by itself is played right away, so, no position considered
@@ -3045,7 +3045,7 @@ class Section(Composition):
             list[dict]: A list with multiple Play configuration dictionaries.
         """
         play_list: list = []
-        # AS A BLOCK THE PLAYING IS DONE RIGHT AWAY, WITHOUT ANY CONSIDERATION TO POSITION
+        # AS A SECTION THE PLAYING IS DONE RIGHT AWAY, WITHOUT ANY CONSIDERATION TO POSITION
         # ONLY WHEN from_part, IS THE Section POSITION SET
         section_position_beats = Fraction(0)
         if from_part:   # Section by itself is played right away, so, no position considered
@@ -3066,7 +3066,7 @@ class Section(Composition):
             list[dict]: A list with multiple Midi file configuration dictionaries.
         """
         midi_list: list = []
-        # AS A BLOCK THE PLAYING IS DONE RIGHT AWAY, WITHOUT ANY CONSIDERATION TO POSITION
+        # AS A SECTION THE PLAYING IS DONE RIGHT AWAY, WITHOUT ANY CONSIDERATION TO POSITION
         # ONLY WHEN from_part, IS THE Section POSITION SET
         section_position_beats = Fraction(0)
         if from_part:   # Section by itself is played right away, so, no position considered
