@@ -744,6 +744,10 @@ def test_mul_section():
     stacked_section *= second_clip
     print(f"stacked_section % Length(): {stacked_section % Length() % Fraction()}")
     # stacked_section >> Plot()
+    assert stacked_section % int() == 3
+    assert stacked_section[0] == Position(0)
+    assert stacked_section[1] == Position(0) + Beats(4)
+    assert stacked_section[2] == Position(0) + Beats(4) + Beats(6)
     assert stacked_section % Length() == Beats(4) + Beats(6) + Beats(4)
 
 # test_mul_section()
