@@ -1160,7 +1160,7 @@ class Composition(Container):
             Duration: Equal to `Clip.finish()` converted to `Duration`.
         """
         if self._items:
-            return ra.Duration(self.gross_finish())
+            return ra.Duration(self.gross_finish() - self.gross_start())
         return ra.Duration(self, 0)
 
     
