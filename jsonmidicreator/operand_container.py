@@ -881,8 +881,8 @@ class Composition(Container):
         super().__init__(*operands)
 
 
-    def _get_time_signature(self) -> 'og.TimeSignature':
-        return og.settings._time_signature
+    def _get_time_signature(self) -> Union[None, 'og.TimeSignature']:
+        return None # Only a Clip has a TimeSignature
 
     def _set_time_signature(self, time_signature: 'og.TimeSignature', pipe_it: bool = False) -> Self:
         return self
@@ -2792,16 +2792,6 @@ class Section(Composition):
         for single_operand in operands:
             self << single_operand
 
-    def _get_time_signature(self) -> 'og.TimeSignature':
-        if self._items:
-            return self._items[0]._time_signature
-        return super()._get_time_signature()
-
-    def _set_time_signature(self, time_signature: 'og.TimeSignature', pipe_it: bool = False) -> Self:
-        for single_clip in self._items:
-            single_clip._set_time_signature(time_signature, pipe_it)
-        return self
-
 
     def _set_owner_part(self, owner_part: 'Part') -> Self:
         if isinstance(owner_part, Part):
@@ -3291,20 +3281,6 @@ class Part(Composition):
         self._items: list[Section]    = []
         for single_operand in operands:
             self << single_operand
-
-    def _get_time_signature(self) -> 'og.TimeSignature':
-        if self._items:
-            first_section = self._items[0]
-            if first_section._items:
-                return first_section._items[0]._time_signature
-        return super()._get_time_signature()
-
-    def _set_time_signature(self, time_signature: 'og.TimeSignature', pipe_it: bool = False) -> Self:
-        for single_section in self._items:
-            for single_clip in single_section:
-                single_clip._set_time_signature(time_signature, pipe_it)
-        return self
-
 
     # UNMASKED METHODS
 
