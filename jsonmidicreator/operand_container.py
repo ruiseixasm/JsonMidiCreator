@@ -897,6 +897,7 @@ class Composition(Container):
     def elements_unmasked(self) -> list['oe.Element']:
         return []
 
+
     def net_start_unmasked(self) -> 'ra.Position':
         """
         Gets the starting position of all its Elements.
@@ -910,6 +911,7 @@ class Composition(Container):
             return first_element_unmasked % ra.Position()
         return None
 
+
     def net_finish_unmasked(self) -> 'ra.Position':
         """
         Processes each element Position plus Length and returns the finish position
@@ -919,6 +921,7 @@ class Composition(Container):
             Position: The maximum of Position + Length of all Elements.
         """
         return None
+
 
     def net_length_unmasked(self) -> 'ra.Length':
         """
@@ -944,6 +947,7 @@ class Composition(Container):
             Element: The first Element of all Elements.
         """
         return None
+
 
     def _last_element(self) -> 'oe.Element':
         """
@@ -973,11 +977,13 @@ class Composition(Container):
             return last_element % ra.Position()
         return None
 
+
     def _last_position_unmasked(self) -> 'ra.Position':
         last_element: oe.Element = self._last_element_unmasked()
         if last_element is not None:
             return last_element % ra.Position()
         return None
+
 
     def net_length_unmasked(self) -> 'ra.Length':
         """
@@ -991,6 +997,7 @@ class Composition(Container):
             return ra.Length(self.net_finish_unmasked() - self.net_start_unmasked())
         return ra.Length(self, 0)
 
+
     def net_duration_unmasked(self) -> 'ra.Duration':
         """
         Returns the `Duration` that goes from `start` to the `finish` of all elements.
@@ -1003,6 +1010,7 @@ class Composition(Container):
     
     def checksum(self) -> int:
         return 0
+
 
     def composition_filename(self) -> str:
         # Process title separately (replace whitespace with underscores)
@@ -2804,7 +2812,6 @@ class Section(Composition):
         return elements_unmasked
 
 
-
     def __getitem__(self, index: Any) -> 'Clip':
         return super().__getitem__(index)
     
@@ -2905,6 +2912,7 @@ class Section(Composition):
                     start_position = clip_start
         return start_position
 
+
     def net_finish(self) -> ra.Position:
         """
         Processes each clip `Position` plus Length and returns the finish position
@@ -2916,12 +2924,8 @@ class Section(Composition):
         Returns:
             Position: The maximum of `Position` + Length of all Clips.
         """
-        clips_list: list[Clip] = [
-            clip for clip in self._items if isinstance(clip, Clip)
-        ]
-
         finish_position: ra.Position = None
-        for single_clip in clips_list:
+        for single_clip in self._items:
             clip_finish: ra.Position = single_clip.net_finish_unmasked()
             if clip_finish is not None:
                 if finish_position is not None:
@@ -2930,6 +2934,19 @@ class Section(Composition):
                 else:
                     finish_position = clip_finish
         return finish_position
+
+
+    def gross_length(self) -> 'ra.Length':
+        """
+        Returns the rounded `Length` to `Measures` that goes from 0 to position of the last `Element`.
+
+        Args:
+            None
+
+        Returns:
+            Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
+        """
+        return self.length().roundMeasures()
 
 
     def stackable_length(self) -> 'ra.Length':
@@ -2946,6 +2963,7 @@ class Section(Composition):
         for single_clip in self._items:
             elements.extend(single_clip.all_elements())
         return elements
+
 
     def at_position_elements(self, position: 'ra.Position') -> list['oe.Element']:
         position_beats: Fraction = position._rational - self._position_beats
@@ -3032,6 +3050,7 @@ class Section(Composition):
                 play_list.extend(single_clip.getPlaylist(self._position_beats))
         return play_list
 
+
     def getMidilist(self, from_part: bool = False) -> list[dict]:
         """
         Returns the midilist for a given Position.
@@ -3047,6 +3066,7 @@ class Section(Composition):
             if isinstance(single_clip, Clip):   # Can't get Midilist from Playlist !
                 midi_list.extend(single_clip.getMidilist(self._position_beats))
         return midi_list
+
 
     def getSerialization(self) -> dict:
         """
