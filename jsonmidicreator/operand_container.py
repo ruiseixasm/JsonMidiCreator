@@ -1892,6 +1892,8 @@ class Clip(Composition):  # Just a container of Elements
         """
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0, 1)
+        else:
+            position_beats += self._position_beats
 
         self_plotlist: list[dict] = [
             single_playlist
@@ -1924,6 +1926,8 @@ class Clip(Composition):  # Just a container of Elements
         ]
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0, 1)
+        else:
+            position_beats += self._position_beats
 
         component_elements = self.get_element_components()
         for single_element in component_elements:
@@ -1945,6 +1949,8 @@ class Clip(Composition):  # Just a container of Elements
         """
         if not isinstance(position_beats, Fraction):
             position_beats = Fraction(0, 1)
+        else:
+            position_beats += self._position_beats
 
         self_midilist: list[dict] = []
         component_elements = self.get_element_components()
