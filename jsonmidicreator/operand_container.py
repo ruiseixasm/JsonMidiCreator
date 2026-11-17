@@ -2958,12 +2958,12 @@ class Section(Composition):
 
 
     def stackable_length(self) -> 'ra.Length':
-        self_stackable_length: ra.Length = ra.Length(0)
+        self_stackable_length_beats = Fraction(0)
         for single_clip in self._items:
-            clip_stackable_length: ra.Length = single_clip.stackable_length()
-            if clip_stackable_length._rational > self_stackable_length._rational:
-                self_stackable_length._rational = clip_stackable_length._rational
-        return self_stackable_length
+            clip_stackable_length_beats: Fraction = single_clip.stackable_length() % Fraction()
+            if clip_stackable_length_beats > self_stackable_length_beats:
+                self_stackable_length_beats = clip_stackable_length_beats
+        return ra.Length(self_stackable_length_beats)
 
 
     def all_elements(self) -> list['oe.Element']:
