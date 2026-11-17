@@ -929,9 +929,10 @@ class Composition(Container):
         Returns:
             Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
         """
-        elements_unmasked: list[oe.Element] = self.elements_unmasked()
-        if elements_unmasked:
-            return ra.Length(self.net_finish_unmasked() - self.net_start_unmasked())
+        net_start_unmasked = self.net_start_unmasked()
+        net_finish_unmasked = self.net_finish_unmasked()
+        if not (net_start_unmasked is None or net_finish_unmasked is None):
+            return ra.Length(net_finish_unmasked - net_start_unmasked)
         return ra.Length(self, 0)
         
 
