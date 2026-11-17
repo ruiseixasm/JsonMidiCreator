@@ -1638,7 +1638,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         first_element: oe.Element = self._first_element()
         if first_element is not None:
-            return first_element % ra.Position(self)
+            return first_element % ra.Position(self) + self._position_beats
         return None
 
 
@@ -1663,7 +1663,7 @@ class Clip(Composition):  # Just a container of Elements
                         single_element._position_beats + single_element._duration_beats
                     if element_finish > finish_beats:
                         finish_beats = element_finish
-            return ra.Position(self, finish_beats)
+            return ra.Position(self, finish_beats) + self._position_beats
         return None
 
 
@@ -1684,7 +1684,7 @@ class Clip(Composition):  # Just a container of Elements
                     single_element._position_beats + single_element._duration_beats
                 if element_finish > finish_beats:
                     finish_beats = element_finish
-            return ra.Position(self, finish_beats)
+            return ra.Position(self, finish_beats) + self._position_beats
         return None
 
 
@@ -1697,7 +1697,7 @@ class Clip(Composition):  # Just a container of Elements
         """
         last_element: oe.Element = self._last_element_unmasked()
         if last_element is not None:
-            return last_element % ra.Position()
+            return last_element % ra.Position() + self._position_beats
         return None
 
 
@@ -1710,8 +1710,8 @@ class Clip(Composition):  # Just a container of Elements
             finish_length: ra.Length = ra.Length( self.net_finish().roundMeasures() )
             if finish_length > last_position_length:
                 return finish_length
-            return last_position_length
-        return ra.Length(self, 0)
+            return last_position_length + self._position_beats
+        return ra.Length(self, 0) + self._position_beats
 
 
     def all_elements(self) -> list['oe.Element']:
@@ -3232,9 +3232,11 @@ class Section(Composition):
             case Clip():
                 stackable_length: ra.Length = self.stackable_length()
                 if stackable_length is not None:
-                    self.append(operand + ra.Position(stackable_length))  # Implicit copy
+                    stack_position: ra.Position = ra.Position(stackable_length)
+                    positioned_clip: Clip = operand.copy(stack_position)
+                    self.append(positioned_clip)    # Implicit copy
                 else:
-                    self.append(operand.copy())    # Explicit copy
+                    self.append(operand.copy())     # Explicit copy
             case oe.Element():
                 stackable_length: ra.Length = self.stackable_length()
                 if stackable_length is not None:
