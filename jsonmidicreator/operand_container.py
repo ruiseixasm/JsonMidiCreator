@@ -2961,8 +2961,27 @@ class Section(Composition):
         return self.length().roundMeasures()
 
 
+    def length(self) -> 'ra.Length':
+        """
+        Returns the rounded `Length` to `Measures` that goes from start to position of the last `Element`.
+
+        Args:
+            None
+
+        Returns:
+            Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
+        """
+        length_beats = Fraction(0)
+        for single_clip in self._items:
+            clip_length_beats = single_clip.length() % Fraction()
+            section_length_beats = clip_length_beats + single_clip._position_beats
+            if section_length_beats > length_beats:
+                length_beats = section_length_beats
+        return ra.Length(length_beats)
+
+
     def stackable_length(self) -> 'ra.Length':
-        self_stackable_length: ra.Length = ra.Length(self, 0)
+        self_stackable_length: ra.Length = ra.Length(0)
         for single_clip in self._items:
             clip_stackable_length: ra.Length = single_clip.stackable_length()
             if clip_stackable_length._rational > self_stackable_length._rational:
