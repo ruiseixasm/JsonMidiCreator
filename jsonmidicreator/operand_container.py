@@ -3023,17 +3023,15 @@ class Section(Composition):
             list[dict]: A list with multiple Plot configuration dictionaries.
         """
         plot_list: list = []
-        
         # AS A BLOCK THE PLAYING IS DONE RIGHT AWAY, WITHOUT ANY CONSIDERATION TO POSITION
         # ONLY WHEN from_part, IS THE Block POSITION SET
-        if not from_part:   # Block by itself is played right away, so, no position considered
-            for single_clip in self._items:
-                clip_plotlist: list[dict] = single_clip.getPlotlist()
-                plot_list.extend( clip_plotlist )
-        else:
-            for single_clip in self._items:
-                clip_plotlist: list[dict] = single_clip.getPlotlist(self._position_beats)
-                plot_list.extend( clip_plotlist )
+        section_position_beats = Fraction(0)
+        if from_part:   # Block by itself is played right away, so, no position considered
+            section_position_beats = self._position_beats
+        for single_clip in self._items:
+            clip_position_beats: Fraction = single_clip._position_beats
+            clip_plotlist: list[dict] = single_clip.getPlotlist(clip_position_beats + section_position_beats)
+            plot_list.extend( clip_plotlist )
         return plot_list
 
 
@@ -3050,12 +3048,12 @@ class Section(Composition):
         play_list: list = []
         # AS A BLOCK THE PLAYING IS DONE RIGHT AWAY, WITHOUT ANY CONSIDERATION TO POSITION
         # ONLY WHEN from_part, IS THE Block POSITION SET
-        if not from_part:   # Block by itself is played right away, so, no position considered
-            for single_clip in self._items:
-                play_list.extend(single_clip.getPlaylist())
-        else:
-            for single_clip in self._items:
-                play_list.extend(single_clip.getPlaylist(self._position_beats))
+        section_position_beats = Fraction(0)
+        if from_part:   # Block by itself is played right away, so, no position considered
+            section_position_beats = self._position_beats
+        for single_clip in self._items:
+            clip_position_beats: Fraction = single_clip._position_beats
+            play_list.extend(single_clip.getPlaylist(clip_position_beats + section_position_beats))
         return play_list
 
 
@@ -3070,9 +3068,14 @@ class Section(Composition):
             list[dict]: A list with multiple Midi file configuration dictionaries.
         """
         midi_list: list = []
+        # AS A BLOCK THE PLAYING IS DONE RIGHT AWAY, WITHOUT ANY CONSIDERATION TO POSITION
+        # ONLY WHEN from_part, IS THE Block POSITION SET
+        section_position_beats = Fraction(0)
+        if from_part:   # Block by itself is played right away, so, no position considered
+            section_position_beats = self._position_beats
         for single_clip in self:
-            if isinstance(single_clip, Clip):   # Can't get Midilist from Playlist !
-                midi_list.extend(single_clip.getMidilist(self._position_beats))
+            clip_position_beats: Fraction = single_clip._position_beats
+            midi_list.extend(single_clip.getMidilist(clip_position_beats + section_position_beats))
         return midi_list
 
 
