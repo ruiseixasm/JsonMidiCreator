@@ -2950,19 +2950,6 @@ class Section(Composition):
 
     def gross_length(self) -> 'ra.Length':
         """
-        Returns the rounded `Length` to `Measures` that goes from 0 to position of the last `Element`.
-
-        Args:
-            None
-
-        Returns:
-            Length: Equal to last `Element` position converted to `Length` and rounded by `Measures`.
-        """
-        return self.length().roundMeasures()
-
-
-    def length(self) -> 'ra.Length':
-        """
         Returns the rounded `Length` to `Measures` that goes from start to position of the last `Element`.
 
         Args:
