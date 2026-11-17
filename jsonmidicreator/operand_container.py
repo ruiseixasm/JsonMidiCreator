@@ -877,7 +877,6 @@ class Composition(Container):
     int : Returns the len of the list.
     """
     def __init__(self, *operands):
-        # Part sets the TimeSignature, this is just a reference
         self._name: str = "Unnamed"
         super().__init__(*operands)
 
