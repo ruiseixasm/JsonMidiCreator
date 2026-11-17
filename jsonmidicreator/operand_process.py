@@ -344,6 +344,8 @@ class Plot(Process):
         composition: oc.Composition = self._compositions[self._iteration_index]
         length_beats: int = composition % ra.Length() % ra.Beats() % int()
         time_signature = composition._get_time_signature()
+        if time_signature is None:
+            time_signature = og.settings._time_signature
         checksum_str: str = self._plot_checksums[self._iteration_index]
 
         self._ax.clear()
