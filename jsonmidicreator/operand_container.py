@@ -1710,8 +1710,8 @@ class Clip(Composition):  # Just a container of Elements
             finish_length: ra.Length = ra.Length( self.net_finish().roundMeasures() )
             if finish_length > last_position_length:
                 return finish_length
-            return last_position_length + self._position_beats
-        return ra.Length(self, 0) + self._position_beats
+            return last_position_length
+        return ra.Length(self, 0)
 
 
     def all_elements(self) -> list['oe.Element']:
@@ -2961,6 +2961,7 @@ class Section(Composition):
         self_stackable_length_beats = Fraction(0)
         for single_clip in self._items:
             clip_stackable_length_beats: Fraction = single_clip.stackable_length() % Fraction()
+            clip_stackable_length_beats += single_clip._position_beats
             if clip_stackable_length_beats > self_stackable_length_beats:
                 self_stackable_length_beats = clip_stackable_length_beats
         return ra.Length(self_stackable_length_beats)
