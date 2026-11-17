@@ -1694,12 +1694,14 @@ class Clip(Composition):  # Just a container of Elements
 
     def stackable_length(self) -> 'ra.Length':
         if self._items:
+            # Last position is the reference of the stackable length
             last_position: ra.Position = self._last_position()
-            position_length: ra.Length = ra.Length( last_position.roundMeasures() ) + ra.Measure(1)
+            last_position_length: ra.Length = ra.Length( last_position.roundMeasures() ) + ra.Measure(1)
+            # Finish position is considered instead of last position if is on a successive Measure
             finish_length: ra.Length = ra.Length( self.net_finish().roundMeasures() )
-            if finish_length > position_length:
+            if finish_length > last_position_length:
                 return finish_length
-            return position_length
+            return last_position_length
         return ra.Length(self, 0)
 
 
