@@ -1407,6 +1407,7 @@ class Clip(Composition):  # Just a container of Elements
     def __init__(self, *operands):
         super().__init__()
         self._time_signature: og.TimeSignature  = og.settings._time_signature.copy()
+        self._position_beats: Fraction  = Fraction(0)
         self._devices: list[str]        = og.settings._devices.copy()
         self._track_number: int         = 1 # Only useful to render .midi files
         self._items: list[oe.Element]   = []
@@ -1785,6 +1786,8 @@ class Clip(Composition):  # Just a container of Elements
                         return super().__mod__(operand)
             case of.Frame():    # Works as a Selector, returns the Self container copy but with the Frame applied
                 return self.__and__(operand)
+            case ra.Position():
+                return operand.copy(self, self._position_beats)
             case ou.TrackNumber():
                 return ou.TrackNumber(self._track_number)
             case Devices():
@@ -2106,10 +2109,12 @@ class Clip(Composition):  # Just a container of Elements
                             single_item << non_input_filter_operand
                 framed_elements = None
 
+            case ra.Position():
+                self._position_beats = operand._rational
+            
             case oa.Action():
                 operand.act(self, self.elements_unmasked())  # Sorting already included
                 return self # Makes sure self is returned
-
             case tr.Transformation():
                 operand.transform(self)  # Sorting already included
                 return self # Makes sure self is returned

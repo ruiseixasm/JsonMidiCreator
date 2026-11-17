@@ -967,17 +967,17 @@ def test_position_shift():
     assert chords % Position() == 0.0
     print(f"Position first [0]: {chords[0] % Position() % float()}")
     # To set ALL Chords into the SAME position, Steps need to be wrapped with Position
-    Position(Steps(3)) >> chords   # Step and NOT Steps is what changes Position
+    All()**Position(Steps(3)) >> chords   # Step and NOT Steps is what changes Position
     print(f"Position first [0]: {chords[0] % Position() % float()}")
     assert chords % Position() == 0.0   # Clip has no Position on its own
 
     # To set ALL Chords into the SAME position, Steps need to be wrapped with Position
-    Position(Steps(-3)) >> chords # SETS, doesn't Move!! # All Element positions set at Step -3 (Measure -1)
+    All()**Position(Steps(-3)) >> chords # SETS, doesn't Move!! # All Element positions set at Step -3 (Measure -1)
     print(f"Position first [0]: {chords[0] % Position() % float()}")
     assert chords[0] % Position() == Steps(-3)
     fifth_measure_chords = chords.copy()
     # To set ALL Chords into the SAME position, Measures need to be wrapped with Position
-    Position(Measures(4)) >> fifth_measure_chords # SETS, doesn't Move, all at Position 4 measure !!
+    All()**Position(Measures(4)) >> fifth_measure_chords # SETS, doesn't Move, all at Position 4 measure !!
     print(f"Chords Position: {chords % Position() % float()}")
     assert chords % Position() == 0.0   # Clip has no Position on its own
     # chords has ALL notes at negative Measure, so, Length ends up being 0.0 !!
@@ -1025,7 +1025,7 @@ def test_clip_duration():
     print(f"Duration_0: {four_notes_1 % Net(Duration()) % float()}")
     assert four_notes_1.len() == 4    # Total of 4 notes
     # Measures has to be wrapped with Position because by itself set the Duration!
-    assert Position(Measures(1)) >> four_notes_1 == Beats(4)  # Operator >> is a pass trough operator, sets all notes Position
+    assert All()**Position(Measures(1)) >> four_notes_1 == Beats(4)  # Operator >> is a pass trough operator, sets all notes Position
     # All Notes are now at position Measure 1
     print(f"Duration_1: {four_notes_1 % Net(Duration()) % float()}")
     assert four_notes_1.len() == 4    # Total of 4 notes
@@ -1290,7 +1290,7 @@ def test_split_note():
 
 def test_process_mask():
     # It splits by 4 elements (notes)
-    native_clip: Clip = Note(1/1) // 4 << Position(0)
+    native_clip: Clip = Note(1/1) // 4 << All()**Position(0)
     copy_clip: Clip = ~native_clip << Stack()
     assert copy_clip != native_clip
     masked_native_clip: Clip = native_clip.select(All())
