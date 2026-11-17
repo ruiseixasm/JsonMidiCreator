@@ -1175,7 +1175,7 @@ class Composition(Container):
             Duration: Equal to last finish `Element` position converted to `Duration`.
         """
         if self._items:
-            return ra.Duration(self.net_finish())
+            return ra.Duration(self.net_finish() - self.gross_start())
         return ra.Duration(self, 0)
 
             
