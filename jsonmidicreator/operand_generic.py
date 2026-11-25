@@ -2080,7 +2080,7 @@ class DrumKit(Generic):
         }
 
 
-    def get_pitch(self, name: str) -> int:
+    def get_pitch_by_name(self, name: str) -> int:
         lc_sample: str = name.strip().lower()
         if lc_sample != "":
             if self._drum_kit:
@@ -2094,6 +2094,18 @@ class DrumKit(Generic):
         return -1   # No valid pitch
 
 
+    def get_pitch_by_id(self, id: int) -> Union[int, 'ol.Null']:
+        if self._drum_kit:
+            for index, pitch in enumerate(self._drum_kit.values()):
+                if index == id - 1:
+                    return pitch
+        else:
+            for index, pitch in enumerate(DrumKit._standard_drum_kit.values()):
+                if index == id - 1:
+                    return pitch
+        return ol.Null()
+
+
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.Pipe():
@@ -2102,13 +2114,9 @@ class DrumKit(Generic):
                     case _:                         return super().__mod__(operand)
             case dict():                return o.deep_copy(self._drum_kit)
             case str(): # Returns the pitch by name
-                return self.get_pitch(operand)
+                return self.get_pitch_by_name(operand)
             case int():
-                for index, pitch in enumerate(self._drum_kit.values()):
-                    if index == operand - 1:
-                        return o.deep_copy(pitch)
-                return ol.Null()
-
+                return self.get_pitch_by_id(operand)
             case _:
                 return super().__mod__(operand)
 
