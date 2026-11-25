@@ -2024,8 +2024,74 @@ class DrumKit(Generic):
     dict({}) : A `dict` with named samples and their respective pitch.
     """
     def __init__(self, *parameters):
-        self._drum_kit: dict[str, Any] = {}
+        self._drum_kit: dict[str, int] = {}
         super().__init__(*parameters)
+
+
+    _standard_drum_kit: dict[str, int] = {
+            "Acoustic Bass Drum":       35,
+            "Bass Drum 1":              36,
+            "Side Stick":               37,
+            "Acoustic Snare":           38,
+            "Hand Clap":                39,
+            "Electric Snare":           40,
+            "Low Floor Tom":            41,
+            "Closed Hi-Hat":            42,
+            "High Floor Tom":           43,
+            "Pedal Hi-Hat":             44,
+            "Low Tom":                  45,
+            "Open Hi-Hat":              46,
+            "Low-Mid Tom":              47,
+            "Hi-Mid Tom":               48,
+            "Crash Cymbal 1":           49,
+            "High Tom":                 50,
+            "Ride Cymbal 1":            51,
+            "Chinese Cymbal":           52,
+            "Ride Bell":                53,
+            "Tambourine":               54,
+            "Splash Cymbal":            55,
+            "Cowbell":                  56,
+            "Crash Cymbal 2":           57,
+            "Vibraslap":                58,
+            "Ride Cymbal 2":            59,
+            "Hi Bongo":                 60,
+            "Low Bongo":                61,
+            "Mute Hi Conga":            62,
+            "Open Hi Conga":            63,
+            "Low Conga":                64,
+            "High Timbale":             65,
+            "Low Timbale":              66,
+            "High Agogo":               67,
+            "Low Agogo":                68,
+            "Cabasa":                   69,
+            "Maracas":                  70,
+            "Short Whistle":            71,
+            "Long Whistle":             72,
+            "Short Guiro":              73,
+            "Long Guiro":               74,
+            "Claves":                   75,
+            "Hi Wood Block":            76,
+            "Low Wood Block":           77,
+            "Mute Cuica":               78,
+            "Open Cuica":               79,
+            "Mute Triangle":            80,
+            "Open Triangle":            81,
+            "Shaker":                   82
+        }
+
+
+    def get_pitch(self, name: str) -> int:
+        lc_sample: str = name.strip().lower()
+        if lc_sample != "":
+            if self._drum_kit:
+                for sample_name, pitch in self._drum_kit.items():
+                    if sample_name.lower().find(lc_sample) != -1:
+                        return pitch
+            else:
+                for sample_name, pitch in DrumKit._standard_drum_kit.items():
+                    if sample_name.lower().find(lc_sample) != -1:
+                        return pitch
+        return -1   # No valid pitch
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -2036,12 +2102,7 @@ class DrumKit(Generic):
                     case _:                         return super().__mod__(operand)
             case dict():                return o.deep_copy(self._drum_kit)
             case str(): # Returns the pitch by name
-                lc_sample: str = operand.strip().lower()
-                if lc_sample != "":
-                    for sample_name, pitch in self._drum_kit.items():
-                        if sample_name.lower().find(lc_sample) != -1:
-                            return o.deep_copy(pitch)
-                return -1   # No valid pitch
+                return self.get_pitch(operand)
             case int():
                 for index, pitch in enumerate(self._drum_kit.values()):
                     if index == operand - 1:
