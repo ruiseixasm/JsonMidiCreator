@@ -1193,20 +1193,6 @@ class LeftLinkedLength(Length):
 
 
 
-class Loop(Length):
-    """`Rational -> Convertible -> Measurement -> Length -> Loop`
-
-    `Loop` exists to set a loop on the `settings` needed to set a boundary for placing elements.
-
-    Examples
-    --------
-    Set the default loop Length:
-    >>> settings << Loop(2)
-    """
-    pass
-
-
-
 class Duration(Length):
     """`Rational -> Convertible -> Measurement -> Length -> Duration`
 
@@ -1606,6 +1592,20 @@ class Measures(TimeValue):
             case _:
                 super().__itruediv__(operand)
         return self
+
+
+
+class Loop(Measures):
+    """`Rational -> Convertible -> TimeValue -> Measures -> Loop`
+
+    `Loop` exists to set a loop on the `settings` needed to set a boundary for placing elements.
+
+    Examples
+    --------
+    Set the default loop length:
+    >>> settings << Loop(2)
+    """
+    pass
 
 
 class Beats(TimeValue):
