@@ -160,6 +160,7 @@ class Fill(Transformation):
         return clip._sort_items()
 
 
+
 class Fit(Transformation):
     """`Transformation -> Fit`
 
@@ -221,6 +222,7 @@ class Stack(Transformation):
         return clip._sort_items()
 
 
+
 class Close(Transformation):
     """`Transformation -> Close`
 
@@ -262,6 +264,7 @@ class Tie(Transformation):
                     single_note << ou.Tied(True)
             last_extended_notes[note_channel_pitch] = single_note   # Overrides previous existing notes (sorted by position)
         return clip._sort_items()
+
 
 
 class Merge(Transformation):

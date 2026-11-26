@@ -68,6 +68,7 @@ class Delete(Action):
         return super().act(clip, scoped_elements)
 
 
+
 class Keep(Action):
     """`Action -> Keep`
 
