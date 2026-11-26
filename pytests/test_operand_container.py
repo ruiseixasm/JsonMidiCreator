@@ -333,6 +333,12 @@ def test_item_add():
     clip.append(Note())
     assert clip.len() == 5
 
+    on_beat = Clip() + OnBeat()**Note(1/16)
+    # on_beat >> Plot()
+    assert on_beat % int() == 4 * 4
+
+# test_item_add()
+
 
 def test_locus_stacking():
     eight_wholes = Note(1/1) * 8 + Iterate()**Degree()

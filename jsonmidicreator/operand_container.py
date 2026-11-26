@@ -2228,11 +2228,28 @@ class Clip(Composition):  # Just a container of Elements
                 return self.append(new_element)._sort_items()  # Shall be sorted!
             
             case of.Frame():
-                operand._set_inside_clip(self)
-                framed_elements = operand._get_filtered_elements()
-                for single_item in framed_elements:
-                    single_item += operand.frame(single_item)
-                framed_elements = None
+                frame: of.Frame = operand
+                non_input_filter_operand = frame.get_non_input_filter()
+                match non_input_filter_operand:
+                    case oe.Element():
+                        existing_elements = self._items.copy()
+                        self._items.clear()
+                        new_element = non_input_filter_operand.copy()._set_owner_clip(self) << ra.Position(0)
+                        loop_steps: int = (ra.Length(self) + ra.Measures(og.settings._loop_measures)) % ra.Steps() % int()
+                        for _ in range(loop_steps):
+                            self += new_element # starts by adding without any filter
+                            new_element += ra.Step(1)
+                        # Does the filtering on the new added elements
+                        framed_elements = frame._set_inside_clip(self)._get_filtered_elements()
+                        self._items.clear()
+                        self._items.extend(existing_elements)
+                        self._items.extend(framed_elements)
+                    case _:
+                        operand._set_inside_clip(self)
+                        framed_elements = operand._get_filtered_elements()
+                        for single_item in framed_elements:
+                            single_item += operand.frame(single_item)
+                        framed_elements = None
             
             case list():
                 if all(isinstance(item, oe.Element) for item in operand):
@@ -2278,26 +2295,6 @@ class Clip(Composition):  # Just a container of Elements
                 for single_element in self._items:
                     if single_element._position_beats >= operand._position_beats:
                         single_element._position_beats += operand._duration_beats
-
-            case of.Frame():
-                frame: of.Frame = operand
-                non_input_filter_operand = frame.get_non_input_filter()
-                match non_input_filter_operand:
-                    case oe.Element():
-                        existing_elements = self._items.copy()
-                        self._items.clear()
-                        new_element = non_input_filter_operand.copy()._set_owner_clip(self)
-                        loop_steps: int = (ra.Length(self) + ra.Measures(og.settings._loop_measures)) % ra.Steps() % int()
-                        for step in range(loop_steps):
-                            new_element << ra.Step(step)
-                            self += new_element # starts by adding without any filter
-                        # Does the filtering on the new added elements
-                        framed_elements = frame._set_inside_clip(self)._get_filtered_elements()
-                        self._items.clear()
-                        self._items.extend(existing_elements)
-                        self._items.extend(framed_elements)
-                    case _:
-                        super().__iadd__(operand)
 
             case _:
                 super().__iadd__(operand)
