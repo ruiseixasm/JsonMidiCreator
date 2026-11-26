@@ -2287,6 +2287,7 @@ class Settings(Generic):
     Tempo(120), int, float : The typical tempo measured in BPM, Beats Per Minute.
     Quantization(1/16) : This sets the Duration of a single `Step`, so, it works like a finer resolution than the `Beat`.
     TimeSignature(4, 4) : Represents the typical Time Signature of a staff.
+    Loop(4) : Represents the loop area on the `Clip` where placing happens.
     KeySignature() : Follows the Circle of Fifths with the setting of the amount of `Sharps` or `Flats`.
     Devices(["VMPK", "FLUID", "MIDI", "Microsoft", "IAC Bus", "Apple"]) : Devices that are used by default in order of trying to connect by the `JsonMidiPlayer`.
     ClockedDevices([]) : The devices set to receive typical clocking messages.
