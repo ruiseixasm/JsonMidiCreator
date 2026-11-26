@@ -39,6 +39,7 @@ except ImportError:
     print("Please install it by running 'pip install keyboard'.")
 
 
+
 class Rational(o.Operand):
     """`Rational`
 
@@ -101,6 +102,7 @@ class Rational(o.Operand):
             case Rational():        return operand.copy(self)
             case _:                 return super().__mod__(operand)
 
+
     def __eq__(self, other: any) -> bool:
         match other:
             case int():
@@ -116,6 +118,7 @@ class Rational(o.Operand):
             case od.Conditional():
                 return other == self
         return False
+
     
     def __lt__(self, other: any) -> bool:
         match other:
@@ -130,6 +133,7 @@ class Rational(o.Operand):
             case ou.Unit():
                 return int( self._rational ) < other._unit
         return False
+
     
     def __gt__(self, other: any) -> bool:
         match other:
@@ -144,9 +148,11 @@ class Rational(o.Operand):
             case ou.Unit():
                 return int( self._rational ) > other._unit
         return False
+
     
     def __str__(self):
         return f'{self._rational}'
+
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -163,6 +169,7 @@ class Rational(o.Operand):
             super().loadSerialization(serialization)
             self._rational = self.check_denominator( Fraction( serialization["parameters"]["fraction"] ) )
         return self
+
 
     def __lshift__(self, operand: any) -> Self:
         from . import operand_element as oe
@@ -208,6 +215,7 @@ class Rational(o.Operand):
                     self << single_operand
         return self
 
+
     def __iadd__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
         value = self._tail_wrap(value)    # Processes the tailed self operands if existent
         match value:
@@ -233,6 +241,7 @@ class Rational(o.Operand):
             case ou.Unit():
                 self._rational -= value._unit
         return self
+
     
     def __imul__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
         value = self._tail_wrap(value)    # Processes the tailed self operands if existent
@@ -246,6 +255,7 @@ class Rational(o.Operand):
             case ou.Unit():
                 self._rational *= value._unit
         return self
+
     
     def __itruediv__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
         value = self._tail_wrap(value)    # Processes the tailed self operands if existent
@@ -410,6 +420,8 @@ class Negative(Rational):
                 super().__lshift__(operand)
         return self
 
+
+
 class Strictness(Rational):
     """
     `Rational -> Strictness`
@@ -424,13 +436,18 @@ class Strictness(Rational):
         super().__init__(1, *parameters)
 
 
+
 class TimeSignatureParameter(Rational):
     """`Rational -> TimeSignatureParameter`"""
     pass
 
+
+
 class TimeSignatureParameter(TimeSignatureParameter):
     """`Rational -> TimeSignatureParameter -> TimeSignatureParameter`"""
     pass
+
+
 
 class BeatsPerMeasure(TimeSignatureParameter):
     """`Rational -> TimeSignatureParameter -> TimeSignatureParameter -> BeatsPerMeasure`
@@ -454,6 +471,8 @@ class BeatsPerMeasure(TimeSignatureParameter):
     def __init__(self, *parameters):
         super().__init__(4, *parameters)
 
+
+
 class BeatNoteValue(TimeSignatureParameter):
     """`Rational -> TimeSignatureParameter -> TimeSignatureParameter -> BeatNoteValue`
 
@@ -475,6 +494,8 @@ class BeatNoteValue(TimeSignatureParameter):
     """
     def __init__(self, *parameters):
         super().__init__(1/4, *parameters)
+
+
 
 class NotesPerMeasure(TimeSignatureParameter):
     """`Rational -> TimeSignatureParameter -> TimeSignatureParameter -> NotesPerMeasure`
@@ -499,6 +520,8 @@ class NotesPerMeasure(TimeSignatureParameter):
     """
     def __init__(self, *parameters):
         super().__init__(1, *parameters)
+
+
 
 class StepsPerMeasure(TimeSignatureParameter):
     """`Rational -> TimeSignatureParameter -> StepsPerMeasure`
@@ -529,6 +552,8 @@ class StepsPerMeasure(TimeSignatureParameter):
     def __init__(self, *parameters):
         super().__init__(16, *parameters)
 
+
+
 class StepsPerNote(TimeSignatureParameter):
     """`Rational -> TimeSignatureParameter -> StepsPerNote`
 
@@ -558,9 +583,11 @@ class StepsPerNote(TimeSignatureParameter):
         super().__init__(16, *parameters)
 
 
+
 class Minutes(Rational):
     """`Rational -> Minutes`"""
     pass
+
 
 
 class Stretch(Rational):
@@ -584,8 +611,11 @@ class Stretch(Rational):
     pass
 
 
+
 if TYPE_CHECKING:
     from operand_generic import TimeSignature
+
+
 
 class Convertible(Rational):
     def __init__(self, *parameters):
@@ -685,6 +715,7 @@ class Convertible(Rational):
                 return super().__eq__(other)
         return False
 
+
     def __lt__(self, other: any) -> bool:
         match other:
             case TimeUnit() | int() | float():
@@ -694,6 +725,7 @@ class Convertible(Rational):
             case _:
                 return super().__lt__(other)
         return False
+
     
     def __gt__(self, other: any) -> bool:
         match other:
@@ -749,6 +781,7 @@ class Convertible(Rational):
                 super().__lshift__(operand)
         return self
 
+
     def __iadd__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
@@ -759,6 +792,7 @@ class Convertible(Rational):
             case _:
                 super().__iadd__(operand)
         return self
+
     
     def __isub__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -770,6 +804,7 @@ class Convertible(Rational):
             case _:
                 super().__isub__(operand)
         return self
+
     
     # THE DEFAULT INTERPRETATION OF MEASUREMENTS IS IN MEASURES (RELEVANT FOR MULTIPLICATION AND DIVISION)
     def __imul__(self, operand: any) -> Self:
@@ -782,6 +817,7 @@ class Convertible(Rational):
             case _:
                 super().__imul__(operand)
         return self
+
     
     # THE DEFAULT INTERPRETATION OF MEASUREMENTS IS IN MEASURES (RELEVANT FOR MULTIPLICATION AND DIVISION)
     def __itruediv__(self, operand: any) -> Self:
@@ -795,6 +831,7 @@ class Convertible(Rational):
             case _:
                 super().__itruediv__(operand)
         return self
+
 
 
 class Measurement(Convertible):
@@ -845,6 +882,7 @@ class Measurement(Convertible):
                 super().__lshift__(operand)
         return self
 
+
     def __iadd__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
@@ -855,6 +893,7 @@ class Measurement(Convertible):
             case _:
                 super().__iadd__(operand)
         return self
+
     
     def __isub__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -866,6 +905,7 @@ class Measurement(Convertible):
             case _:
                 super().__isub__(operand)
         return self
+
     
 
 class Position(Measurement):
@@ -947,6 +987,7 @@ class Position(Measurement):
                 super().__lshift__(operand)
         return self
 
+
     def __iadd__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
@@ -955,6 +996,7 @@ class Position(Measurement):
             case _:
                 super().__iadd__(operand)
         return self
+
     
     def __isub__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -968,6 +1010,7 @@ class Position(Measurement):
             case _:
                 super().__isub__(operand)
         return self
+
     
     # THE DEFAULT INTERPRETATION OF MEASUREMENTS IS IN MEASURES (RELEVANT FOR MULTIPLICATION AND DIVISION)
     def __imul__(self, operand: any) -> Self:
@@ -980,6 +1023,7 @@ class Position(Measurement):
             case _:
                 super().__imul__(operand)
         return self
+
     
     # THE DEFAULT INTERPRETATION OF MEASUREMENTS IS IN MEASURES (RELEVANT FOR MULTIPLICATION AND DIVISION)
     def __itruediv__(self, operand: any) -> Self:
@@ -1007,6 +1051,8 @@ class Position(Measurement):
     def roundSteps(self) -> Self:
         return self.copy(self % Steps() % Step() % Steps())
 
+
+
 class Start(Position):
     """`Rational -> Convertible -> Measurement -> Position -> Start`
 
@@ -1014,12 +1060,15 @@ class Start(Position):
     """
     pass
 
+
+
 class Finish(Position):
     """`Rational -> Convertible -> Measurement -> Position -> Finish`
 
     The `Finish` is the `Position` equivalent to the `Start` plus the Element duration.
     """
     pass
+
 
 
 class Length(Measurement):
@@ -1066,6 +1115,7 @@ class Length(Measurement):
                 super().__lshift__(operand)
         return self
 
+
     def __iadd__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
@@ -1078,6 +1128,7 @@ class Length(Measurement):
             case _:
                 super().__iadd__(operand)
         return self
+
     
     def __isub__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -1091,6 +1142,7 @@ class Length(Measurement):
             case _:
                 super().__isub__(operand)
         return self
+
     
     # THE DEFAULT INTERPRETATION OF MEASUREMENTS IS IN MEASURES (RELEVANT FOR MULTIPLICATION AND DIVISION)
     def __imul__(self, operand: any) -> Self:
@@ -1103,6 +1155,7 @@ class Length(Measurement):
             case _:
                 super().__imul__(operand)
         return self
+
     
     # THE DEFAULT INTERPRETATION OF MEASUREMENTS IS IN MEASURES (RELEVANT FOR MULTIPLICATION AND DIVISION)
     def __itruediv__(self, operand: any) -> Self:
@@ -1116,6 +1169,7 @@ class Length(Measurement):
             case _:
                 super().__itruediv__(operand)
         return self
+
 
 
 class LeftLength(Length):
@@ -1137,6 +1191,7 @@ class LeftLength(Length):
     1.0
     """
     pass
+
 
 
 class LinkedLength(Length):
@@ -1258,6 +1313,7 @@ class Duration(Length):
                 super().__lshift__(operand)
         return self
 
+
     def __iadd__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
@@ -1270,6 +1326,7 @@ class Duration(Length):
             case _:
                 super().__iadd__(operand)
         return self
+
     
     def __isub__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -1283,6 +1340,7 @@ class Duration(Length):
             case _:
                 super().__isub__(operand)
         return self
+
     
     def __imul__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -1294,6 +1352,7 @@ class Duration(Length):
             case _:
                 super().__imul__(operand)
         return self
+
     
     def __itruediv__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -1535,6 +1594,7 @@ class TimeValue(Convertible):  # Works as Absolute Beats
                 return super().__mod__(operand)
 
 
+
 class Measures(TimeValue):
     """`Rational -> Convertible -> TimeValue -> Measures`
 
@@ -1608,6 +1668,7 @@ class Loop(Measures):
     pass
 
 
+
 class Beats(TimeValue):
     """`Rational -> Convertible -> TimeValue -> Beats`
 
@@ -1663,6 +1724,7 @@ class Beats(TimeValue):
         return self
 
 
+
 class Steps(TimeValue):
     """`Rational -> Convertible -> TimeValue -> Steps`
 
@@ -1698,6 +1760,7 @@ class Steps(TimeValue):
             case _:
                 super().__iadd__(operand)
         return self
+
     
     def __isub__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -1707,6 +1770,7 @@ class Steps(TimeValue):
             case _:
                 super().__isub__(operand)
         return self
+
     
     def __imul__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -1716,6 +1780,7 @@ class Steps(TimeValue):
             case _:
                 super().__imul__(operand)
         return self
+
     
     def __itruediv__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -1726,6 +1791,7 @@ class Steps(TimeValue):
             case _:
                 super().__itruediv__(operand)
         return self
+
 
 
 class NoteValue(TimeValue):
@@ -1807,6 +1873,7 @@ class NoteValue(TimeValue):
                 super().__lshift__(operand)
         return self
 
+
     def __iadd__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
@@ -1815,6 +1882,7 @@ class NoteValue(TimeValue):
             case _:
                 super().__iadd__(operand)
         return self
+
     
     def __isub__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -1824,6 +1892,7 @@ class NoteValue(TimeValue):
             case _:
                 super().__isub__(operand)
         return self
+
     
     def __imul__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -1833,6 +1902,7 @@ class NoteValue(TimeValue):
             case _:
                 super().__imul__(operand)
         return self
+
     
     def __itruediv__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -1929,6 +1999,7 @@ class Dotted(NoteValue):
                 super().__lshift__(operand)
         return self
 
+
     def __imul__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
         match operand:
@@ -1939,6 +2010,7 @@ class Dotted(NoteValue):
             case _:
                 super().__imul__(operand)
         return self
+
     
     def __itruediv__(self, operand: any) -> Self:
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -1987,6 +2059,7 @@ class TimeUnit(Convertible):
                 return super().__eq__(other)
         return False
 
+
     def __lt__(self, other: any) -> bool:
         match other:
             case Convertible():
@@ -1995,6 +2068,7 @@ class TimeUnit(Convertible):
             case _:
                 return super().__lt__(other)
         return False
+
     
     def __gt__(self, other: any) -> bool:
         match other:
@@ -2012,6 +2086,7 @@ class TimeUnit(Convertible):
         # Makes sure it's unitary (int)
         self._rational = Fraction(int(self._rational), 1)
         return self
+
 
 
 class Measure(TimeUnit):
@@ -2056,6 +2131,7 @@ class Measure(TimeUnit):
             case _:
                 super().__iadd__(operand)
         return self
+
     
     def __isub__(self, operand: any) -> 'Measure':
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -2065,6 +2141,7 @@ class Measure(TimeUnit):
             case _:
                 super().__isub__(operand)
         return self
+
     
     def __imul__(self, operand: any) -> 'Measure':
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -2074,6 +2151,7 @@ class Measure(TimeUnit):
             case _:
                 super().__imul__(operand)
         return self
+
     
     def __itruediv__(self, operand: any) -> 'Measure':
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -2083,6 +2161,7 @@ class Measure(TimeUnit):
             case _:
                 super().__itruediv__(operand)
         return self
+
 
 
 class Beat(TimeUnit):
@@ -2129,6 +2208,7 @@ class Beat(TimeUnit):
             case _:
                 super().__iadd__(operand)
         return self
+
     
     def __isub__(self, operand: any) -> 'Beat':
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -2138,6 +2218,7 @@ class Beat(TimeUnit):
             case _:
                 super().__isub__(operand)
         return self
+
     
     def __imul__(self, operand: any) -> 'Beat':
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -2147,6 +2228,7 @@ class Beat(TimeUnit):
             case _:
                 super().__imul__(operand)
         return self
+
     
     def __itruediv__(self, operand: any) -> 'Beat':
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -2156,6 +2238,7 @@ class Beat(TimeUnit):
             case _:
                 super().__itruediv__(operand)
         return self
+
 
 
 class Step(TimeUnit):
@@ -2209,6 +2292,7 @@ class Step(TimeUnit):
             case _:
                 super().__iadd__(operand)
         return self
+
     
     def __isub__(self, operand: any) -> 'Step':
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -2218,6 +2302,7 @@ class Step(TimeUnit):
             case _:
                 super().__isub__(operand)
         return self
+
     
     def __imul__(self, operand: any) -> 'Step':
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -2227,6 +2312,7 @@ class Step(TimeUnit):
             case _:
                 super().__imul__(operand)
         return self
+
     
     def __itruediv__(self, operand: any) -> 'Step':
         operand = self._tail_wrap(operand)    # Processes the tailed self operands if existent
@@ -2238,13 +2324,17 @@ class Step(TimeUnit):
         return self
 
 
+
 class Swing(Rational):
     """`Rational -> Swing`"""
     pass
 
+
+
 class Gate(Rational):
     """`Rational -> Gate`"""
     pass
+
 
 
 class StatsReducer(Rational):
@@ -2255,6 +2345,7 @@ class StatsReducer(Rational):
     pass
 
 
+
 class Sum(StatsReducer):
     """`Rational -> StatsReducer -> Sum`
 
@@ -2262,12 +2353,16 @@ class Sum(StatsReducer):
     """
     pass
 
+
+
 class Max(StatsReducer):
     """`Rational -> StatsReducer -> Max`
 
     Returns the Maximum from a `ParameterStats`.
     """
     pass
+
+
 
 class Min(StatsReducer):
     """`Rational -> StatsReducer -> Min`
