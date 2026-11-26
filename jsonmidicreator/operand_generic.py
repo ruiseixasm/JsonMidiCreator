@@ -2300,6 +2300,7 @@ class Settings(Generic):
         self._tempos: list[ou.Tempo]                = [ou.Tempo()]
         self._quantization: Fraction                = Fraction(1/4) # Quantization is in Beats ratio
         self._time_signature: TimeSignature         = TimeSignature(4, 4)
+        self._loop_measures: Fraction               = Fraction(4)
         self._diatonic_mode_0: int                  = 0
         self._tonic_key: int                        = 0
         self._drum_kits_file: str                   = "drum_kits/default.json"
@@ -2319,6 +2320,7 @@ class Settings(Generic):
     def minutes_to_beats(self, minutes: Fraction) -> Fraction:
         return minutes * self._tempos._unit / 10
 
+
     def __mod__(self, operand: o.T) -> o.T:
         from . import operand_element as oe
         from . import operand_container as oc
@@ -2332,6 +2334,8 @@ class Settings(Generic):
                     case ra.StepsPerNote():
                         return ra.StepsPerNote() << od.Pipe( 1 / self._quantization )
                     case TimeSignature():       return self._time_signature
+                    case ra.Loop():
+                        return operand._data << self._loop_measures
                     case ra.BeatsPerMeasure():  return self._time_signature % od.Pipe( ra.BeatsPerMeasure() )
                     case ra.BeatNoteValue():    return self._time_signature % od.Pipe( ra.BeatNoteValue() )
                     case ou.Major():
@@ -2362,6 +2366,8 @@ class Settings(Generic):
             case ra.BeatsPerMeasure():  return self._time_signature % ra.BeatsPerMeasure()
             case ra.BeatNoteValue():    return self._time_signature % ra.BeatNoteValue()
             case ra.NotesPerMeasure():  return self._time_signature % ra.NotesPerMeasure()
+            case ra.Loop():
+                return ra.Loop(self._loop_measures)
             case ou.Major():
                 return ou.Major(self._diatonic_mode_0 == 0)
             case ou.Minor():
@@ -2389,6 +2395,7 @@ class Settings(Generic):
                 return operand.copy(self)
             case _:                     return super().__mod__(operand)
 
+
     def __eq__(self, other: 'Settings') -> bool:
         if type(self) != type(other):
             return False
@@ -2397,6 +2404,7 @@ class Settings(Generic):
         return  self._tempos                == other._tempos \
             and self._quantization          == other._quantization \
             and self._time_signature        == other._time_signature \
+            and self._loop_measures         == other._loop_measures \
             and self._diatonic_mode_0       == other._diatonic_mode_0 \
             and self._tonic_key             == other._tonic_key \
             and self._drum_kits_file        == other._drum_kits_file \
@@ -2446,6 +2454,7 @@ class Settings(Generic):
         serialization["parameters"]["tempos"]               = o.serialize( self._tempos )
         serialization["parameters"]["quantization"]         = o.serialize( self._quantization )
         serialization["parameters"]["time_signature"]       = o.serialize( self._time_signature )
+        serialization["parameters"]["loop_measures"]        = o.serialize( self._loop_measures )
         serialization["parameters"]["diatonic_mode_0"]      = o.serialize( self._diatonic_mode_0 )
         serialization["parameters"]["tonic_key_0"]          = o.serialize( self._tonic_key )
         serialization["parameters"]["drum_kits_file"]       = o.serialize( self._drum_kits_file )
@@ -2462,7 +2471,7 @@ class Settings(Generic):
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "tempos" in serialization["parameters"] and "quantization" in serialization["parameters"] and
-            "time_signature" in serialization["parameters"] and "diatonic_mode_0" in serialization["parameters"] and
+            "time_signature" in serialization["parameters"] and "loop_measures" in serialization["parameters"] and "diatonic_mode_0" in serialization["parameters"] and
             "tonic_key_0" in serialization["parameters"] and "drum_kits_file" in serialization["parameters"] and "devices" in serialization["parameters"] and
             "clocked_devices" in serialization["parameters"] and "mmc_devices" in serialization["parameters"] and "mtc_devices" in serialization["parameters"] and
             "transport_devices" in serialization["parameters"] and "mtc_fps" in serialization["parameters"]):
@@ -2471,6 +2480,7 @@ class Settings(Generic):
             self._tempos                = o.deserialize( serialization["parameters"]["tempos"] )
             self._quantization          = o.deserialize( serialization["parameters"]["quantization"] )
             self._time_signature        = o.deserialize( serialization["parameters"]["time_signature"] )
+            self._loop_measures         = o.deserialize( serialization["parameters"]["loop_measures"] )
             self._diatonic_mode_0       = o.deserialize( serialization["parameters"]["diatonic_mode_0"] )
             self._tonic_key             = o.deserialize( serialization["parameters"]["tonic_key_0"] )
             self._drum_kits_file        = o.deserialize( serialization["parameters"]["drum_kits_file"] )
@@ -2493,6 +2503,7 @@ class Settings(Generic):
                 self._tempos                = o.deep_copy(operand._tempos)
                 self._quantization          = operand._quantization
                 self._time_signature        << operand._time_signature
+                self._loop_measures         = operand._loop_measures
                 self._diatonic_mode_0       = operand._diatonic_mode_0
                 self._tonic_key             = operand._tonic_key
                 self._drum_kits_file        = operand._drum_kits_file
@@ -2508,6 +2519,8 @@ class Settings(Generic):
                     case list():                    self._tempos = operand._data
                     case ra.Quantization():         self._quantization = operand._data._rational
                     case TimeSignature():           self._time_signature = operand._data
+                    case ra.Loop():
+                        self._loop_measures = operand._data._rational
                     case ou.Major():
                         if operand._data: self._diatonic_mode_0 = 0    # Major
                     case ou.Minor():
@@ -2539,6 +2552,8 @@ class Settings(Generic):
                 self._quantization = self._time_signature % ra.BeatsPerMeasure() / operand % Fraction()
             case TimeSignature() | ra.TimeSignatureParameter():
                                         self._time_signature << operand
+            case ra.Loop():
+                self._loop_measures = operand._rational
             case ou.Major():
                 if operand: self._diatonic_mode_0 = 0    # Major
             case ou.Minor():
