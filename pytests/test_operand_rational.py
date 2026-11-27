@@ -330,6 +330,22 @@ def test_add_note_value():
     assert position == Position(0.5)
 
 
+def test_add_step():
+    position = Position()
+    assert position == Beat(0)
+
+    position << Step(8)
+    assert position == Beats(2)
+
+    position << Step(8 * 3)
+    assert position == Beats(2 * 3)
+
+    position << Step(8 * 3)
+    assert position == Beats(2 * 3 + 4)
+
+# test_add_step()
+
+
 def test_sub_beats():
 
     position = Position(2)
